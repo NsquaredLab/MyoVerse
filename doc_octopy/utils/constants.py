@@ -1,0 +1,72 @@
+EMG_SAMPLING_FREQUENCY = 2048
+CAMERA_SAMPLING_FREQUENCY = 120
+
+EXPERIMENTS_TO_USE = [str(i) for i in range(1, 20)]
+
+REAL_TIME_EXPERIMENTS_TO_USE = {
+    "fist_fast1",
+    "fist_slow1",
+    "hangLoose_fast1",
+    "hangLoose_slow1",
+    "hardRock_fast1",
+    "hardRock_slow1",
+    "index_fast1",
+    "index_slow1",
+    "indexExtension_fast1",
+    "indexExtension_slow1",
+    "middle_fast1",
+    "middle_slow1",
+    "middleExtension_fast1",
+    "middleExtension_slow1",
+    "pinky_fast1",
+    "pinky_slow1",
+    "pinkyExtension_fast1",
+    "pinkyExtension_slow1",
+    "peace_fast1",
+    "peace_slow1",
+    "pointing_fast1",
+    "pointing_slow1",
+    "rest_fast1",
+    "rest_slow1",
+    "ring_fast1",
+    "ring_slow1",
+    "ringExtension_fast1",
+    "ringExtension_slow1",
+    "thumb_fast1",
+    "thumb_slow1",
+    "thumbExtension_fast1",
+    "thumbExtension_slow1",
+    "twoFPinch_fast1",
+    "twoFPinch_slow1",
+    "threeFPinch_fast1",
+    "threeFPinch_slow1",
+    "wristLeftRight_fast1",
+    "wristLeftRight_slow1",
+    "wristUpDown_fast1",
+    "wristUpDown_slow1",
+}
+
+SCI_SUBJECT_GRID_AMOUNT_MAP = {
+    1: 3,
+    2: 5,
+    3: 5,
+    4: 5,
+    6: 4,
+    7: 4,
+    8: 4,
+    9: 5,
+    10: 4,
+    11: 5,
+    12: 4,
+}
+
+SCI_SUBJECT_PUBLICATION_NAME_MAP = {
+    2: 1,
+    4: 2,
+    6: 3,
+    7: 4,
+    8: 5,
+    9: 6,
+    11: 7,
+    12: 8,
+}
