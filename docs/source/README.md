@@ -28,7 +28,6 @@ DocOctopy , the **research** library for kinematics, kinetics, and everything el
   <a href="https://doi.org/10/gq2f47" target="_blank"> <img src="_static/papers/Accurate.jpg" width="31%" /> </a>
 </p>
 
-
 ## How to install?
 > **WARNING**   
 > Order matters!
