@@ -174,13 +174,33 @@ class _Data:
             else:
                 node_colors.append("blue")
 
+        # number the nodes and add the labels
+        nx.draw_networkx_labels(
+            self._processed_representations,
+            pos,
+            labels={
+                node: str(index)
+                for index, node in enumerate(
+                    [
+                        x
+                        for x in self._processed_representations.nodes
+                        if x != self.__output_representation_name
+                    ]
+                )
+            },
+            ax=ax,
+            font_color="white",
+            font_size=18,
+        )
+
         nx.draw(
             self._processed_representations,
             pos=pos,
             node_color=node_colors,
             ax=ax,
             alpha=0.5,
-            with_labels=False,  # Disable labels here
+            with_labels=False,  # Disable labels here,
+            node_size=1000,
         )
 
         # Add interactive labels with mplcursors
@@ -495,7 +515,7 @@ class _Data:
     def __repr__(self) -> str:
         representation = (
             f"{self.__class__.__name__}; "
-            f"Sampling frequency: {self.sampling_frequency} Hz; (0) Raw {self.input_data.shape}"
+            f"Sampling frequency: {self.sampling_frequency} Hz; (0) Input {self.input_data.shape}"
         )
 
         if len(self._processed_representations.nodes) < 3:
