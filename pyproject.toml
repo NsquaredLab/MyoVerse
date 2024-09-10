@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "doc-octopy"
+version = "0.6.0"
+description = ""
+authors = [
+    "Raul C. Sîmpetru <raul.simpetru@fau.de>",
+    "Vlad Cnejevici <vlad.cnejevici@fau.de>"
+]
+readme = "README.md"
+packages = [{include = "doc_octopy"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+mplcursors = "^0.5.3"
+networkx = "^3.3"
+scipy = "^1.14.1"
+statsmodels = "^0.14.2"
+numba = "^0.60.0"
+pywavelets = "^1.7.0"
+zarr = "^2.18.3"
+tqdm = "^4.66.5"
+lightning = "^2.4.0"
+toml = "^0.10.2"
+
+torch = {version = "^2.4.1", source = "pytorch_cpu", markers = "extra=='cpu' and extra!='gpu'"}
+torchvision = {version = "^0.19.1", source = "pytorch_cpu", markers = "extra=='cpu' and extra!='gpu'"}
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx-gallery = "^0.17.1"
+sphinx = "7.3.7"
+furo = "^2024.8.6"
+rinohtype = "^0.5.5"
+bayesian-torch = "^0.5.0"
+memory-profiler = "^0.61.0"
+
+[tool.poetry.group.pytorch_gpu]
+optional = true
+
+[tool.poetry.group.pytorch_gpu.dependencies]
+torch = {version = "^2.4.1+cu124", source = "pytorch_gpu", markers = "extra=='gpu' and extra!='cpu'"}
+torchvision = {version = "^0.19.1+cu124", source = "pytorch_gpu", markers = "extra=='gpu' and extra!='cpu'"}
+
+[[tool.poetry.source]]
+name = "pytorch_gpu"
+url = "https://download.pytorch.org/whl/cu124"
+priority = "explicit"
+
+[[tool.poetry.source]]
+name     = "pytorch_cpu"
+url      = "https://download.pytorch.org/whl/cpu"
+priority = "explicit"
+
+
+[tool.poetry.extras]
+cpu  = ["torch", "torchvision"]
+gpu = ["torch", "torchvision"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

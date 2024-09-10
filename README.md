@@ -28,15 +28,15 @@ DocOctopy , the **research** library for kinematics, kinetics, and everything el
   <a href="https://doi.org/10/gq2f47" target="_blank"> <img src="docs/source/_static/papers/Accurate.jpg" width="31%" /> </a>
 </p>
 
-
 ## How to install?
 > **WARNING**   
 > Order matters!
 - clone
 - install [poetry](https://python-poetry.org/docs/#installation)
-- This project contains multiple dependency packages:
-  - by default with `poetry install` you will install only the stuff necessary to run the AIs
-  - if you want to create the documentation you need to run `poetry install --with docs`
+- based on your hardware:
+  - GPU (NVIDIA): `poetry install -E gpu --with pytorch_gpu`
+  - CPU: `poetry install -E cpu`
+- for building the documentation add `docs` to the *with* flag: `poetry install --with docs`
 
 ## What is what?
 This projects uses the following structure:

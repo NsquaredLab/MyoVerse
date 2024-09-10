@@ -1,0 +1,168 @@
+# Example setup -------------------------------------------------------------------------------------------
+[Example_DO_NOT_USE]
+
+# If true, concatenate all grids into one.
+concatenate = false
+
+# Differential filter to apply to the data. One of "identity", "LSD", "LDD", "TSD", "TDD", "NDD", "IB2", and "IR".
+differential = "identity"
+
+# Which channels to use. If "all", use all channels.
+# Otherwise provide o list of channels using the format [[row1, col1], [row2, col2], ...].
+channel_selection = "all"
+
+# Average filter to apply to the data. Remove if not needed.
+[Example_DO_NOT_USE.average]
+# Order of the filter to apply to the data.
+order = 1
+# Direction of the filter to apply to the data. One of "longitudinal" or "transversal".
+filter_direction = "longitudinal"
+
+# Grid information.
+[Example_DO_NOT_USE.grid]
+# Electrode grid name. One of "GR10MM0808" for the square ones and "GR08MM1305" for the rectangular ones.
+grid_type = "GR10MM0808"
+# Shape of the grids. Provide a list of [nr_grids, nr_rows, nr_columns].
+shape = [5, 8, 8]
+# Electrode to select out of all the data available. Provide a list of [[start1, stop1], [start2, stop2], ...].
+electrodes_to_select = [
+    [64, 256],
+]
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Quattrocento full setup ----------------------------------------------------------------------------------------------
+[Quattrocento_full]
+concatenate = false
+differential = "identity"
+channel_selection = "all"
+
+[Quattrocento_full.average]
+order = 1
+filter_direction = "longitudinal"
+
+[Quattrocento_full.grid]
+grid_type = "GR10MM0808"
+shape = [5, 8, 8]
+electrodes_to_select = [[0, 320]]
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Quattrocento forearm setup -------------------------------------------------------------------------------------------
+[Quattrocento_forearm]
+concatenate = false
+differential = "identity"
+channel_selection = "all"
+
+[Quattrocento_forearm.average]
+order = 1
+filter_direction = "longitudinal"
+
+[Quattrocento_forearm.grid]
+grid_type = "GR10MM0808"
+shape = [3, 8, 8]
+electrodes_to_select = [[64, 256]]
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Quattrocento forearm ablated setup -----------------------------------------------------------------------------------
+[Quattrocento_forearm_ablated]
+concatenate = true
+differential = "identity"
+channel_selection = [
+    [3, 2],
+    [3, 5],
+    [3, 8],
+    [3, 11],
+    [3, 14],
+    [3, 17],
+    [3, 20],
+    [3, 23],
+    [4, 2],
+    [4, 5],
+    [4, 8],
+    [4, 11],
+    [4, 14],
+    [4, 17],
+    [4, 20],
+    [4, 23]
+]
+
+[Quattrocento_forearm_ablated.average]
+order = 1
+filter_direction = "longitudinal"
+
+[Quattrocento_forearm_ablated.grid]
+grid_type = "GR10MM0808"
+shape = [3, 8, 8]
+electrodes_to_select = [[64, 256]]
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Myobock setup --------------------------------------------------------------------------------------------------------
+[Myobock]
+concatenate = false
+differential = "LDD"
+channel_selection = [
+    [2, 0],
+    [2, 2],
+    [2, 4],
+    [2, 6]
+]
+
+[Myobock.average]
+order = 2
+filter_direction = "transversal"
+
+[Myobock.grid]
+grid_type = "GR10MM0808"
+shape = [3, 8, 8]
+electrodes_to_select = [[64, 256]]
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Thalmic Myoarmband setup ---------------------------------------------------------------------------------------------
+[Thalmic_Myoarmband]
+concatenate = true
+differential = "LSD"
+channel_selection = [
+    [0, 0],
+    [0, 3],
+    [0, 6],
+    [0, 9],
+    [0, 12],
+    [0, 15],
+    [0, 18],
+    [0, 21],
+    [6, 1],
+    [6, 4],
+    [6, 7],
+    [6, 10],
+    [6, 13],
+    [6, 16],
+    [6, 19],
+    [6, 22]
+]
+
+[Thalmic_Myoarmband.average]
+order = 2
+filter_direction = "transversal"
+
+[Thalmic_Myoarmband.grid]
+grid_type = "GR10MM0808"
+shape = [3, 8, 8]
+electrodes_to_select = [[64, 256]]
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Quattrocento Forearm SCI setup -------------------------------------------------------------------------------------------
+[Quattrocento_Forearm_SCI]
+concatenate = false
+differential = "NDD"
+channel_selection = "all"
+
+[Quattrocento_Forearm_SCI.average]
+order = 1
+filter_direction = "longitudinal"
+
+[Quattrocento_Forearm_SCI.grid]
+grid_type = "GR10MM0808"
+shape = [3, 8, 8]
+electrodes_to_select = [[64, 256]]
+# ----------------------------------------------------------------------------------------------------------------------
+
+
