@@ -15,9 +15,10 @@ This example shows how to train a deep learning model using the dataset created 
 # - data_path: Path to the dataset file.
 #
 # - dataloader_parameters: Parameters for the DataLoader.
+from pathlib import Path
 from doc_octopy.datasets.loader import EMGDatasetLoader
 
-loader = EMGDatasetLoader("data/dataset.zarr", dataloader_parameters={"batch_size": 16, "drop_last": True})
+loader = EMGDatasetLoader(Path("data/dataset.zarr").resolve(), dataloader_parameters={"batch_size": 16, "drop_last": True})
 
 # %%
 # Training the model
