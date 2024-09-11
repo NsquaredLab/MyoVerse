@@ -33,7 +33,32 @@ HERE = pathlib.Path(__file__).parent
 with (HERE.parent.parent / "README.md").open() as f:
     out = f.read()
 
-out = out.replace("docs/source/", "")
+out = out.split("\n")
+
+# find the index of the line that contains "## What papers/preprints use this package?"
+idx = out.index("## What papers/preprints use this package?")
+# remove everything after that line
+out = out[: idx + 1]
+
+to_add = """<p float="middle">
+  <a href="https://doi.org/10.1109/TBME.2024.3432800" target="_blank"> <img src="_static/papers/Learning.jpg" width="31%" /> </a>
+  &nbsp;
+  <a href="https://doi.org/10.33965/ijcsis_2024190101" target="_blank"> <img src="_static/papers/Analysis.jpg" width="28.4%" /> </a>
+  &nbsp;
+  <a href="https://doi.org/10.1101/2024.05.28.24307964" target="_blank"> <img src="_static/papers/Identification.jpg" width="31%" /> </a>
+</p>
+
+<p float="middle">
+<a href="https://doi.org/10/gtm4bt" target="_blank"> <img src="_static/papers/Influence.jpg" width="28.4%" /> </a>
+  &nbsp;
+  <a href="https://doi.org/10/gsgk4s" target="_blank"> <img src="_static/papers/Proportional.jpg" width="31%" /> </a>
+  &nbsp
+  <a href="https://doi.org/10/gq2f47" target="_blank"> <img src="_static/papers/Accurate.jpg" width="31%" /> </a>
+</p>"""
+
+out.extend(to_add.split("\n"))
+
+out = "\n".join(out)
 
 with (HERE / "README.md").open("w+") as f:
     f.write(out)
