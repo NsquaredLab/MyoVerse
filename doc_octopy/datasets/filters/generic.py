@@ -186,21 +186,12 @@ class IdentityFilter(FilterBaseClass):
 
     This filter is useful for debugging and testing purposes.
 
-    .. important:: If the input array is provided at initialization, the filter will always return that array.
-
     Parameters
     ----------
     input_is_chunked : bool
         Whether the input is chunked or not.
     is_output : bool
         Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-    input_array : np.ndarray
-        The input array that will be returned by the filter. If provided, the filter will always return this array.
-
-    Attributes
-    ----------
-    input_array : np.ndarray
-        The input array that was filtered. This is stored after the filter is called.
 
     Methods
     -------
@@ -212,7 +203,6 @@ class IdentityFilter(FilterBaseClass):
         self,
         input_is_chunked: bool = None,
         is_output: bool = False,
-        input_array: np.ndarray = None,
         name: str = None,
     ):
         super().__init__(
@@ -222,9 +212,5 @@ class IdentityFilter(FilterBaseClass):
             name=name,
         )
 
-        self.input_array = input_array
-
     def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        if self.input_array is None:
-            self.input_array = input_array
-        return self.input_array
+        return input_array

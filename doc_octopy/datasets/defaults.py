@@ -52,11 +52,13 @@ class EMBCDataset:
         ground_truth_data_path: Path,
         save_path: Path,
         tasks_to_use: Sequence[str] = EXPERIMENTS_TO_USE,
+        debug: bool = False,
     ):
         self.emg_data_path = emg_data_path
         self.ground_truth_data_path = ground_truth_data_path
         self.save_path = save_path
         self.tasks_to_use = tasks_to_use
+        self.debug = debug
 
     def create_dataset(self):
         EMGDataset(
@@ -79,13 +81,13 @@ class EMBCDataset:
             emg_representations_to_filter_after_chunking=["Last"],
             ground_truth_filter_pipeline_before_chunking=[
                 [
-                    ApplyFunctionFilter(function=np.reshape, newshape=(63, -1)),
+                    ApplyFunctionFilter(function=np.reshape, name="Reshape", newshape=(63, -1)),
                     IndexDataFilter(indices=(slice(3, 63),)),
                 ]
             ],
             ground_truth_representations_to_filter_before_chunking=["Input"],
             ground_truth_filter_after_pipeline_chunking=[
-                [ApplyFunctionFilter(function=np.mean, axis=-1, is_output=True)]
+                [ApplyFunctionFilter(function=np.mean, name="Mean", axis=-1, is_output=True)]
             ],
             ground_truth_representations_to_filter_after_pipeline_chunking=["Last"],
             augmentation_pipelines=[
@@ -94,6 +96,7 @@ class EMBCDataset:
                 [WaveletDecomposition(level=3, is_output=True, nr_of_grids=5)],
             ],
             amount_of_chunks_to_augment_at_once=500,
+            debug=self.debug,
         ).create_dataset()
 
 

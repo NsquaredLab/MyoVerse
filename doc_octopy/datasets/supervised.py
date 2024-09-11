@@ -227,7 +227,12 @@ class EMGDataset:
                 )
 
             if self.debug:
+                print("After loading:")
+
+                print(emg_data_from_task)
                 emg_data_from_task.plot_graph()
+
+                print(ground_truth_data_from_task)
                 ground_truth_data_from_task.plot_graph()
 
             if not emg_data_from_task.is_chunked["Input"]:
@@ -262,7 +267,12 @@ class EMGDataset:
                 chunked_ground_truth_data_from_task = ground_truth_data_from_task
 
                 if self.debug:
+                    print("After chunking:")
+
+                    print(chunked_emg_data_from_task)
                     chunked_emg_data_from_task.plot_graph()
+
+                    print(chunked_ground_truth_data_from_task)
                     chunked_ground_truth_data_from_task.plot_graph()
             else:
                 chunked_emg_data_from_task = emg_data_from_task  # [:min_length]
@@ -298,7 +308,12 @@ class EMGDataset:
             )
 
             if self.debug:
+                print("After filtering the chunked data:")
+
+                print(emg_data_from_task)
                 chunked_emg_data_from_task.plot_graph()
+
+                print(ground_truth_data_from_task)
                 chunked_ground_truth_data_from_task.plot_graph()
 
             for group_name, chunked_data_from_task in zip(
@@ -320,6 +335,16 @@ class EMGDataset:
             data_length = list(
                 chunked_emg_data_from_task.output_representations.values()
             )[-1].shape[0]
+
+            data_length_ground_truth = list(
+                chunked_ground_truth_data_from_task.output_representations.values()
+            )[-1].shape[0]
+
+            assert (
+                data_length == data_length_ground_truth
+            ), "The data lengths of the EMG and ground truth data should be the same. For task {}, the EMG data has length {} and the ground truth data has length {}.".format(
+                task, data_length, data_length_ground_truth
+            )
 
             for g in (training_group, testing_group, validation_group):
                 _add_to_dataset(
