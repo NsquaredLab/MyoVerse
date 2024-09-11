@@ -34,8 +34,8 @@ DocOctopy , the **research** library for kinematics, kinetics, and everything el
 - clone
 - install [poetry](https://python-poetry.org/docs/#installation)
 - based on your hardware:
-  - GPU (NVIDIA): `poetry install -E gpu --with pytorch_gpu`
-  - CPU: `poetry install -E cpu`
+  - GPU (NVIDIA): `poetry install
+  - CPU: run `pip install torch torchvision` after `poetry install`
 - for building the documentation add `docs` to the *with* flag: `poetry install --with docs`
 
 ## What is what?

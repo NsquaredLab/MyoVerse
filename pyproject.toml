@@ -22,8 +22,8 @@ tqdm = "^4.66.5"
 lightning = "^2.4.0"
 toml = "^0.10.2"
 
-torch = {version = "^2.4.1", source = "pytorch_cpu", markers = "extra=='cpu' and extra!='gpu'"}
-torchvision = {version = "^0.19.1", source = "pytorch_cpu", markers = "extra=='cpu' and extra!='gpu'"}
+torch = {version = "^2.4.1+cu124", source = "pytorch_gpu"}
+torchvision = {version = "^0.19.1+cu124", source = "pytorch_gpu"}
 
 [tool.poetry.group.docs]
 optional = true
@@ -36,27 +36,10 @@ rinohtype = "^0.5.5"
 bayesian-torch = "^0.5.0"
 memory-profiler = "^0.61.0"
 
-[tool.poetry.group.pytorch_gpu]
-optional = true
-
-[tool.poetry.group.pytorch_gpu.dependencies]
-torch = {version = "^2.4.1+cu124", source = "pytorch_gpu", markers = "extra=='gpu' and extra!='cpu'"}
-torchvision = {version = "^0.19.1+cu124", source = "pytorch_gpu", markers = "extra=='gpu' and extra!='cpu'"}
-
 [[tool.poetry.source]]
 name = "pytorch_gpu"
 url = "https://download.pytorch.org/whl/cu124"
 priority = "explicit"
-
-[[tool.poetry.source]]
-name     = "pytorch_cpu"
-url      = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
-
-
-[tool.poetry.extras]
-cpu  = ["torch", "torchvision"]
-gpu = ["torch", "torchvision"]
 
 [build-system]
 requires = ["poetry-core"]

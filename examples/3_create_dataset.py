@@ -27,7 +27,7 @@ dataset = EMGDataset(
     ground_truth_data_path=Path("data/kinematics.pkl").resolve(),
     sampling_frequency=2044.0,
     tasks_to_use=["1", "2"],
-    save_path=Path(r"data/dataset.zarr").resolve(),
+    save_path=Path("data/dataset.zarr").resolve(),
     emg_filter_pipeline_after_chunking=[
         [
             SOSFrequencyFilter(
@@ -81,7 +81,7 @@ from doc_octopy.datasets.defaults import EMBCDataset
 dataset = EMBCDataset(
     emg_data_path=Path("data/emg.pkl").resolve(),
     ground_truth_data_path=Path("data/kinematics.pkl").resolve(),
-    save_path=Path(r"data/dataset.zarr").resolve(),
+    save_path=Path("data/dataset.zarr").resolve(),
     tasks_to_use=["1", "2"],
 )
 
