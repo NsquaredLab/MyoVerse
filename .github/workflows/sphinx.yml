@@ -22,7 +22,8 @@ jobs:
         sudo apt-get install -y libegl1-mesa libgl1-mesa-glx
         python -m pip install --upgrade pip
         python -m pip install poetry
-        poetry install -E cpu --with docs
+        poetry install --with docs
+        pip install torch torchvision --upgrade
 
     - name: Build the docs
       run: |
