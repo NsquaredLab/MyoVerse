@@ -1,17 +1,16 @@
 import copy
-import math
 from abc import abstractmethod
-from typing import Dict, Optional, Sequence, TypedDict
+from typing import Dict, Optional, Sequence, TypedDict, Any
 
 import mplcursors
 import networkx
 import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
+from matplotlib.widgets import Slider
 from numpy import ndarray
 
 from doc_octopy.datasets.filters._template import FilterBaseClass
-
 
 Representation = TypedDict(
     "Representation",
@@ -148,6 +147,13 @@ class _Data:
             The last processing step applied to the data.
         """
         self.__last_processing_step = value
+
+    @abstractmethod
+    def plot(self, *_: Any, **__: Any):
+        """Plots the data."""
+        raise NotImplementedError(
+            "This method should be implemented in the child class."
+        )
 
     def plot_graph(self):
         """Draws the graph of the processed representations."""
@@ -417,80 +423,6 @@ class _Data:
                 for f in filter_sequence[:-1]:
                     self.delete_data(f.name)
 
-    def plot(
-        self,
-        axs: Optional[Sequence[plt.Axes]] = None,
-        representations_to_plot: Sequence[str] = (),
-        **kwargs,
-    ) -> Sequence[plt.Axes]:
-        """Plots the data.
-
-        Parameters
-        ----------
-        axs : Sequence[plt.Axes], optional
-            The axes where to plot the data. If None, new axes are created.
-        representations_to_plot : Sequence[str], optional
-            The representations to plot. The default is ("Last", ) which plots the last processed data only.
-            Axs should have the same length as representations_to_plot.
-
-        Returns
-        -------
-        Sequence[plt.Axes]
-            The axes where the data was plotted. Length is equal to the number of representations to plot.
-
-        Raises
-        ------
-        ValueError
-            If the number of axes is different from the number of representations to plot.
-        """
-        if len(representations_to_plot) == 0:
-            representations_to_plot = [self._last_processing_step]
-
-        if axs is None:
-            sizes = np.array(
-                [
-                    np.array(self[rep].shape).astype(float)
-                    for rep in representations_to_plot
-                ]
-            )
-            sizes[:, 0] /= math.pow(10, math.floor(math.log10(sizes[:, 0].max())) - 1)
-            sizes[:, 1] = sizes[:, 0] * 2
-            # create new axes that are not subplots
-            axs = [plt.figure(figsize=size[::-1]).add_subplot() for size in sizes]
-
-        if len(axs) != len(representations_to_plot):
-            raise ValueError(
-                "The number of axes should be equal to the number of representations to plot."
-            )
-
-        return [
-            self._plot(ax, representation, **kwargs)
-            for ax, representation in zip(axs, representations_to_plot)
-        ]
-
-    @abstractmethod
-    def _plot(self, ax: plt.Axes, representation: str, **kwargs) -> plt.Axes:
-        """Plots the data for a specific representation.
-
-        Parameters
-        ----------
-        ax : plt.Axes
-            The axes where to plot the data.
-        representation : str
-            The representation to plot.
-        **kwargs
-            Additional keyword arguments to pass to the plot function.
-
-        Returns
-        -------
-        plt.Axes
-            The axes where the data was plotted.
-        """
-
-        raise NotImplementedError(
-            "This method should be implemented in the child class."
-        )
-
     def get_representation_history(self, representation: str) -> list[str]:
         """Returns the history of a representation.
 
@@ -700,49 +632,64 @@ class EMGData(_Data):
             return len(data.split(",")) == 3
         return data.ndim == 3
 
-    def _plot(self, ax: plt.Axes, representation: str, **kwargs) -> plt.Axes:
+    def plot(
+        self,
+        representation: str,
+        nr_of_grids: int,
+        nr_of_electrodes_per_grid: int,
+        scaling_factor: float | list[float] = 20.0,
+    ):
         """Plots the data for a specific representation.
 
         Parameters
         ----------
-        ax : plt.Axes
-            The axes where to plot the data.
         representation : str
             The representation to plot.
-        **kwargs
-            Additional keyword arguments to pass to the plot
-
-        Returns
-        -------
-        plt.Axes
-            The axes where the data was plotted.
+        nr_of_grids : int
+            The number of electrode grids to plot.
+        nr_of_electrodes_per_grid : int
+            The number of electrodes per grid to plot.
+        scaling_factor : float | list[float], optional
+            The scaling factor for the data. The default is 20.0.
+            If a list is provided, the scaling factor for each grid is used.
         """
-        # if self.electrode_config is None:
-        #     raise ValueError("The electrode configuration is missing. It is required to plot the data correctly.")
-
         data = self[representation]
 
-        if data.ndim == 2:
-            data = data[128:192]
-            temp = data.mean(axis=-1)
-            normalized_data = (temp - temp.min()) / (temp.max() - temp.min())
+        if isinstance(scaling_factor, float):
+            scaling_factor = [scaling_factor] * nr_of_grids
 
-            normalized_channels = (data - data.min(axis=-1)[:, np.newaxis]) / (
-                data.max(axis=-1) - data.min(axis=-1)
-            )[:, np.newaxis]
+        assert (
+            len(scaling_factor) == nr_of_grids
+        ), "The number of scaling factors should be equal to the number of grids."
 
-            normalized_channels = normalized_channels * normalized_data[:, np.newaxis]
+        fig = plt.figure()
+        # make for each grid a subplot
+        for grid in range(nr_of_grids):
+            ax = fig.add_subplot(1, nr_of_grids, grid + 1)
+            ax.set_title(f"Grid {grid + 1}")
 
-            for i in range(data.shape[0]):
-                ax.plot(normalized_channels[i, :] + i * 0.5, **kwargs)
+            for electrode in range(nr_of_electrodes_per_grid):
+                ax.plot(
+                    data[grid * nr_of_electrodes_per_grid + electrode]
+                    + electrode * data.mean() * scaling_factor[grid]
+                )
 
-        elif data.ndim == 3:
-            for i in range(data.shape[1]):
-                ax.plot(data[:, i, :].T, **kwargs)
-        else:
-            raise ValueError("The data should be 2D or 3D.")
+            ax.set_xlabel("Time (samples)")
+            ax.set_ylabel("Electrode #")
 
-        return ax
+            # set the y-axis ticks to the electrode numbers begginning from 1
+            ax.set_yticks(
+                np.arange(0, nr_of_electrodes_per_grid)
+                * data.mean()
+                * scaling_factor[grid],
+                np.arange(1, nr_of_electrodes_per_grid + 1),
+            )
+
+            # only for grid 1 keep the y-axis label
+            if grid != 0:
+                ax.set_ylabel("")
+
+        plt.show()
 
 
 class KinematicsData(_Data):
@@ -804,6 +751,115 @@ class KinematicsData(_Data):
         if isinstance(data, str):
             return len(data.split(",")) == 4
         return data.ndim == 4
+
+    def plot(
+        self, representation: str, nr_of_fingers: int, wrist_included: bool = True
+    ):
+        """Plots the data.
+
+        Parameters
+        ----------
+        representation : str
+            The representation to plot.
+            .. important :: The representation should be a 3D tensor with shape (n_joints, 3, n_samples).
+        nr_of_fingers : int
+            The number of fingers to plot.
+        wrist_included : bool, optional
+            Whether the wrist is included in the representation. The default is True.
+            .. note :: The wrist is always the first joint in the representation.
+
+        Raises
+        ------
+        KeyError
+            If the representation does not exist.
+        """
+        if representation not in self._data:
+            raise KeyError(f'The representation "{representation}" does not exist.')
+
+        kinematics = self[representation]
+
+        if not wrist_included:
+            kinematics = np.concatenate(
+                [np.zeros((1, 3, kinematics.shape[2])), kinematics], axis=0
+            )
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+
+        # get biggest axis range
+        max_range = (
+            np.array(
+                [
+                    kinematics[:, 0].max() - kinematics[:, 0].min(),
+                    kinematics[:, 1].max() - kinematics[:, 1].min(),
+                    kinematics[:, 2].max() - kinematics[:, 2].min(),
+                ]
+            ).max()
+            / 2.0
+        )
+
+        # set axis limits
+        ax.set_xlim(
+            kinematics[:, 0].mean() - max_range,
+            kinematics[:, 0].mean() + max_range,
+        )
+        ax.set_ylim(
+            kinematics[:, 1].mean() - max_range,
+            kinematics[:, 1].mean() + max_range,
+        )
+        ax.set_zlim(
+            kinematics[:, 2].mean() - max_range,
+            kinematics[:, 2].mean() + max_range,
+        )
+
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+
+        # create joint and finger plots
+        (joints_plot,) = ax.plot(*kinematics[..., 0].T, "o", color="black")
+
+        finger_plots = []
+        for finger in range(nr_of_fingers):
+            finger_plots.append(
+                ax.plot(
+                    *kinematics[
+                        [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))),
+                        :,
+                        0,
+                    ].T,
+                    color="blue",
+                )
+            )
+
+        sample_slider = Slider(
+            ax=fig.add_axes([0.25, 0.1, 0.65, 0.03]),
+            label="Sample (a. u.)",
+            valmin=0,
+            valmax=kinematics.shape[2] - 1,
+            valstep=1,
+            valinit=0,
+        )
+
+        def update(val):
+            kinematics_new_sample = kinematics[..., int(val)]
+
+            joints_plot._verts3d = tuple(kinematics_new_sample.T)
+
+            for finger in range(nr_of_fingers):
+                finger_plots[finger][0]._verts3d = tuple(
+                    kinematics[
+                        [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))),
+                        :,
+                        int(val),
+                    ].T
+                )
+
+            fig.canvas.draw_idle()
+
+        sample_slider.on_changed(update)
+
+        plt.show()
 
 
 DATA_TYPES_MAP = {"emg": EMGData, "kinematics": KinematicsData}
