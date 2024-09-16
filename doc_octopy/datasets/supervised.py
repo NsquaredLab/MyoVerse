@@ -59,7 +59,7 @@ class EMGDataset:
     ground_truth_filter_pipeline_before_chunking : list[list[FilterBaseClass]]
         Sequence of filters to apply to the ground truth data before chunking. The filters should inherit from
         FilterBaseClass.
-    ground_truth_filter_after_pipeline_chunking : list[list[FilterBaseClass]]
+    ground_truth_filter_pipeline_after_chunking : list[list[FilterBaseClass]]
         Sequence of filters to apply to the ground truth data after chunking. The filters should inherit from
         FilterBaseClass.
     chunk_size : int
@@ -88,10 +88,12 @@ class EMGDataset:
     def __init__(
         self,
         emg_data_path: Path = Path("REPLACE ME"),
+        emg_data: dict[str | int, np.ndarray] = {},
         ground_truth_data_path: Path = Path("REPLACE ME"),
+        ground_truth_data: dict[str | int, np.ndarray] = {},
         ground_truth_data_type: str = "kinematics",
         sampling_frequency: float = 0.0,
-        tasks_to_use: Sequence[str] = (),
+        tasks_to_use: Sequence[str | int] = (),
         save_path: Path = Path("REPLACE ME"),
         emg_filter_pipeline_before_chunking: list[list[FilterBaseClass]] = (),
         emg_representations_to_filter_before_chunking: list[str] = (),
@@ -99,8 +101,8 @@ class EMGDataset:
         emg_representations_to_filter_after_chunking: list[str] = (),
         ground_truth_filter_pipeline_before_chunking: list[list[FilterBaseClass]] = (),
         ground_truth_representations_to_filter_before_chunking: list[str] = (),
-        ground_truth_filter_after_pipeline_chunking: list[list[FilterBaseClass]] = (),
-        ground_truth_representations_to_filter_after_pipeline_chunking: list[str] = (),
+        ground_truth_filter_pipeline_after_chunking: list[list[FilterBaseClass]] = (),
+        ground_truth_representations_to_filter_after_chunking: list[str] = (),
         chunk_size: int = 192,
         chunk_shift: int = 64,
         testing_split_ratio: float = 0.2,
@@ -110,7 +112,17 @@ class EMGDataset:
         debug: bool = False,
     ):
         self.emg_data_path = emg_data_path
+        self.emg_data = emg_data
         self.ground_truth_data_path = ground_truth_data_path
+        self.ground_truth_data = ground_truth_data
+
+        # check if at least one of the data sources is provided
+        if not self.emg_data and not self.emg_data_path:
+            raise ValueError("At least one of the EMG data sources should be provided.")
+        if not self.ground_truth_data and not self.ground_truth_data_path:
+            raise ValueError(
+                "At least one of the ground truth data sources should be provided."
+            )
 
         self.ground_truth_data_type = ground_truth_data_type
 
@@ -136,10 +148,10 @@ class EMGDataset:
             emg_representations_to_filter_after_chunking
         )
         self.ground_truth_filter_pipeline_after_chunking = (
-            ground_truth_filter_after_pipeline_chunking
+            ground_truth_filter_pipeline_after_chunking
         )
-        self.ground_truth_representations_to_filter_after_pipeline_chunking = (
-            ground_truth_representations_to_filter_after_pipeline_chunking
+        self.ground_truth_representations_to_filter_after_chunking = (
+            ground_truth_representations_to_filter_after_chunking
         )
 
         self.chunk_size = chunk_size
@@ -184,10 +196,10 @@ class EMGDataset:
                 _add_to_dataset(g, data_from_task, k)
 
     def create_dataset(self):
-        with self.emg_data_path.open("rb") as f:
-            emg_data = pickle.load(f)
-        with self.ground_truth_data_path.open("rb") as f:
-            ground_truth_data = pickle.load(f)
+        emg_data = self.emg_data or pickle.load(self.emg_data_path.open("rb"))
+        ground_truth_data = self.ground_truth_data or pickle.load(
+            self.ground_truth_data_path.open("rb")
+        )
 
         self.save_path.mkdir(parents=True, exist_ok=True)
         dataset = zarr.open(str(self.save_path), mode="w")
@@ -196,9 +208,9 @@ class EMGDataset:
         testing_group = dataset.create_group("testing")
         validation_group = dataset.create_group("validation")
 
-        self.__tasks_string_length = len(
-            max(self.tasks_to_use, key=len)
-        )  # need this to know the saving dtype for the labels
+        # need this to know the saving dtype for the labels
+        self.__tasks_string_length = len(max(self.tasks_to_use, key=len))
+
         for task in tqdm(self.tasks_to_use, desc="Filtering and splitting data"):
             emg_data_from_task = emg_data[task]
             ground_truth_data_from_task = ground_truth_data[task]
@@ -304,7 +316,7 @@ class EMGDataset:
 
             chunked_ground_truth_data_from_task.apply_filter_pipeline(
                 filter_pipeline=self.ground_truth_filter_pipeline_after_chunking,
-                representations_to_filter=self.ground_truth_representations_to_filter_after_pipeline_chunking,
+                representations_to_filter=self.ground_truth_representations_to_filter_after_chunking,
             )
 
             if self.debug:

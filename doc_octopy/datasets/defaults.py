@@ -86,10 +86,10 @@ class EMBCDataset:
                 ]
             ],
             ground_truth_representations_to_filter_before_chunking=["Input"],
-            ground_truth_filter_after_pipeline_chunking=[
+            ground_truth_filter_pipeline_after_chunking=[
                 [ApplyFunctionFilter(function=np.mean, name="Mean", axis=-1, is_output=True)]
             ],
-            ground_truth_representations_to_filter_after_pipeline_chunking=["Last"],
+            ground_truth_representations_to_filter_after_chunking=["Last"],
             augmentation_pipelines=[
                 [GaussianNoise(is_output=True)],
                 [MagnitudeWarping(is_output=True, nr_of_grids=5)],
@@ -168,7 +168,7 @@ class CastelliniDataset:
                     IndexDataFilter(indices=(slice(3, 63),)),
                 ]
             ],
-            ground_truth_filter_after_pipeline_chunking=[
+            ground_truth_filter_pipeline_after_chunking=[
                 [ApplyFunctionFilter(function=np.mean, axis=-1, is_output=True)]
             ],
             augmentation_pipelines=[
