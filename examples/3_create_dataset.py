@@ -52,7 +52,7 @@ dataset = EMGDataset(
         ]
     ],
     ground_truth_representations_to_filter_before_chunking=["Input"],
-    ground_truth_filter_after_pipeline_chunking=[
+    ground_truth_filter_pipeline_after_chunking=[
         [
             ApplyFunctionFilter(
                 function=partial(np.mean, axis=-1),
@@ -61,7 +61,7 @@ dataset = EMGDataset(
             ),
         ]
     ],
-    ground_truth_representations_to_filter_after_pipeline_chunking=["Last"],
+    ground_truth_representations_to_filter_after_chunking=["Last"],
     testing_split_ratio=0.3,
     validation_split_ratio=0.1,
     augmentation_pipelines=[
