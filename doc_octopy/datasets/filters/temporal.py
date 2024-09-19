@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from opcode import name_op
 from typing import List, Literal, Sequence, Tuple, Union
 
 import numpy as np
@@ -157,23 +158,23 @@ class RMSFilter(FilterBaseClass):
 
     def _filter(self, input_array: np.ndarray) -> np.ndarray:
         if self.input_is_chunked:
-            output_array = []
-
-            for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-                output_array.append(
+            return np.concatenate(
+                [
                     np.sqrt(
                         np.mean(
                             input_array[..., i : i + self.window_size] ** 2, axis=-1
                         )
                     )
-                )
-
-            return np.concatenate(output_array, axis=-1)
+                    for i in range(
+                        0, input_array.shape[-1] - self.window_size + 1, self.shift
+                    )
+                ],
+                axis=-1,
+            )
 
         return np.sqrt(np.mean(input_array**2, axis=-1))
 
 
-# TODO
 class VARFilter(FilterBaseClass):
     """Computes the Variance with given window length and window shift over the input signal."""
 
@@ -182,40 +183,35 @@ class VARFilter(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.var(
-                    (
-                        input_array[
-                            representations_to_filter_indices,
-                            ...,
-                            i : i + self.window_size,
-                        ]
-                    ),
+                    input_array[..., i : i + self.window_size],
                     axis=-1,
                     keepdims=True,
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
+# TODO: Check if this is correct
 class HISTFilter(FilterBaseClass):
     """Computes the Histogram with given window length and window shift over the input signal."""
 
@@ -225,26 +221,24 @@ class HISTFilter(FilterBaseClass):
         shift: int = 1,
         bins: int = 10,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
         self.bins = bins
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
         output_array = []
 
         for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            input_segment = input_array[
-                representations_to_filter_indices, ..., i : i + self.window_size
-            ]
+            input_segment = input_array[..., i : i + self.window_size]
             histograms = np.zeros(
                 (input_segment.shape[0], input_segment.shape[1], self.bins)
             )
@@ -262,7 +256,6 @@ class HISTFilter(FilterBaseClass):
         return np.concatenate(output_array, axis=-1)
 
 
-# TODO
 class MAVFilter(FilterBaseClass):
     """Computes the Mean Absolute Value with given window length and window shift over the input signal. See formula in
     the following paper: https://doi.org/10.1080/10255842.2023.2165068.
@@ -273,40 +266,34 @@ class MAVFilter(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.mean(
-                    np.abs(
-                        input_array[
-                            representations_to_filter_indices,
-                            ...,
-                            i : i + self.window_size,
-                        ]
-                    ),
+                    np.abs(input_array[..., i : i + self.window_size]),
                     axis=-1,
                     keepdims=True,
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
 class IAVFilter(FilterBaseClass):
     """Computes the Integrated Absolute Value with given window length and window shift over the input signal. See
     formula in the following paper: https://doi.org/10.1080/10255842.2023.2165068.
@@ -317,40 +304,34 @@ class IAVFilter(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.sum(
-                    np.abs(
-                        input_array[
-                            representations_to_filter_indices,
-                            ...,
-                            i : i + self.window_size,
-                        ]
-                    ),
+                    np.abs(input_array[..., i : i + self.window_size]),
                     axis=-1,
                     keepdims=True,
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
 class WFLFilter(FilterBaseClass):
     """Computes the Waveform Length with given window length and window shift over the input signal. See
     formula in the following paper: https://doi.org/10.1080/10255842.2023.2165068.
@@ -361,42 +342,34 @@ class WFLFilter(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.sum(
-                    np.abs(
-                        np.diff(
-                            input_array[
-                                representations_to_filter_indices,
-                                ...,
-                                i : i + self.window_size,
-                            ]
-                        )
-                    ),
+                    np.abs(np.diff(input_array[..., i : i + self.window_size])),
                     axis=-1,
                     keepdims=True,
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
 class ZCFilter(FilterBaseClass):
     """Computes the Zero Crossings with given window length and window shift over the input signal. See formula in the
     following paper: https://doi.org/10.1080/10255842.2023.2165068.
@@ -407,45 +380,35 @@ class ZCFilter(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.sum(
-                    np.abs(
-                        np.diff(
-                            np.sign(
-                                input_array[
-                                    representations_to_filter_indices,
-                                    ...,
-                                    i : i + self.window_size,
-                                ]
-                            )
-                        )
-                    )
+                    np.abs(np.diff(np.sign(input_array[..., i : i + self.window_size])))
                     // 2,
                     axis=-1,
                     keepdims=True,
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
 class SSCFilter(FilterBaseClass):
     """Computes the Slope Sign Change with given window length and window shift over the input signal. See formula in
     the following paper: https://doi.org/10.1080/10255842.2023.2165068.
@@ -456,47 +419,39 @@ class SSCFilter(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.sum(
                     np.abs(
                         np.diff(
-                            np.sign(
-                                np.diff(
-                                    input_array[
-                                        representations_to_filter_indices,
-                                        ...,
-                                        i : i + self.window_size,
-                                    ]
-                                )
-                            )
+                            np.sign(np.diff(input_array[..., i : i + self.window_size]))
                         )
                     )
                     // 2,
                     axis=-1,
                     keepdims=True,
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
 class GaileyFeature2(FilterBaseClass):
     """Computes the second EMG feature from the Gailey et al. paper  with given window length and window shift over the
     input signal. See formula in the following paper: https://doi.org/10.3389/fneur.2017.00007.
@@ -507,32 +462,25 @@ class GaileyFeature2(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
-        output_array = []
-
-        for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            output_array.append(
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+        return np.concatenate(
+            [
                 np.log(
                     (
                         np.sum(
-                            input_array[
-                                representations_to_filter_indices,
-                                ...,
-                                i : i + self.window_size,
-                            ]
-                            ** 2,
+                            input_array[..., i : i + self.window_size] ** 2,
                             axis=-1,
                             keepdims=True,
                         )
@@ -540,12 +488,14 @@ class GaileyFeature2(FilterBaseClass):
                     )
                     / self.window_size
                 )
-            )
+                for i in range(
+                    0, input_array.shape[-1] - self.window_size + 1, self.shift
+                )
+            ],
+            axis=-1,
+        )
 
-        return np.concatenate(output_array, axis=-1)
 
-
-# TODO
 class GaileyFeature3(FilterBaseClass):
     """Computes the third EMG feature from the Gailey et al. paper  with given window length and window shift over the
     input signal. See formula in the following paper: https://doi.org/10.3389/fneur.2017.00007.
@@ -556,25 +506,23 @@ class GaileyFeature3(FilterBaseClass):
         window_size: int,
         shift: int = 1,
         input_is_chunked: bool = True,
-        representations_to_filter: Union[Literal["all"], Sequence[int]] = "all",
+        is_output: bool = False,
+        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            representations_to_filter=representations_to_filter,
-            changes_filtered_dimension=True,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
         self.window_size = window_size
         self.shift = shift
 
-    def _filter(
-        self, input_array: np.ndarray, representations_to_filter_indices: np.ndarray
-    ) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
         output_array = []
 
         for i in range(0, input_array.shape[-1] - self.window_size + 1, self.shift):
-            segment = input_array[
-                representations_to_filter_indices, ..., i : i + self.window_size
-            ]
+            segment = input_array[..., i : i + self.window_size]
             m0 = np.sum(segment**2, axis=-1, keepdims=True)
             m2 = np.sum(
                 np.diff(segment, axis=-1, prepend=segment[..., [0]]) ** 2,
