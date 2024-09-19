@@ -1,6 +1,6 @@
 import pickle
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import zarr
@@ -88,12 +88,12 @@ class EMGDataset:
     def __init__(
         self,
         emg_data_path: Path = Path("REPLACE ME"),
-        emg_data: dict[str | int, np.ndarray] = {},
+        emg_data: dict[str, np.ndarray] = {},
         ground_truth_data_path: Path = Path("REPLACE ME"),
-        ground_truth_data: dict[str | int, np.ndarray] = {},
+        ground_truth_data: dict[str, np.ndarray] = {},
         ground_truth_data_type: str = "kinematics",
         sampling_frequency: float = 0.0,
-        tasks_to_use: Sequence[str | int] = (),
+        tasks_to_use: Sequence[str] = (),
         save_path: Path = Path("REPLACE ME"),
         emg_filter_pipeline_before_chunking: list[list[FilterBaseClass]] = (),
         emg_representations_to_filter_before_chunking: list[str] = (),
@@ -167,7 +167,7 @@ class EMGDataset:
 
         self.__tasks_string_length = 0
 
-    def __add_data_to_dataset(self, data: _Data, groups: list[zarr.Group]):
+    def __add_data_to_dataset(self, data: _Data, groups: list[zarr.Group]) -> Tuple[int, int, int]:
         for k, v in data.output_representations.items():
             validation_data_from_task = None
 
@@ -194,6 +194,20 @@ class EMGDataset:
                 ),
             ):
                 _add_to_dataset(g, data_from_task, k)
+
+            return (
+                training_data_from_task.shape[0],
+                (
+                    testing_data_from_task.shape[0]
+                    if testing_data_from_task is not None
+                    else 0
+                ),
+                (
+                    validation_data_from_task.shape[0]
+                    if validation_data_from_task is not None
+                    else 0
+                ),
+            )
 
     def create_dataset(self):
         emg_data = self.emg_data or pickle.load(self.emg_data_path.open("rb"))
@@ -328,11 +342,12 @@ class EMGDataset:
                 print(ground_truth_data_from_task)
                 chunked_ground_truth_data_from_task.plot_graph()
 
+            training_size, testing_size, validation_size = 0, 0, 0
             for group_name, chunked_data_from_task in zip(
                 ["emg", "ground_truth"],
                 [chunked_emg_data_from_task, chunked_ground_truth_data_from_task],
             ):
-                self.__add_data_to_dataset(
+                training_size, testing_size, validation_size = self.__add_data_to_dataset(
                     chunked_data_from_task,
                     [
                         (
@@ -358,17 +373,17 @@ class EMGDataset:
                 task, data_length, data_length_ground_truth
             )
 
-            for g in (training_group, testing_group, validation_group):
+            for g, size in zip((training_group, testing_group, validation_group), (training_size, testing_size, validation_size)):
                 _add_to_dataset(
                     g,
-                    np.array([task] * data_length)[..., None].astype(
+                    np.array([task] * size)[..., None].astype(
                         f"<U{self.__tasks_string_length}"
                     ),
                     "label",
                 )
                 _add_to_dataset(
                     g,
-                    np.array([self.tasks_to_use.index(task)] * data_length)[
+                    np.array([self.tasks_to_use.index(task)] * size)[
                         ..., None
                     ].astype(np.int8),
                     "class",
@@ -383,7 +398,7 @@ class EMGDataset:
                                 ]
                             ]
                         ),
-                        data_length,
+                        size,
                         axis=0,
                     ).astype(np.int8),
                     "one_hot_class",
