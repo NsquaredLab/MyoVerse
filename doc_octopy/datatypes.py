@@ -398,6 +398,9 @@ class _Data:
         ValueError
             If the number of filters and representations to filter is different.
         """
+        if len(filter_pipeline) == 0:
+            return
+
         if len(filter_pipeline) != len(representations_to_filter):
             raise ValueError(
                 "The number of filters and representations to filter should be the same."
@@ -691,7 +694,6 @@ class EMGData(_Data):
 
         plt.show()
 
-
 class KinematicsData(_Data):
     """Class for storing kinematics data.
 
@@ -862,4 +864,53 @@ class KinematicsData(_Data):
         plt.show()
 
 
-DATA_TYPES_MAP = {"emg": EMGData, "kinematics": KinematicsData}
+class VirtualHandKinematics(_Data):
+    def __init__(self, input_data: np.ndarray, sampling_frequency: float):
+        """Initializes the VirtualHandKinematics object.
+
+        Parameters
+        ----------
+        input_data : np.ndarray
+            The raw kinematics data. The shape of the array should be (n_joints, 3, n_samples)
+            or (n_chunks, n_joints, 3, n_samples).
+            The 3 represents the x, y, and z coordinates of the joints.
+        sampling_frequency : float
+            The sampling frequency of the kinematics data.
+        """
+        if input_data.ndim != 2 and input_data.ndim != 3:
+            raise ValueError(
+                "The shape of the raw kinematics data should be (9, n_samples) "
+                "or (n_chunks, 9, n_samples)."
+            )
+        super().__init__(input_data, sampling_frequency)
+
+    def _check_if_chunked(self, data: np.ndarray | str) -> bool:
+        """Checks if the data is chunked or not.
+
+        Parameters
+        ----------
+        data : np.ndarray | str
+            The data to check.
+
+        Returns
+        -------
+        bool
+            Whether the data is chunked or not.
+        """
+        if isinstance(data, str):
+            return len(data.split(",")) == 3
+        return data.ndim == 3
+
+    def plot(
+        self, representation: str, nr_of_fingers: int, wrist_included: bool = True
+    ):
+        """Plots the data.
+
+        raise NotImplementedError("This method is not implemented yet.")
+        """
+        # TODO: Implement this method
+        raise NotImplementedError("This method is not implemented yet.")
+
+
+
+DATA_TYPES_MAP = {"emg": EMGData, "kinematics": KinematicsData, "virtual_hand": VirtualHandKinematics}

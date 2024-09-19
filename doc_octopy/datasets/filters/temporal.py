@@ -132,9 +132,19 @@ class RMSFilter(FilterBaseClass):
     .. [1] https://doi.org/10.1080/10255842.2023.2165068
     """
 
-    def __init__(self, window_size: int, shift: int = 1, input_is_chunked: bool = None):
+    def __init__(
+        self,
+        window_size: int,
+        shift: int = 1,
+        input_is_chunked: bool = None,
+        is_output: bool = False,
+        name: str = None,
+    ):
         super().__init__(
             input_is_chunked=input_is_chunked,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
         )
 
         self.window_size = window_size
