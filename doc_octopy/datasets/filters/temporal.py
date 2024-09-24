@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from opcode import name_op
 from typing import List, Literal, Sequence, Tuple, Union
 
 import numpy as np
