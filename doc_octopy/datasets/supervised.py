@@ -375,6 +375,11 @@ class EMGDataset:
                 chunked_ground_truth_data_from_task.output_representations.values()
             )[-1].shape[0]
 
+            # check that all values in training_sizes, testing_sizes, and validation_sizes are the same
+            assert len(set(training_sizes)) == 1, "The training sizes are not the same."
+            assert len(set(testing_sizes)) == 1, "The testing sizes are not the same."
+            assert len(set(validation_sizes)) == 1, "The validation sizes are not the same."
+
             assert (
                 data_length == data_length_ground_truth
             ), "The data lengths of the EMG and ground truth data should be the same. For task {}, the EMG data has length {} and the ground truth data has length {}.".format(
@@ -479,6 +484,7 @@ class EMGDataset:
                     _add_to_dataset(training_group["emg"], np.array(v), name=k)
                 for k, v in ground_truth_to_append.items():
                     _add_to_dataset(training_group["ground_truth"], np.array(v), name=k)
+                _add_to_dataset(training_group, np.array(label_to_append), name="label")
                 _add_to_dataset(
                     training_group, np.array(class_to_append), name=f"class"
                 )
