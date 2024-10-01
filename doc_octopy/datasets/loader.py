@@ -51,7 +51,10 @@ class EMGDatasetLoader(L.LightningDataModule):
                 for key in self._ground_truth_data.array_keys()
             }
 
-            self.length = list(self._emg_data.values())[0].shape[0]
+            try:
+                self.length = list(self._emg_data.values())[0].shape[0]
+            except IndexError:
+                self.length = 0
 
             self.input_type = input_type
             self.ground_truth_type = ground_truth_type
