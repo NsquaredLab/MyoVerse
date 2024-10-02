@@ -33,6 +33,26 @@ HERE = pathlib.Path(__file__).parent
 with (HERE.parent.parent / "README.md").open() as f:
     out = f.read()
 
+lines = out.split("\n")
+# find the line_indices containing "[!"
+line_indices = [i for i, line in enumerate(lines) if "[!" in line]
+# find for each index the last line connected to it that does not contain ">".
+lines_connected = {}
+for i, l in enumerate(line_indices):
+    for j in range(l, len(lines) - 1):
+        if ">" in lines[j] and ">" not in lines[j + 1]:
+            lines_connected[l] = j
+            break
+
+for start, end in lines_connected.items():
+    lines[start] = "```{" + lines[start][4:].strip().replace("]", "").lower() + "}\n"
+    for i in range(start + 1, end + 1):
+        lines[i] = lines[i].replace("> ", "") + "\n"
+
+    lines[end] += "```\n"
+
+out = "\n".join(lines)
+
 out = out.split("\n")
 
 # find the index of the line that contains "## What papers/preprints use this package?"
