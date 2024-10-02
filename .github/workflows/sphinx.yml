@@ -19,11 +19,11 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y libegl1-mesa libgl1-mesa-glx
         python -m pip install --upgrade pip
         python -m pip install poetry
+        sed -i '25,26d' pyproject.toml
+        rm poetry.lock
         poetry install --with docs
-        pip install torch torchvision --upgrade
 
     - name: Build the docs
       run: |
