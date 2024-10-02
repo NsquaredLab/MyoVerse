@@ -280,6 +280,7 @@ class EMGDataset:
                         chunk_size=self.chunk_size,
                         chunk_shift=self.chunk_shift,
                         is_output=len(self.emg_filter_pipeline_after_chunking) == 0,
+                        name="EMG_Chunkizer"
                     ),
                     representation_to_filter="Last",
                 )
