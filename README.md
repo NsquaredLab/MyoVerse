@@ -5,6 +5,8 @@
 <a href="https://www.pytorchlightning.ai/"><img alt="Code style: black" src="https://img.shields.io/badge/uses-pytorch & pytorch lighting-blueviolet"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code style-black-000000.svg"></a>
 
+> [!TIP]
+> Take a look at our [documentation](https://nsquaredlab.github.io/DocOctopy/README.html).
 
 ## What is this?
 DocOctopy , the **research** library for kinematics, kinetics, and everything else you can think of that has to do with EMG and AIs.
