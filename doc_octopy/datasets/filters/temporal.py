@@ -161,7 +161,9 @@ class RMSFilter(FilterBaseClass):
                 [
                     np.sqrt(
                         np.mean(
-                            input_array[..., i : i + self.window_size] ** 2, axis=-1
+                            input_array[..., i : i + self.window_size] ** 2,
+                            axis=-1,
+                            keepdims=True,
                         )
                     )
                     for i in range(
