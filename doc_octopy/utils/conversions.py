@@ -114,23 +114,3 @@ def convert_otb_plus_mat_to_pkl(
         pkl.dump(
             gt_interpolated, (Path(output_dir_path) / "gt_interpolated.pkl").open("wb")
         )
-
-
-
-if __name__ == '__main__':
-    convert_otb_plus_mat_to_pkl(
-        mat_files_dir_path=Path(r"C:\Users\oj98yqyk\Downloads\video_following\iemg_mat"),
-        gt_pkl_file_path=Path(r"C:\Users\oj98yqyk\work\dataset\emg_manifolds\Sub1_kinematics.pkl"),
-        gt_fsamp=2048,
-        output_dir_path=Path(r"C:\Users\oj98yqyk\work\dataset\emg_manifolds"),
-        mat_to_gt_mapping={
-            "fist": 15,
-            "thumb": 2,
-            "index": 4,
-            "middle": 6,
-            "ring": 8,
-            "pinky": 10,
-            "2fpinch": 18,
-            "3fpinch": 19,
-        },
-    )
