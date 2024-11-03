@@ -1,4 +1,5 @@
 """Model definitions not used in any publication"""
+
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
@@ -79,13 +80,22 @@ class RaulNetV16(L.LightningModule):
                 self.cnn_encoder_channels[1],
                 kernel_size=(
                     self.nr_of_electrode_grids,
-                    int(np.floor(self.nr_of_electrodes_per_grid / 2)),
+                    (
+                        int(np.floor(self.nr_of_electrodes_per_grid / 2))
+                        + (0 if self.nr_of_electrodes_per_grid % 2 == 0 else 1)
+                    ),
                     18,
                 ),
                 dilation=(1, 2, 1),
                 padding=(
-                    int(np.floor(self.nr_of_electrode_grids / 2)),
-                    int(np.floor(self.nr_of_electrodes_per_grid / 4)),
+                    (
+                        int(np.floor(self.nr_of_electrode_grids / 2))
+                        + (0 if self.nr_of_electrode_grids % 2 == 0 else 1)
+                    ),
+                    (
+                        int(np.floor(self.nr_of_electrodes_per_grid / 4))
+                        + (0 if self.nr_of_electrodes_per_grid % 4 == 0 else 1)
+                    ),
                     0,
                 ),
                 padding_mode="circular",
@@ -97,7 +107,10 @@ class RaulNetV16(L.LightningModule):
                 self.cnn_encoder_channels[2],
                 kernel_size=(
                     self.nr_of_electrode_grids,
-                    int(np.floor(self.nr_of_electrodes_per_grid / 7)),
+                    (
+                        int(np.floor(self.nr_of_electrodes_per_grid / 7))
+                        + (0 if self.nr_of_electrodes_per_grid % 7 == 0 else 1)
+                    ),
                     1,
                 ),
             ),
