@@ -87,7 +87,7 @@ class IndexDataFilter(FilterBaseClass):
         if not isinstance(self.indices, (list, tuple)):
             raise ValueError("indices must be a list or tuple.")
         for i in self.indices:
-            if not isinstance(i, (int, slice)):
+            if not isinstance(i, (int, slice, tuple)):
                 raise ValueError("Each element in indices must be an int or a slice.")
 
     def _filter(self, input_array: np.ndarray) -> np.ndarray:
