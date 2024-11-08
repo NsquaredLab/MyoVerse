@@ -6,8 +6,12 @@ import numpy as np
 import lightning as L
 from torch.utils.data import DataLoader, Dataset
 
-from doc_octopy.datasets.filters.generic import IdentityFilter, FilterBaseClass
-from doc_octopy.datatypes import EMGData
+from doc_octopy.datasets.filters.generic import (
+    IdentityFilter,
+    FilterBaseClass,
+    IndexDataFilter,
+)
+from doc_octopy.datatypes import EMGData, VirtualHandKinematics
 
 
 class EMGDatasetLoader(L.LightningDataModule):
@@ -29,9 +33,14 @@ class EMGDatasetLoader(L.LightningDataModule):
         The type of the ground_truth data, by default np.float32
     ground_truth_name : str, optional
         The name of the ground truth data, by default "ground_truth"
-    augmentation_pipeline : list[list[FilterBaseClass]], optional
-        The augmentation pipeline, by default [[IdentityFilter(is_output=True)]]
-    augmentation_probabilities : Sequence[float], optional
+    input_augmentation_pipeline : list[list[FilterBaseClass]], optional
+        The augmentation pipeline for the input data, by default [[IdentityFilter(is_output=True)]]
+    input_augmentation_probabilities : Sequence[float], optional
+        The probabilities for the augmentation pipeline, by default (1,)
+        The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.
+    ground_truth_augmentation_pipeline : list[list[FilterBaseClass]], optional
+        The augmentation pipeline for the ground truth data, by default [[IdentityFilter(is_output=True)]]
+    ground_truth_augmentation_probabilities : Sequence[float], optional
         The probabilities for the augmentation pipeline, by default (1,)
         The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.
     """
@@ -44,10 +53,14 @@ class EMGDatasetLoader(L.LightningDataModule):
             ground_truth_name: str,
             input_type=np.float32,
             ground_truth_type=np.float32,
-            augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
+            input_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
                 [IdentityFilter(is_output=True)]
             ],
-            augmentation_probabilities: Sequence[float] = (1,),
+            input_augmentation_probabilities: Sequence[float] = (1,),
+            ground_truth_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
+                [IndexDataFilter(indices=(0,), is_output=True)]
+            ],
+            ground_truth_augmentation_probabilities: Sequence[float] = (1,),
         ):
             self.zarr_file = zarr_file
             self.subset_name = subset_name
@@ -73,30 +86,50 @@ class EMGDatasetLoader(L.LightningDataModule):
             self.input_type = input_type
             self.ground_truth_type = ground_truth_type
 
-            self.augmentation_pipeline = augmentation_pipeline
-            self.augmentation_probabilities = augmentation_probabilities
+            self.input_augmentation_pipeline = input_augmentation_pipeline
+            self.input_augmentation_probabilities = input_augmentation_probabilities
+            self.ground_truth_augmentation_pipeline = ground_truth_augmentation_pipeline
+            self.ground_truth_augmentation_probabilities = (
+                ground_truth_augmentation_probabilities
+            )
 
         def __len__(self):
             return self.length
 
         def __getitem__(self, idx):
             input_data = []
+            ground_truth_data = []
 
-            augmentation_chosen = self.augmentation_pipeline[
+            input_augmentation_chosen = self.input_augmentation_pipeline[
                 np.random.choice(
-                    len(self.augmentation_pipeline), p=self.augmentation_probabilities
+                    len(self.input_augmentation_pipeline),
+                    p=self.input_augmentation_probabilities,
+                )
+            ]
+
+            ground_truth_augmentation_chosen = self.ground_truth_augmentation_pipeline[
+                np.random.choice(
+                    len(self.ground_truth_augmentation_pipeline),
+                    p=self.ground_truth_augmentation_probabilities,
                 )
             ]
 
             for v in self._emg_data.values():
                 temp = EMGData(v[idx], sampling_frequency=2048)
                 temp.apply_filter_sequence(
-                    augmentation_chosen, representation_to_filter="Input"
+                    input_augmentation_chosen, representation_to_filter="Input"
                 )
                 input_data.append(list(temp.output_representations.values())[0])
 
+            for v in self._ground_truth_data.values():
+                temp = EMGData(np.atleast_2d(v[idx]), sampling_frequency=2048)
+                temp.apply_filter_sequence(
+                    ground_truth_augmentation_chosen, representation_to_filter="Input"
+                )
+                ground_truth_data.append(list(temp.output_representations.values())[0])
+
             return np.array(input_data).astype(self.input_type), np.array(
-                [v[idx] for v in self._ground_truth_data.values()]
+                ground_truth_data
             ).astype(self.ground_truth_type)
 
     def __init__(
@@ -108,10 +141,14 @@ class EMGDatasetLoader(L.LightningDataModule):
         input_type=np.float32,
         ground_truth_type=np.float32,
         ground_truth_name: str = "ground_truth",
-        augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
+        input_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
             [IdentityFilter(is_output=True)]
         ],
-        augmentation_probabilities: Sequence[float] = (1,),
+        input_augmentation_probabilities: Sequence[float] = (1,),
+        ground_truth_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
+            [IndexDataFilter(indices=(0,), is_output=True)]
+        ],
+        ground_truth_augmentation_probabilities: Sequence[float] = (1,),
     ):
         """Initializes the dataset.
 
@@ -131,9 +168,14 @@ class EMGDatasetLoader(L.LightningDataModule):
             The type of the label data, by default np.float32
         ground_truth_name : bool, optional
             The name of the ground truth data, by default "ground_truth"
-        augmentation_pipeline : list[list[FilterBaseClass]], optional
-            The augmentation pipeline, by default [[IdentityFilter(is_output=True)]]
-        augmentation_probabilities : Sequence[float], optional
+        input_augmentation_pipeline : list[list[FilterBaseClass]], optional
+            The augmentation pipeline for the input data, by default [[IdentityFilter(is_output=True)]]
+        input_augmentation_probabilities : Sequence[float], optional
+            The probabilities for the augmentation pipeline, by default (1,)
+            The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.
+        ground_truth_augmentation_pipeline : list[list[FilterBaseClass]], optional
+            The augmentation pipeline for the ground truth data, by default [[IdentityFilter(is_output=True)]]
+        ground_truth_augmentation_probabilities : Sequence[float], optional
             The probabilities for the augmentation pipeline, by default (1,)
             The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.
         """
@@ -152,15 +194,31 @@ class EMGDatasetLoader(L.LightningDataModule):
 
         self.ground_truth_name = ground_truth_name
 
-        self.augmentation_pipeline = augmentation_pipeline
-        self.augmentation_probabilities = augmentation_probabilities
+        self.input_augmentation_pipeline = input_augmentation_pipeline
+        self.input_augmentation_probabilities = input_augmentation_probabilities
+
+        self.ground_truth_augmentation_pipeline = ground_truth_augmentation_pipeline
+        self.ground_truth_augmentation_probabilities = (
+            ground_truth_augmentation_probabilities
+        )
 
         # check if augmentation probabilities are equal to the number of augmentations filter sequences and that the sum is 1
-        if len(self.augmentation_pipeline) != len(self.augmentation_probabilities):
+        if len(self.input_augmentation_pipeline) != len(
+            self.input_augmentation_probabilities
+        ):
             raise ValueError(
-                "The number of augmentation sequences must be equal to the number of probabilities"
+                "The number of probabilities must be equal to the number of augmentation sequences"
             )
-        if sum(self.augmentation_probabilities) != 1:
+        if sum(self.input_augmentation_probabilities) != 1:
+            raise ValueError("The sum of the probabilities must be equal to 1")
+
+        if len(self.ground_truth_augmentation_pipeline) != len(
+            self.ground_truth_augmentation_probabilities
+        ):
+            raise ValueError(
+                "The number of probabilities must be equal to the number of augmentation sequences"
+            )
+        if sum(self.ground_truth_augmentation_probabilities) != 1:
             raise ValueError("The sum of the probabilities must be equal to 1")
 
     def train_dataloader(self) -> DataLoader:
@@ -179,8 +237,10 @@ class EMGDatasetLoader(L.LightningDataModule):
                 ground_truth_name=self.ground_truth_name,
                 input_type=self.input_type,
                 ground_truth_type=self.ground_truth_type,
-                augmentation_pipeline=self.augmentation_pipeline,
-                augmentation_probabilities=self.augmentation_probabilities,
+                input_augmentation_pipeline=self.input_augmentation_pipeline,
+                input_augmentation_probabilities=self.input_augmentation_probabilities,
+                ground_truth_augmentation_pipeline=self.ground_truth_augmentation_pipeline,
+                ground_truth_augmentation_probabilities=self.ground_truth_augmentation_probabilities,
             ),
             shuffle=self.shuffle_training_data,
             **self.dataloader_parameters,
