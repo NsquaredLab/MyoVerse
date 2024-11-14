@@ -21,9 +21,8 @@ zarr = "^2.18.3"
 tqdm = "^4.66.5"
 lightning = "^2.4.0"
 toml = "^0.10.2"
-
-torch = {version = "^2.4.1+cu124", source = "pytorch_gpu"}
-torchvision = {version = "^0.19.1+cu124", source = "pytorch_gpu"}
+torch = "^2.5.1"
+torchvision = "^0.20.1"
 
 [tool.poetry.group.docs]
 optional = true
@@ -35,11 +34,6 @@ furo = "^2024.8.6"
 rinohtype = "^0.5.5"
 bayesian-torch = "^0.5.0"
 memory-profiler = "^0.61.0"
-
-[[tool.poetry.source]]
-name = "pytorch_gpu"
-url = "https://download.pytorch.org/whl/cu124"
-priority = "explicit"
 
 [build-system]
 requires = ["poetry-core"]
