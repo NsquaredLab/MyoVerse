@@ -4,6 +4,8 @@ from matplotlib.widgets import Slider
 from matplotlib.collections import LineCollection
 from scipy.stats import gaussian_kde
 
+from doc_octopy.datatypes import KinematicsData
+
 
 def _make_segments(x, y):
     """
@@ -127,3 +129,190 @@ def colorline(
     ax.add_collection(lc)
 
     return lc
+
+
+def plot_predicted_and_ground_truth_kinematics(
+    predictions: KinematicsData,
+    ground_truths: KinematicsData,
+    prediction_representation: str,
+    ground_truth_representation: str,
+    wrist_included: bool = True,
+    nr_of_fingers: int = 5,
+):
+    """
+    Plot the predicted and ground truth kinematics.
+
+    Parameters
+    ----------
+    predictions : KinematicsData
+        The predicted kinematics.
+    ground_truths : KinematicsData
+        The ground truth kinematics.
+    prediction_representation : str
+        The representation of the predicted kinematics.
+    ground_truth_representation : str
+        The representation of the ground truth kinematics.
+    wrist_included : bool, optional
+        Whether the wrist is included in the kinematics. The default is True.
+    nr_of_fingers : int, optional
+    """
+    if prediction_representation not in predictions.processed_representations.keys():
+        raise KeyError(
+            f'The representation "{prediction_representation}" does not exist.'
+        )
+
+    if (
+        ground_truth_representation
+        not in ground_truths.processed_representations.keys()
+    ):
+        raise KeyError(
+            f'The representation "{ground_truth_representation}" does not exist.'
+        )
+
+    prediction_kinematics = predictions[prediction_representation]
+    ground_truth_kinematics = ground_truths[ground_truth_representation]
+
+    if not wrist_included:
+        prediction_kinematics = np.concatenate(
+            [np.zeros((1, 3, prediction_kinematics.shape[2])), prediction_kinematics],
+            axis=0,
+        )
+        ground_truth_kinematics = np.concatenate(
+            [
+                np.zeros((1, 3, ground_truth_kinematics.shape[2])),
+                ground_truth_kinematics,
+            ],
+            axis=0,
+        )
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(221, projection="3d")
+    ax2 = fig.add_subplot(211, projection="3d")
+
+    ax1.set_title("Predicted kinematics")
+    ax2.set_title("Ground truth kinematics")
+
+    # get biggest axis range
+    max_range_ax1 = (
+        np.array(
+            [
+                prediction_kinematics[:, 0].max() - prediction_kinematics[:, 0].min(),
+                prediction_kinematics[:, 1].max() - prediction_kinematics[:, 1].min(),
+                prediction_kinematics[:, 2].max() - prediction_kinematics[:, 2].min(),
+            ]
+        ).max()
+        / 2.0
+    )
+
+    max_range_ax2 = (
+        np.array(
+            [
+                ground_truth_kinematics[:, 0].max()
+                - ground_truth_kinematics[:, 0].min(),
+                ground_truth_kinematics[:, 1].max()
+                - ground_truth_kinematics[:, 1].min(),
+                ground_truth_kinematics[:, 2].max()
+                - ground_truth_kinematics[:, 2].min(),
+            ]
+        ).max()
+        / 2.0
+    )
+
+    ax1.set_xlim(
+        prediction_kinematics[:, 0].mean() - max_range_ax1,
+        prediction_kinematics[:, 0].mean() + max_range_ax1,
+    )
+    ax1.set_ylim(
+        prediction_kinematics[:, 1].mean() - max_range_ax1,
+        prediction_kinematics[:, 1].mean() + max_range_ax1,
+    )
+    ax1.set_zlim(
+        prediction_kinematics[:, 2].mean() - max_range_ax1,
+        prediction_kinematics[:, 2].mean() + max_range_ax1,
+    )
+
+    ax2.set_xlim(
+        ground_truth_kinematics[:, 0].mean() - max_range_ax2,
+        ground_truth_kinematics[:, 0].mean() + max_range_ax2,
+    )
+    ax2.set_ylim(
+        ground_truth_kinematics[:, 1].mean() - max_range_ax2,
+        ground_truth_kinematics[:, 1].mean() + max_range_ax2,
+    )
+    ax2.set_zlim(
+        ground_truth_kinematics[:, 2].mean() - max_range_ax2,
+        ground_truth_kinematics[:, 2].mean() + max_range_ax2,
+    )
+
+    ax1.set_xlabel("x")
+    ax1.set_ylabel("y")
+    ax1.set_zlabel("z")
+
+    ax2.set_xlabel("x")
+    ax2.set_ylabel("y")
+    ax2.set_zlabel("z")
+
+    # create joint and finger plots
+    (prediction_joints_plot,) = ax1.plot(
+        *prediction_kinematics[..., 0].T, "o", color="black"
+    )
+    (ground_truth_joints_plot,) = ax2.plot(
+        *ground_truth_kinematics[..., 0].T, "o", color="black"
+    )
+
+    prediction_figer_plots = []
+    ground_truth_finger_plots = []
+    for finger in range(nr_of_fingers):
+        prediction_figer_plots.append(
+            ax1.plot(
+                *prediction_kinematics[
+                    [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))), :, 0
+                ].T,
+                color="blue",
+            )
+        )
+        ground_truth_finger_plots.append(
+            ax2.plot(
+                *ground_truth_kinematics[
+                    [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))), :, 0
+                ].T,
+                color="blue",
+            )
+        )
+
+    sample_slider = Slider(
+        ax=fig.add_axes([0.25, 0.1, 0.65, 0.03]),
+        label="Sample (a. u.)",
+        valmin=0,
+        valmax=prediction_kinematics.shape[2] - 1,
+        valstep=1,
+        valinit=0,
+    )
+
+    def update(val):
+        prediction_kinematics_new_sample = prediction_kinematics[..., int(val)]
+        ground_truth_kinematics_new_sample = ground_truth_kinematics[..., int(val)]
+
+        prediction_joints_plot._verts3d = tuple(prediction_kinematics_new_sample.T)
+        ground_truth_joints_plot._verts3d = tuple(ground_truth_kinematics_new_sample.T)
+
+        for finger in range(nr_of_fingers):
+            prediction_figer_plots[finger][0]._verts3d = tuple(
+                prediction_kinematics[
+                    [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))),
+                    :,
+                    int(val),
+                ].T
+            )
+            ground_truth_finger_plots[finger][0]._verts3d = tuple(
+                ground_truth_kinematics[
+                    [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))),
+                    :,
+                    int(val),
+                ].T
+            )
+        fig.canvas.draw_idle()
+
+    sample_slider.on_changed(update)
+
+    plt.show()

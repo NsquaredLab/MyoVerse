@@ -73,10 +73,14 @@ class EMGDatasetLoader(L.LightningDataModule):
             self._ground_truth_data = zarr.open(str(self.zarr_file))[self.subset_name][
                 self.ground_truth_name
             ]
-            self._ground_truth_data = {
-                key: self._ground_truth_data[key]
-                for key in self._ground_truth_data.array_keys()
-            }
+
+            try:
+                self._ground_truth_data = {
+                    key: self._ground_truth_data[key]
+                    for key in self._ground_truth_data.array_keys()
+                }
+            except AttributeError:
+                self._ground_truth_data = {"temp": self._ground_truth_data}
 
             try:
                 self.length = list(self._emg_data.values())[0].shape[0]

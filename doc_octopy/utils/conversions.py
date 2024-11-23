@@ -104,9 +104,12 @@ def convert_otb_plus_mat_to_pkl(
                     np.arange(0, gt_data[task_id].shape[-1], 1) / gt_fsamp,
                     gt_data[task_id][compound_index],
                 )
-            gt_interpolated[task_id] = temp
+            gt_interpolated[task_id] = temp.astype(np.float32)
 
         output_data_dict[task_id] = mat_data_for_task.T
+
+    output_dir_path = Path(output_dir_path)
+    output_dir_path.mkdir(parents=True, exist_ok=True)
 
     pkl.dump(output_data_dict, (Path(output_dir_path) / "emg.pkl").open("wb"))
 
