@@ -185,9 +185,7 @@ class RaulNetV16(L.LightningModule):
 
         prediction = self(inputs)
 
-        scores_dict = {
-            "loss": self.criterion(prediction, ground_truths),
-        }
+        scores_dict = {"loss": self.criterion(prediction, ground_truths)}
 
         if scores_dict["loss"].isnan().item():
             return None
@@ -213,12 +211,19 @@ class RaulNetV16(L.LightningModule):
         ground_truths = ground_truths[:, 0]
 
         prediction = self(inputs)
-        scores_dict = {
-            "val_loss": self.criterion(prediction, ground_truths),
-        }
+        scores_dict = {"val_loss": self.criterion(prediction, ground_truths)}
 
         self.log_dict(
             scores_dict, prog_bar=True, logger=False, on_epoch=True, sync_dist=True
+        )
+
+        self.log_dict(
+            {f"val/{k}": v for k, v in scores_dict.items()},
+            prog_bar=False,
+            logger=True,
+            on_epoch=True,
+            on_step=False,
+            sync_dist=True,
         )
 
         return scores_dict
