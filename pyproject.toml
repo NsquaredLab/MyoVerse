@@ -10,7 +10,7 @@ readme = "README.md"
 packages = [{include = "doc_octopy"}]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.12"
+python = ">=3.10,<3.13"
 mplcursors = "^0.5.3"
 networkx = "^3.3"
 scipy = "^1.14.1"
