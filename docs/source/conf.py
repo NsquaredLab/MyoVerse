@@ -9,6 +9,7 @@
 import pathlib
 import sys
 from datetime import datetime
+import torch._dynamo # needed to avoid circular import error in torch
 
 import toml
 from sphinx_gallery.sorting import FileNameSortKey
