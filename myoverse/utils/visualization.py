@@ -4,7 +4,7 @@ from matplotlib.widgets import Slider
 from matplotlib.collections import LineCollection
 from scipy.stats import gaussian_kde
 
-from myo_verse.datatypes import KinematicsData
+from myoverse.datatypes import KinematicsData
 
 
 def _make_segments(x, y):

@@ -7,7 +7,7 @@ authors = [
     "Vlad Cnejevici <vlad.cnejevici@fau.de>"
 ]
 readme = "README.md"
-packages = [{include = "myo_verse"}]
+packages = [{include = "myoverse"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<=3.13"

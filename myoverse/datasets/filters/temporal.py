@@ -7,8 +7,8 @@ from scipy.fft import irfft, rfft, rfftfreq
 from scipy.signal import savgol_filter, sosfilt, sosfiltfilt
 from statsmodels.tsa.ar_model import AutoReg
 
-from myo_verse.datasets.filters._template import FilterBaseClass
-from myo_verse.datasets.filters.generic import ApplyFunctionFilter
+from myoverse.datasets.filters._template import FilterBaseClass
+from myoverse.datasets.filters.generic import ApplyFunctionFilter
 
 
 class SOSFrequencyFilter(FilterBaseClass):

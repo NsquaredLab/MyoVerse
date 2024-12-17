@@ -3,12 +3,12 @@ V9
 
 Version 9 running only on 2 grids
 ---------------------------------
-.. automodule:: myo_verse.models.definitions.raul_net.online.v9_2_grids
+.. automodule:: myoverse.models.definitions.raul_net.online.v9_2_grids
     :members:
     :exclude-members: configure_optimizers, test_step, training_step, validation_step
 
 Version 9 running on all 5 grids
 --------------------------------
-.. automodule:: myo_verse.models.definitions.raul_net.online.v9_5_grids
+.. automodule:: myoverse.models.definitions.raul_net.online.v9_5_grids
     :members:
     :exclude-members: configure_optimizers, test_step, training_step, validation_step

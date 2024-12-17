@@ -1,6 +1,6 @@
 Temporal Filters
 ^^^^^^^^^^^^^^^^
-.. automodule:: myo_verse.datasets.filters.temporal
+.. automodule:: myoverse.datasets.filters.temporal
     :members:
     :show-inheritance:
 

@@ -4,14 +4,14 @@ from typing import Sequence
 import numpy as np
 from scipy.signal import butter
 
-from myo_verse.datasets.filters.emg_augmentations import (
+from myoverse.datasets.filters.emg_augmentations import (
     GaussianNoise,
     MagnitudeWarping,
     WaveletDecomposition,
 )
-from myo_verse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter, IdentityFilter
-from myo_verse.datasets.filters.temporal import RMSFilter, SOSFrequencyFilter
-from myo_verse.datasets.supervised import EMGDataset
+from myoverse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter, IdentityFilter
+from myoverse.datasets.filters.temporal import RMSFilter, SOSFrequencyFilter
+from myoverse.datasets.supervised import EMGDataset
 
 
 class EMBCDataset:

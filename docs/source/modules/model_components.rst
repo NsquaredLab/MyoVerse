@@ -3,10 +3,10 @@ Model Components
 
 Activation Functions
 --------------------
-.. automodule:: myo_verse.models.components.activation_functions
+.. automodule:: myoverse.models.components.activation_functions
     :members:
 
 Utilities
 ---------
-.. automodule:: myo_verse.models.components.utils
+.. automodule:: myoverse.models.components.utils
     :members:

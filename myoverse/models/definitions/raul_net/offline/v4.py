@@ -7,7 +7,7 @@ import torch
 import torch.optim as optim
 from torch import nn
 
-from myo_verse.models.components.activation_functions import SMU_old
+from myoverse.models.components.activation_functions import SMU_old
 
 
 class CircularPad(nn.Module):

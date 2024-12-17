@@ -1,6 +1,6 @@
 Generic Filters
 ^^^^^^^^^^^^^^^
-.. automodule:: myo_verse.datasets.filters.generic
+.. automodule:: myoverse.datasets.filters.generic
     :members:
     :show-inheritance:
 
