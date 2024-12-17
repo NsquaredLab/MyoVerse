@@ -1,5 +1,5 @@
-Welcome to DocOctoPy's documentation!
-**************************
+Welcome to the documentation for MyoVerse!
+******************************************
 
 .. toctree::
    :maxdepth: 1

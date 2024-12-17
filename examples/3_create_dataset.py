@@ -17,17 +17,17 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import butter
 
-from doc_octopy.datasets.filters.emg_augmentations import WaveletDecomposition
-from doc_octopy.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter
-from doc_octopy.datasets.filters.temporal import SOSFrequencyFilter
-from doc_octopy.datasets.supervised import EMGDataset
+from myo_verse.datasets.filters.emg_augmentations import WaveletDecomposition
+from myo_verse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter
+from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+from myo_verse.datasets.supervised import EMGDataset
 
 dataset = EMGDataset(
-    emg_data_path=Path("data/emg.pkl").resolve(),
-    ground_truth_data_path=Path("data/kinematics.pkl").resolve(),
+    emg_data_path=Path(r"data/emg.pkl").resolve(),
+    ground_truth_data_path=Path(r"data/kinematics.pkl").resolve(),
     sampling_frequency=2044.0,
     tasks_to_use=["1", "2"],
-    save_path=Path("data/dataset.zarr").resolve(),
+    save_path=Path(r"data/dataset.zarr").resolve(),
     emg_filter_pipeline_after_chunking=[
         [
             SOSFrequencyFilter(
@@ -76,12 +76,12 @@ dataset.create_dataset()
 # Default dataset are also available. Here is an example of how to use the EMBCDataset used in [2]_.
 #
 # .. [2] Sîmpetru, R.C., Osswald, M., Braun, D.I., Souza de Oliveira, D., Cakici, A.L., Del Vecchio, A., 2022. Accurate continuous prediction of 14 degrees of freedom of the hand from myoelectrical signals through convolutive deep learning, in: Proceedings of the 2022 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC). Presented at the 2022 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC), pp. 702–706. https://doi.org/10/gq2f47
-from doc_octopy.datasets.defaults import EMBCDataset
+from myo_verse.datasets.defaults import EMBCDataset
 
 dataset = EMBCDataset(
-    emg_data_path=Path("data/emg.pkl").resolve(),
-    ground_truth_data_path=Path("data/kinematics.pkl").resolve(),
-    save_path=Path("data/dataset.zarr").resolve(),
+    emg_data_path=Path(r"data/emg.pkl").resolve(),
+    ground_truth_data_path=Path(r"data/kinematics.pkl").resolve(),
+    save_path=Path(r"data/dataset.zarr").resolve(),
     tasks_to_use=["1", "2"],
 )
 

@@ -3,10 +3,10 @@ Model Components
 
 Activation Functions
 --------------------
-.. automodule:: doc_octopy.models.components.activation_functions
+.. automodule:: myo_verse.models.components.activation_functions
     :members:
 
 Utilities
 ---------
-.. automodule:: doc_octopy.models.components.utils
+.. automodule:: myo_verse.models.components.utils
     :members:

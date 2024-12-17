@@ -8,18 +8,18 @@ from scipy.io import loadmat
 from tqdm import tqdm
 
 
-def convert_myogestic_to_dococtopy(
+def convert_myogestic_to_myoverse(
     myogestic_data_folder_path: Path, save_folder_path: Path
 ) -> None:
     """
-    Convert a MyoGestic dataset to a DocOctopy dataset.
+    Convert a MyoGestic dataset to a MyoVerse dataset.
 
     Parameters
     ----------
     myogestic_data_folder_path : Path
         Path to the folder holding the MyoGestic recordings.
     save_folder_path : Path
-        where to save the DocOctopy format pkl files.
+        where to save the MyoVerse format pkl files.
     """
     emg_data = {}
     kinematics_data = {}

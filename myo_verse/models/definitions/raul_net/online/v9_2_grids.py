@@ -7,8 +7,7 @@ import torch
 import torch.optim as optim
 from torch import nn
 
-from doc_octopy.models.components.activation_functions import SMU
-from doc_octopy.models.components.losses import EuclidianDistance
+from myo_verse.models.components.activation_functions import SMU
 
 
 class CircularPad(nn.Module):
@@ -18,11 +17,11 @@ class CircularPad(nn.Module):
         super(CircularPad, self).__init__()
 
     def forward(self, x) -> torch.Tensor:
-        return torch.cat([torch.narrow(x, 2, 3, 2), x, torch.narrow(x, 2, 0, 2)], dim=2)
+        return torch.cat([torch.narrow(x, 3, 48, 16), x, torch.narrow(x, 3, 0, 16)], dim=3)
 
 
-class RaulNetV7(pl.LightningModule):
-    """Model definition not used in any publication
+class RaulNetV9(pl.LightningModule):
+    """Model definition used in Sîmpetru et al.
 
     Attributes
     ----------
@@ -53,7 +52,7 @@ class RaulNetV7(pl.LightningModule):
         event_search_kernel_length: int,
         event_search_kernel_stride: int,
     ):
-        super(RaulNetV7, self).__init__()
+        super(RaulNetV9, self).__init__()
         self.save_hyperparameters()
 
         self.learning_rate = learning_rate
@@ -66,31 +65,38 @@ class RaulNetV7(pl.LightningModule):
         self.event_search_kernel_length = event_search_kernel_length
         self.event_search_kernel_stride = event_search_kernel_stride
 
-        self.criterion = EuclidianDistance()
+        self.criterion = nn.L1Loss()
 
         self.cnn_encoder = nn.Sequential(
-            nn.Conv2d(2, 256, kernel_size=(1, 31), stride=(1, 8)),
+            nn.Conv3d(
+                self.nr_of_input_channels,
+                self.cnn_encoder_channels[0],
+                kernel_size=(1, 1, self.event_search_kernel_length),
+                stride=(1, 1, self.event_search_kernel_stride),
+            ),
             SMU(),
-            nn.BatchNorm2d(256),
-            nn.Dropout2d(p=0.25),
+            nn.BatchNorm3d(self.cnn_encoder_channels[0], track_running_stats=False),
+            nn.Dropout3d(p=0.25),
             CircularPad(),
-            nn.Conv2d(256, 512, kernel_size=(5, 5)),
+            nn.Conv3d(
+                self.cnn_encoder_channels[0], self.cnn_encoder_channels[1], kernel_size=(1, 32, 18), dilation=(1, 2, 1)
+            ),
             SMU(),
-            nn.BatchNorm2d(512),
-            nn.Conv2d(512, 1024, kernel_size=(5, 5), dilation=(1, 2)),
+            nn.BatchNorm3d(self.cnn_encoder_channels[1], track_running_stats=False),
+            nn.Conv3d(self.cnn_encoder_channels[1], self.cnn_encoder_channels[2], kernel_size=(2, 9, 1)),
             SMU(),
-            nn.BatchNorm2d(1024),
+            nn.BatchNorm3d(self.cnn_encoder_channels[2], track_running_stats=False),
             nn.Flatten(),
-            nn.Dropout(p=0.40),
+            nn.Dropout(p=0.25),
         )
 
         self.mlp_encoder = nn.Sequential(
             nn.Linear(
                 reduce(
                     lambda x, y: x * int(y),
-                    self.cnn_encoder(torch.rand((1, self.nr_of_input_channels, 5, self.input_length__samples))).shape[
-                        1:
-                    ],
+                    self.cnn_encoder(
+                        torch.rand((1, self.nr_of_input_channels, 2, 64, self.input_length__samples))
+                    ).shape[1:],
                     1,
                 ),
                 self.mlp_encoder_channels[0],
@@ -102,23 +108,15 @@ class RaulNetV7(pl.LightningModule):
         )
 
     def forward(self, inputs) -> torch.Tensor:
-        x = torch.stack(torch.split(inputs, 64, dim=2), dim=2)
-        x = torch.mean(x, dim=3)
-        # x = self._normalize_input(x)
+        x = torch.stack(inputs[:, [0], 192:].split(64, dim=2), dim=2)
 
         x = self.cnn_encoder(x)
         x = self.mlp_encoder(x)
 
         return x
 
-    def _normalize_input(self, inputs: torch.Tensor) -> torch.Tensor:
-        mins = torch.min(torch.min(inputs, dim=3, keepdim=True)[0], dim=4, keepdim=True)[0].expand(inputs.shape)
-        maxs = torch.max(torch.max(inputs, dim=3, keepdim=True)[0], dim=4, keepdim=True)[0].expand(inputs.shape)
-
-        return 2 * torch.div(torch.sub(inputs, mins), torch.sub(maxs, mins)) - 1
-
     def configure_optimizers(self):
-        optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.01)
+        optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.1)
 
         lr_scheduler = {
             "scheduler": optim.lr_scheduler.OneCycleLR(

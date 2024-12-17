@@ -8,14 +8,14 @@ This example shows how to apply a complex filter sequence to the data.
 # %%
 # Loading data and selection one task for simplicity
 # --------------------------------------------------
-# Just as in the previous example we load the EMG example data and convert it to a DocOctoPy Data object.
+# Just as in the previous example we load the EMG example data and convert it to a MyoVerse Data object.
 # Afterward, we select one task to work with.
 import pickle as pkl
 from copy import copy
 
 import numpy as np
 
-from doc_octopy.datatypes import EMGData
+from myo_verse.datatypes import EMGData
 
 emg_data = {}
 with open("data/emg.pkl", "rb") as f:
@@ -31,16 +31,18 @@ print(task_one_data)
 # %%
 # Applying a basic filter sequence
 # --------------------------------
-# A common filter sequence used by us in our deep learning papers is to first apply a bandpass betwee 47.5 and 52.5 Hz
+# A common filter sequence used by us in our deep learning papers is to first apply a bandpass between 47.5 and 52.5 Hz
 # to remove the powerline noise.
 #
 # Then we copied this filtered data and applied a lowpass filter at 20 Hz to remove high-frequency noise.
-# The deep learning models was thus trained with 2 representations of the data, one with the powerline noise removed and one with the high-frequency noise removed.
+# The deep learning models were thus trained with 2 representations of the data, one with the powerline noise removed and one with the high-frequency noise removed.
 #
 # We can achieve this by applying two filters to the data using the apply_filters method.
+#
+# .. note:: Please run this code on your local machine as the plots are interactive and information can be seen by hovering over the nodes.
 from scipy.signal import butter
 
-from doc_octopy.datasets.filters.temporal import SOSFrequencyFilter
+from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
 
 # Define the filters
 bandpass_filter = SOSFrequencyFilter(
@@ -53,7 +55,6 @@ lowpass_filter = SOSFrequencyFilter(
     is_output=True,
     name="Lowpass 20",
 )
-
 
 # Apply the filters
 task_one_data.apply_filter_sequence(
@@ -72,10 +73,14 @@ task_one_data.plot_graph()
 # In this example we will apply a more complex filter sequence to the data.
 #
 # The filter shall apply the following steps:
+#
 # 1. Chunk the data into 100 ms windows.
+#
 # 2. Apply a bandpass filter between 47.5 and 52.5 Hz to remove powerline noise.
+#
 # 3. Copy the filtered data and apply a lowpass filter at 20 Hz to remove high-frequency noise.
 # 4. Compute the root mean square of the data from step 3.
+#
 # 5. The other copy of step 2 should be used to calculate the root mean square directly.
 #
 # The computation graph for this filter sequence is shown below:
@@ -83,10 +88,10 @@ task_one_data.plot_graph()
 # 1 -> 2 -> 3 -> 4
 #      L --------> 5
 #
-# We can achieve this by applying five filters to the data using the apply_filter_sequence method and setting the is_output
+# We can achieve this by applying five filters to the data using the **apply_filter_sequence** method and setting the is_output
 # flag to True for the filters that should be kept in the dataset object.
-from doc_octopy.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
-from doc_octopy.datasets.filters.temporal import SOSFrequencyFilter
+from myo_verse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
+from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
 
 # reset the data
 task_one_data = copy(emg_data["1"])
@@ -173,7 +178,12 @@ plt.show()
 # %%
 # Easier way of applying the filter pipeline
 # ------------------------------------------
-# This can be achieved in a more concise way by using the apply_filter_pipeline method.
+# This can be achieved in a more concise way by using the **apply_filter_pipeline** method.
+#
+# To reduce memory usage, we can set the **keep_individual_filter_steps** flag to False.
+# This will remove the intermediate representations (shown in grey) from the dataset object.
+#
+# .. note:: If new filters rely on the intermediate representations, they will be recalculated which can be computationally expensive.
 task_one_data = copy(emg_data["1"])
 
 print(task_one_data)
