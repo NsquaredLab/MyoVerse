@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 from numpy import ndarray
 
-from doc_octopy.datasets.filters._template import FilterBaseClass
+from myo_verse.datasets.filters._template import FilterBaseClass
 
 Representation = TypedDict(
     "Representation",

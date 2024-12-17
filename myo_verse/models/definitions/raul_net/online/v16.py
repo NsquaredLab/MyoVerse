@@ -1,4 +1,4 @@
-"""Model definitions not used in any publication"""
+"""Model definition used in the Sîmpetru et al. (2024)"""
 
 from typing import Any, Dict, Optional, Tuple, Union
 
@@ -10,7 +10,7 @@ import torch.optim as optim
 
 
 class RaulNetV16(L.LightningModule):
-    """Model definition not used in any publication
+    """Model definition used in Sîmpetru et al. [1]_
 
     Attributes
     ----------
@@ -28,6 +28,11 @@ class RaulNetV16(L.LightningModule):
         Integer that sets the length of the kernels searching for action potentials.
     event_search_kernel_stride : int
         Integer that sets the stride of the kernels searching for action potentials.
+
+    Notes
+    -----
+    .. [1] Sîmpetru, R.C., Braun, D.I., Simon, A.U., März, M., Cnejevici, V., de Oliveira, D.S., Weber, N., Walter, J., Franke, J., Höglinger, D., Prahm, C., Ponfick, M., Del Vecchio, A., 2024. MyoGestic: EMG interfacing framework for decoding multiple spared degrees of freedom of the hand in individuals with neural lesions. https://doi.org/10.48550/arXiv.2408.07817
+
     """
 
     def __init__(

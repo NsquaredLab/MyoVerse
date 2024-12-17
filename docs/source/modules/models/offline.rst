@@ -10,6 +10,3 @@ Offline Only Models
 
     offline/v1
     offline/v4
-    offline/v5
-    offline/v6
-    offline/v7

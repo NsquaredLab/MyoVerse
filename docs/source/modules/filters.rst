@@ -6,7 +6,7 @@ Filters
 Filters are used to preprocess the data before it is used by the model.
 Some filters can only work on chunked data, while others can work on both chunked and unchunked data.
 
-DocOctoPy provides following types of filters:
+MyoVerse provides following types of filters:
 
     Generic filters e.g. allow the use of custom methods to preprocess the data.
 

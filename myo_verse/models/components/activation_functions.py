@@ -40,17 +40,17 @@ class PSerf(nn.Module):
 class SAU(nn.Module):
     """SAU activation function from Biswas et al.
 
-        Parameters
-        ----------
-        alpha : float, optional
-            The alpha parameter, by default 0.15.
+    Parameters
+    ----------
+    alpha : float, optional
+        The alpha parameter, by default 0.15.
     n : int, optional
         The n parameter, by default 20000.
 
-        References
-        ----------
-        Biswas, K., Kumar, S., Banerjee, S., Pandey, A.K., 2021.
-        SAU: Smooth activation function using convolution with approximate identities. arXiv:2109.13210 [cs].
+    References
+    ----------
+    Biswas, K., Kumar, S., Banerjee, S., Pandey, A.K., 2021.
+    SAU: Smooth activation function using convolution with approximate identities. arXiv:2109.13210 [cs].
 
     """
 

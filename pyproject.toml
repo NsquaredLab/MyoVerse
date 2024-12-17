@@ -1,13 +1,13 @@
 [tool.poetry]
-name = "doc-octopy"
-version = "0.6.0"
+name = "MyoVerse"
+version = "0.7.0"
 description = ""
 authors = [
     "Raul C. Sîmpetru <raul.simpetru@fau.de>",
     "Vlad Cnejevici <vlad.cnejevici@fau.de>"
 ]
 readme = "README.md"
-packages = [{include = "doc_octopy"}]
+packages = [{include = "myo_verse"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<=3.13"

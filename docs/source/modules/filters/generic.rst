@@ -1,6 +1,6 @@
 Generic Filters
 ^^^^^^^^^^^^^^^
-.. automodule:: doc_octopy.datasets.filters.generic
+.. automodule:: myo_verse.datasets.filters.generic
     :members:
     :show-inheritance:
 

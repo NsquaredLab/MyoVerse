@@ -4,7 +4,7 @@ from typing import Sequence, Union
 
 import numpy as np
 
-from doc_octopy.datasets.filters._template import FilterBaseClass
+from myo_verse.datasets.filters._template import FilterBaseClass
 
 
 class ApplyFunctionFilter(FilterBaseClass):

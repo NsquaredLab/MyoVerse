@@ -6,9 +6,9 @@ import numpy as np
 import zarr
 from tqdm import tqdm
 
-from doc_octopy.datasets.filters._template import FilterBaseClass, EMGAugmentation
-from doc_octopy.datasets.filters.generic import ChunkizeDataFilter
-from doc_octopy.datatypes import DATA_TYPES_MAP, _Data
+from myo_verse.datasets.filters._template import FilterBaseClass, EMGAugmentation
+from myo_verse.datasets.filters.generic import ChunkizeDataFilter
+from myo_verse.datatypes import DATA_TYPES_MAP, _Data
 
 
 def _split_data(data: np.ndarray, split_ratio: float) -> tuple[np.ndarray, np.ndarray]:

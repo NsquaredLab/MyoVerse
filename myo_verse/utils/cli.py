@@ -74,15 +74,3 @@ class ArgParserPlus:
             if argument.default == argparse.ArgumentError:
                 raise argparse.ArgumentError(argument, "Argument is required")
         return self.parser.parse_args()
-
-
-if __name__ == "__main__":
-    parser = ArgParserPlus(
-        "Test",
-        advanced=True,
-        arguments=[
-            (["--experimentee", "-e"], {"type": int, "default": 1801211219}),
-        ],
-    )
-
-    args = print(parser.parse_args())

@@ -1,6 +1,0 @@
-V5
-==
-
-.. automodule:: doc_octopy.models.definitions.raul_net.offline.v5
-    :members:
-    :exclude-members: configure_optimizers, test_step, training_step, validation_step

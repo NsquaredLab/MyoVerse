@@ -1,15 +1,15 @@
-# DocOctopy
+# MyoVerse
 
 
-<a href="https://www.python.org/downloads/release/python-3100/"><img alt="Code style: black" src="https://img.shields.io/badge/python-v3.10-blue"></a>
+<a href="https://www.python.org/downloads/release/python-3100/"><img alt="Code style: black" src="https://img.shields.io/badge/python-%3E=3.10,%20%3C=3.13-blue"></a>
 <a href="https://www.pytorchlightning.ai/"><img alt="Code style: black" src="https://img.shields.io/badge/uses-pytorch & pytorch lighting-blueviolet"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code style-black-000000.svg"></a>
 
 > [!TIP]
-> Take a look at our [documentation](https://nsquaredlab.github.io/DocOctopy/README.html).
+> Take a look at our [documentation](https://nsquaredlab.github.io/MyoVerse/README.html).
 
 ## What is this?
-DocOctopy , the **research** library for kinematics, kinetics, and everything else you can think of that has to do with EMG and AIs.
+MyoVerse , the **research** library for kinematics, kinetics, and everything else you can think of that has to do with EMG and AIs.
 > **Important**  
 > Be aware that this project is used for **research**. Do not expect the same stability as from numpy for example.
 
@@ -18,17 +18,15 @@ DocOctopy , the **research** library for kinematics, kinetics, and everything el
 > Order matters!
 - clone
 - install [poetry](https://python-poetry.org/docs/#installation)
-- based on your hardware:
-  - GPU (NVIDIA): `poetry install`
-  - CPU: run `pip install torch torchvision --upgrade` after `poetry install`
+- based on your OS and hardware please check pytorch's [installation guide](https://pytorch.org/get-started/locally/)
 - for building the documentation add `docs` to the *with* flag: `poetry install --with docs`
 
 ## What is what?
 This projects uses the following structure:
-- doc_octopy: This is the main package. It contains:
+- myo_verse: This is the main package. It contains:
   - datasets: Contains data loaders and creators as well as a lot of filters to preprocess the data.
   - models: Contains all models and their components.
-  - utils: Various utilities from training loggers to constants.
+  - utils: Various utilities.
 - docs: Contains the documentation.
 - examples: Contains examples on how to use the package.
 - tests: Contains tests for the package.

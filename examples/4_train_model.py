@@ -16,14 +16,14 @@ This example shows how to train a deep learning model using the dataset created 
 #
 # - dataloader_parameters: Parameters for the DataLoader.
 from pathlib import Path
-from doc_octopy.datasets.loader import EMGDatasetLoader
+from myo_verse.datasets.loader import EMGDatasetLoader
 
-loader = EMGDatasetLoader(Path("data/dataset.zarr").resolve(), dataloader_parameters={"batch_size": 16, "drop_last": True})
+loader = EMGDatasetLoader(Path(r"data/dataset.zarr").resolve(), dataloader_parameters={"batch_size": 16, "drop_last": True})
 
 # %%
 # Training the model
 # ------------------
-from doc_octopy.models.definitions.raul_net.online.v16 import RaulNetV16
+from myo_verse.models.definitions.raul_net.online.v16 import RaulNetV16
 import lightning as L
 
 # Create the model

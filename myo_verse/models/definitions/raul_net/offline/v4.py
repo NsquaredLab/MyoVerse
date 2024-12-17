@@ -1,19 +1,29 @@
-"""Model definition not used in any publication"""
-
+"""Model definition used in the Sîmpetru et al. (2024)"""
 from functools import reduce
-from typing import Any, Dict, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import pytorch_lightning as pl
 import torch
 import torch.optim as optim
 from torch import nn
-from torch.nn.functional import interpolate
 
-from doc_octopy.models.components.activation_functions import SMU
+from myo_verse.models.components.activation_functions import SMU_old
 
 
-class RaulNetV8(pl.LightningModule):
-    """Model definition not used in any publication
+class CircularPad(nn.Module):
+    """Circular padding layer"""
+
+    def __init__(self):
+        super(CircularPad, self).__init__()
+
+    def forward(self, x) -> torch.Tensor:
+        x = torch.cat([torch.narrow(x, 2, 3, 2), x, torch.narrow(x, 2, 0, 2)], dim=2)
+        x = torch.cat([torch.narrow(x, 3, 48, 16), x, torch.narrow(x, 3, 0, 16)], dim=3)
+        return x
+
+
+class RaulNetV4(pl.LightningModule):
+    """Model definition used in Sîmpetru et al. [1]_
 
     Attributes
     ----------
@@ -31,6 +41,11 @@ class RaulNetV8(pl.LightningModule):
         Integer that sets the length of the kernels searching for action potentials.
     event_search_kernel_stride : int
         Integer that sets the stride of the kernels searching for action potentials.
+
+    Notes
+    -----
+    .. [1] Sîmpetru, R.C., Arkudas, A., Braun, D.I., Osswald, M., Souza de Oliveira, D., Eskofier, B., Kinfe, T.M., Del Vecchio, A., 2024. Learning a hand model from dynamic movements using high-density EMG and convolutional neural networks. IEEE Trans. Biomed. Eng. 1–12. https://doi.org/10.1109/TBME.2024.3432800
+
     """
 
     def __init__(
@@ -41,8 +56,10 @@ class RaulNetV8(pl.LightningModule):
         nr_of_outputs: int,
         cnn_encoder_channels: Tuple[int, int, int],
         mlp_encoder_channels: Tuple[int, int],
+        event_search_kernel_length: int,
+        event_search_kernel_stride: int,
     ):
-        super(RaulNetV8, self).__init__()
+        super(RaulNetV4, self).__init__()
         self.save_hyperparameters()
 
         self.learning_rate = learning_rate
@@ -52,50 +69,39 @@ class RaulNetV8(pl.LightningModule):
 
         self.cnn_encoder_channels = cnn_encoder_channels
         self.mlp_encoder_channels = mlp_encoder_channels
+        self.event_search_kernel_length = event_search_kernel_length
+        self.event_search_kernel_stride = event_search_kernel_stride
 
         self.criterion = nn.L1Loss()
 
         self.cnn_encoder = nn.Sequential(
-            nn.Conv2d(
-                in_channels=2,
-                out_channels=self.cnn_encoder_channels[0],
-                kernel_size=(7, 7),
-                padding_mode="zeros",
-                padding="same",
+            nn.Conv3d(
+                self.nr_of_input_channels,
+                self.cnn_encoder_channels[0],
+                kernel_size=(1, 1, self.event_search_kernel_length),
+                stride=(1, 1, self.event_search_kernel_stride),
             ),
-            nn.MaxPool2d(kernel_size=(2, 2)),
-            SMU(),
-            nn.BatchNorm2d(self.cnn_encoder_channels[0]),
-            nn.Dropout2d(p=0.25),
-            nn.Conv2d(
-                in_channels=self.cnn_encoder_channels[0],
-                out_channels=self.cnn_encoder_channels[1],
-                kernel_size=(9, 9),
-                padding_mode="zeros",
-                padding="same",
+            SMU_old(),
+            nn.BatchNorm3d(self.cnn_encoder_channels[0]),
+            nn.Dropout3d(p=0.25),
+            CircularPad(),
+            nn.Conv3d(
+                self.cnn_encoder_channels[0],
+                self.cnn_encoder_channels[1],
+                kernel_size=(5, 32, 18),
+                dilation=(1, 2, 1),
             ),
-            nn.Conv2d(
-                in_channels=self.cnn_encoder_channels[1],
-                out_channels=self.cnn_encoder_channels[1],
-                kernel_size=(11, 11),
-                padding_mode="zeros",
-                padding="same",
+            SMU_old(),
+            nn.BatchNorm3d(self.cnn_encoder_channels[1]),
+            nn.Conv3d(
+                self.cnn_encoder_channels[1],
+                self.cnn_encoder_channels[2],
+                kernel_size=(5, 9, 1),
             ),
-            nn.MaxPool2d(kernel_size=(2, 2)),
-            SMU(),
-            nn.BatchNorm2d(self.cnn_encoder_channels[1]),
-            nn.Conv2d(
-                in_channels=self.cnn_encoder_channels[1],
-                out_channels=self.cnn_encoder_channels[2],
-                kernel_size=(13, 13),
-                padding_mode="zeros",
-                padding="same",
-            ),
-            nn.MaxPool2d(kernel_size=(4, 4)),
-            SMU(),
-            nn.BatchNorm2d(self.cnn_encoder_channels[2]),
+            SMU_old(),
+            nn.BatchNorm3d(self.cnn_encoder_channels[2]),
             nn.Flatten(),
-            nn.Dropout(p=0.15),
+            nn.Dropout(p=0.40),
         )
 
         self.mlp_encoder = nn.Sequential(
@@ -103,44 +109,34 @@ class RaulNetV8(pl.LightningModule):
                 reduce(
                     lambda x, y: x * int(y),
                     self.cnn_encoder(
-                        torch.rand((1, self.nr_of_input_channels, 104, 40))
+                        torch.rand(
+                            (
+                                1,
+                                self.nr_of_input_channels,
+                                5,
+                                64,
+                                self.input_length__samples,
+                            )
+                        )
                     ).shape[1:],
                     1,
                 ),
                 self.mlp_encoder_channels[0],
             ),
-            SMU(),
+            SMU_old(),
             nn.Linear(self.mlp_encoder_channels[0], self.mlp_encoder_channels[1]),
-            SMU(),
+            SMU_old(),
             nn.Linear(self.mlp_encoder_channels[1], self.nr_of_outputs),
         )
 
     def forward(self, inputs) -> torch.Tensor:
-        x = torch.stack(torch.tensor_split(inputs, 5, dim=1)[3:], dim=1)
-        x = interpolate(
-            RaulNetV8.reshape_fortran(
-                torch.concat([x.mean(dim=2, keepdim=True), x], dim=2),
-                (-1, 2, 13, 5, 192),
-            )
-            .square()
-            .mean(dim=-1)
-            .sqrt(),
-            scale_factor=8,
-            align_corners=True,
-            mode="bicubic",
-        )
-        # x = self._normalize_input(x)
+        x = torch.stack(torch.split(inputs, 64, dim=2), dim=2)
+        x = self._normalize_input(x)
 
         x = self.cnn_encoder(x)
         x = self.mlp_encoder(x)
 
         return x
-
-    @staticmethod
-    def reshape_fortran(x: torch.Tensor, shape: Sequence[int]):
-        if len(x.shape) > 0:
-            x = x.permute(*reversed(range(len(x.shape))))
-        return x.reshape(*reversed(shape)).permute(*reversed(range(len(shape))))
 
     def _normalize_input(self, inputs: torch.Tensor) -> torch.Tensor:
         mins = torch.min(
@@ -154,7 +150,7 @@ class RaulNetV8(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.AdamW(
-            self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.1
+            self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.01
         )
 
         lr_scheduler = {

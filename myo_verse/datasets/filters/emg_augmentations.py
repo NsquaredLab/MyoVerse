@@ -3,7 +3,7 @@ import numpy as np
 import pywt
 from scipy import interpolate
 
-from doc_octopy.datasets.filters._template import EMGAugmentation
+from myo_verse.datasets.filters._template import EMGAugmentation
 
 
 @numba.njit(nogil=True, fastmath=True)
@@ -36,7 +36,7 @@ class GaussianNoise(EMGAugmentation):
     Parameters
     ----------
     target_snr__db : float, optional
-        The target signal to noise ratio in decibels, by default 5.0.
+        The target signal-to-noise ratio in decibels, by default 5.0.
     input_is_chunked : bool
         Whether the input is chunked or not.
     is_output : bool
@@ -68,7 +68,7 @@ class GaussianNoise(EMGAugmentation):
 
 
 class MagnitudeWarping(EMGAugmentation):
-    """Magnitude warping augmentation. This augmentation is based on the paper [1]_
+    """Magnitude warping augmentation. This augmentation is based on the paper [2]_
 
     Parameters
     ----------
@@ -92,7 +92,7 @@ class MagnitudeWarping(EMGAugmentation):
 
     Notes
     -----
-    .. [1] Tsinganos, P., Cornelis, B., Cornelis, J., Jansen, B., Skodras, A., 2020. Data Augmentation of Surface Electromyography for Hand Gesture Recognition. Sensors 20, 4892. https://doi.org/10/grc7ph
+    .. [2] Tsinganos, P., Cornelis, B., Cornelis, J., Jansen, B., Skodras, A., 2020. Data Augmentation of Surface Electromyography for Hand Gesture Recognition. Sensors 20, 4892. https://doi.org/10/grc7ph
     """
 
     def __init__(
@@ -144,7 +144,7 @@ class MagnitudeWarping(EMGAugmentation):
 
 
 class WaveletDecomposition(EMGAugmentation):
-    """Wavelet decomposition augmentation. This augmentation is based on the paper [1]_
+    """Wavelet decomposition augmentation. This augmentation is based on the paper [3]_
 
     Parameters
     ----------
@@ -168,7 +168,7 @@ class WaveletDecomposition(EMGAugmentation):
 
     Notes
     -----
-    .. [1] Tsinganos, P., Cornelis, B., Cornelis, J., Jansen, B., Skodras, A., 2020. Data Augmentation of Surface Electromyography for Hand Gesture Recognition. Sensors 20, 4892. https://doi.org/10/grc7ph
+    .. [3] Tsinganos, P., Cornelis, B., Cornelis, J., Jansen, B., Skodras, A., 2020. Data Augmentation of Surface Electromyography for Hand Gesture Recognition. Sensors 20, 4892. https://doi.org/10/grc7ph
     """
 
     def __init__(

@@ -1,6 +1,6 @@
 Base Filter Template
 ^^^^^^^^^^^^^^^^^^^^
-.. automodule:: doc_octopy.datasets.filters._template
+.. automodule:: myo_verse.datasets.filters._template
     :members:
     :show-inheritance:
     :private-members:

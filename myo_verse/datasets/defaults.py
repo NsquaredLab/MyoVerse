@@ -4,15 +4,14 @@ from typing import Sequence
 import numpy as np
 from scipy.signal import butter
 
-from doc_octopy.datasets.filters.emg_augmentations import (
+from myo_verse.datasets.filters.emg_augmentations import (
     GaussianNoise,
     MagnitudeWarping,
     WaveletDecomposition,
 )
-from doc_octopy.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter, IdentityFilter
-from doc_octopy.datasets.filters.temporal import RMSFilter, SOSFrequencyFilter
-from doc_octopy.datasets.supervised import EMGDataset
-from doc_octopy.utils.constants import EXPERIMENTS_TO_USE
+from myo_verse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter, IdentityFilter
+from myo_verse.datasets.filters.temporal import RMSFilter, SOSFrequencyFilter
+from myo_verse.datasets.supervised import EMGDataset
 
 
 class EMBCDataset:
@@ -51,7 +50,7 @@ class EMBCDataset:
         emg_data_path: Path,
         ground_truth_data_path: Path,
         save_path: Path,
-        tasks_to_use: Sequence[str] = EXPERIMENTS_TO_USE,
+        tasks_to_use: Sequence[str] = ("Change Me",),
         debug: bool = False,
     ):
         self.emg_data_path = emg_data_path
@@ -134,7 +133,7 @@ class CastelliniDataset:
         emg_data_path: Path,
         ground_truth_data_path: Path,
         save_path: Path,
-        tasks_to_use: Sequence[str] = EXPERIMENTS_TO_USE,
+        tasks_to_use: Sequence[str] = ("Change Me",),
     ):
         self.emg_data_path = emg_data_path
         self.ground_truth_data_path = ground_truth_data_path
