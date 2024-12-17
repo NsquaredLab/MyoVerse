@@ -6,12 +6,12 @@ import numpy as np
 import lightning as L
 from torch.utils.data import DataLoader, Dataset
 
-from myo_verse.datasets.filters.generic import (
+from myoverse.datasets.filters.generic import (
     IdentityFilter,
     FilterBaseClass,
     IndexDataFilter,
 )
-from myo_verse.datatypes import EMGData, VirtualHandKinematics
+from myoverse.datatypes import EMGData, VirtualHandKinematics
 
 
 class EMGDatasetLoader(L.LightningDataModule):

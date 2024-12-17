@@ -17,10 +17,10 @@ from pathlib import Path
 import numpy as np
 from scipy.signal import butter
 
-from myo_verse.datasets.filters.emg_augmentations import WaveletDecomposition
-from myo_verse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter
-from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
-from myo_verse.datasets.supervised import EMGDataset
+from myoverse.datasets.filters.emg_augmentations import WaveletDecomposition
+from myoverse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter
+from myoverse.datasets.filters.temporal import SOSFrequencyFilter
+from myoverse.datasets.supervised import EMGDataset
 
 dataset = EMGDataset(
     emg_data_path=Path(r"data/emg.pkl").resolve(),
@@ -76,7 +76,7 @@ dataset.create_dataset()
 # Default dataset are also available. Here is an example of how to use the EMBCDataset used in [2]_.
 #
 # .. [2] Sîmpetru, R.C., Osswald, M., Braun, D.I., Souza de Oliveira, D., Cakici, A.L., Del Vecchio, A., 2022. Accurate continuous prediction of 14 degrees of freedom of the hand from myoelectrical signals through convolutive deep learning, in: Proceedings of the 2022 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC). Presented at the 2022 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC), pp. 702–706. https://doi.org/10/gq2f47
-from myo_verse.datasets.defaults import EMBCDataset
+from myoverse.datasets.defaults import EMBCDataset
 
 dataset = EMBCDataset(
     emg_data_path=Path(r"data/emg.pkl").resolve(),

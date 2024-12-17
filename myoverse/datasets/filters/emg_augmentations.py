@@ -3,7 +3,7 @@ import numpy as np
 import pywt
 from scipy import interpolate
 
-from myo_verse.datasets.filters._template import EMGAugmentation
+from myoverse.datasets.filters._template import EMGAugmentation
 
 
 @numba.njit(nogil=True, fastmath=True)

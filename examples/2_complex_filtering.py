@@ -15,7 +15,7 @@ from copy import copy
 
 import numpy as np
 
-from myo_verse.datatypes import EMGData
+from myoverse.datatypes import EMGData
 
 emg_data = {}
 with open("data/emg.pkl", "rb") as f:
@@ -42,7 +42,7 @@ print(task_one_data)
 # .. note:: Please run this code on your local machine as the plots are interactive and information can be seen by hovering over the nodes.
 from scipy.signal import butter
 
-from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
 # Define the filters
 bandpass_filter = SOSFrequencyFilter(
@@ -90,8 +90,8 @@ task_one_data.plot_graph()
 #
 # We can achieve this by applying five filters to the data using the **apply_filter_sequence** method and setting the is_output
 # flag to True for the filters that should be kept in the dataset object.
-from myo_verse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
-from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+from myoverse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
+from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
 # reset the data
 task_one_data = copy(emg_data["1"])

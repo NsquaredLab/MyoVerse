@@ -6,9 +6,9 @@ import numpy as np
 import zarr
 from tqdm import tqdm
 
-from myo_verse.datasets.filters._template import FilterBaseClass, EMGAugmentation
-from myo_verse.datasets.filters.generic import ChunkizeDataFilter
-from myo_verse.datatypes import DATA_TYPES_MAP, _Data
+from myoverse.datasets.filters._template import FilterBaseClass, EMGAugmentation
+from myoverse.datasets.filters.generic import ChunkizeDataFilter
+from myoverse.datatypes import DATA_TYPES_MAP, _Data
 
 
 def _split_data(data: np.ndarray, split_ratio: float) -> tuple[np.ndarray, np.ndarray]:
@@ -422,7 +422,7 @@ class EMGDataset:
                 )
 
         for augmentation_pipeline in self.augmentation_pipelines:
-            emg_to_append = {k: [] for k in dataset["training\emg"]}
+            emg_to_append = {k: [] for k in dataset["training/emg"]}
             ground_truth_to_append = {k: [] for k in dataset["training/ground_truth"]}
             label_to_append = []
             class_to_append = []
@@ -435,7 +435,7 @@ class EMGDataset:
                 ),
                 desc=f"Augmenting with {str(augmentation_pipeline)}",
             ):
-                for k in dataset["training\emg"]:
+                for k in dataset["training/emg"]:
                     temp = DATA_TYPES_MAP["emg"](
                         input_data=dataset["training/emg"][k][i].astype(np.float32),
                         sampling_frequency=self.sampling_frequency,
@@ -472,7 +472,7 @@ class EMGDataset:
                         np.array(one_hot_class_to_append),
                         name="one_hot_class",
                     )
-                    emg_to_append = {k: [] for k in dataset["training\emg"]}
+                    emg_to_append = {k: [] for k in dataset["training/emg"]}
                     ground_truth_to_append = {
                         k: [] for k in dataset["training/ground_truth"]
                     }
