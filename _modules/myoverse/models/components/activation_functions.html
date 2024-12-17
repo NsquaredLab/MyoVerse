@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
-        <title>myo_verse.models.components.activation_functions - MyoVerse 0.7.0 documentation</title>
+        <title>myoverse.models.components.activation_functions - MyoVerse 0.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
@@ -269,13 +269,13 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for myo_verse.models.components.activation_functions</h1><div class="highlight"><pre>
+          <h1>Source code for myoverse.models.components.activation_functions</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">torch</span>
 <span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
 
 
 <div class="viewcode-block" id="PSerf">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.PSerf">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.PSerf">[docs]</a>
 <span class="k">class</span> <span class="nc">PSerf</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;PSerf activation function from Biswas et al.</span>
 
@@ -305,7 +305,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">stabilisation_term</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">stabilisation_term</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PSerf.forward">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.PSerf.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.PSerf.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">x</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">x</span><span class="p">)))</span>
@@ -316,7 +316,7 @@
 
 
 <div class="viewcode-block" id="SAU">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.SAU">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.SAU">[docs]</a>
 <span class="k">class</span> <span class="nc">SAU</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;SAU activation function from Biswas et al.</span>
 
@@ -341,7 +341,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SAU.forward">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.SAU.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.SAU.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mi">2</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span>
@@ -358,7 +358,7 @@
 
 
 <div class="viewcode-block" id="SMU">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.SMU">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.SMU">[docs]</a>
 <span class="k">class</span> <span class="nc">SMU</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;SMU activation function from Biswas et al.</span>
 
@@ -386,7 +386,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SMU.forward">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.SMU.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.SMU.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span>
@@ -397,7 +397,7 @@
 
 
 <div class="viewcode-block" id="SMU_old">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.SMU_old">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.SMU_old">[docs]</a>
 <span class="k">class</span> <span class="nc">SMU_old</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;SMU activation function from Biswas et al. This is an older version of the SMU activation function and should not</span>
 <span class="sd">    be used.</span>
@@ -426,7 +426,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mu</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">mu</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SMU_old.forward">
-<a class="viewcode-back" href="../../../../modules/model_components.html#myo_verse.models.components.activation_functions.SMU_old.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/model_components.html#myoverse.models.components.activation_functions.SMU_old.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span> <span class="o">*</span> <span class="n">x</span>

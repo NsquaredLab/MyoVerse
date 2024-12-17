@@ -278,11 +278,11 @@
         <article role="main" id="furo-main-content">
           <section id="datasets">
 <h1>Datasets<a class="headerlink" href="#datasets" title="Link to this heading">¶</a></h1>
-<section id="module-myo_verse.datasets.loader">
-<span id="loader"></span><h2>Loader<a class="headerlink" href="#module-myo_verse.datasets.loader" title="Link to this heading">¶</a></h2>
+<section id="module-myoverse.datasets.loader">
+<span id="loader"></span><h2>Loader<a class="headerlink" href="#module-myoverse.datasets.loader" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.datasets.loader.</span></span><span class="sig-name descname"><span class="pre">EMGDatasetLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data_path,</span> <span class="pre">seed=None,</span> <span class="pre">dataloader_parameters=None,</span> <span class="pre">shuffle_training_data=True,</span> <span class="pre">input_type=&lt;class</span> <span class="pre">'numpy.float32'&gt;,</span> <span class="pre">ground_truth_type=&lt;class</span> <span class="pre">'numpy.float32'&gt;,</span> <span class="pre">ground_truth_name='ground_truth',</span> <span class="pre">input_augmentation_pipeline=[[IdentityFilter</span> <span class="pre">(IdentityFilter)]],</span> <span class="pre">input_augmentation_probabilities=(1,),</span> <span class="pre">ground_truth_augmentation_pipeline=[[IndexDataFilter</span> <span class="pre">(IndexDataFilter)]],</span> <span class="pre">ground_truth_augmentation_probabilities=(1,)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/loader.html#EMGDatasetLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datasets.loader.</span></span><span class="sig-name descname"><span class="pre">EMGDatasetLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data_path,</span> <span class="pre">seed=None,</span> <span class="pre">dataloader_parameters=None,</span> <span class="pre">shuffle_training_data=True,</span> <span class="pre">input_type=&lt;class</span> <span class="pre">'numpy.float32'&gt;,</span> <span class="pre">ground_truth_type=&lt;class</span> <span class="pre">'numpy.float32'&gt;,</span> <span class="pre">ground_truth_name='ground_truth',</span> <span class="pre">input_augmentation_pipeline=[[IdentityFilter</span> <span class="pre">(IdentityFilter)]],</span> <span class="pre">input_augmentation_probabilities=(1,),</span> <span class="pre">ground_truth_augmentation_pipeline=[[IndexDataFilter</span> <span class="pre">(IndexDataFilter)]],</span> <span class="pre">ground_truth_augmentation_probabilities=(1,)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/loader.html#EMGDatasetLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader" title="Link to this definition">¶</a></dt>
 <dd><p>Dataset loader for the EMG dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -294,10 +294,10 @@
 <li><p><strong>input_type</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.2)"><em>numpy.dtype</em></a><em>, </em><em>optional</em>) – The type of the input data, by default np.float32</p></li>
 <li><p><strong>ground_truth_type</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.2)"><em>numpy.dtype</em></a><em>, </em><em>optional</em>) – The type of the ground_truth data, by default np.float32</p></li>
 <li><p><strong>ground_truth_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – The name of the ground truth data, by default “ground_truth”</p></li>
-<li><p><strong>input_augmentation_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – The augmentation pipeline for the input data, by default [[IdentityFilter(is_output=True)]]</p></li>
+<li><p><strong>input_augmentation_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – The augmentation pipeline for the input data, by default [[IdentityFilter(is_output=True)]]</p></li>
 <li><p><strong>input_augmentation_probabilities</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The probabilities for the augmentation pipeline, by default (1,)
 The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.</p></li>
-<li><p><strong>ground_truth_augmentation_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – The augmentation pipeline for the ground truth data, by default [[IdentityFilter(is_output=True)]]</p></li>
+<li><p><strong>ground_truth_augmentation_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em><em>, </em><em>optional</em>) – The augmentation pipeline for the ground truth data, by default [[IdentityFilter(is_output=True)]]</p></li>
 <li><p><strong>ground_truth_augmentation_probabilities</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>]</em><em>, </em><em>optional</em>) – The probabilities for the augmentation pipeline, by default (1,)
 The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.</p></li>
 </ul>
@@ -305,8 +305,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dl>
 <p>Initializes the dataset.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.data_path">
-<span class="sig-name descname"><span class="pre">data_path</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.data_path" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.data_path">
+<span class="sig-name descname"><span class="pre">data_path</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.data_path" title="Link to this definition">¶</a></dt>
 <dd><p>The path to the HDF5 file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -316,8 +316,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.seed">
-<span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.seed" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.seed" title="Link to this definition">¶</a></dt>
 <dd><p>The seed for the random number generator, by default None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -327,8 +327,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.dataloader_parameters">
-<span class="sig-name descname"><span class="pre">dataloader_parameters</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.dataloader_parameters" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.dataloader_parameters">
+<span class="sig-name descname"><span class="pre">dataloader_parameters</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.dataloader_parameters" title="Link to this definition">¶</a></dt>
 <dd><p>The parameters for the DataLoader, by default None</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -338,8 +338,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.shuffle_training_data">
-<span class="sig-name descname"><span class="pre">shuffle_training_data</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.shuffle_training_data" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.shuffle_training_data">
+<span class="sig-name descname"><span class="pre">shuffle_training_data</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.shuffle_training_data" title="Link to this definition">¶</a></dt>
 <dd><p>Whether to shuffle the training data, by default True</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -349,8 +349,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.input_type">
-<span class="sig-name descname"><span class="pre">input_type</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.input_type" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.input_type">
+<span class="sig-name descname"><span class="pre">input_type</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.input_type" title="Link to this definition">¶</a></dt>
 <dd><p>The type of the input data, by default np.float32</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -360,8 +360,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_type">
-<span class="sig-name descname"><span class="pre">ground_truth_type</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_type" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.ground_truth_type">
+<span class="sig-name descname"><span class="pre">ground_truth_type</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_type" title="Link to this definition">¶</a></dt>
 <dd><p>The type of the label data, by default np.float32</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -371,8 +371,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_name">
-<span class="sig-name descname"><span class="pre">ground_truth_name</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_name" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.ground_truth_name">
+<span class="sig-name descname"><span class="pre">ground_truth_name</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_name" title="Link to this definition">¶</a></dt>
 <dd><p>The name of the ground truth data, by default “ground_truth”</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -382,19 +382,19 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.input_augmentation_pipeline">
-<span class="sig-name descname"><span class="pre">input_augmentation_pipeline</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.input_augmentation_pipeline" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.input_augmentation_pipeline">
+<span class="sig-name descname"><span class="pre">input_augmentation_pipeline</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.input_augmentation_pipeline" title="Link to this definition">¶</a></dt>
 <dd><p>The augmentation pipeline for the input data, by default [[IdentityFilter(is_output=True)]]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass">FilterBaseClass</a>]], optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass">FilterBaseClass</a>]], optional</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.input_augmentation_probabilities">
-<span class="sig-name descname"><span class="pre">input_augmentation_probabilities</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.input_augmentation_probabilities" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.input_augmentation_probabilities">
+<span class="sig-name descname"><span class="pre">input_augmentation_probabilities</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.input_augmentation_probabilities" title="Link to this definition">¶</a></dt>
 <dd><p>The probabilities for the augmentation pipeline, by default (1,)
 The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.</p>
 <dl class="field-list simple">
@@ -405,19 +405,19 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_pipeline">
-<span class="sig-name descname"><span class="pre">ground_truth_augmentation_pipeline</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_pipeline" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_pipeline">
+<span class="sig-name descname"><span class="pre">ground_truth_augmentation_pipeline</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_pipeline" title="Link to this definition">¶</a></dt>
 <dd><p>The augmentation pipeline for the ground truth data, by default [[IdentityFilter(is_output=True)]]</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass">FilterBaseClass</a>]], optional</p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass">FilterBaseClass</a>]], optional</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_probabilities">
-<span class="sig-name descname"><span class="pre">ground_truth_augmentation_probabilities</span></span><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_probabilities" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_probabilities">
+<span class="sig-name descname"><span class="pre">ground_truth_augmentation_probabilities</span></span><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_probabilities" title="Link to this definition">¶</a></dt>
 <dd><p>The probabilities for the augmentation pipeline, by default (1,)
 The sum of the probabilities must be equal to 1 and the number of probabilities must be equal to the number of augmentation sequences.</p>
 <dl class="field-list simple">
@@ -428,8 +428,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.test_dataloader">
-<span class="sig-name descname"><span class="pre">test_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/loader.html#EMGDatasetLoader.test_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.test_dataloader" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.test_dataloader">
+<span class="sig-name descname"><span class="pre">test_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/loader.html#EMGDatasetLoader.test_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.test_dataloader" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the testing set as a DataLoader.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -442,8 +442,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.train_dataloader">
-<span class="sig-name descname"><span class="pre">train_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/loader.html#EMGDatasetLoader.train_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.train_dataloader" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.train_dataloader">
+<span class="sig-name descname"><span class="pre">train_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/loader.html#EMGDatasetLoader.train_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.train_dataloader" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the training set as a DataLoader.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -456,8 +456,8 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.datasets.loader.EMGDatasetLoader.val_dataloader">
-<span class="sig-name descname"><span class="pre">val_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/loader.html#EMGDatasetLoader.val_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.loader.EMGDatasetLoader.val_dataloader" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.loader.EMGDatasetLoader.val_dataloader">
+<span class="sig-name descname"><span class="pre">val_dataloader</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/loader.html#EMGDatasetLoader.val_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.loader.EMGDatasetLoader.val_dataloader" title="Link to this definition">¶</a></dt>
 <dd><p>Returns the testing set as a DataLoader.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -472,11 +472,11 @@ The sum of the probabilities must be equal to 1 and the number of probabilities 
 </dd></dl>
 
 </section>
-<section id="module-myo_verse.datasets.supervised">
-<span id="supervised-dataset"></span><h2>Supervised Dataset<a class="headerlink" href="#module-myo_verse.datasets.supervised" title="Link to this heading">¶</a></h2>
+<section id="module-myoverse.datasets.supervised">
+<span id="supervised-dataset"></span><h2>Supervised Dataset<a class="headerlink" href="#module-myoverse.datasets.supervised" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.datasets.supervised.EMGDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.datasets.supervised.</span></span><span class="sig-name descname"><span class="pre">EMGDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emg_data_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('REPLACE</span> <span class="pre">ME')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('REPLACE</span> <span class="pre">ME')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kinematics'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_to_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('REPLACE</span> <span class="pre">ME')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_filter_pipeline_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_representations_to_filter_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_filter_pipeline_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_representations_to_filter_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_filter_pipeline_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_representations_to_filter_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_filter_pipeline_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_representations_to_filter_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testing_split_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augmentation_pipelines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount_of_chunks_to_augment_at_once</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/supervised.html#EMGDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.supervised.EMGDataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.supervised.EMGDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datasets.supervised.</span></span><span class="sig-name descname"><span class="pre">EMGDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emg_data_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('REPLACE</span> <span class="pre">ME')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('REPLACE</span> <span class="pre">ME')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kinematics'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_to_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('REPLACE</span> <span class="pre">ME')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_filter_pipeline_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_representations_to_filter_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_filter_pipeline_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_representations_to_filter_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_filter_pipeline_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_representations_to_filter_before_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_filter_pipeline_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_representations_to_filter_after_chunking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">192</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_shift</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testing_split_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_split_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augmentation_pipelines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amount_of_chunks_to_augment_at_once</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/supervised.html#EMGDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.supervised.EMGDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Class for creating a dataset from EMG and ground truth data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -488,13 +488,13 @@ task number and the values being a numpy array of custom shape (…, n_samples).
 anything, but the last dimension should be the same as the EMG data.</p></li>
 <li><p><strong>tasks_to_use</strong> (<em>Sequence</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em>) – Sequence of strings containing the task numbers to use. If empty, all tasks will be used.</p></li>
 <li><p><strong>save_path</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.13)"><em>pathlib.Path</em></a>) – Path to save the dataset to. It should be a zarr file.</p></li>
-<li><p><strong>emg_filter_pipeline_before_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the EMG data before chunking. The filters should inherit from
+<li><p><strong>emg_filter_pipeline_before_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the EMG data before chunking. The filters should inherit from
 FilterBaseClass.</p></li>
-<li><p><strong>emg_filter_pipeline_after_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the EMG data after chunking. The filters should inherit from
+<li><p><strong>emg_filter_pipeline_after_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the EMG data after chunking. The filters should inherit from
 FilterBaseClass.</p></li>
-<li><p><strong>ground_truth_filter_pipeline_before_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the ground truth data before chunking. The filters should inherit from
+<li><p><strong>ground_truth_filter_pipeline_before_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the ground truth data before chunking. The filters should inherit from
 FilterBaseClass.</p></li>
-<li><p><strong>ground_truth_filter_pipeline_after_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.FilterBaseClass" title="myo_verse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the ground truth data after chunking. The filters should inherit from
+<li><p><strong>ground_truth_filter_pipeline_after_chunking</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.FilterBaseClass" title="myoverse.datasets.filters._template.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – Sequence of filters to apply to the ground truth data after chunking. The filters should inherit from
 FilterBaseClass.</p></li>
 <li><p><strong>chunk_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Size of the chunks to create from the data.</p></li>
 <li><p><strong>chunk_shift</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Shift between the chunks.</p></li>
@@ -502,7 +502,7 @@ FilterBaseClass.</p></li>
 training and the second half will be used for testing. If 0, no data will be used for testing.</p></li>
 <li><p><strong>validation_split_ratio</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Ratio of the data to use for validation. The data will be split in the middle. The first half will be used for
 training and the second half will be used for validation. If 0, no data will be used for validation.</p></li>
-<li><p><strong>augmentation_pipelines</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myo_verse.datasets.filters._template.EMGAugmentation" title="myo_verse.datasets.filters._template.EMGAugmentation"><em>EMGAugmentation</em></a><em>]</em><em>]</em>) – Sequence of augmentation_pipelines to apply to the training data. The augmentation_pipelines should inherit from
+<li><p><strong>augmentation_pipelines</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="filters/template.html#myoverse.datasets.filters._template.EMGAugmentation" title="myoverse.datasets.filters._template.EMGAugmentation"><em>EMGAugmentation</em></a><em>]</em><em>]</em>) – Sequence of augmentation_pipelines to apply to the training data. The augmentation_pipelines should inherit from
 EMGAugmentation.</p></li>
 <li><p><strong>amount_of_chunks_to_augment_at_once</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Amount of chunks to augment at once. This is done to speed up the process.</p></li>
 <li><p><strong>emg_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>ndarray</em></a><em>]</em>)</p></li>
@@ -518,18 +518,18 @@ EMGAugmentation.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.datasets.supervised.EMGDataset.create_dataset">
-<span class="sig-name descname"><span class="pre">create_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/supervised.html#EMGDataset.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.supervised.EMGDataset.create_dataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.supervised.EMGDataset.create_dataset">
+<span class="sig-name descname"><span class="pre">create_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/supervised.html#EMGDataset.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.supervised.EMGDataset.create_dataset" title="Link to this definition">¶</a></dt>
 <dd><p>Creates the dataset.</p>
 </dd></dl>
 
 </dd></dl>
 
-<section id="module-myo_verse.datasets.defaults">
-<span id="default-supervised-datasets"></span><h3>Default Supervised Datasets<a class="headerlink" href="#module-myo_verse.datasets.defaults" title="Link to this heading">¶</a></h3>
+<section id="module-myoverse.datasets.defaults">
+<span id="default-supervised-datasets"></span><h3>Default Supervised Datasets<a class="headerlink" href="#module-myoverse.datasets.defaults" title="Link to this heading">¶</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.datasets.defaults.CastelliniDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.datasets.defaults.</span></span><span class="sig-name descname"><span class="pre">CastelliniDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emg_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_to_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Change</span> <span class="pre">Me',)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/defaults.html#CastelliniDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.defaults.CastelliniDataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.defaults.CastelliniDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datasets.defaults.</span></span><span class="sig-name descname"><span class="pre">CastelliniDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emg_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_to_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Change</span> <span class="pre">Me',)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/defaults.html#CastelliniDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.defaults.CastelliniDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Dataset maker made after the Castellini paper [1].
 This is not the official dataset maker used but our own version made after the paper.</p>
 <dl class="field-list simple">
@@ -547,8 +547,8 @@ The ground truth data should be of shape (21, 3, samples).</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.datasets.defaults.CastelliniDataset.create_dataset">
-<span class="sig-name descname"><span class="pre">create_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/defaults.html#CastelliniDataset.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.defaults.CastelliniDataset.create_dataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.defaults.CastelliniDataset.create_dataset">
+<span class="sig-name descname"><span class="pre">create_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/defaults.html#CastelliniDataset.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.defaults.CastelliniDataset.create_dataset" title="Link to this definition">¶</a></dt>
 <dd><p>Creates the dataset.</p>
 </dd></dl>
 
@@ -559,8 +559,8 @@ IEEE Transactions on Biomedical Engineering 70, 459–469. <a class="reference e
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.datasets.defaults.EMBCDataset">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.datasets.defaults.</span></span><span class="sig-name descname"><span class="pre">EMBCDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emg_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_to_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Change</span> <span class="pre">Me',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/defaults.html#EMBCDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.defaults.EMBCDataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.defaults.EMBCDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datasets.defaults.</span></span><span class="sig-name descname"><span class="pre">EMBCDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">emg_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_truth_data_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks_to_use</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('Change</span> <span class="pre">Me',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/defaults.html#EMBCDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.defaults.EMBCDataset" title="Link to this definition">¶</a></dt>
 <dd><p>Official dataset maker for the EMBC paper [1].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -578,8 +578,8 @@ The ground truth data should be of shape (21, 3, samples).</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.datasets.defaults.EMBCDataset.create_dataset">
-<span class="sig-name descname"><span class="pre">create_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/datasets/defaults.html#EMBCDataset.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.datasets.defaults.EMBCDataset.create_dataset" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.datasets.defaults.EMBCDataset.create_dataset">
+<span class="sig-name descname"><span class="pre">create_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/datasets/defaults.html#EMBCDataset.create_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.defaults.EMBCDataset.create_dataset" title="Link to this definition">¶</a></dt>
 <dd><p>Creates the dataset.</p>
 </dd></dl>
 
@@ -650,38 +650,38 @@ the IEEE Engineering in Medicine &amp; Biology Society (EMBC) pp. 702–706. <a 
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Datasets</a><ul>
-<li><a class="reference internal" href="#module-myo_verse.datasets.loader">Loader</a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.data_path"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.data_path</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.seed"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.seed</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.dataloader_parameters"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.dataloader_parameters</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.shuffle_training_data"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.shuffle_training_data</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.input_type"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.input_type</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_type"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_type</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_name"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_name</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.input_augmentation_pipeline"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.input_augmentation_pipeline</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.input_augmentation_probabilities"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.input_augmentation_probabilities</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_pipeline"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_augmentation_pipeline</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_probabilities"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_augmentation_probabilities</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.test_dataloader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.test_dataloader</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.train_dataloader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.train_dataloader</span></code></a></li>
-<li><a class="reference internal" href="#myo_verse.datasets.loader.EMGDatasetLoader.val_dataloader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.val_dataloader</span></code></a></li>
+<li><a class="reference internal" href="#module-myoverse.datasets.loader">Loader</a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.data_path"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.data_path</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.seed"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.seed</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.dataloader_parameters"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.dataloader_parameters</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.shuffle_training_data"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.shuffle_training_data</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.input_type"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.input_type</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_type"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_type</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_name"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_name</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.input_augmentation_pipeline"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.input_augmentation_pipeline</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.input_augmentation_probabilities"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.input_augmentation_probabilities</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_pipeline"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_augmentation_pipeline</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.ground_truth_augmentation_probabilities"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.ground_truth_augmentation_probabilities</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.test_dataloader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.test_dataloader</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.train_dataloader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.train_dataloader</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.loader.EMGDatasetLoader.val_dataloader"><code class="docutils literal notranslate"><span class="pre">EMGDatasetLoader.val_dataloader</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-myo_verse.datasets.supervised">Supervised Dataset</a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.supervised.EMGDataset"><code class="docutils literal notranslate"><span class="pre">EMGDataset</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.supervised.EMGDataset.create_dataset"><code class="docutils literal notranslate"><span class="pre">EMGDataset.create_dataset</span></code></a></li>
+<li><a class="reference internal" href="#module-myoverse.datasets.supervised">Supervised Dataset</a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.supervised.EMGDataset"><code class="docutils literal notranslate"><span class="pre">EMGDataset</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.supervised.EMGDataset.create_dataset"><code class="docutils literal notranslate"><span class="pre">EMGDataset.create_dataset</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-myo_verse.datasets.defaults">Default Supervised Datasets</a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.defaults.CastelliniDataset"><code class="docutils literal notranslate"><span class="pre">CastelliniDataset</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.defaults.CastelliniDataset.create_dataset"><code class="docutils literal notranslate"><span class="pre">CastelliniDataset.create_dataset</span></code></a></li>
+<li><a class="reference internal" href="#module-myoverse.datasets.defaults">Default Supervised Datasets</a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.defaults.CastelliniDataset"><code class="docutils literal notranslate"><span class="pre">CastelliniDataset</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.defaults.CastelliniDataset.create_dataset"><code class="docutils literal notranslate"><span class="pre">CastelliniDataset.create_dataset</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#myo_verse.datasets.defaults.EMBCDataset"><code class="docutils literal notranslate"><span class="pre">EMBCDataset</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.datasets.defaults.EMBCDataset.create_dataset"><code class="docutils literal notranslate"><span class="pre">EMBCDataset.create_dataset</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.datasets.defaults.EMBCDataset"><code class="docutils literal notranslate"><span class="pre">EMBCDataset</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.datasets.defaults.EMBCDataset.create_dataset"><code class="docutils literal notranslate"><span class="pre">EMBCDataset.create_dataset</span></code></a></li>
 </ul>
 </li>
 </ul>

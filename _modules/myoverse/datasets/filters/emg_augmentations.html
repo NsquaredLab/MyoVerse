@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
-        <title>myo_verse.datasets.filters.emg_augmentations - MyoVerse 0.7.0 documentation</title>
+        <title>myoverse.datasets.filters.emg_augmentations - MyoVerse 0.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
@@ -269,13 +269,13 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for myo_verse.datasets.filters.emg_augmentations</h1><div class="highlight"><pre>
+          <h1>Source code for myoverse.datasets.filters.emg_augmentations</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numba</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pywt</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">interpolate</span>
 
-<span class="kn">from</span> <span class="nn">myo_verse.datasets.filters._template</span> <span class="kn">import</span> <span class="n">EMGAugmentation</span>
+<span class="kn">from</span> <span class="nn">myoverse.datasets.filters._template</span> <span class="kn">import</span> <span class="n">EMGAugmentation</span>
 
 
 <span class="nd">@numba</span><span class="o">.</span><span class="n">njit</span><span class="p">(</span><span class="n">nogil</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fastmath</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -303,7 +303,7 @@
 
 
 <div class="viewcode-block" id="GaussianNoise">
-<a class="viewcode-back" href="../../../../modules/filters/augmentation.html#myo_verse.datasets.filters.emg_augmentations.GaussianNoise">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/augmentation.html#myoverse.datasets.filters.emg_augmentations.GaussianNoise">[docs]</a>
 <span class="k">class</span> <span class="nc">GaussianNoise</span><span class="p">(</span><span class="n">EMGAugmentation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Adds Gaussian noise to the input EMG data. This augmentation is based on the paper [1]_</span>
 
@@ -343,7 +343,7 @@
 
 
 <div class="viewcode-block" id="MagnitudeWarping">
-<a class="viewcode-back" href="../../../../modules/filters/augmentation.html#myo_verse.datasets.filters.emg_augmentations.MagnitudeWarping">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/augmentation.html#myoverse.datasets.filters.emg_augmentations.MagnitudeWarping">[docs]</a>
 <span class="k">class</span> <span class="nc">MagnitudeWarping</span><span class="p">(</span><span class="n">EMGAugmentation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Magnitude warping augmentation. This augmentation is based on the paper [2]_</span>
 
@@ -422,7 +422,7 @@
 
 
 <div class="viewcode-block" id="WaveletDecomposition">
-<a class="viewcode-back" href="../../../../modules/filters/augmentation.html#myo_verse.datasets.filters.emg_augmentations.WaveletDecomposition">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/augmentation.html#myoverse.datasets.filters.emg_augmentations.WaveletDecomposition">[docs]</a>
 <span class="k">class</span> <span class="nc">WaveletDecomposition</span><span class="p">(</span><span class="n">EMGAugmentation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wavelet decomposition augmentation. This augmentation is based on the paper [3]_</span>
 

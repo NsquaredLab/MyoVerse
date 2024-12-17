@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
-        <title>myo_verse.datasets.loader - MyoVerse 0.7.0 documentation</title>
+        <title>myoverse.datasets.loader - MyoVerse 0.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
@@ -269,7 +269,7 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for myo_verse.datasets.loader</h1><div class="highlight"><pre>
+          <h1>Source code for myoverse.datasets.loader</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
 
@@ -278,16 +278,16 @@
 <span class="kn">import</span> <span class="nn">lightning</span> <span class="k">as</span> <span class="nn">L</span>
 <span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">Dataset</span>
 
-<span class="kn">from</span> <span class="nn">myo_verse.datasets.filters.generic</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.generic</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">IdentityFilter</span><span class="p">,</span>
     <span class="n">FilterBaseClass</span><span class="p">,</span>
     <span class="n">IndexDataFilter</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">myo_verse.datatypes</span> <span class="kn">import</span> <span class="n">EMGData</span><span class="p">,</span> <span class="n">VirtualHandKinematics</span>
+<span class="kn">from</span> <span class="nn">myoverse.datatypes</span> <span class="kn">import</span> <span class="n">EMGData</span><span class="p">,</span> <span class="n">VirtualHandKinematics</span>
 
 
 <div class="viewcode-block" id="EMGDatasetLoader">
-<a class="viewcode-back" href="../../../modules/datasets.html#myo_verse.datasets.loader.EMGDatasetLoader">[docs]</a>
+<a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.loader.EMGDatasetLoader">[docs]</a>
 <span class="k">class</span> <span class="nc">EMGDatasetLoader</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">LightningDataModule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataset loader for the EMG dataset.</span>
 
@@ -500,7 +500,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The sum of the probabilities must be equal to 1&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="EMGDatasetLoader.train_dataloader">
-<a class="viewcode-back" href="../../../modules/datasets.html#myo_verse.datasets.loader.EMGDatasetLoader.train_dataloader">[docs]</a>
+<a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.loader.EMGDatasetLoader.train_dataloader">[docs]</a>
     <span class="k">def</span> <span class="nf">train_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the training set as a DataLoader.</span>
 
@@ -528,7 +528,7 @@
 
 
 <div class="viewcode-block" id="EMGDatasetLoader.test_dataloader">
-<a class="viewcode-back" href="../../../modules/datasets.html#myo_verse.datasets.loader.EMGDatasetLoader.test_dataloader">[docs]</a>
+<a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.loader.EMGDatasetLoader.test_dataloader">[docs]</a>
     <span class="k">def</span> <span class="nf">test_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the testing set as a DataLoader.</span>
 
@@ -552,7 +552,7 @@
 
 
 <div class="viewcode-block" id="EMGDatasetLoader.val_dataloader">
-<a class="viewcode-back" href="../../../modules/datasets.html#myo_verse.datasets.loader.EMGDatasetLoader.val_dataloader">[docs]</a>
+<a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.loader.EMGDatasetLoader.val_dataloader">[docs]</a>
     <span class="k">def</span> <span class="nf">val_dataloader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataLoader</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the testing set as a DataLoader.</span>
 

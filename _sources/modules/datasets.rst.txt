@@ -3,15 +3,15 @@ Datasets
 
 Loader
 ------
-.. automodule:: myo_verse.datasets.loader
+.. automodule:: myoverse.datasets.loader
     :members:
 
 Supervised Dataset
 -------------------
-.. automodule:: myo_verse.datasets.supervised
+.. automodule:: myoverse.datasets.supervised
     :members:
 
 Default Supervised Datasets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-.. automodule:: myo_verse.datasets.defaults
+.. automodule:: myoverse.datasets.defaults
     :members:

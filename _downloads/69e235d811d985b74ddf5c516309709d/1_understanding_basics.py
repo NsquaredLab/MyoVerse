@@ -13,7 +13,7 @@ This example is a brief introduction to the basic functionalities of the package
 # The Data object is the primary component of the package, designed to store data and apply filters.
 # The only required parameter is the sampling frequency of the data and the data itself.
 import pickle as pkl
-from myo_verse.datatypes import EMGData
+from myoverse.datatypes import EMGData
 
 with open("data/emg.pkl", "rb") as f:
     emg_data =  {k: EMGData(v, sampling_frequency=2044) for k, v in pkl.load(f).items()}
@@ -85,7 +85,7 @@ print(task_one_data.processed_representations)
 # The EMGData object has a method called **apply_filter** that applies a filter to the data.
 # For example, we can apply a 4th order 20 HZ lowpass filter to the data.
 from scipy.signal import butter
-from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
 sos_filter_coefficients = butter(4, 20, "lowpass", output="sos", fs=2044)
 

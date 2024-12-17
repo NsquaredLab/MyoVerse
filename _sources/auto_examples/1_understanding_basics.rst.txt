@@ -36,7 +36,7 @@ The only required parameter is the sampling frequency of the data and the data i
 .. code-block:: Python
 
     import pickle as pkl
-    from myo_verse.datatypes import EMGData
+    from myoverse.datatypes import EMGData
 
     with open("data/emg.pkl", "rb") as f:
         emg_data =  {k: EMGData(v, sampling_frequency=2044) for k, v in pkl.load(f).items()}
@@ -218,7 +218,7 @@ For example, we can apply a 4th order 20 HZ lowpass filter to the data.
 .. code-block:: Python
 
     from scipy.signal import butter
-    from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+    from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
     sos_filter_coefficients = butter(4, 20, "lowpass", output="sos", fs=2044)
 
@@ -353,9 +353,9 @@ In case you do not want to index using the filter sequence name, you can retriev
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.705 seconds)
+   **Total running time of the script:** (0 minutes 5.315 seconds)
 
-**Estimated memory usage:**  1030 MB
+**Estimated memory usage:**  973 MB
 
 
 .. _sphx_glr_download_auto_examples_1_understanding_basics.py:

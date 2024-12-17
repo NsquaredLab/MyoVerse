@@ -26,7 +26,7 @@ MyoVerse , the **research** library for kinematics, kinetics, and everything els
 
 ## What is what?
 This projects uses the following structure:
-- myo_verse: This is the main package. It contains:
+- myoverse: This is the main package. It contains:
   - datasets: Contains data loaders and creators as well as a lot of filters to preprocess the data.
   - models: Contains all models and their components.
   - utils: Various utilities.

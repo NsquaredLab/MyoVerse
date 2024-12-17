@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
-        <title>myo_verse.models.definitions.raul_net.offline.v1 - MyoVerse 0.7.0 documentation</title>
+        <title>myoverse.models.definitions.raul_net.offline.v1 - MyoVerse 0.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/sg_gallery.css?v=d2d258e8" />
@@ -269,7 +269,7 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for myo_verse.models.definitions.raul_net.offline.v1</h1><div class="highlight"><pre>
+          <h1>Source code for myoverse.models.definitions.raul_net.offline.v1</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Model definition used in the Sîmpetru et al. (2022)&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
@@ -284,7 +284,7 @@
 
 
 <div class="viewcode-block" id="ErfAct_2">
-<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myo_verse.models.definitions.raul_net.offline.v1.ErfAct_2">[docs]</a>
+<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myoverse.models.definitions.raul_net.offline.v1.ErfAct_2">[docs]</a>
 <span class="k">class</span> <span class="nc">ErfAct_2</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;ErfAct_2 activation function from Biswas et al.</span>
 
@@ -301,7 +301,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">sigma</span><span class="p">),</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ErfAct_2.forward">
-<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myo_verse.models.definitions.raul_net.offline.v1.ErfAct_2.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myoverse.models.definitions.raul_net.offline.v1.ErfAct_2.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">*</span> <span class="n">x</span><span class="p">)))</span></div>
 </div>
@@ -309,7 +309,7 @@
 
 
 <div class="viewcode-block" id="CircularPad">
-<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myo_verse.models.definitions.raul_net.offline.v1.CircularPad">[docs]</a>
+<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myoverse.models.definitions.raul_net.offline.v1.CircularPad">[docs]</a>
 <span class="k">class</span> <span class="nc">CircularPad</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Circular padding layer&quot;&quot;&quot;</span>
 
@@ -317,7 +317,7 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">CircularPad</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="CircularPad.forward">
-<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myo_verse.models.definitions.raul_net.offline.v1.CircularPad.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myoverse.models.definitions.raul_net.offline.v1.CircularPad.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">x</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">narrow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">16</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -327,7 +327,7 @@
 
 
 <div class="viewcode-block" id="RaulNetV1">
-<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myo_verse.models.definitions.raul_net.offline.v1.RaulNetV1">[docs]</a>
+<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myoverse.models.definitions.raul_net.offline.v1.RaulNetV1">[docs]</a>
 <span class="k">class</span> <span class="nc">RaulNetV1</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Model definition used in Sîmpetru et al. [1]_</span>
 
@@ -435,7 +435,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">sigmoid</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sigmoid</span><span class="p">()</span>
 
 <div class="viewcode-block" id="RaulNetV1.forward">
-<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myo_verse.models.definitions.raul_net.offline.v1.RaulNetV1.forward">[docs]</a>
+<a class="viewcode-back" href="../../../../../../modules/models/offline/v1.html#myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.forward">[docs]</a>
     <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="c1"># CNN encoder</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>

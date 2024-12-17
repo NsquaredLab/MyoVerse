@@ -39,7 +39,7 @@ Afterward, we select one task to work with.
 
     import numpy as np
 
-    from myo_verse.datatypes import EMGData
+    from myoverse.datatypes import EMGData
 
     emg_data = {}
     with open("data/emg.pkl", "rb") as f:
@@ -90,7 +90,7 @@ We can achieve this by applying two filters to the data using the apply_filters 
 
     from scipy.signal import butter
 
-    from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+    from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
     # Define the filters
     bandpass_filter = SOSFrequencyFilter(
@@ -171,8 +171,8 @@ flag to True for the filters that should be kept in the dataset object.
 
 .. code-block:: Python
 
-    from myo_verse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
-    from myo_verse.datasets.filters.temporal import SOSFrequencyFilter
+    from myoverse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
+    from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
     # reset the data
     task_one_data = copy(emg_data["1"])
@@ -471,9 +471,9 @@ This will remove the intermediate representations (shown in grey) from the datas
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 8.321 seconds)
+   **Total running time of the script:** (0 minutes 7.076 seconds)
 
-**Estimated memory usage:**  1776 MB
+**Estimated memory usage:**  1780 MB
 
 
 .. _sphx_glr_download_auto_examples_2_complex_filtering.py:

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
-        <title>myo_verse.datasets.filters.temporal - MyoVerse 0.7.0 documentation</title>
+        <title>myoverse.datasets.filters.temporal - MyoVerse 0.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
@@ -269,7 +269,7 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for myo_verse.datasets.filters.temporal</h1><div class="highlight"><pre>
+          <h1>Source code for myoverse.datasets.filters.temporal</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
@@ -279,12 +279,12 @@
 <span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">savgol_filter</span><span class="p">,</span> <span class="n">sosfilt</span><span class="p">,</span> <span class="n">sosfiltfilt</span>
 <span class="kn">from</span> <span class="nn">statsmodels.tsa.ar_model</span> <span class="kn">import</span> <span class="n">AutoReg</span>
 
-<span class="kn">from</span> <span class="nn">myo_verse.datasets.filters._template</span> <span class="kn">import</span> <span class="n">FilterBaseClass</span>
-<span class="kn">from</span> <span class="nn">myo_verse.datasets.filters.generic</span> <span class="kn">import</span> <span class="n">ApplyFunctionFilter</span>
+<span class="kn">from</span> <span class="nn">myoverse.datasets.filters._template</span> <span class="kn">import</span> <span class="n">FilterBaseClass</span>
+<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.generic</span> <span class="kn">import</span> <span class="n">ApplyFunctionFilter</span>
 
 
 <div class="viewcode-block" id="SOSFrequencyFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.SOSFrequencyFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.SOSFrequencyFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">SOSFrequencyFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that applies a second-order-section filter to the input array.</span>
 
@@ -334,7 +334,7 @@
 
 
 <div class="viewcode-block" id="RectifyFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.RectifyFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.RectifyFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">RectifyFilter</span><span class="p">(</span><span class="n">ApplyFunctionFilter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that rectifies the input array.</span>
 
@@ -354,7 +354,7 @@
 
 
 <div class="viewcode-block" id="ARFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.ARFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.ARFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">ARFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that computes n autoregressive coefficients for each window of the input array.&quot;&quot;&quot;</span>
 
@@ -391,7 +391,7 @@
 
 
 <div class="viewcode-block" id="RMSFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.RMSFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.RMSFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">RMSFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that computes the root mean squared value [1]_ of the input array.</span>
 
@@ -461,7 +461,7 @@
 
 
 <div class="viewcode-block" id="VARFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.VARFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.VARFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">VARFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Variance with given window length and window shift over the input signal.&quot;&quot;&quot;</span>
 
@@ -501,7 +501,7 @@
 
 <span class="c1"># TODO: Check if this is correct</span>
 <div class="viewcode-block" id="HISTFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.HISTFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.HISTFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">HISTFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Histogram with given window length and window shift over the input signal.&quot;&quot;&quot;</span>
 
@@ -548,7 +548,7 @@
 
 
 <div class="viewcode-block" id="MAVFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.MAVFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.MAVFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">MAVFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Mean Absolute Value with given window length and window shift over the input signal. See formula in</span>
 <span class="sd">    the following paper: https://doi.org/10.1080/10255842.2023.2165068.</span>
@@ -589,7 +589,7 @@
 
 
 <div class="viewcode-block" id="IAVFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.IAVFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.IAVFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">IAVFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Integrated Absolute Value with given window length and window shift over the input signal. See</span>
 <span class="sd">    formula in the following paper: https://doi.org/10.1080/10255842.2023.2165068.</span>
@@ -630,7 +630,7 @@
 
 
 <div class="viewcode-block" id="WFLFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.WFLFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.WFLFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">WFLFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Waveform Length with given window length and window shift over the input signal. See</span>
 <span class="sd">    formula in the following paper: https://doi.org/10.1080/10255842.2023.2165068.</span>
@@ -671,7 +671,7 @@
 
 
 <div class="viewcode-block" id="ZCFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.ZCFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.ZCFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">ZCFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Zero Crossings with given window length and window shift over the input signal. See formula in the</span>
 <span class="sd">    following paper: https://doi.org/10.1080/10255842.2023.2165068.</span>
@@ -713,7 +713,7 @@
 
 
 <div class="viewcode-block" id="SSCFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.SSCFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.SSCFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">SSCFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the Slope Sign Change with given window length and window shift over the input signal. See formula in</span>
 <span class="sd">    the following paper: https://doi.org/10.1080/10255842.2023.2165068.</span>
@@ -759,7 +759,7 @@
 
 
 <div class="viewcode-block" id="GaileyFeature2">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.GaileyFeature2">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.GaileyFeature2">[docs]</a>
 <span class="k">class</span> <span class="nc">GaileyFeature2</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the second EMG feature from the Gailey et al. paper  with given window length and window shift over the</span>
 <span class="sd">    input signal. See formula in the following paper: https://doi.org/10.3389/fneur.2017.00007.</span>
@@ -806,7 +806,7 @@
 
 
 <div class="viewcode-block" id="GaileyFeature3">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.GaileyFeature3">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.GaileyFeature3">[docs]</a>
 <span class="k">class</span> <span class="nc">GaileyFeature3</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes the third EMG feature from the Gailey et al. paper  with given window length and window shift over the</span>
 <span class="sd">    input signal. See formula in the following paper: https://doi.org/10.3389/fneur.2017.00007.</span>
@@ -869,7 +869,7 @@
 
 <span class="c1"># TODO</span>
 <div class="viewcode-block" id="SpectralInterpolationFilter">
-<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myo_verse.datasets.filters.temporal.SpectralInterpolationFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/filters/temporal.html#myoverse.datasets.filters.temporal.SpectralInterpolationFilter">[docs]</a>
 <span class="k">class</span> <span class="nc">SpectralInterpolationFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>

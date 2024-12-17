@@ -278,11 +278,11 @@
         <article role="main" id="furo-main-content">
           <section id="model-components">
 <h1>Model Components<a class="headerlink" href="#model-components" title="Link to this heading">¶</a></h1>
-<section id="module-myo_verse.models.components.activation_functions">
-<span id="activation-functions"></span><h2>Activation Functions<a class="headerlink" href="#module-myo_verse.models.components.activation_functions" title="Link to this heading">¶</a></h2>
+<section id="module-myoverse.models.components.activation_functions">
+<span id="activation-functions"></span><h2>Activation Functions<a class="headerlink" href="#module-myoverse.models.components.activation_functions" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.PSerf">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">PSerf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stabilisation_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#PSerf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.PSerf" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.PSerf">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">PSerf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stabilisation_term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#PSerf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.PSerf" title="Link to this definition">¶</a></dt>
 <dd><p>PSerf activation function from Biswas et al.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -298,8 +298,8 @@
 ErfAct and PSerf: Non-monotonic smooth trainable Activation Functions. arXiv:2109.04386 [cs].</p>
 <p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.PSerf.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#PSerf.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.PSerf.forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.PSerf.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#PSerf.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.PSerf.forward" title="Link to this definition">¶</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -319,8 +319,8 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.SAU">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">SAU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#SAU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.SAU" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.SAU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">SAU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#SAU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.SAU" title="Link to this definition">¶</a></dt>
 <dd><p>SAU activation function from Biswas et al.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -335,8 +335,8 @@ registered hooks while the latter silently ignores them.</p>
 SAU: Smooth activation function using convolution with approximate identities. arXiv:2109.13210 [cs].</p>
 <p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.SAU.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#SAU.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.SAU.forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.SAU.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#SAU.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.SAU.forward" title="Link to this definition">¶</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -356,8 +356,8 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.SMU">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">SMU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#SMU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.SMU" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.SMU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">SMU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#SMU"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.SMU" title="Link to this definition">¶</a></dt>
 <dd><p>SMU activation function from Biswas et al.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -374,8 +374,8 @@ SMU: smooth activation function for deep networks using smoothing maximum techni
 <p>This version also make alpha trainable.</p>
 <p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.SMU.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#SMU.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.SMU.forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.SMU.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#SMU.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.SMU.forward" title="Link to this definition">¶</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -395,8 +395,8 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.SMU_old">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">SMU_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#SMU_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.SMU_old" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.SMU_old">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.models.components.activation_functions.</span></span><span class="sig-name descname"><span class="pre">SMU_old</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#SMU_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.SMU_old" title="Link to this definition">¶</a></dt>
 <dd><p>SMU activation function from Biswas et al. This is an older version of the SMU activation function and should not
 be used.</p>
 <div class="admonition warning">
@@ -418,8 +418,8 @@ be used.</p>
 SMU: smooth activation function for deep networks using smoothing maximum technique. arXiv:2111.04682 [cs].</p>
 <p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.models.components.activation_functions.SMU_old.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/activation_functions.html#SMU_old.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.activation_functions.SMU_old.forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.activation_functions.SMU_old.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/activation_functions.html#SMU_old.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.activation_functions.SMU_old.forward" title="Link to this definition">¶</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -439,11 +439,11 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 </section>
-<section id="module-myo_verse.models.components.utils">
-<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-myo_verse.models.components.utils" title="Link to this heading">¶</a></h2>
+<section id="module-myoverse.models.components.utils">
+<span id="utilities"></span><h2>Utilities<a class="headerlink" href="#module-myoverse.models.components.utils" title="Link to this heading">¶</a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.models.components.utils.CircularPad">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.models.components.utils.</span></span><span class="sig-name descname"><span class="pre">CircularPad</span></span><a class="reference internal" href="../_modules/myo_verse/models/components/utils.html#CircularPad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.utils.CircularPad" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.utils.CircularPad">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.models.components.utils.</span></span><span class="sig-name descname"><span class="pre">CircularPad</span></span><a class="reference internal" href="../_modules/myoverse/models/components/utils.html#CircularPad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.utils.CircularPad" title="Link to this definition">¶</a></dt>
 <dd><p>Circular padding layer used in the paper [1].</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -463,8 +463,8 @@ Prediction of 14 Degrees of Freedom of the Hand from Myoelectrical Signals throu
 pp. 702–706. <a class="reference external" href="https://doi.org/10.1109/EMBC48229.2022.9870937">https://doi.org/10.1109/EMBC48229.2022.9870937</a></p>
 <p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.models.components.utils.CircularPad.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/utils.html#CircularPad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.utils.CircularPad.forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.utils.CircularPad.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/utils.html#CircularPad.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.utils.CircularPad.forward" title="Link to this definition">¶</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -484,12 +484,12 @@ registered hooks while the latter silently ignores them.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="myo_verse.models.components.utils.WeightedSum">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myo_verse.models.components.utils.</span></span><span class="sig-name descname"><span class="pre">WeightedSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/utils.html#WeightedSum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.utils.WeightedSum" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.utils.WeightedSum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.models.components.utils.</span></span><span class="sig-name descname"><span class="pre">WeightedSum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/utils.html#WeightedSum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.utils.WeightedSum" title="Link to this definition">¶</a></dt>
 <dd><p>Initialize internal Module state, shared by both nn.Module and ScriptModule.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="myo_verse.models.components.utils.WeightedSum.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myo_verse/models/components/utils.html#WeightedSum.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myo_verse.models.components.utils.WeightedSum.forward" title="Link to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="myoverse.models.components.utils.WeightedSum.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/myoverse/models/components/utils.html#WeightedSum.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.models.components.utils.WeightedSum.forward" title="Link to this definition">¶</a></dt>
 <dd><p>Define the computation performed at every call.</p>
 <p>Should be overridden by all subclasses.</p>
 <div class="admonition note">
@@ -567,32 +567,32 @@ registered hooks while the latter silently ignores them.</p>
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Model Components</a><ul>
-<li><a class="reference internal" href="#module-myo_verse.models.components.activation_functions">Activation Functions</a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.PSerf"><code class="docutils literal notranslate"><span class="pre">PSerf</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.PSerf.forward"><code class="docutils literal notranslate"><span class="pre">PSerf.forward</span></code></a></li>
+<li><a class="reference internal" href="#module-myoverse.models.components.activation_functions">Activation Functions</a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.PSerf"><code class="docutils literal notranslate"><span class="pre">PSerf</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.PSerf.forward"><code class="docutils literal notranslate"><span class="pre">PSerf.forward</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.SAU"><code class="docutils literal notranslate"><span class="pre">SAU</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.SAU.forward"><code class="docutils literal notranslate"><span class="pre">SAU.forward</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.SAU"><code class="docutils literal notranslate"><span class="pre">SAU</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.SAU.forward"><code class="docutils literal notranslate"><span class="pre">SAU.forward</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.SMU"><code class="docutils literal notranslate"><span class="pre">SMU</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.SMU.forward"><code class="docutils literal notranslate"><span class="pre">SMU.forward</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.SMU"><code class="docutils literal notranslate"><span class="pre">SMU</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.SMU.forward"><code class="docutils literal notranslate"><span class="pre">SMU.forward</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.SMU_old"><code class="docutils literal notranslate"><span class="pre">SMU_old</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.activation_functions.SMU_old.forward"><code class="docutils literal notranslate"><span class="pre">SMU_old.forward</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.SMU_old"><code class="docutils literal notranslate"><span class="pre">SMU_old</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.activation_functions.SMU_old.forward"><code class="docutils literal notranslate"><span class="pre">SMU_old.forward</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a class="reference internal" href="#module-myo_verse.models.components.utils">Utilities</a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.utils.CircularPad"><code class="docutils literal notranslate"><span class="pre">CircularPad</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.utils.CircularPad.forward"><code class="docutils literal notranslate"><span class="pre">CircularPad.forward</span></code></a></li>
+<li><a class="reference internal" href="#module-myoverse.models.components.utils">Utilities</a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.utils.CircularPad"><code class="docutils literal notranslate"><span class="pre">CircularPad</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.utils.CircularPad.forward"><code class="docutils literal notranslate"><span class="pre">CircularPad.forward</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#myo_verse.models.components.utils.WeightedSum"><code class="docutils literal notranslate"><span class="pre">WeightedSum</span></code></a><ul>
-<li><a class="reference internal" href="#myo_verse.models.components.utils.WeightedSum.forward"><code class="docutils literal notranslate"><span class="pre">WeightedSum.forward</span></code></a></li>
+<li><a class="reference internal" href="#myoverse.models.components.utils.WeightedSum"><code class="docutils literal notranslate"><span class="pre">WeightedSum</span></code></a><ul>
+<li><a class="reference internal" href="#myoverse.models.components.utils.WeightedSum.forward"><code class="docutils literal notranslate"><span class="pre">WeightedSum.forward</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../../../genindex.html" /><link rel="search" title="Search" href="../../../../../../search.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
-        <title>myo_verse.models.definitions.raul_net.online.v16 - MyoVerse 0.7.0 documentation</title>
+        <title>myoverse.models.definitions.raul_net.online.v9_5_grids - MyoVerse 0.7.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../../../../_static/sg_gallery.css?v=d2d258e8" />
@@ -269,22 +269,21 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for myo_verse.models.definitions.raul_net.online.v16</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Model definition used in the Sîmpetru et al. (2024)&quot;&quot;&quot;</span>
-
+          <h1>Source code for myoverse.models.definitions.raul_net.online.v9_5_grids</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Model definitions used in the Sîmpetru et al. (2023 and 2024)&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">lightning</span> <span class="k">as</span> <span class="nn">L</span>
+<span class="kn">import</span> <span class="nn">pytorch_lightning</span> <span class="k">as</span> <span class="nn">pl</span>
 <span class="kn">import</span> <span class="nn">torch</span>
-<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
 <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+<span class="kn">from</span> <span class="nn">torch</span> <span class="kn">import</span> <span class="n">nn</span>
 
 
-<div class="viewcode-block" id="RaulNetV16">
-<a class="viewcode-back" href="../../../../../../modules/models/online/v16.html#myo_verse.models.definitions.raul_net.online.v16.RaulNetV16">[docs]</a>
-<span class="k">class</span> <span class="nc">RaulNetV16</span><span class="p">(</span><span class="n">L</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Model definition used in Sîmpetru et al. [1]_</span>
+<div class="viewcode-block" id="RaulNetV9">
+<a class="viewcode-back" href="../../../../../../modules/models/online/v9.html#myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9">[docs]</a>
+<span class="k">class</span> <span class="nc">RaulNetV9</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">LightningModule</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Model definition used in Sîmpetru et al. [1]_ [2]_</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -305,7 +304,8 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    .. [1] Sîmpetru, R.C., Braun, D.I., Simon, A.U., März, M., Cnejevici, V., de Oliveira, D.S., Weber, N., Walter, J., Franke, J., Höglinger, D., Prahm, C., Ponfick, M., Del Vecchio, A., 2024. MyoGestic: EMG interfacing framework for decoding multiple spared degrees of freedom of the hand in individuals with neural lesions. https://doi.org/10.48550/arXiv.2408.07817</span>
+<span class="sd">    .. [1] Sîmpetru, R.C., März, M., Del Vecchio, A., 2023. Proportional and simultaneous real-time control of the full human hand from high-density electromyography. IEEE Trans. Neural Syst. Rehabil. Eng. 31, 3118–3131. https://doi.org/10/gsgk4s</span>
+<span class="sd">    .. [2] Sîmpetru, R.C., Cnejevici, V., Farina, D., Del Vecchio, A., 2024. Influence of spatio-temporal filtering on hand kinematics estimation from high-density EMG signals. J. Neural Eng. 21. https://doi.org/10/gtm4bt</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -319,11 +319,8 @@
         <span class="n">mlp_encoder_channels</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
         <span class="n">event_search_kernel_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">event_search_kernel_stride</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">nr_of_electrode_grids</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
-        <span class="n">nr_of_electrodes_per_grid</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">36</span><span class="p">,</span>
-        <span class="n">inference_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">RaulNetV16</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RaulNetV9</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_hyperparameters</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">learning_rate</span> <span class="o">=</span> <span class="n">learning_rate</span>
@@ -336,11 +333,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">event_search_kernel_length</span> <span class="o">=</span> <span class="n">event_search_kernel_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">event_search_kernel_stride</span> <span class="o">=</span> <span class="n">event_search_kernel_stride</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrode_grids</span> <span class="o">=</span> <span class="n">nr_of_electrode_grids</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">=</span> <span class="n">nr_of_electrodes_per_grid</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">inference_only</span> <span class="o">=</span> <span class="n">inference_only</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">L1Loss</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
@@ -351,88 +343,68 @@
                 <span class="n">stride</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_search_kernel_stride</span><span class="p">),</span>
                 <span class="n">groups</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_of_input_channels</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(</span><span class="n">approximate</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">InstanceNorm3d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">Dropout3d</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.20</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">InstanceNorm3d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">track_running_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Dropout3d</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.25</span><span class="p">),</span>
             <span class="n">nn</span><span class="o">.</span><span class="n">Conv3d</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrode_grids</span><span class="p">,</span>
-                    <span class="p">(</span>
-                        <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
-                        <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="p">),</span>
-                    <span class="mi">18</span><span class="p">,</span>
-                <span class="p">),</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
                 <span class="n">dilation</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-                <span class="n">padding</span><span class="o">=</span><span class="p">(</span>
-                    <span class="p">(</span>
-                        <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrode_grids</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
-                        <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrode_grids</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="p">),</span>
-                    <span class="p">(</span>
-                        <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">/</span> <span class="mi">4</span><span class="p">))</span>
-                        <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="p">),</span>
-                    <span class="mi">0</span><span class="p">,</span>
-                <span class="p">),</span>
+                <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
                 <span class="n">padding_mode</span><span class="o">=</span><span class="s2">&quot;circular&quot;</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(</span><span class="n">approximate</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">InstanceNorm3d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">InstanceNorm3d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">track_running_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
             <span class="n">nn</span><span class="o">.</span><span class="n">Conv3d</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrode_grids</span><span class="p">,</span>
-                    <span class="p">(</span>
-                        <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">/</span> <span class="mi">7</span><span class="p">))</span>
-                        <span class="o">+</span> <span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span> <span class="o">%</span> <span class="mi">7</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="p">),</span>
-                    <span class="mi">1</span><span class="p">,</span>
-                <span class="p">),</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
             <span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(</span><span class="n">approximate</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">InstanceNorm3d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">InstanceNorm3d</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder_channels</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">track_running_stats</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
             <span class="n">nn</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">mlp</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
             <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder</span><span class="p">(</span>
-                    <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span>
-                        <span class="p">(</span>
-                            <span class="mi">1</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_input_channels</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrode_grids</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span><span class="p">,</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">input_length__samples</span><span class="p">,</span>
+                <span class="n">reduce</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder</span><span class="p">(</span>
+                        <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span>
+                            <span class="p">(</span>
+                                <span class="mi">1</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_input_channels</span><span class="p">,</span>
+                                <span class="mi">5</span><span class="p">,</span>
+                                <span class="mi">64</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">input_length__samples</span><span class="p">,</span>
+                            <span class="p">)</span>
                         <span class="p">)</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-                <span class="o">.</span><span class="n">detach</span><span class="p">()</span>
-                <span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>
+                    <span class="mi">1</span><span class="p">,</span>
+                <span class="p">),</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
             <span class="p">),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(</span><span class="n">approximate</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
             <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder_channels</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(</span><span class="n">approximate</span><span class="o">=</span><span class="s2">&quot;tanh&quot;</span><span class="p">),</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">GELU</span><span class="p">(),</span>
             <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder_channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">nr_of_outputs</span><span class="p">),</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="RaulNetV16.forward">
-<a class="viewcode-back" href="../../../../../../modules/models/online/v16.html#myo_verse.models.definitions.raul_net.online.v16.RaulNetV16.forward">[docs]</a>
-    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<div class="viewcode-block" id="RaulNetV9.forward">
+<a class="viewcode-back" href="../../../../../../modules/models/online/v9.html#myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.forward">[docs]</a>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reshape_and_normalize</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
+
         <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cnn_encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mlp_encoder</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">x</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_reshape_and_normalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">):</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nr_of_electrodes_per_grid</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_reshape_and_normalize</span><span class="p">(</span><span class="n">inputs</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">inputs</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span>
             <span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">keepdim</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">unbiased</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-15</span>
         <span class="p">)</span>
@@ -466,7 +438,6 @@
         <span class="n">ground_truths</span> <span class="o">=</span> <span class="n">ground_truths</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">inputs</span><span class="p">)</span>
-
         <span class="n">scores_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">ground_truths</span><span class="p">)}</span>
 
         <span class="k">if</span> <span class="n">scores_dict</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isnan</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">():</span>
@@ -497,15 +468,6 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span>
             <span class="n">scores_dict</span><span class="p">,</span> <span class="n">prog_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">on_epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sync_dist</span><span class="o">=</span><span class="kc">True</span>
-        <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">log_dict</span><span class="p">(</span>
-            <span class="p">{</span><span class="sa">f</span><span class="s2">&quot;val/</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">scores_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span>
-            <span class="n">prog_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">logger</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">on_epoch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">on_step</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">sync_dist</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">scores_dict</span>

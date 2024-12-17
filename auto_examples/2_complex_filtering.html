@@ -293,7 +293,7 @@ Afterward, we select one task to work with.</p>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">myo_verse.datatypes</span> <span class="kn">import</span> <span class="n">EMGData</span>
+<span class="kn">from</span> <span class="nn">myoverse.datatypes</span> <span class="kn">import</span> <span class="n">EMGData</span>
 
 <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;data/emg.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <a href="https://docs.python.org/3/library/io.html#io.BufferedReader" title="io.BufferedReader" class="sphx-glr-backref-module-io sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">f</span></a><span class="p">:</span>
@@ -329,7 +329,7 @@ The deep learning models were thus trained with 2 representations of the data, o
 </div>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a>
 
-<span class="kn">from</span> <span class="nn">myo_verse.datasets.filters.temporal</span> <span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
+<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.temporal</span> <span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
 
 <span class="c1"># Define the filters</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bandpass_filter</span></a> <span class="o">=</span> <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
@@ -384,8 +384,8 @@ Filter(s):
 </dl>
 <p>We can achieve this by applying five filters to the data using the <strong>apply_filter_sequence</strong> method and setting the is_output
 flag to True for the filters that should be kept in the dataset object.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">myo_verse.datasets.filters.generic</span> <span class="kn">import</span> <span class="n">ChunkizeDataFilter</span><span class="p">,</span> <span class="n">ApplyFunctionFilter</span>
-<span class="kn">from</span> <span class="nn">myo_verse.datasets.filters.temporal</span> <span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">myoverse.datasets.filters.generic</span> <span class="kn">import</span> <span class="n">ChunkizeDataFilter</span><span class="p">,</span> <span class="n">ApplyFunctionFilter</span>
+<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.temporal</span> <span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
 
 <span class="c1"># reset the data</span>
 <span class="n">task_one_data</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/copy.html#copy.copy" title="copy.copy" class="sphx-glr-backref-module-copy sphx-glr-backref-type-py-function"><span class="n">copy</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">])</span>
@@ -579,8 +579,8 @@ Filter(s):
 --
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.321 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  1776 MB</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.076 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  1780 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-2-complex-filtering-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/05bdb3140c2c6ae43d9ab96ca1aabb68/2_complex_filtering.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">2_complex_filtering.ipynb</span></code></a></p>
