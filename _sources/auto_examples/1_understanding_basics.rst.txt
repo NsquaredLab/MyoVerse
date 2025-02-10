@@ -353,9 +353,9 @@ In case you do not want to index using the filter sequence name, you can retriev
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 5.315 seconds)
+   **Total running time of the script:** (0 minutes 5.441 seconds)
 
-**Estimated memory usage:**  973 MB
+**Estimated memory usage:**  996 MB
 
 
 .. _sphx_glr_download_auto_examples_1_understanding_basics.py:

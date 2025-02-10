@@ -6,7 +6,7 @@
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
         <title>myoverse.datasets.defaults - MyoVerse 0.7.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -270,25 +270,25 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for myoverse.datasets.defaults</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Sequence</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">butter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <span class="n">butter</span>
 
-<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.emg_augmentations</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.emg_augmentations</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">GaussianNoise</span><span class="p">,</span>
     <span class="n">MagnitudeWarping</span><span class="p">,</span>
     <span class="n">WaveletDecomposition</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.generic</span> <span class="kn">import</span> <span class="n">ApplyFunctionFilter</span><span class="p">,</span> <span class="n">IndexDataFilter</span><span class="p">,</span> <span class="n">IdentityFilter</span>
-<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.temporal</span> <span class="kn">import</span> <span class="n">RMSFilter</span><span class="p">,</span> <span class="n">SOSFrequencyFilter</span>
-<span class="kn">from</span> <span class="nn">myoverse.datasets.supervised</span> <span class="kn">import</span> <span class="n">EMGDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplyFunctionFilter</span><span class="p">,</span> <span class="n">IndexDataFilter</span><span class="p">,</span> <span class="n">IdentityFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMSFilter</span><span class="p">,</span> <span class="n">SOSFrequencyFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.supervised</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGDataset</span>
 
 
 <div class="viewcode-block" id="EMBCDataset">
 <a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.defaults.EMBCDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">EMBCDataset</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMBCDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Official dataset maker for the EMBC paper [1].</span>
 
 <span class="sd">    Parameters</span>
@@ -319,7 +319,7 @@
 <span class="sd">    the IEEE Engineering in Medicine &amp; Biology Society (EMBC) pp. 702–706. https://doi.org/10/gq2f47</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">emg_data_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">ground_truth_data_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -335,7 +335,7 @@
 
 <div class="viewcode-block" id="EMBCDataset.create_dataset">
 <a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.defaults.EMBCDataset.create_dataset">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">EMGDataset</span><span class="p">(</span>
             <span class="n">emg_data_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">emg_data_path</span><span class="p">,</span>
             <span class="n">ground_truth_data_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_data_path</span><span class="p">,</span>
@@ -379,7 +379,7 @@
 
 <div class="viewcode-block" id="CastelliniDataset">
 <a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.defaults.CastelliniDataset">[docs]</a>
-<span class="k">class</span> <span class="nc">CastelliniDataset</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CastelliniDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataset maker made after the Castellini paper [1].</span>
 <span class="sd">    This is not the official dataset maker used but our own version made after the paper.</span>
 
@@ -408,7 +408,7 @@
 <span class="sd">    IEEE Transactions on Biomedical Engineering 70, 459–469. https://doi.org/10/grc7qf</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">emg_data_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">ground_truth_data_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -422,7 +422,7 @@
 
 <div class="viewcode-block" id="CastelliniDataset.create_dataset">
 <a class="viewcode-back" href="../../../modules/datasets.html#myoverse.datasets.defaults.CastelliniDataset.create_dataset">[docs]</a>
-    <span class="k">def</span> <span class="nf">create_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">EMGDataset</span><span class="p">(</span>
             <span class="n">emg_data_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">emg_data_path</span><span class="p">,</span>
             <span class="n">ground_truth_data_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_truth_data_path</span><span class="p">,</span>
@@ -473,7 +473,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023 - 2024, n-squared lab, FAU Erlangen-Nürnberg, Germany
+                Copyright &#169; 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             

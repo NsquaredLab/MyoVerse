@@ -7,7 +7,7 @@
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.08.06 -->
         <title>Creating a dataset - MyoVerse 0.7.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -291,16 +291,16 @@ to download the full example code.</p>
 <p>Sîmpetru, R.C., März, M., Del Vecchio, A., 2023. Proportional and Simultaneous Real-Time Control of the Full Human Hand From High-Density Electromyography. IEEE TNSRE 31, 3118–3131. <a class="reference external" href="https://doi.org/10/gsgk4s">https://doi.org/10/gsgk4s</a></p>
 </aside>
 </aside>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/functools.html#functools.partial" title="functools.partial" class="sphx-glr-backref-module-functools sphx-glr-backref-type-py-function"><span class="n">partial</span></a>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/functools.html#functools.partial" title="functools.partial" class="sphx-glr-backref-module-functools sphx-glr-backref-type-py-function"><span class="n">partial</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a>
 
-<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.emg_augmentations</span> <span class="kn">import</span> <span class="n">WaveletDecomposition</span>
-<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.generic</span> <span class="kn">import</span> <span class="n">ApplyFunctionFilter</span><span class="p">,</span> <span class="n">IndexDataFilter</span>
-<span class="kn">from</span> <span class="nn">myoverse.datasets.filters.temporal</span> <span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
-<span class="kn">from</span> <span class="nn">myoverse.datasets.supervised</span> <span class="kn">import</span> <span class="n">EMGDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.emg_augmentations</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaveletDecomposition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplyFunctionFilter</span><span class="p">,</span> <span class="n">IndexDataFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.supervised</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGDataset</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">EMGDataset</span><span class="p">(</span>
     <span class="n">emg_data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;data/emg.pkl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
@@ -353,30 +353,30 @@ to download the full example code.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Filtering and splitting data:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Filtering and splitting data:  50%|█████     | 1/2 [00:01&lt;00:01,  1.88s/it]
-Filtering and splitting data: 100%|██████████| 2/2 [00:03&lt;00:00,  1.91s/it]
-Filtering and splitting data: 100%|██████████| 2/2 [00:03&lt;00:00,  1.90s/it]
+Filtering and splitting data:  50%|█████     | 1/2 [00:01&lt;00:01,  1.76s/it]
+Filtering and splitting data: 100%|██████████| 2/2 [00:03&lt;00:00,  1.77s/it]
+Filtering and splitting data: 100%|██████████| 2/2 [00:03&lt;00:00,  1.77s/it]
 
 Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   0%|          | 0/317 [00:00&lt;?, ?it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   5%|▌         | 16/317 [00:00&lt;00:01, 155.84it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  10%|█         | 32/317 [00:00&lt;00:01, 156.48it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  15%|█▌        | 49/317 [00:00&lt;00:01, 161.92it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  21%|██        | 67/317 [00:00&lt;00:01, 167.81it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  27%|██▋       | 85/317 [00:00&lt;00:01, 170.54it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  32%|███▏      | 103/317 [00:00&lt;00:01, 172.87it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  38%|███▊      | 121/317 [00:00&lt;00:01, 170.32it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  44%|████▍     | 139/317 [00:00&lt;00:01, 168.86it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  49%|████▉     | 156/317 [00:00&lt;00:00, 167.87it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  55%|█████▍    | 173/317 [00:01&lt;00:00, 166.73it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  60%|█████▉    | 190/317 [00:01&lt;00:00, 166.60it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  65%|██████▌   | 207/317 [00:01&lt;00:00, 161.67it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  71%|███████   | 224/317 [00:01&lt;00:00, 162.91it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  76%|███████▌  | 241/317 [00:01&lt;00:00, 164.02it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  81%|████████▏ | 258/317 [00:02&lt;00:01, 57.78it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  87%|████████▋ | 275/317 [00:02&lt;00:00, 71.98it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  92%|█████████▏| 293/317 [00:02&lt;00:00, 88.30it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  98%|█████████▊| 311/317 [00:02&lt;00:00, 104.29it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|██████████| 317/317 [00:02&lt;00:00, 125.18it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   5%|▌         | 16/317 [00:00&lt;00:01, 159.05it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  11%|█         | 34/317 [00:00&lt;00:01, 166.19it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  16%|█▋        | 52/317 [00:00&lt;00:01, 169.67it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  22%|██▏       | 70/317 [00:00&lt;00:01, 171.66it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  28%|██▊       | 88/317 [00:00&lt;00:01, 173.03it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  33%|███▎      | 106/317 [00:00&lt;00:01, 172.78it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  39%|███▉      | 124/317 [00:00&lt;00:01, 169.55it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  44%|████▍     | 141/317 [00:00&lt;00:01, 161.11it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  50%|████▉     | 158/317 [00:00&lt;00:01, 158.70it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  55%|█████▌    | 175/317 [00:01&lt;00:00, 160.69it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  61%|██████    | 192/317 [00:01&lt;00:00, 162.12it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  66%|██████▌   | 209/317 [00:01&lt;00:00, 163.25it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  71%|███████▏  | 226/317 [00:01&lt;00:00, 164.17it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  77%|███████▋  | 243/317 [00:01&lt;00:00, 164.99it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  82%|████████▏ | 260/317 [00:02&lt;00:00, 60.39it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  88%|████████▊ | 278/317 [00:02&lt;00:00, 76.02it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  93%|█████████▎| 296/317 [00:02&lt;00:00, 92.10it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  99%|█████████▉| 314/317 [00:02&lt;00:00, 108.05it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|██████████| 317/317 [00:02&lt;00:00, 127.32it/s]
 </pre></div>
 </div>
 <p>Default dataset are also available. Here is an example of how to use the EMBCDataset used in <a class="footnote-reference brackets" href="#id4" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
@@ -386,7 +386,7 @@ Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|████
 <p>Sîmpetru, R.C., Osswald, M., Braun, D.I., Souza de Oliveira, D., Cakici, A.L., Del Vecchio, A., 2022. Accurate continuous prediction of 14 degrees of freedom of the hand from myoelectrical signals through convolutive deep learning, in: Proceedings of the 2022 44th Annual International Conference of the IEEE Engineering in Medicine &amp; Biology Society (EMBC). Presented at the 2022 44th Annual International Conference of the IEEE Engineering in Medicine &amp; Biology Society (EMBC), pp. 702–706. <a class="reference external" href="https://doi.org/10/gq2f47">https://doi.org/10/gq2f47</a></p>
 </aside>
 </aside>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">myoverse.datasets.defaults</span> <span class="kn">import</span> <span class="n">EMBCDataset</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMBCDataset</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">EMBCDataset</span><span class="p">(</span>
     <span class="n">emg_data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;data/emg.pkl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
@@ -399,78 +399,76 @@ Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|████
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Filtering and splitting data:   0%|          | 0/2 [00:00&lt;?, ?it/s]
-Filtering and splitting data:  50%|█████     | 1/2 [00:01&lt;00:01,  1.19s/it]
-Filtering and splitting data: 100%|██████████| 2/2 [00:02&lt;00:00,  1.13s/it]
-Filtering and splitting data: 100%|██████████| 2/2 [00:02&lt;00:00,  1.14s/it]
+Filtering and splitting data:  50%|█████     | 1/2 [00:01&lt;00:01,  1.10s/it]
+Filtering and splitting data: 100%|██████████| 2/2 [00:02&lt;00:00,  1.08s/it]
+Filtering and splitting data: 100%|██████████| 2/2 [00:02&lt;00:00,  1.08s/it]
 
 Augmenting with [GaussianNoise (GaussianNoise)]:   0%|          | 0/317 [00:00&lt;?, ?it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:   0%|          | 1/317 [00:01&lt;08:04,  1.53s/it]
-Augmenting with [GaussianNoise (GaussianNoise)]:   5%|▌         | 17/317 [00:01&lt;00:21, 14.20it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  10%|█         | 33/317 [00:01&lt;00:09, 29.91it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  15%|█▌        | 49/317 [00:01&lt;00:05, 46.99it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  20%|██        | 64/317 [00:01&lt;00:04, 63.23it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  25%|██▌       | 80/317 [00:02&lt;00:02, 80.79it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  30%|███       | 96/317 [00:02&lt;00:02, 96.89it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  35%|███▌      | 112/317 [00:02&lt;00:01, 110.50it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  40%|████      | 128/317 [00:02&lt;00:01, 121.91it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  45%|████▌     | 144/317 [00:02&lt;00:01, 130.97it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  50%|█████     | 160/317 [00:02&lt;00:01, 137.87it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  56%|█████▌    | 176/317 [00:02&lt;00:00, 141.16it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  61%|██████    | 192/317 [00:02&lt;00:00, 143.94it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  66%|██████▌   | 208/317 [00:02&lt;00:00, 144.72it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  71%|███████   | 224/317 [00:02&lt;00:00, 146.15it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  76%|███████▌  | 240/317 [00:03&lt;00:00, 147.57it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  81%|████████  | 256/317 [00:03&lt;00:00, 148.64it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  86%|████████▌ | 272/317 [00:03&lt;00:00, 149.44it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  91%|█████████ | 288/317 [00:03&lt;00:00, 150.16it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]:  96%|█████████▌| 304/317 [00:03&lt;00:00, 150.42it/s]
-Augmenting with [GaussianNoise (GaussianNoise)]: 100%|██████████| 317/317 [00:03&lt;00:00, 87.96it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:   0%|          | 1/317 [00:01&lt;08:14,  1.56s/it]
+Augmenting with [GaussianNoise (GaussianNoise)]:   6%|▌         | 19/317 [00:01&lt;00:19, 15.61it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  12%|█▏        | 39/317 [00:01&lt;00:07, 35.12it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  19%|█▊        | 59/317 [00:01&lt;00:04, 56.68it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  25%|██▍       | 79/317 [00:01&lt;00:03, 79.10it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  31%|███       | 99/317 [00:02&lt;00:02, 100.88it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  38%|███▊      | 119/317 [00:02&lt;00:01, 120.86it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  44%|████▍     | 139/317 [00:02&lt;00:01, 138.11it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  50%|█████     | 159/317 [00:02&lt;00:01, 152.28it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  56%|█████▋    | 179/317 [00:02&lt;00:00, 163.51it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  63%|██████▎   | 199/317 [00:02&lt;00:00, 172.35it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  69%|██████▉   | 219/317 [00:02&lt;00:00, 174.41it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  75%|███████▌  | 238/317 [00:02&lt;00:00, 178.35it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  81%|████████  | 257/317 [00:02&lt;00:00, 181.44it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  87%|████████▋ | 277/317 [00:03&lt;00:00, 184.07it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  93%|█████████▎| 296/317 [00:03&lt;00:00, 185.77it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]:  99%|█████████▉| 315/317 [00:03&lt;00:00, 186.91it/s]
+Augmenting with [GaussianNoise (GaussianNoise)]: 100%|██████████| 317/317 [00:03&lt;00:00, 98.53it/s]
 
 Augmenting with [MagnitudeWarping (MagnitudeWarping)]:   0%|          | 0/317 [00:00&lt;?, ?it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:   6%|▌         | 19/317 [00:00&lt;00:01, 182.37it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  12%|█▏        | 39/317 [00:00&lt;00:01, 192.29it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  19%|█▊        | 59/317 [00:00&lt;00:01, 193.96it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  25%|██▍       | 79/317 [00:00&lt;00:01, 195.43it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  31%|███       | 99/317 [00:00&lt;00:01, 196.93it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  38%|███▊      | 119/317 [00:00&lt;00:01, 188.91it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  44%|████▎     | 138/317 [00:00&lt;00:00, 187.17it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  50%|█████     | 159/317 [00:00&lt;00:00, 191.29it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  56%|█████▋    | 179/317 [00:00&lt;00:00, 193.81it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  63%|██████▎   | 199/317 [00:01&lt;00:00, 193.09it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  69%|██████▉   | 219/317 [00:01&lt;00:00, 190.04it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  75%|███████▌  | 239/317 [00:01&lt;00:00, 188.98it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  81%|████████▏ | 258/317 [00:01&lt;00:00, 188.47it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  87%|████████▋ | 277/317 [00:01&lt;00:00, 188.14it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  93%|█████████▎| 296/317 [00:01&lt;00:00, 188.01it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  99%|█████████▉| 315/317 [00:01&lt;00:00, 187.68it/s]
-Augmenting with [MagnitudeWarping (MagnitudeWarping)]: 100%|██████████| 317/317 [00:01&lt;00:00, 190.05it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:   6%|▌         | 19/317 [00:00&lt;00:01, 185.20it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  13%|█▎        | 40/317 [00:00&lt;00:01, 192.85it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  19%|█▉        | 60/317 [00:00&lt;00:01, 192.15it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  25%|██▌       | 80/317 [00:00&lt;00:01, 194.11it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  32%|███▏      | 100/317 [00:00&lt;00:01, 194.05it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  38%|███▊      | 120/317 [00:00&lt;00:01, 191.23it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  44%|████▍     | 140/317 [00:00&lt;00:00, 189.67it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  50%|█████     | 159/317 [00:00&lt;00:00, 188.32it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  56%|█████▌    | 178/317 [00:00&lt;00:00, 184.03it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  62%|██████▏   | 197/317 [00:01&lt;00:00, 185.17it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  68%|██████▊   | 216/317 [00:01&lt;00:00, 186.31it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  74%|███████▍  | 235/317 [00:01&lt;00:00, 186.84it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  80%|████████  | 254/317 [00:01&lt;00:00, 187.10it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  86%|████████▌ | 273/317 [00:01&lt;00:00, 187.64it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  92%|█████████▏| 292/317 [00:01&lt;00:00, 187.86it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]:  98%|█████████▊| 311/317 [00:01&lt;00:00, 185.99it/s]
+Augmenting with [MagnitudeWarping (MagnitudeWarping)]: 100%|██████████| 317/317 [00:01&lt;00:00, 188.02it/s]
 
 Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   0%|          | 0/317 [00:00&lt;?, ?it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   4%|▍         | 13/317 [00:00&lt;00:02, 127.25it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   9%|▉         | 29/317 [00:00&lt;00:01, 145.58it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  14%|█▍        | 45/317 [00:00&lt;00:01, 151.37it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  19%|█▉        | 61/317 [00:00&lt;00:01, 153.73it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  24%|██▍       | 77/317 [00:00&lt;00:01, 154.51it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  29%|██▉       | 93/317 [00:00&lt;00:01, 155.61it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  34%|███▍      | 109/317 [00:00&lt;00:01, 153.79it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  39%|███▉      | 125/317 [00:00&lt;00:01, 152.39it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  44%|████▍     | 141/317 [00:00&lt;00:01, 151.42it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  50%|████▉     | 157/317 [00:01&lt;00:01, 150.89it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  55%|█████▍    | 173/317 [00:01&lt;00:00, 150.05it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  60%|█████▉    | 189/317 [00:01&lt;00:00, 150.00it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  65%|██████▍   | 205/317 [00:01&lt;00:00, 149.86it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  69%|██████▉   | 220/317 [00:01&lt;00:00, 146.31it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  74%|███████▍  | 236/317 [00:01&lt;00:00, 147.44it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  79%|███████▉  | 251/317 [00:01&lt;00:00, 148.00it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  84%|████████▍ | 266/317 [00:01&lt;00:00, 147.88it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  89%|████████▊ | 281/317 [00:01&lt;00:00, 147.27it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  93%|█████████▎| 296/317 [00:01&lt;00:00, 147.87it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  98%|█████████▊| 311/317 [00:02&lt;00:00, 148.19it/s]
-Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|██████████| 317/317 [00:02&lt;00:00, 149.42it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   4%|▍         | 12/317 [00:00&lt;00:02, 116.20it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:   9%|▉         | 28/317 [00:00&lt;00:02, 138.59it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  14%|█▍        | 44/317 [00:00&lt;00:01, 146.27it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  19%|█▊        | 59/317 [00:00&lt;00:01, 147.26it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  23%|██▎       | 74/317 [00:00&lt;00:01, 147.96it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  28%|██▊       | 89/317 [00:00&lt;00:01, 139.94it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  33%|███▎      | 104/317 [00:00&lt;00:01, 142.26it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  38%|███▊      | 119/317 [00:00&lt;00:01, 144.13it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  42%|████▏     | 134/317 [00:00&lt;00:01, 145.46it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  47%|████▋     | 149/317 [00:01&lt;00:01, 146.30it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  52%|█████▏    | 164/317 [00:01&lt;00:01, 146.64it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  56%|█████▋    | 179/317 [00:01&lt;00:00, 147.36it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  61%|██████    | 194/317 [00:01&lt;00:00, 147.50it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  66%|██████▌   | 209/317 [00:01&lt;00:00, 146.52it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  71%|███████   | 224/317 [00:01&lt;00:00, 146.49it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  75%|███████▌  | 239/317 [00:01&lt;00:00, 140.10it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  80%|████████  | 254/317 [00:01&lt;00:00, 141.80it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  85%|████████▍ | 269/317 [00:01&lt;00:00, 143.35it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  90%|████████▉ | 284/317 [00:01&lt;00:00, 145.15it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  94%|█████████▍| 299/317 [00:02&lt;00:00, 146.42it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]:  99%|█████████▉| 314/317 [00:02&lt;00:00, 146.46it/s]
+Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|██████████| 317/317 [00:02&lt;00:00, 144.65it/s]
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 19.022 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  1362 MB</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 18.205 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  1427 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-3-create-dataset-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../_downloads/6327ef2079176d026ee8af6cfdbdbd63/3_create_dataset.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">3_create_dataset.ipynb</span></code></a></p>
@@ -514,7 +512,7 @@ Augmenting with [WaveletDecomposition (WaveletDecomposition)]: 100%|████
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 2023 - 2024, n-squared lab, FAU Erlangen-Nürnberg, Germany
+                Copyright &#169; 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
