@@ -4,9 +4,10 @@ version = "0.7.1"
 description = ""
 readme = "README.md"
 authors = [
-    "Raul C. Simpetru <raul.simpetru@fau.de>",
-    "Vlad Cnejevici <vlad.cnejevici@fau.de>"
+    { name = "Raul C. Sîmpetru", email = "raul.simpetru@fau.de" },
+    { name = "Vlad Cnejevici", email = "vlad.cnejevici@fau.de" },
 ]
+
 requires-python = ">=3.12"
 dependencies = [
     "lightning>=2.5.0.post0",
