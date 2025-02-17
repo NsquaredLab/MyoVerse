@@ -220,7 +220,7 @@ class EMGDataset:
         )
 
         self.save_path.mkdir(parents=True, exist_ok=True)
-        dataset = zarr.open(str(self.save_path), mode="w")
+        dataset = zarr.open(str(self.save_path), mode="w", zarr_format=2)
 
         training_group = dataset.create_group("training")
         testing_group = dataset.create_group("testing")
