@@ -4,7 +4,7 @@ version = "0.7.1"
 description = ""
 readme = "README.md"
 authors = [
-    "Raul C. Sîmpetru <raul.simpetru@fau.de>",
+    "Raul C. Simpetru <raul.simpetru@fau.de>",
     "Vlad Cnejevici <vlad.cnejevici@fau.de>"
 ]
 requires-python = ">=3.12"
