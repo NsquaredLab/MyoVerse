@@ -18,7 +18,7 @@ sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 
 
 # Info from poetry config:
-info = toml.load("../../pyproject.toml")["tool"]["poetry"]
+info = toml.load("../../pyproject.toml")["project"]
 
 project = info["name"]
 author = ", ".join(info["authors"])
