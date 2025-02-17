@@ -21,7 +21,7 @@ sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
 info = toml.load("../../pyproject.toml")["project"]
 
 project = info["name"]
-author = ", ".join(info["authors"])
+author = ", ".join([x["name"] + f" ({x['email']})" for x in info["authors"]])
 release = info["version"]
 
 copyright = (
