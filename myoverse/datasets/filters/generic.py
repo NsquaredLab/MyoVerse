@@ -130,7 +130,7 @@ class ChunkizeDataFilter(FilterBaseClass):
             input_is_chunked=input_is_chunked,
             allowed_input_type="not chunked",
             is_output=is_output,
-            name=name
+            name=name,
         )
 
         if input_is_chunked == True:

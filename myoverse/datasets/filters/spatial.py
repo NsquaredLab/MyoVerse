@@ -437,6 +437,7 @@ class ChannelSelector:
 
             return chunk
 
+
 class BraceletDifferential:
     def __init__(self, input_is_chunked: bool = False):
         """Initialize the class.
@@ -454,13 +455,15 @@ class BraceletDifferential:
 
     def _spatial_filtering(self, chunk: np.ndarray) -> np.ndarray:
         """This function applies the filters to the chunk."""
-        
+
         output = []
         if self.input_is_chunked:
             for representation in range(chunk.shape[0]):
                 temp = []
                 for chunk_index in range(chunk.shape[1]):
-                    chunk_representation = chunk[representation, chunk_index].reshape(2, 16, -1)
+                    chunk_representation = chunk[representation, chunk_index].reshape(
+                        2, 16, -1
+                    )
                     # add circular padding to the chunk
                     chunk_representation = np.pad(
                         chunk_representation, ((0, 0), (1, 1), (0, 0)), "wrap"
@@ -469,12 +472,14 @@ class BraceletDifferential:
                     chunk_representation = np.pad(
                         chunk_representation, ((1, 1), (0, 0), (0, 0)), "constant"
                     )
-                    
+
                     # Longitudinal differential
                     chunk_representation = convolve(
-                        chunk_representation, (np.array([[0, 1, 0], [1, 0.5, 1], [0, 1, 0]]) / 4)[..., None], mode="valid"
+                        chunk_representation,
+                        (np.array([[0, 1, 0], [1, 0.5, 1], [0, 1, 0]]) / 4)[..., None],
+                        mode="valid",
                     )
-                    
+
                     temp.append(chunk_representation.reshape(32, -1))
                 output.append(np.array(temp))
         else:
@@ -488,15 +493,17 @@ class BraceletDifferential:
                 chunk_representation = np.pad(
                     chunk_representation, ((1, 1), (0, 0), (0, 0)), "constant"
                 )
-                
+
                 # Longitudinal differential
                 chunk_representation = convolve(
-                    chunk_representation, (np.array([[0, 1, 0], [1, 0.5, 1], [0, 1, 0]]) / 4)[..., None], mode="valid"
+                    chunk_representation,
+                    (np.array([[0, 1, 0], [1, 0.5, 1], [0, 1, 0]]) / 4)[..., None],
+                    mode="valid",
                 )
                 output.append(chunk_representation.reshape(32, -1))
-        
+
         return np.array(output)
-        
+
 
 if __name__ == "__main__":
     # Test the classes out

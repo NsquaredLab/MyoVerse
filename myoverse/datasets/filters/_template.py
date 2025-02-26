@@ -34,7 +34,7 @@ class FilterBaseClass:
 
         self.is_output = is_output
         self._name = name
-        
+
     @property
     def name(self):
         if self._name is None:
@@ -75,7 +75,7 @@ class FilterBaseClass:
         #     f"{self.__class__.__name__}"
         #     f'({", ".join([f"{k}={v}" for k, v in self.__dict__.items() if not k.startswith("_")])})'
         # )
-        
+
         if self.name:
             return f"{self.name} ({self.__class__.__name__})"
         return f"{self.__class__.__name__}"
