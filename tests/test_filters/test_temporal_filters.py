@@ -1,0 +1,1481 @@
+import sys  # Add this to ensure print statements are output even when test passes
+
+import numpy as np
+import pytest
+from scipy.signal import butter
+from scipy.fft import rfft, rfftfreq
+
+from myoverse.datasets.filters.temporal import (
+    SSCFilter,
+    SpectralInterpolationFilter,
+)
+
+
+def generate_chunked_data():
+    return np.random.rand(100, *[5] * np.random.randint(1, 5), 500)
+
+
+def generate_unchunked_data():
+    return np.random.rand(*[5] * np.random.randint(1, 5), 500)
+
+
+class TestTemporalFilters:
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_RMSFilter_chunked(self, window_size, shift):
+        data = generate_chunked_data()
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import RMSFilter
+
+        rms_filter = RMSFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output = rms_filter(data)
+        assert output.shape == (100, *data.shape[1:-1], expected_length)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_RMSFilter_not_chunked(self, window_size, shift):
+        data = generate_unchunked_data()
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import RMSFilter
+
+        rms_filter = RMSFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        output = rms_filter(data)
+        assert output.shape == (*data.shape[:-1], expected_length)
+
+    @pytest.mark.parametrize(
+        "cutoff,filter_type", [(20, "lowpass"), ([20, 200], "bandpass")]
+    )
+    @pytest.mark.loop(10)
+    def test_SOSFrequencyFilter_chunked(self, cutoff, filter_type):
+        data = generate_chunked_data()
+        original_shape = data.shape
+
+        from myoverse.datasets.filters.temporal import SOSFrequencyFilter
+
+        # Create SOS filter coefficients
+        sos_filter_coefficients = butter(4, cutoff, filter_type, output="sos", fs=1000)
+
+        # Default: forward and backward filtering
+        sos_filter = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients, input_is_chunked=True
+        )
+        output = sos_filter(data)
+
+        # Output should maintain the same shape
+        assert output.shape == original_shape
+
+        # Test with forward-only filtering
+        sos_filter_forward = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients,
+            forwards_and_backwards=False,
+            input_is_chunked=True,
+        )
+        output_forward = sos_filter_forward(data)
+
+        # Output should maintain the same shape
+        assert output_forward.shape == original_shape
+
+        # Forward-only filtering should be different from forward-backward filtering
+        assert not np.allclose(output, output_forward)
+
+    @pytest.mark.parametrize(
+        "cutoff,filter_type", [(20, "lowpass"), ([20, 200], "bandpass")]
+    )
+    @pytest.mark.loop(10)
+    def test_SOSFrequencyFilter_not_chunked(self, cutoff, filter_type):
+        data = generate_unchunked_data()
+        original_shape = data.shape
+
+        from myoverse.datasets.filters.temporal import SOSFrequencyFilter
+
+        # Create SOS filter coefficients
+        sos_filter_coefficients = butter(4, cutoff, filter_type, output="sos", fs=1000)
+
+        # Default: forward and backward filtering
+        sos_filter = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients, input_is_chunked=False
+        )
+        output = sos_filter(data)
+
+        # Output should maintain the same shape
+        assert output.shape == original_shape
+
+        # Test with forward-only filtering
+        sos_filter_forward = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients,
+            forwards_and_backwards=False,
+            input_is_chunked=False,
+        )
+        output_forward = sos_filter_forward(data)
+
+        # Output should maintain the same shape
+        assert output_forward.shape == original_shape
+
+        # Forward-only filtering should be different from forward-backward filtering
+        assert not np.allclose(output, output_forward)
+
+    def test_SOSFrequencyFilter_boundary_conditions(self):
+        """Test to identify boundary condition issues with SOSFrequencyFilter on chunked data
+        and verify that the improved implementation reduces these issues."""
+        # Create a continuous signal with known frequency components
+        from myoverse.datasets.filters.temporal import SOSFrequencyFilter
+
+        # Generate a continuous signal (e.g., sine wave)
+        sample_rate = 1000  # Hz
+        duration = 2  # seconds
+        t = np.linspace(0, duration, sample_rate * duration, endpoint=False)
+
+        # Create a signal with multiple frequencies
+        signal = (
+            np.sin(2 * np.pi * 5 * t)  # 5 Hz component
+            + np.sin(2 * np.pi * 50 * t)  # 50 Hz component
+            + np.sin(2 * np.pi * 120 * t)
+        )  # 120 Hz component
+
+        # Add some noise
+        signal += 0.1 * np.random.randn(len(signal))
+
+        # Apply a 40 Hz lowpass filter to the continuous signal
+        sos_filter_coefficients = butter(4, 40, "lowpass", output="sos", fs=sample_rate)
+        sos_filter = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients, input_is_chunked=False
+        )
+
+        # Filter the continuous signal (ground truth)
+        filtered_continuous = sos_filter(signal)
+
+        # Now chunk the signal into segments
+        chunk_size = 200  # samples
+        num_chunks = len(signal) // chunk_size
+        chunked_signal = signal[: num_chunks * chunk_size].reshape(
+            num_chunks, chunk_size
+        )
+
+        # 1. Test with original approach (no overlap)
+        sos_filter_no_overlap = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients,
+            input_is_chunked=True,
+            overlap=0,
+            use_continuous_approach=False,
+        )
+        filtered_no_overlap = sos_filter_no_overlap(chunked_signal)
+
+        # 2. Test with overlap approach
+        sos_filter_with_overlap = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients,
+            input_is_chunked=True,
+            use_continuous_approach=False,
+        )
+        filtered_with_overlap = sos_filter_with_overlap(chunked_signal)
+
+        # 3. Test with continuous approach
+        sos_filter_continuous = SOSFrequencyFilter(
+            sos_filter_coefficients=sos_filter_coefficients,
+            input_is_chunked=True,
+            use_continuous_approach=True,
+        )
+        filtered_continuous_approach = sos_filter_continuous(chunked_signal)
+
+        # Reshape all filtered results back to 1D for comparison
+        filtered_no_overlap_flat = filtered_no_overlap.reshape(-1)
+        filtered_with_overlap_flat = filtered_with_overlap.reshape(-1)
+        filtered_continuous_approach_flat = filtered_continuous_approach.reshape(-1)
+
+        # Compare with the ground truth
+        comparison_length = len(filtered_no_overlap_flat)
+        ground_truth = filtered_continuous[:comparison_length]
+
+        # Calculate the difference at the chunk boundaries
+        boundary_indices = np.arange(chunk_size, comparison_length, chunk_size)
+        non_boundary_indices = np.setdiff1d(
+            np.arange(comparison_length), boundary_indices
+        )
+
+        # Calculate errors for different approaches
+        # 1. No overlap
+        boundary_errors_no_overlap = np.abs(
+            filtered_no_overlap_flat[boundary_indices] - ground_truth[boundary_indices]
+        )
+        non_boundary_errors_no_overlap = np.abs(
+            filtered_no_overlap_flat[non_boundary_indices]
+            - ground_truth[non_boundary_indices]
+        )
+
+        # 2. With overlap
+        boundary_errors_overlap = np.abs(
+            filtered_with_overlap_flat[boundary_indices]
+            - ground_truth[boundary_indices]
+        )
+        non_boundary_errors_overlap = np.abs(
+            filtered_with_overlap_flat[non_boundary_indices]
+            - ground_truth[non_boundary_indices]
+        )
+
+        # 3. Continuous approach
+        boundary_errors_continuous = np.abs(
+            filtered_continuous_approach_flat[boundary_indices]
+            - ground_truth[boundary_indices]
+        )
+        non_boundary_errors_continuous = np.abs(
+            filtered_continuous_approach_flat[non_boundary_indices]
+            - ground_truth[non_boundary_indices]
+        )
+
+        # Calculate mean errors
+        avg_boundary_error_no_overlap = np.mean(boundary_errors_no_overlap)
+        avg_non_boundary_error_no_overlap = np.mean(non_boundary_errors_no_overlap)
+
+        avg_boundary_error_overlap = np.mean(boundary_errors_overlap)
+        avg_non_boundary_error_overlap = np.mean(non_boundary_errors_overlap)
+
+        avg_boundary_error_continuous = np.mean(boundary_errors_continuous)
+        avg_non_boundary_error_continuous = np.mean(non_boundary_errors_continuous)
+
+        # Calculate error ratios
+        ratio_no_overlap = avg_boundary_error_no_overlap / (
+            avg_non_boundary_error_no_overlap + 1e-10
+        )
+        ratio_overlap = avg_boundary_error_overlap / (
+            avg_non_boundary_error_overlap + 1e-10
+        )
+        ratio_continuous = avg_boundary_error_continuous / (
+            avg_non_boundary_error_continuous + 1e-10
+        )
+
+        # Total error (sum of all absolute differences)
+        total_error_no_overlap = np.sum(np.abs(filtered_no_overlap_flat - ground_truth))
+        total_error_overlap = np.sum(np.abs(filtered_with_overlap_flat - ground_truth))
+        total_error_continuous = np.sum(
+            np.abs(filtered_continuous_approach_flat - ground_truth)
+        )
+
+        # Always print these results, even if the test passes
+        print(
+            "\n=========== SOSFrequencyFilter Boundary Test Results ===========",
+            file=sys.stderr,
+        )
+        print("\nAverage errors at boundaries:", file=sys.stderr)
+        print(f"No overlap approach: {avg_boundary_error_no_overlap}", file=sys.stderr)
+        print(f"Overlap approach: {avg_boundary_error_overlap}", file=sys.stderr)
+        print(f"Continuous approach: {avg_boundary_error_continuous}", file=sys.stderr)
+
+        print("\nAverage errors at non-boundaries:", file=sys.stderr)
+        print(
+            f"No overlap approach: {avg_non_boundary_error_no_overlap}", file=sys.stderr
+        )
+        print(f"Overlap approach: {avg_non_boundary_error_overlap}", file=sys.stderr)
+        print(
+            f"Continuous approach: {avg_non_boundary_error_continuous}", file=sys.stderr
+        )
+
+        print("\nRatio of boundary to non-boundary errors:", file=sys.stderr)
+        print(f"No overlap approach: {ratio_no_overlap}", file=sys.stderr)
+        print(f"Overlap approach: {ratio_overlap}", file=sys.stderr)
+        print(f"Continuous approach: {ratio_continuous}", file=sys.stderr)
+
+        print("\nTotal error (lower is better):", file=sys.stderr)
+        print(f"No overlap approach: {total_error_no_overlap}", file=sys.stderr)
+        print(f"Overlap approach: {total_error_overlap}", file=sys.stderr)
+        print(f"Continuous approach: {total_error_continuous}", file=sys.stderr)
+        print(
+            "==================================================================\n",
+            file=sys.stderr,
+        )
+
+        # The continuous approach should have the most consistent error ratio (closest to 1.0)
+        # which means boundary and non-boundary errors are similar
+        assert ratio_continuous < ratio_no_overlap, (
+            "Continuous approach should have better error ratio than no overlap"
+        )
+
+        # Continuous approach should have the lowest total error
+        assert total_error_continuous < total_error_no_overlap, (
+            "Continuous approach should have lower total error"
+        )
+
+    @pytest.mark.loop(10)
+    def test_RectifyFilter_chunked(self):
+        """Test RectifyFilter with chunked data."""
+        # Generate chunked data with both positive and negative values
+        data = generate_chunked_data() * 2 - 1  # Scale to [-1, 1]
+        original_shape = data.shape
+
+        from myoverse.datasets.filters.temporal import RectifyFilter
+
+        # Create the filter
+        rectify_filter = RectifyFilter(input_is_chunked=True)
+        output = rectify_filter(data)
+
+        # Check shape preservation
+        assert output.shape == original_shape
+
+        # Verify all values are non-negative
+        assert np.all(output >= 0)
+
+        # Verify rectification is correctly applied (should equal absolute value)
+        expected_output = np.abs(data)
+        assert np.allclose(output, expected_output)
+
+        # Test with more complex cases - high dimensional data with negative values
+        complex_data = np.random.randn(
+            50, 3, 4, 2, 100
+        )  # 5D array with negative values
+        complex_output = rectify_filter(complex_data)
+
+        # Verify shape and correctness
+        assert complex_output.shape == complex_data.shape
+        assert np.all(complex_output >= 0)
+        assert np.allclose(complex_output, np.abs(complex_data))
+
+    @pytest.mark.loop(10)
+    def test_RectifyFilter_not_chunked(self):
+        """Test RectifyFilter with non-chunked data."""
+        # Generate non-chunked data with both positive and negative values
+        data = generate_unchunked_data() * 2 - 1  # Scale to [-1, 1]
+        original_shape = data.shape
+
+        from myoverse.datasets.filters.temporal import RectifyFilter
+
+        # Create the filter
+        rectify_filter = RectifyFilter(input_is_chunked=False)
+        output = rectify_filter(data)
+
+        # Check shape preservation
+        assert output.shape == original_shape
+
+        # Verify all values are non-negative
+        assert np.all(output >= 0)
+
+        # Verify rectification is correctly applied (should equal absolute value)
+        expected_output = np.abs(data)
+        assert np.allclose(output, expected_output)
+
+        # Test with more complex cases - high dimensional data with negative values
+        complex_data = np.random.randn(
+            *[3] * np.random.randint(1, 4), 200
+        )  # Random dimensional array with negative values
+        complex_output = rectify_filter(complex_data)
+
+        # Verify shape and correctness
+        assert complex_output.shape == complex_data.shape
+        assert np.all(complex_output >= 0)
+        assert np.allclose(complex_output, np.abs(complex_data))
+
+    def test_RectifyFilter_various_input_shapes(self):
+        """Test RectifyFilter with various input shapes to ensure robustness."""
+        from myoverse.datasets.filters.temporal import RectifyFilter
+
+        # Test cases with different shapes
+        test_shapes = [
+            (100,),  # 1D
+            (10, 100),  # 2D
+            (5, 10, 100),  # 3D
+            (3, 5, 10, 100),  # 4D
+            (2, 3, 5, 10, 100),  # 5D
+        ]
+
+        for shape in test_shapes:
+            # Create data with both positive and negative values
+            data = np.random.randn(*shape)
+
+            # Test both chunked and non-chunked versions
+            for is_chunked in [True, False]:
+                rectify_filter = RectifyFilter(input_is_chunked=is_chunked)
+                output = rectify_filter(data)
+
+                # Verify shape preservation
+                assert output.shape == data.shape
+
+                # Verify all values are non-negative
+                assert np.all(output >= 0)
+
+                # Verify values match abs function
+                assert np.allclose(output, np.abs(data))
+
+    def test_RectifyFilter_edge_cases(self):
+        """Test RectifyFilter with edge cases like zeros and specific patterns."""
+        from myoverse.datasets.filters.temporal import RectifyFilter
+
+        # Test with zeros
+        zeros = np.zeros((10, 50))
+        rectify_filter = RectifyFilter(input_is_chunked=True)
+        output_zeros = rectify_filter(zeros)
+        assert np.allclose(output_zeros, zeros)
+
+        # Test with alternating positive/negative pattern
+        alternating = np.ones((5, 20))
+        alternating[:, ::2] = -1  # Every even column is -1
+        output_alternating = rectify_filter(alternating)
+        assert np.all(output_alternating == 1)  # All should be 1 after rectification
+
+        # Test with very small values (close to zero)
+        small_values = np.random.randn(10, 30) * 1e-10
+        output_small = rectify_filter(small_values)
+        assert np.allclose(output_small, np.abs(small_values))
+
+        # Test with extreme values (very large positive and negative)
+        extreme_values = np.random.randn(10, 30) * 1e10
+        output_extreme = rectify_filter(extreme_values)
+        assert np.allclose(output_extreme, np.abs(extreme_values))
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_VARFilter_chunked(self, window_size, shift):
+        """Test VARFilter with chunked data."""
+        # Generate chunked data
+        data = generate_chunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import VARFilter
+
+        # Create the filter
+        var_filter = VARFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output = var_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (
+            original_shape[0],
+            *original_shape[1:-1],
+            expected_length,
+        )
+
+        # Verify output with manual calculation for first few windows
+        # This checks the filter's logic against NumPy's variance function
+        for chunk_idx in range(min(3, original_shape[0])):
+            for window_idx in range(min(3, expected_length)):
+                window_start = window_idx * shift
+                window_end = window_start + window_size
+                window_data = data[chunk_idx, ..., window_start:window_end]
+
+                # Calculate variance manually for this window
+                expected_var = np.var(window_data, axis=-1)
+
+                # Compare with filter output for this window
+                assert np.allclose(output[chunk_idx, ..., window_idx], expected_var)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_VARFilter_not_chunked(self, window_size, shift):
+        """Test VARFilter with non-chunked data."""
+        # Generate non-chunked data
+        data = generate_unchunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import VARFilter
+
+        # Create the filter
+        var_filter = VARFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        output = var_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (*original_shape[:-1], expected_length)
+
+        # Verify output with manual calculation for first few windows
+        for window_idx in range(min(3, expected_length)):
+            window_start = window_idx * shift
+            window_end = window_start + window_size
+            window_data = data[..., window_start:window_end]
+
+            # Calculate variance manually for this window
+            expected_var = np.var(window_data, axis=-1)
+
+            # Compare with filter output for this window
+            assert np.allclose(output[..., window_idx], expected_var)
+
+    def test_VARFilter_various_input_shapes(self):
+        """Test VARFilter with various input shapes to ensure robustness."""
+        from myoverse.datasets.filters.temporal import VARFilter
+
+        # Define window parameters
+        window_size = 20
+        shift = 5
+
+        # Test cases with different shapes
+        test_shapes = [
+            (100,),  # 1D
+            (10, 100),  # 2D
+            (5, 10, 100),  # 3D
+            (3, 5, 10, 100),  # 4D
+        ]
+
+        for shape in test_shapes:
+            # Create random data
+            data = np.random.randn(*shape)
+            expected_length = (shape[-1] - window_size) // shift + 1
+
+            # Test both chunked and non-chunked versions
+            for is_chunked in [True, False]:
+                var_filter = VARFilter(
+                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                )
+                output = var_filter(data)
+
+                # Verify shape is correct
+                if is_chunked and len(shape) > 1:
+                    assert output.shape == (*shape[:-1], expected_length)
+                else:
+                    assert output.shape == (*shape[:-1], expected_length)
+
+                # Verify first window result matches manual calculation
+                first_window = data[..., :window_size]
+                expected_first_var = np.var(first_window, axis=-1)
+                assert np.allclose(output[..., 0], expected_first_var)
+
+    def test_VARFilter_edge_cases(self):
+        """Test VARFilter with edge cases."""
+        from myoverse.datasets.filters.temporal import VARFilter
+
+        # Test with constant data (variance should be zero)
+        window_size = 10
+        shift = 2
+        constant_data = np.ones((5, 30))
+
+        var_filter = VARFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_constant = var_filter(constant_data)
+
+        # For constant data, variance should be zero
+        assert np.allclose(output_constant, 0.0)
+
+        # Test with linearly increasing data (known variance)
+        linear_data = np.arange(100).reshape(1, -1).astype(float)
+        var_filter = VARFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_linear = var_filter(linear_data)
+
+        # For a window of size window_size with linear data,
+        # the variance is (window_size^2 - 1) / 12
+        expected_variance = (window_size**2 - 1) / 12
+        # We need to scale by the square of the step size
+        expected_scaled_variance = expected_variance * 1.0**2  # step size is 1.0
+
+        # Check if our output is close to the theoretical value
+        assert np.allclose(output_linear, expected_scaled_variance)
+
+        # Test with window_size equal to data length (single window)
+        single_window_data = np.random.randn(3, 10)
+        var_filter = VARFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_single = var_filter(single_window_data)
+
+        # Should have exactly one output value per channel
+        assert output_single.shape == (3, 1)
+        # Should match np.var calculation
+        assert np.allclose(output_single[:, 0], np.var(single_window_data, axis=-1))
+
+        # Test with small shifts to ensure overlapping windows work correctly
+        small_shift_data = np.random.randn(2, 30)
+        var_filter = VARFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_small_shift = var_filter(small_shift_data)
+
+        # Expected length with small shift
+        expected_small_shift_length = (small_shift_data.shape[-1] - 10) // 1 + 1
+        assert output_small_shift.shape == (2, expected_small_shift_length)
+
+        # Verify first few windows manually
+        for i in range(3):
+            window_data = small_shift_data[:, i : i + 10]
+            expected_var = np.var(window_data, axis=-1)
+            assert np.allclose(output_small_shift[:, i], expected_var)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_MAVFilter_chunked(self, window_size, shift):
+        """Test MAVFilter with chunked data."""
+        # Generate chunked data
+        data = generate_chunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import MAVFilter
+
+        # Create the filter
+        mav_filter = MAVFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output = mav_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (
+            original_shape[0],
+            *original_shape[1:-1],
+            expected_length,
+        )
+
+        # Verify output with manual calculation for first few windows
+        # This checks the filter's logic against NumPy's mean absolute value calculation
+        for chunk_idx in range(min(3, original_shape[0])):
+            for window_idx in range(min(3, expected_length)):
+                window_start = window_idx * shift
+                window_end = window_start + window_size
+                window_data = data[chunk_idx, ..., window_start:window_end]
+
+                # Calculate MAV manually for this window
+                expected_mav = np.mean(np.abs(window_data), axis=-1)
+
+                # Compare with filter output for this window
+                assert np.allclose(output[chunk_idx, ..., window_idx], expected_mav)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_MAVFilter_not_chunked(self, window_size, shift):
+        """Test MAVFilter with non-chunked data."""
+        # Generate non-chunked data
+        data = generate_unchunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import MAVFilter
+
+        # Create the filter
+        mav_filter = MAVFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        output = mav_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (*original_shape[:-1], expected_length)
+
+        # Verify output with manual calculation for first few windows
+        for window_idx in range(min(3, expected_length)):
+            window_start = window_idx * shift
+            window_end = window_start + window_size
+            window_data = data[..., window_start:window_end]
+
+            # Calculate MAV manually for this window
+            expected_mav = np.mean(np.abs(window_data), axis=-1)
+
+            # Compare with filter output for this window
+            assert np.allclose(output[..., window_idx], expected_mav)
+
+    def test_MAVFilter_various_input_shapes(self):
+        """Test MAVFilter with various input shapes to ensure robustness."""
+        from myoverse.datasets.filters.temporal import MAVFilter
+
+        # Define window parameters
+        window_size = 20
+        shift = 5
+
+        # Test cases with different shapes
+        test_shapes = [
+            (100,),  # 1D
+            (10, 100),  # 2D
+            (5, 10, 100),  # 3D
+            (3, 5, 10, 100),  # 4D
+        ]
+
+        for shape in test_shapes:
+            # Create random data
+            data = np.random.randn(*shape)
+            expected_length = (shape[-1] - window_size) // shift + 1
+
+            # Test both chunked and non-chunked versions
+            for is_chunked in [True, False]:
+                mav_filter = MAVFilter(
+                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                )
+                output = mav_filter(data)
+
+                # Verify shape is correct
+                if is_chunked and len(shape) > 1:
+                    assert output.shape == (*shape[:-1], expected_length)
+                else:
+                    assert output.shape == (*shape[:-1], expected_length)
+
+                # Verify first window result matches manual calculation
+                first_window = data[..., :window_size]
+                expected_first_mav = np.mean(np.abs(first_window), axis=-1)
+                assert np.allclose(output[..., 0], expected_first_mav)
+
+    def test_MAVFilter_edge_cases(self):
+        """Test MAVFilter with edge cases."""
+        from myoverse.datasets.filters.temporal import MAVFilter
+
+        # Test with constants (all ones)
+        window_size = 10
+        shift = 2
+        constant_data = np.ones((5, 30))
+
+        mav_filter = MAVFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_constant = mav_filter(constant_data)
+
+        # Mean absolute value of ones should be one
+        assert np.allclose(output_constant, 1.0)
+
+        # Test with alternating positive/negative pattern
+        alternating = np.ones((5, 20))
+        alternating[:, ::2] = -1  # Every even column is -1
+        output_alternating = mav_filter(alternating)
+
+        # Mean absolute value should be 1.0 for alternating +1/-1
+        assert np.allclose(output_alternating, 1.0)
+
+        # Test with zeros
+        zeros = np.zeros((5, 30))
+        output_zeros = mav_filter(zeros)
+        assert np.allclose(output_zeros, 0.0)
+
+        # Test with very small values (close to zero)
+        small_values = np.random.randn(10, 30) * 1e-10
+        output_small = mav_filter(small_values)
+        assert np.allclose(
+            output_small,
+            np.mean(np.abs(small_values[:, :window_size]), axis=1, keepdims=True),
+            rtol=1e-5,
+        )
+
+        # Test with window_size equal to data length (single window)
+        single_window_data = np.random.randn(3, 10)
+        mav_filter = MAVFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_single = mav_filter(single_window_data)
+
+        # Should have exactly one output value per channel
+        assert output_single.shape == (3, 1)
+        # Should match np.mean(np.abs()) calculation
+        assert np.allclose(
+            output_single[:, 0], np.mean(np.abs(single_window_data), axis=1)
+        )
+
+        # Test with small shifts to ensure overlapping windows work correctly
+        small_shift_data = np.random.randn(2, 30)
+        mav_filter = MAVFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_small_shift = mav_filter(small_shift_data)
+
+        # Expected length with small shift
+        expected_small_shift_length = (small_shift_data.shape[-1] - 10) // 1 + 1
+        assert output_small_shift.shape == (2, expected_small_shift_length)
+
+        # Verify first few windows manually
+        for i in range(3):
+            window_data = small_shift_data[:, i : i + 10]
+            expected_mav = np.mean(np.abs(window_data), axis=1)
+            assert np.allclose(output_small_shift[:, i], expected_mav)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_IAVFilter_chunked(self, window_size, shift):
+        """Test IAVFilter with chunked data."""
+        # Generate chunked data
+        data = generate_chunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import IAVFilter
+
+        # Create the filter
+        iav_filter = IAVFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output = iav_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (
+            original_shape[0],
+            *original_shape[1:-1],
+            expected_length,
+        )
+
+        # Verify output with manual calculation for first few windows
+        # This checks the filter's logic against NumPy's sum of absolute values calculation
+        for chunk_idx in range(min(3, original_shape[0])):
+            for window_idx in range(min(3, expected_length)):
+                window_start = window_idx * shift
+                window_end = window_start + window_size
+                window_data = data[chunk_idx, ..., window_start:window_end]
+
+                # Calculate IAV manually for this window
+                expected_iav = np.sum(np.abs(window_data), axis=-1)
+
+                # Compare with filter output for this window
+                assert np.allclose(output[chunk_idx, ..., window_idx], expected_iav)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_IAVFilter_not_chunked(self, window_size, shift):
+        """Test IAVFilter with non-chunked data."""
+        # Generate non-chunked data
+        data = generate_unchunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import IAVFilter
+
+        # Create the filter
+        iav_filter = IAVFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        output = iav_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (*original_shape[:-1], expected_length)
+
+        # Verify output with manual calculation for first few windows
+        for window_idx in range(min(3, expected_length)):
+            window_start = window_idx * shift
+            window_end = window_start + window_size
+            window_data = data[..., window_start:window_end]
+
+            # Calculate IAV manually for this window
+            expected_iav = np.sum(np.abs(window_data), axis=-1)
+
+            # Compare with filter output for this window
+            assert np.allclose(output[..., window_idx], expected_iav)
+
+    def test_IAVFilter_various_input_shapes(self):
+        """Test IAVFilter with various input shapes to ensure robustness."""
+        from myoverse.datasets.filters.temporal import IAVFilter
+
+        # Define window parameters
+        window_size = 20
+        shift = 5
+
+        # Test cases with different shapes
+        test_shapes = [
+            (100,),  # 1D
+            (10, 100),  # 2D
+            (5, 10, 100),  # 3D
+            (3, 5, 10, 100),  # 4D
+        ]
+
+        for shape in test_shapes:
+            # Create random data
+            data = np.random.randn(*shape)
+            expected_length = (shape[-1] - window_size) // shift + 1
+
+            # Test both chunked and non-chunked versions
+            for is_chunked in [True, False]:
+                iav_filter = IAVFilter(
+                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                )
+                output = iav_filter(data)
+
+                # Verify shape is correct
+                if is_chunked and len(shape) > 1:
+                    assert output.shape == (*shape[:-1], expected_length)
+                else:
+                    assert output.shape == (*shape[:-1], expected_length)
+
+                # Verify first window result matches manual calculation
+                first_window = data[..., :window_size]
+                expected_first_iav = np.sum(np.abs(first_window), axis=-1)
+                assert np.allclose(output[..., 0], expected_first_iav)
+
+    def test_IAVFilter_edge_cases(self):
+        """Test IAVFilter with edge cases."""
+        from myoverse.datasets.filters.temporal import IAVFilter
+
+        # Test with constant data (all ones)
+        window_size = 10
+        shift = 2
+        constant_data = np.ones((5, 30))
+
+        iav_filter = IAVFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_constant = iav_filter(constant_data)
+
+        # For constant data of ones, IAV should equal window_size
+        assert np.allclose(output_constant, window_size)
+
+        # Test with alternating positive/negative pattern
+        alternating = np.ones((5, 20))
+        alternating[:, ::2] = -1  # Every even column is -1
+        output_alternating = iav_filter(alternating)
+
+        # For alternating +1/-1, IAV should still equal window_size
+        assert np.allclose(output_alternating, window_size)
+
+        # Test with zeros
+        zeros = np.zeros((5, 30))
+        output_zeros = iav_filter(zeros)
+        assert np.allclose(output_zeros, 0.0)
+
+        # Test with very small values (close to zero)
+        small_values = np.random.randn(10, 30) * 1e-10
+        output_small = iav_filter(small_values)
+        assert np.allclose(
+            output_small,
+            np.sum(np.abs(small_values[:, :window_size]), axis=1, keepdims=True),
+            rtol=1e-5,
+        )
+
+        # Test with window_size equal to data length (single window)
+        single_window_data = np.random.randn(3, 10)
+        iav_filter = IAVFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_single = iav_filter(single_window_data)
+
+        # Should have exactly one output value per channel
+        assert output_single.shape == (3, 1)
+        # Should match np.sum(np.abs()) calculation
+        assert np.allclose(
+            output_single[:, 0], np.sum(np.abs(single_window_data), axis=1)
+        )
+
+        # Test with small shifts to ensure overlapping windows work correctly
+        small_shift_data = np.random.randn(2, 30)
+        iav_filter = IAVFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_small_shift = iav_filter(small_shift_data)
+
+        # Expected length with small shift
+        expected_small_shift_length = (small_shift_data.shape[-1] - 10) // 1 + 1
+        assert output_small_shift.shape == (2, expected_small_shift_length)
+
+        # Verify first few windows manually
+        for i in range(3):
+            window_data = small_shift_data[:, i : i + 10]
+            expected_iav = np.sum(np.abs(window_data), axis=1)
+            assert np.allclose(output_small_shift[:, i], expected_iav)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_WFLFilter_chunked(self, window_size, shift):
+        """Test WFLFilter with chunked data."""
+        # Generate chunked data
+        data = generate_chunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import WFLFilter
+
+        # Create the filter
+        wfl_filter = WFLFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output = wfl_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (
+            original_shape[0],
+            *original_shape[1:-1],
+            expected_length,
+        )
+
+        # Verify output with manual calculation for first few windows
+        # This checks the filter's logic against NumPy's diff calculation
+        for chunk_idx in range(min(3, original_shape[0])):
+            for window_idx in range(min(3, expected_length)):
+                window_start = window_idx * shift
+                window_end = window_start + window_size
+                window_data = data[chunk_idx, ..., window_start:window_end]
+
+                # Calculate WFL manually for this window (sum of absolute differences)
+                expected_wfl = np.sum(np.abs(np.diff(window_data, axis=-1)), axis=-1)
+
+                # Compare with filter output for this window
+                assert np.allclose(output[chunk_idx, ..., window_idx], expected_wfl)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_WFLFilter_not_chunked(self, window_size, shift):
+        """Test WFLFilter with non-chunked data."""
+        # Generate non-chunked data
+        data = generate_unchunked_data()
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import WFLFilter
+
+        # Create the filter
+        wfl_filter = WFLFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        output = wfl_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (*original_shape[:-1], expected_length)
+
+        # Verify output with manual calculation for first few windows
+        for window_idx in range(min(3, expected_length)):
+            window_start = window_idx * shift
+            window_end = window_start + window_size
+            window_data = data[..., window_start:window_end]
+
+            # Calculate WFL manually for this window
+            expected_wfl = np.sum(np.abs(np.diff(window_data, axis=-1)), axis=-1)
+
+            # Compare with filter output for this window
+            assert np.allclose(output[..., window_idx], expected_wfl)
+
+    def test_WFLFilter_various_input_shapes(self):
+        """Test WFLFilter with various input shapes to ensure robustness."""
+        from myoverse.datasets.filters.temporal import WFLFilter
+
+        # Define window parameters
+        window_size = 20
+        shift = 5
+
+        # Test cases with different shapes
+        test_shapes = [
+            (100,),  # 1D
+            (10, 100),  # 2D
+            (5, 10, 100),  # 3D
+            (3, 5, 10, 100),  # 4D
+        ]
+
+        for shape in test_shapes:
+            # Create random data
+            data = np.random.randn(*shape)
+            expected_length = (shape[-1] - window_size) // shift + 1
+
+            # Test both chunked and non-chunked versions
+            for is_chunked in [True, False]:
+                wfl_filter = WFLFilter(
+                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                )
+                output = wfl_filter(data)
+
+                # Verify shape is correct
+                if is_chunked and len(shape) > 1:
+                    assert output.shape == (*shape[:-1], expected_length)
+                else:
+                    assert output.shape == (*shape[:-1], expected_length)
+
+                # Verify first window result matches manual calculation
+                first_window = data[..., :window_size]
+                expected_first_wfl = np.sum(
+                    np.abs(np.diff(first_window, axis=-1)), axis=-1
+                )
+                assert np.allclose(output[..., 0], expected_first_wfl)
+
+    def test_WFLFilter_edge_cases(self):
+        """Test WFLFilter with edge cases."""
+        from myoverse.datasets.filters.temporal import WFLFilter
+
+        # Test with constant data (all ones)
+        window_size = 10
+        shift = 2
+        constant_data = np.ones((5, 30))
+
+        wfl_filter = WFLFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_constant = wfl_filter(constant_data)
+
+        # For constant data, WFL should be zero (no differences)
+        assert np.allclose(output_constant, 0.0)
+
+        # Test with linearly increasing data (known WFL)
+        linear_data = np.arange(100).reshape(1, -1).astype(float)
+        wfl_filter = WFLFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_linear = wfl_filter(linear_data)
+
+        # For a window of size window_size with linear data increasing by 1,
+        # the WFL should be (window_size - 1) as each diff is 1
+        expected_wfl = window_size - 1
+        assert np.allclose(output_linear, expected_wfl)
+
+        # Test with alternating data (known pattern)
+        alternating = np.ones((5, 20))
+        alternating[:, ::2] = -1  # Every even column is -1
+        output_alternating = wfl_filter(alternating)
+
+        # For alternating +1/-1, each diff is 2, so WFL should be 2 * (window_size - 1)
+        assert np.allclose(output_alternating, 2 * (window_size - 1))
+
+        # Test with window_size equal to data length (single window)
+        single_window_data = np.random.randn(3, 10)
+        wfl_filter = WFLFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_single = wfl_filter(single_window_data)
+
+        # Should have exactly one output value per channel
+        assert output_single.shape == (3, 1)
+        # Should match manual calculation
+        expected_single_wfl = np.sum(
+            np.abs(np.diff(single_window_data, axis=-1)), axis=-1
+        )
+        assert np.allclose(output_single[:, 0], expected_single_wfl)
+
+        # Test with small shifts to ensure overlapping windows work correctly
+        small_shift_data = np.random.randn(2, 30)
+        wfl_filter = WFLFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_small_shift = wfl_filter(small_shift_data)
+
+        # Expected length with small shift
+        expected_small_shift_length = (small_shift_data.shape[-1] - 10) // 1 + 1
+        assert output_small_shift.shape == (2, expected_small_shift_length)
+
+        # Verify first few windows manually
+        for i in range(3):
+            window_data = small_shift_data[:, i : i + 10]
+            expected_wfl = np.sum(np.abs(np.diff(window_data, axis=-1)), axis=-1)
+            assert np.allclose(output_small_shift[:, i], expected_wfl)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_ZCFilter_chunked(self, window_size, shift):
+        """Test ZCFilter with chunked data."""
+        # Generate chunked data with both positive and negative values to ensure zero crossings
+        data = generate_chunked_data() * 2 - 1  # Scale to [-1, 1]
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import ZCFilter
+
+        # Create the filter
+        zc_filter = ZCFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output = zc_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (
+            original_shape[0],
+            *original_shape[1:-1],
+            expected_length,
+        )
+
+        # Verify output with manual calculation for first few windows
+        # This checks the filter's logic against NumPy's sign change calculation
+        for chunk_idx in range(min(3, original_shape[0])):
+            for window_idx in range(min(3, expected_length)):
+                window_start = window_idx * shift
+                window_end = window_start + window_size
+                window_data = data[chunk_idx, ..., window_start:window_end]
+
+                # Calculate ZC manually for this window
+                sign_changes = np.diff(np.sign(window_data), axis=-1)
+                expected_zc = np.sum(np.abs(sign_changes) // 2, axis=-1)
+
+                # Compare with filter output for this window
+                assert np.allclose(output[chunk_idx, ..., window_idx], expected_zc)
+
+    @pytest.mark.parametrize(
+        "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
+    )
+    @pytest.mark.loop(10)
+    def test_ZCFilter_not_chunked(self, window_size, shift):
+        """Test ZCFilter with non-chunked data."""
+        # Generate non-chunked data with both positive and negative values
+        data = generate_unchunked_data() * 2 - 1  # Scale to [-1, 1]
+        original_shape = data.shape
+        expected_length = (data.shape[-1] - window_size) // shift + 1
+
+        from myoverse.datasets.filters.temporal import ZCFilter
+
+        # Create the filter
+        zc_filter = ZCFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        output = zc_filter(data)
+
+        # Check shape correctness
+        assert output.shape == (*original_shape[:-1], expected_length)
+
+        # Verify output with manual calculation for first few windows
+        for window_idx in range(min(3, expected_length)):
+            window_start = window_idx * shift
+            window_end = window_start + window_size
+            window_data = data[..., window_start:window_end]
+
+            # Calculate ZC manually for this window
+            sign_changes = np.diff(np.sign(window_data), axis=-1)
+            expected_zc = np.sum(np.abs(sign_changes) // 2, axis=-1)
+
+            # Compare with filter output for this window
+            assert np.allclose(output[..., window_idx], expected_zc)
+
+    def test_ZCFilter_various_input_shapes(self):
+        """Test ZCFilter with various input shapes to ensure robustness."""
+        from myoverse.datasets.filters.temporal import ZCFilter
+
+        # Define window parameters
+        window_size = 20
+        shift = 5
+
+        # Test cases with different shapes
+        test_shapes = [
+            (100,),  # 1D
+            (10, 100),  # 2D
+            (5, 10, 100),  # 3D
+            (3, 5, 10, 100),  # 4D
+        ]
+
+        for shape in test_shapes:
+            # Create random data with both positive and negative values
+            data = np.random.randn(*shape)  # Normal distribution centered at 0
+            expected_length = (shape[-1] - window_size) // shift + 1
+
+            # Test both chunked and non-chunked versions
+            for is_chunked in [True, False]:
+                zc_filter = ZCFilter(
+                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                )
+                output = zc_filter(data)
+
+                # Verify shape is correct
+                if is_chunked and len(shape) > 1:
+                    assert output.shape == (*shape[:-1], expected_length)
+                else:
+                    assert output.shape == (*shape[:-1], expected_length)
+
+                # Verify first window result matches manual calculation
+                first_window = data[..., :window_size]
+                sign_changes = np.diff(np.sign(first_window), axis=-1)
+                expected_first_zc = np.sum(np.abs(sign_changes) // 2, axis=-1)
+                assert np.allclose(output[..., 0], expected_first_zc)
+
+    def test_ZCFilter_edge_cases(self):
+        """Test ZCFilter with edge cases."""
+        from myoverse.datasets.filters.temporal import ZCFilter
+
+        # Test with constant data (all ones)
+        window_size = 10
+        shift = 2
+        constant_data = np.ones((5, 30))
+
+        zc_filter = ZCFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+        output_constant = zc_filter(constant_data)
+
+        # For constant data, ZC should be zero (no sign changes)
+        assert np.allclose(output_constant, 0.0)
+
+        # Test with alternating data (known ZC pattern)
+        alternating = np.ones((5, 20))
+        alternating[:, ::2] = -1  # Every even column is -1
+        output_alternating = zc_filter(alternating)
+
+        # For alternating +1/-1, ZC should be approximately (window_size-1)/2
+        # Each pair of +1/-1 creates one zero crossing
+        expected_zc = (window_size - 1) // 2
+        # assert np.all(output_alternating >= expected_zc-1) and np.all(output_alternating <= expected_zc+1)
+        # The actual implementation counts about 9 crossings for a window of size 10 with alternating values
+        assert np.allclose(output_alternating, window_size - 1)
+
+        # Test with all zeros
+        zeros = np.zeros((5, 30))
+        output_zeros = zc_filter(zeros)
+        # For all zeros, ZC should be zero (no sign changes, all are zero)
+        assert np.allclose(output_zeros, 0.0)
+
+        # Test with window_size equal to data length (single window)
+        single_window_data = np.random.randn(
+            3, 10
+        )  # Random positive and negative values
+        zc_filter = ZCFilter(window_size=10, shift=1, input_is_chunked=True)
+        output_single = zc_filter(single_window_data)
+
+        # Should have exactly one output value per channel
+        assert output_single.shape == (3, 1)
+        # Should match manual calculation
+        sign_changes = np.diff(np.sign(single_window_data), axis=-1)
+        expected_single_zc = np.sum(np.abs(sign_changes) // 2, axis=-1)
+        assert np.allclose(output_single[:, 0], expected_single_zc)
+
+        # Test with data containing exactly one zero crossing
+        one_crossing = np.ones((2, 20))
+        one_crossing[:, 10:] = -1  # First half positive, second half negative
+        zc_filter = ZCFilter(window_size=20, shift=1, input_is_chunked=True)
+        output_one_crossing = zc_filter(one_crossing)
+
+        # Should have exactly one zero crossing
+        assert np.allclose(output_one_crossing, 1.0)
+
+    def test_SSCFilter_chunked(self):
+        """Test that the SSCFilter works with chunked data."""
+        window_size = 50
+        shift = 10
+        num_chunks = 10
+        num_channels = 3
+        sequence_length = 500
+
+        # Generate chunked data
+        chunked_data = np.random.rand(num_chunks, num_channels, sequence_length)
+
+        # Create SSCFilter
+        ssc_filter = SSCFilter(
+            window_size=window_size, shift=shift, input_is_chunked=True
+        )
+
+        # Apply filter
+        out = ssc_filter(chunked_data)
+
+        # Calculate expected shape
+        expected_shape = (
+            num_chunks,
+            num_channels,
+            (sequence_length - window_size) // shift + 1,
+        )
+
+        # Test output shape
+        assert out.shape == expected_shape
+
+        # Test correctness of the first window manually
+        # Select first chunk, first channel, and first window of data
+        window_data = chunked_data[0, 0, :window_size]
+
+        # Compute first derivative
+        first_derivative = np.diff(window_data)
+
+        # Compute sign changes in the first derivative
+        sign_changes = np.diff(np.sign(first_derivative))
+
+        # Count sign changes (using the formula from SSCFilter)
+        manual_ssc = np.sum(np.abs(sign_changes) // 2)
+
+        # Compare with the filter output
+        assert np.allclose(out[0, 0, 0], manual_ssc)
+
+    def test_SSCFilter_not_chunked(self):
+        """Test that the SSCFilter works with non-chunked data."""
+        window_size = 50
+        shift = 10
+        num_channels = 3
+        sequence_length = 500
+
+        # Generate non-chunked data
+        data = np.random.rand(num_channels, sequence_length)
+
+        # Create SSCFilter
+        ssc_filter = SSCFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+
+        # Apply filter
+        out = ssc_filter(data)
+
+        # Calculate expected shape
+        expected_shape = (
+            num_channels,
+            (sequence_length - window_size) // shift + 1,
+        )
+
+        # Test output shape
+        assert out.shape == expected_shape
+
+        # Test correctness of the first window manually
+        # Select first channel and first window of data
+        window_data = data[0, :window_size]
+
+        # Compute first derivative
+        first_derivative = np.diff(window_data)
+
+        # Compute sign changes in the first derivative
+        sign_changes = np.diff(np.sign(first_derivative))
+
+        # Count sign changes (using the formula from SSCFilter)
+        manual_ssc = np.sum(np.abs(sign_changes) // 2)
+
+        # Compare with the filter output
+        assert np.allclose(out[0, 0], manual_ssc)
+
+    def test_SSCFilter_various_input_shapes(self):
+        """Test that the SSCFilter works with various input shapes."""
+        window_size = 10
+        shift = 5
+
+        # Test shapes from 1D to 4D
+        shapes = [
+            (100,),  # 1D (not chunked)
+            (3, 100),  # 2D (not chunked)
+            (10, 100),  # 2D (chunked)
+            (2, 3, 100),  # 3D (chunked)
+            (5, 2, 3, 100),  # 4D (chunked)
+        ]
+
+        for i, shape in enumerate(shapes):
+            # Generate data
+            data = np.random.rand(*shape)
+
+            # Determine if data should be treated as chunked
+            chunked = len(shape) >= 3 or (len(shape) == 2 and shape[0] > shape[1])
+
+            # Create SSCFilter
+            ssc_filter = SSCFilter(
+                window_size=window_size, shift=shift, input_is_chunked=chunked
+            )
+
+            # Apply filter
+            out = ssc_filter(data)
+
+            # Calculate expected output length
+            out_length = (shape[-1] - window_size) // shift + 1
+
+            # Calculate expected shape
+            if chunked:
+                expected_shape = shape[:-1] + (out_length,)
+            else:
+                if len(shape) == 1:
+                    expected_shape = (out_length,)
+                else:
+                    expected_shape = shape[:-1] + (out_length,)
+
+            # Test output shape
+            assert out.shape == expected_shape, f"Failed for shape {shape}"
+
+    def test_SSCFilter_edge_cases(self):
+        """Test edge cases for SSCFilter."""
+        window_size = 10
+        shift = 5
+
+        # Test with constant data (all zeros)
+        data = np.zeros((3, 100))
+        ssc_filter = SSCFilter(
+            window_size=window_size, shift=shift, input_is_chunked=False
+        )
+        out = ssc_filter(data)
+        # Constant data should have no slope sign changes
+        assert np.all(out == 0)
+
+        # Test with linearly increasing data
+        data = np.arange(100).reshape(1, -1).astype(float)
+        out = ssc_filter(data)
+        # Linear data should have no slope sign changes (constant slope)
+        assert np.all(out == 0)
+
+        # Test with zigzag pattern to produce known slope sign changes
+        # Create a pattern with clear slope sign changes
+        zigzag = np.array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1])
+        data = np.tile(zigzag, 5).reshape(1, 100)
+        out = ssc_filter(data)
+        # Each window of 10 samples with the zigzag pattern should have 8 slope sign changes
+        expected_ssc = 8
+        assert np.all(out == expected_ssc)
+
+        # Test with window_size equal to data length
+        data = np.random.rand(3, window_size)
+        # Modify filter to have window_size equal to data length and shift=1
+        ssc_filter = SSCFilter(window_size=window_size, shift=1, input_is_chunked=False)
+        out = ssc_filter(data)
+        # Output should be a single value per channel
+        assert out.shape == (3, 1)

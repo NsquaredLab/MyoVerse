@@ -9,7 +9,11 @@ from myoverse.datasets.filters.emg_augmentations import (
     MagnitudeWarping,
     WaveletDecomposition,
 )
-from myoverse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter, IdentityFilter
+from myoverse.datasets.filters.generic import (
+    ApplyFunctionFilter,
+    IndexDataFilter,
+    IdentityFilter,
+)
 from myoverse.datasets.filters.temporal import RMSFilter, SOSFrequencyFilter
 from myoverse.datasets.supervised import EMGDataset
 
@@ -74,19 +78,25 @@ class EMBCDataset:
                             4, 20, "lowpass", output="sos", fs=2048
                         ),
                         is_output=True,
-                    )
+                    ),
                 ]
             ],
             emg_representations_to_filter_after_chunking=["Last"],
             ground_truth_filter_pipeline_before_chunking=[
                 [
-                    ApplyFunctionFilter(function=np.reshape, name="Reshape", newshape=(63, -1)),
+                    ApplyFunctionFilter(
+                        function=np.reshape, name="Reshape", newshape=(63, -1)
+                    ),
                     IndexDataFilter(indices=(slice(3, 63),)),
                 ]
             ],
             ground_truth_representations_to_filter_before_chunking=["Input"],
             ground_truth_filter_pipeline_after_chunking=[
-                [ApplyFunctionFilter(function=np.mean, name="Mean", axis=-1, is_output=True)]
+                [
+                    ApplyFunctionFilter(
+                        function=np.mean, name="Mean", axis=-1, is_output=True
+                    )
+                ]
             ],
             ground_truth_representations_to_filter_after_chunking=["Last"],
             augmentation_pipelines=[

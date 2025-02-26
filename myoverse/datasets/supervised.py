@@ -280,7 +280,7 @@ class EMGDataset:
                         chunk_size=self.chunk_size,
                         chunk_shift=self.chunk_shift,
                         is_output=len(self.emg_filter_pipeline_after_chunking) == 0,
-                        name="EMG_Chunkizer"
+                        name="EMG_Chunkizer",
                     ),
                     representation_to_filter="Last",
                 )
@@ -379,17 +379,23 @@ class EMGDataset:
             # check that all values in training_sizes, testing_sizes, and validation_sizes are the same
             assert len(set(training_sizes)) == 1, "The training sizes are not the same."
             assert len(set(testing_sizes)) == 1, "The testing sizes are not the same."
-            assert len(set(validation_sizes)) == 1, "The validation sizes are not the same."
+            assert len(set(validation_sizes)) == 1, (
+                "The validation sizes are not the same."
+            )
 
-            assert (
-                data_length == data_length_ground_truth
-            ), "The data lengths of the EMG and ground truth data should be the same. For task {}, the EMG data has length {} and the ground truth data has length {}.".format(
-                task, data_length, data_length_ground_truth
+            assert data_length == data_length_ground_truth, (
+                "The data lengths of the EMG and ground truth data should be the same. For task {}, the EMG data has length {} and the ground truth data has length {}.".format(
+                    task, data_length, data_length_ground_truth
+                )
             )
 
             for g, size in zip(
                 (training_group, testing_group, validation_group),
-                (training_sizes[0], testing_sizes[0], validation_sizes[0]), # assumption is made that all output representations have the same length
+                (
+                    training_sizes[0],
+                    testing_sizes[0],
+                    validation_sizes[0],
+                ),  # assumption is made that all output representations have the same length
             ):
                 _add_to_dataset(
                     g,
