@@ -799,7 +799,7 @@ wheels = [
 [[package]]
 name = "myoverse"
 version = "0.7.1"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "lightning" },
     { name = "mplcursors" },
