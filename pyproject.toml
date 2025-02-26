@@ -51,3 +51,7 @@ dev = [
     "pytest>=8.3.4",
     "pytest-loop>=1.0.13",
 ]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
