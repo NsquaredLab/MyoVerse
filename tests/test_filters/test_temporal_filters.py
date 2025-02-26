@@ -8,6 +8,14 @@ from scipy.fft import rfft, rfftfreq
 from myoverse.datasets.filters.temporal import (
     SSCFilter,
     SpectralInterpolationFilter,
+    RMSFilter,
+    IAVFilter,
+    MAVFilter,
+    VARFilter,
+    WFLFilter,
+    ZCFilter,
+    SOSFrequencyFilter,
+    RectifyFilter,
 )
 
 
@@ -28,8 +36,6 @@ class TestTemporalFilters:
         data = generate_chunked_data()
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import RMSFilter
-
         rms_filter = RMSFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
@@ -43,8 +49,6 @@ class TestTemporalFilters:
     def test_RMSFilter_not_chunked(self, window_size, shift):
         data = generate_unchunked_data()
         expected_length = (data.shape[-1] - window_size) // shift + 1
-
-        from myoverse.datasets.filters.temporal import RMSFilter
 
         rms_filter = RMSFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
@@ -60,21 +64,15 @@ class TestTemporalFilters:
         data = generate_chunked_data()
         original_shape = data.shape
 
-        from myoverse.datasets.filters.temporal import SOSFrequencyFilter
-
-        # Create SOS filter coefficients
         sos_filter_coefficients = butter(4, cutoff, filter_type, output="sos", fs=1000)
 
-        # Default: forward and backward filtering
         sos_filter = SOSFrequencyFilter(
             sos_filter_coefficients=sos_filter_coefficients, input_is_chunked=True
         )
         output = sos_filter(data)
 
-        # Output should maintain the same shape
         assert output.shape == original_shape
 
-        # Test with forward-only filtering
         sos_filter_forward = SOSFrequencyFilter(
             sos_filter_coefficients=sos_filter_coefficients,
             forwards_and_backwards=False,
@@ -82,10 +80,8 @@ class TestTemporalFilters:
         )
         output_forward = sos_filter_forward(data)
 
-        # Output should maintain the same shape
         assert output_forward.shape == original_shape
 
-        # Forward-only filtering should be different from forward-backward filtering
         assert not np.allclose(output, output_forward)
 
     @pytest.mark.parametrize(
@@ -96,21 +92,15 @@ class TestTemporalFilters:
         data = generate_unchunked_data()
         original_shape = data.shape
 
-        from myoverse.datasets.filters.temporal import SOSFrequencyFilter
-
-        # Create SOS filter coefficients
         sos_filter_coefficients = butter(4, cutoff, filter_type, output="sos", fs=1000)
 
-        # Default: forward and backward filtering
         sos_filter = SOSFrequencyFilter(
             sos_filter_coefficients=sos_filter_coefficients, input_is_chunked=False
         )
         output = sos_filter(data)
 
-        # Output should maintain the same shape
         assert output.shape == original_shape
 
-        # Test with forward-only filtering
         sos_filter_forward = SOSFrequencyFilter(
             sos_filter_coefficients=sos_filter_coefficients,
             forwards_and_backwards=False,
@@ -118,19 +108,14 @@ class TestTemporalFilters:
         )
         output_forward = sos_filter_forward(data)
 
-        # Output should maintain the same shape
         assert output_forward.shape == original_shape
 
-        # Forward-only filtering should be different from forward-backward filtering
         assert not np.allclose(output, output_forward)
 
     def test_SOSFrequencyFilter_boundary_conditions(self):
         """Test to identify boundary condition issues with SOSFrequencyFilter on chunked data
         and verify that the improved implementation reduces these issues."""
         # Create a continuous signal with known frequency components
-        from myoverse.datasets.filters.temporal import SOSFrequencyFilter
-
-        # Generate a continuous signal (e.g., sine wave)
         sample_rate = 1000  # Hz
         duration = 2  # seconds
         t = np.linspace(0, duration, sample_rate * duration, endpoint=False)
@@ -310,19 +295,13 @@ class TestTemporalFilters:
         data = generate_chunked_data() * 2 - 1  # Scale to [-1, 1]
         original_shape = data.shape
 
-        from myoverse.datasets.filters.temporal import RectifyFilter
-
-        # Create the filter
         rectify_filter = RectifyFilter(input_is_chunked=True)
         output = rectify_filter(data)
 
-        # Check shape preservation
         assert output.shape == original_shape
 
-        # Verify all values are non-negative
         assert np.all(output >= 0)
 
-        # Verify rectification is correctly applied (should equal absolute value)
         expected_output = np.abs(data)
         assert np.allclose(output, expected_output)
 
@@ -332,7 +311,6 @@ class TestTemporalFilters:
         )  # 5D array with negative values
         complex_output = rectify_filter(complex_data)
 
-        # Verify shape and correctness
         assert complex_output.shape == complex_data.shape
         assert np.all(complex_output >= 0)
         assert np.allclose(complex_output, np.abs(complex_data))
@@ -344,19 +322,13 @@ class TestTemporalFilters:
         data = generate_unchunked_data() * 2 - 1  # Scale to [-1, 1]
         original_shape = data.shape
 
-        from myoverse.datasets.filters.temporal import RectifyFilter
-
-        # Create the filter
         rectify_filter = RectifyFilter(input_is_chunked=False)
         output = rectify_filter(data)
 
-        # Check shape preservation
         assert output.shape == original_shape
 
-        # Verify all values are non-negative
         assert np.all(output >= 0)
 
-        # Verify rectification is correctly applied (should equal absolute value)
         expected_output = np.abs(data)
         assert np.allclose(output, expected_output)
 
@@ -366,14 +338,13 @@ class TestTemporalFilters:
         )  # Random dimensional array with negative values
         complex_output = rectify_filter(complex_data)
 
-        # Verify shape and correctness
         assert complex_output.shape == complex_data.shape
         assert np.all(complex_output >= 0)
         assert np.allclose(complex_output, np.abs(complex_data))
 
     def test_RectifyFilter_various_input_shapes(self):
         """Test RectifyFilter with various input shapes to ensure robustness."""
-        from myoverse.datasets.filters.temporal import RectifyFilter
+        rectify_filter = RectifyFilter(input_is_chunked=True)
 
         # Test cases with different shapes
         test_shapes = [
@@ -393,22 +364,18 @@ class TestTemporalFilters:
                 rectify_filter = RectifyFilter(input_is_chunked=is_chunked)
                 output = rectify_filter(data)
 
-                # Verify shape preservation
                 assert output.shape == data.shape
 
-                # Verify all values are non-negative
                 assert np.all(output >= 0)
 
-                # Verify values match abs function
                 assert np.allclose(output, np.abs(data))
 
     def test_RectifyFilter_edge_cases(self):
         """Test RectifyFilter with edge cases like zeros and specific patterns."""
-        from myoverse.datasets.filters.temporal import RectifyFilter
+        rectify_filter = RectifyFilter(input_is_chunked=True)
 
         # Test with zeros
         zeros = np.zeros((10, 50))
-        rectify_filter = RectifyFilter(input_is_chunked=True)
         output_zeros = rectify_filter(zeros)
         assert np.allclose(output_zeros, zeros)
 
@@ -439,15 +406,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import VARFilter
-
-        # Create the filter
         var_filter = VARFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
         output = var_filter(data)
 
-        # Check shape correctness
         assert output.shape == (
             original_shape[0],
             *original_shape[1:-1],
@@ -479,15 +442,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import VARFilter
-
-        # Create the filter
         var_filter = VARFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
         )
         output = var_filter(data)
 
-        # Check shape correctness
         assert output.shape == (*original_shape[:-1], expected_length)
 
         # Verify output with manual calculation for first few windows
@@ -504,11 +463,9 @@ class TestTemporalFilters:
 
     def test_VARFilter_various_input_shapes(self):
         """Test VARFilter with various input shapes to ensure robustness."""
-        from myoverse.datasets.filters.temporal import VARFilter
-
-        # Define window parameters
-        window_size = 20
-        shift = 5
+        var_filter = VARFilter(
+            window_size=20, shift=5, input_is_chunked=True
+        )
 
         # Test cases with different shapes
         test_shapes = [
@@ -521,38 +478,36 @@ class TestTemporalFilters:
         for shape in test_shapes:
             # Create random data
             data = np.random.randn(*shape)
-            expected_length = (shape[-1] - window_size) // shift + 1
+            expected_length = (shape[-1] - 20) // 5 + 1
 
             # Test both chunked and non-chunked versions
             for is_chunked in [True, False]:
                 var_filter = VARFilter(
-                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                    window_size=20, shift=5, input_is_chunked=is_chunked
                 )
                 output = var_filter(data)
 
-                # Verify shape is correct
                 if is_chunked and len(shape) > 1:
                     assert output.shape == (*shape[:-1], expected_length)
                 else:
                     assert output.shape == (*shape[:-1], expected_length)
 
                 # Verify first window result matches manual calculation
-                first_window = data[..., :window_size]
+                first_window = data[..., :20]
                 expected_first_var = np.var(first_window, axis=-1)
                 assert np.allclose(output[..., 0], expected_first_var)
 
     def test_VARFilter_edge_cases(self):
         """Test VARFilter with edge cases."""
-        from myoverse.datasets.filters.temporal import VARFilter
+        var_filter = VARFilter(
+            window_size=10, shift=2, input_is_chunked=True
+        )
 
         # Test with constant data (variance should be zero)
         window_size = 10
         shift = 2
         constant_data = np.ones((5, 30))
 
-        var_filter = VARFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_constant = var_filter(constant_data)
 
         # For constant data, variance should be zero
@@ -560,9 +515,6 @@ class TestTemporalFilters:
 
         # Test with linearly increasing data (known variance)
         linear_data = np.arange(100).reshape(1, -1).astype(float)
-        var_filter = VARFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_linear = var_filter(linear_data)
 
         # For a window of size window_size with linear data,
@@ -576,7 +528,6 @@ class TestTemporalFilters:
 
         # Test with window_size equal to data length (single window)
         single_window_data = np.random.randn(3, 10)
-        var_filter = VARFilter(window_size=10, shift=1, input_is_chunked=True)
         output_single = var_filter(single_window_data)
 
         # Should have exactly one output value per channel
@@ -586,7 +537,6 @@ class TestTemporalFilters:
 
         # Test with small shifts to ensure overlapping windows work correctly
         small_shift_data = np.random.randn(2, 30)
-        var_filter = VARFilter(window_size=10, shift=1, input_is_chunked=True)
         output_small_shift = var_filter(small_shift_data)
 
         # Expected length with small shift
@@ -610,15 +560,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import MAVFilter
-
-        # Create the filter
         mav_filter = MAVFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
         output = mav_filter(data)
 
-        # Check shape correctness
         assert output.shape == (
             original_shape[0],
             *original_shape[1:-1],
@@ -650,15 +596,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import MAVFilter
-
-        # Create the filter
         mav_filter = MAVFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
         )
         output = mav_filter(data)
 
-        # Check shape correctness
         assert output.shape == (*original_shape[:-1], expected_length)
 
         # Verify output with manual calculation for first few windows
@@ -675,11 +617,9 @@ class TestTemporalFilters:
 
     def test_MAVFilter_various_input_shapes(self):
         """Test MAVFilter with various input shapes to ensure robustness."""
-        from myoverse.datasets.filters.temporal import MAVFilter
-
-        # Define window parameters
-        window_size = 20
-        shift = 5
+        mav_filter = MAVFilter(
+            window_size=20, shift=5, input_is_chunked=True
+        )
 
         # Test cases with different shapes
         test_shapes = [
@@ -692,38 +632,36 @@ class TestTemporalFilters:
         for shape in test_shapes:
             # Create random data
             data = np.random.randn(*shape)
-            expected_length = (shape[-1] - window_size) // shift + 1
+            expected_length = (shape[-1] - 20) // 5 + 1
 
             # Test both chunked and non-chunked versions
             for is_chunked in [True, False]:
                 mav_filter = MAVFilter(
-                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                    window_size=20, shift=5, input_is_chunked=is_chunked
                 )
                 output = mav_filter(data)
 
-                # Verify shape is correct
                 if is_chunked and len(shape) > 1:
                     assert output.shape == (*shape[:-1], expected_length)
                 else:
                     assert output.shape == (*shape[:-1], expected_length)
 
                 # Verify first window result matches manual calculation
-                first_window = data[..., :window_size]
+                first_window = data[..., :20]
                 expected_first_mav = np.mean(np.abs(first_window), axis=-1)
                 assert np.allclose(output[..., 0], expected_first_mav)
 
     def test_MAVFilter_edge_cases(self):
         """Test MAVFilter with edge cases."""
-        from myoverse.datasets.filters.temporal import MAVFilter
+        mav_filter = MAVFilter(
+            window_size=10, shift=2, input_is_chunked=True
+        )
 
         # Test with constants (all ones)
         window_size = 10
         shift = 2
         constant_data = np.ones((5, 30))
 
-        mav_filter = MAVFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_constant = mav_filter(constant_data)
 
         # Mean absolute value of ones should be one
@@ -753,7 +691,6 @@ class TestTemporalFilters:
 
         # Test with window_size equal to data length (single window)
         single_window_data = np.random.randn(3, 10)
-        mav_filter = MAVFilter(window_size=10, shift=1, input_is_chunked=True)
         output_single = mav_filter(single_window_data)
 
         # Should have exactly one output value per channel
@@ -765,7 +702,6 @@ class TestTemporalFilters:
 
         # Test with small shifts to ensure overlapping windows work correctly
         small_shift_data = np.random.randn(2, 30)
-        mav_filter = MAVFilter(window_size=10, shift=1, input_is_chunked=True)
         output_small_shift = mav_filter(small_shift_data)
 
         # Expected length with small shift
@@ -789,15 +725,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import IAVFilter
-
-        # Create the filter
         iav_filter = IAVFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
         output = iav_filter(data)
 
-        # Check shape correctness
         assert output.shape == (
             original_shape[0],
             *original_shape[1:-1],
@@ -829,15 +761,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import IAVFilter
-
-        # Create the filter
         iav_filter = IAVFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
         )
         output = iav_filter(data)
 
-        # Check shape correctness
         assert output.shape == (*original_shape[:-1], expected_length)
 
         # Verify output with manual calculation for first few windows
@@ -854,11 +782,9 @@ class TestTemporalFilters:
 
     def test_IAVFilter_various_input_shapes(self):
         """Test IAVFilter with various input shapes to ensure robustness."""
-        from myoverse.datasets.filters.temporal import IAVFilter
-
-        # Define window parameters
-        window_size = 20
-        shift = 5
+        iav_filter = IAVFilter(
+            window_size=20, shift=5, input_is_chunked=True
+        )
 
         # Test cases with different shapes
         test_shapes = [
@@ -871,38 +797,36 @@ class TestTemporalFilters:
         for shape in test_shapes:
             # Create random data
             data = np.random.randn(*shape)
-            expected_length = (shape[-1] - window_size) // shift + 1
+            expected_length = (shape[-1] - 20) // 5 + 1
 
             # Test both chunked and non-chunked versions
             for is_chunked in [True, False]:
                 iav_filter = IAVFilter(
-                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                    window_size=20, shift=5, input_is_chunked=is_chunked
                 )
                 output = iav_filter(data)
 
-                # Verify shape is correct
                 if is_chunked and len(shape) > 1:
                     assert output.shape == (*shape[:-1], expected_length)
                 else:
                     assert output.shape == (*shape[:-1], expected_length)
 
                 # Verify first window result matches manual calculation
-                first_window = data[..., :window_size]
+                first_window = data[..., :20]
                 expected_first_iav = np.sum(np.abs(first_window), axis=-1)
                 assert np.allclose(output[..., 0], expected_first_iav)
 
     def test_IAVFilter_edge_cases(self):
         """Test IAVFilter with edge cases."""
-        from myoverse.datasets.filters.temporal import IAVFilter
+        iav_filter = IAVFilter(
+            window_size=10, shift=2, input_is_chunked=True
+        )
 
         # Test with constant data (all ones)
         window_size = 10
         shift = 2
         constant_data = np.ones((5, 30))
 
-        iav_filter = IAVFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_constant = iav_filter(constant_data)
 
         # For constant data of ones, IAV should equal window_size
@@ -932,7 +856,6 @@ class TestTemporalFilters:
 
         # Test with window_size equal to data length (single window)
         single_window_data = np.random.randn(3, 10)
-        iav_filter = IAVFilter(window_size=10, shift=1, input_is_chunked=True)
         output_single = iav_filter(single_window_data)
 
         # Should have exactly one output value per channel
@@ -944,7 +867,6 @@ class TestTemporalFilters:
 
         # Test with small shifts to ensure overlapping windows work correctly
         small_shift_data = np.random.randn(2, 30)
-        iav_filter = IAVFilter(window_size=10, shift=1, input_is_chunked=True)
         output_small_shift = iav_filter(small_shift_data)
 
         # Expected length with small shift
@@ -968,15 +890,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import WFLFilter
-
-        # Create the filter
         wfl_filter = WFLFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
         output = wfl_filter(data)
 
-        # Check shape correctness
         assert output.shape == (
             original_shape[0],
             *original_shape[1:-1],
@@ -1008,15 +926,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import WFLFilter
-
-        # Create the filter
         wfl_filter = WFLFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
         )
         output = wfl_filter(data)
 
-        # Check shape correctness
         assert output.shape == (*original_shape[:-1], expected_length)
 
         # Verify output with manual calculation for first few windows
@@ -1033,11 +947,9 @@ class TestTemporalFilters:
 
     def test_WFLFilter_various_input_shapes(self):
         """Test WFLFilter with various input shapes to ensure robustness."""
-        from myoverse.datasets.filters.temporal import WFLFilter
-
-        # Define window parameters
-        window_size = 20
-        shift = 5
+        wfl_filter = WFLFilter(
+            window_size=20, shift=5, input_is_chunked=True
+        )
 
         # Test cases with different shapes
         test_shapes = [
@@ -1050,23 +962,22 @@ class TestTemporalFilters:
         for shape in test_shapes:
             # Create random data
             data = np.random.randn(*shape)
-            expected_length = (shape[-1] - window_size) // shift + 1
+            expected_length = (shape[-1] - 20) // 5 + 1
 
             # Test both chunked and non-chunked versions
             for is_chunked in [True, False]:
                 wfl_filter = WFLFilter(
-                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                    window_size=20, shift=5, input_is_chunked=is_chunked
                 )
                 output = wfl_filter(data)
 
-                # Verify shape is correct
                 if is_chunked and len(shape) > 1:
                     assert output.shape == (*shape[:-1], expected_length)
                 else:
                     assert output.shape == (*shape[:-1], expected_length)
 
                 # Verify first window result matches manual calculation
-                first_window = data[..., :window_size]
+                first_window = data[..., :20]
                 expected_first_wfl = np.sum(
                     np.abs(np.diff(first_window, axis=-1)), axis=-1
                 )
@@ -1074,16 +985,15 @@ class TestTemporalFilters:
 
     def test_WFLFilter_edge_cases(self):
         """Test WFLFilter with edge cases."""
-        from myoverse.datasets.filters.temporal import WFLFilter
+        wfl_filter = WFLFilter(
+            window_size=10, shift=2, input_is_chunked=True
+        )
 
         # Test with constant data (all ones)
         window_size = 10
         shift = 2
         constant_data = np.ones((5, 30))
 
-        wfl_filter = WFLFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_constant = wfl_filter(constant_data)
 
         # For constant data, WFL should be zero (no differences)
@@ -1091,9 +1001,6 @@ class TestTemporalFilters:
 
         # Test with linearly increasing data (known WFL)
         linear_data = np.arange(100).reshape(1, -1).astype(float)
-        wfl_filter = WFLFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_linear = wfl_filter(linear_data)
 
         # For a window of size window_size with linear data increasing by 1,
@@ -1111,7 +1018,6 @@ class TestTemporalFilters:
 
         # Test with window_size equal to data length (single window)
         single_window_data = np.random.randn(3, 10)
-        wfl_filter = WFLFilter(window_size=10, shift=1, input_is_chunked=True)
         output_single = wfl_filter(single_window_data)
 
         # Should have exactly one output value per channel
@@ -1124,7 +1030,6 @@ class TestTemporalFilters:
 
         # Test with small shifts to ensure overlapping windows work correctly
         small_shift_data = np.random.randn(2, 30)
-        wfl_filter = WFLFilter(window_size=10, shift=1, input_is_chunked=True)
         output_small_shift = wfl_filter(small_shift_data)
 
         # Expected length with small shift
@@ -1148,15 +1053,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import ZCFilter
-
-        # Create the filter
         zc_filter = ZCFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
         output = zc_filter(data)
 
-        # Check shape correctness
         assert output.shape == (
             original_shape[0],
             *original_shape[1:-1],
@@ -1189,15 +1090,11 @@ class TestTemporalFilters:
         original_shape = data.shape
         expected_length = (data.shape[-1] - window_size) // shift + 1
 
-        from myoverse.datasets.filters.temporal import ZCFilter
-
-        # Create the filter
         zc_filter = ZCFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
         )
         output = zc_filter(data)
 
-        # Check shape correctness
         assert output.shape == (*original_shape[:-1], expected_length)
 
         # Verify output with manual calculation for first few windows
@@ -1215,11 +1112,9 @@ class TestTemporalFilters:
 
     def test_ZCFilter_various_input_shapes(self):
         """Test ZCFilter with various input shapes to ensure robustness."""
-        from myoverse.datasets.filters.temporal import ZCFilter
-
-        # Define window parameters
-        window_size = 20
-        shift = 5
+        zc_filter = ZCFilter(
+            window_size=20, shift=5, input_is_chunked=True
+        )
 
         # Test cases with different shapes
         test_shapes = [
@@ -1232,39 +1127,37 @@ class TestTemporalFilters:
         for shape in test_shapes:
             # Create random data with both positive and negative values
             data = np.random.randn(*shape)  # Normal distribution centered at 0
-            expected_length = (shape[-1] - window_size) // shift + 1
+            expected_length = (shape[-1] - 20) // 5 + 1
 
             # Test both chunked and non-chunked versions
             for is_chunked in [True, False]:
                 zc_filter = ZCFilter(
-                    window_size=window_size, shift=shift, input_is_chunked=is_chunked
+                    window_size=20, shift=5, input_is_chunked=is_chunked
                 )
                 output = zc_filter(data)
 
-                # Verify shape is correct
                 if is_chunked and len(shape) > 1:
                     assert output.shape == (*shape[:-1], expected_length)
                 else:
                     assert output.shape == (*shape[:-1], expected_length)
 
                 # Verify first window result matches manual calculation
-                first_window = data[..., :window_size]
+                first_window = data[..., :20]
                 sign_changes = np.diff(np.sign(first_window), axis=-1)
                 expected_first_zc = np.sum(np.abs(sign_changes) // 2, axis=-1)
                 assert np.allclose(output[..., 0], expected_first_zc)
 
     def test_ZCFilter_edge_cases(self):
         """Test ZCFilter with edge cases."""
-        from myoverse.datasets.filters.temporal import ZCFilter
+        zc_filter = ZCFilter(
+            window_size=10, shift=2, input_is_chunked=True
+        )
 
         # Test with constant data (all ones)
         window_size = 10
         shift = 2
         constant_data = np.ones((5, 30))
 
-        zc_filter = ZCFilter(
-            window_size=window_size, shift=shift, input_is_chunked=True
-        )
         output_constant = zc_filter(constant_data)
 
         # For constant data, ZC should be zero (no sign changes)
@@ -1292,7 +1185,6 @@ class TestTemporalFilters:
         single_window_data = np.random.randn(
             3, 10
         )  # Random positive and negative values
-        zc_filter = ZCFilter(window_size=10, shift=1, input_is_chunked=True)
         output_single = zc_filter(single_window_data)
 
         # Should have exactly one output value per channel
@@ -1305,7 +1197,6 @@ class TestTemporalFilters:
         # Test with data containing exactly one zero crossing
         one_crossing = np.ones((2, 20))
         one_crossing[:, 10:] = -1  # First half positive, second half negative
-        zc_filter = ZCFilter(window_size=20, shift=1, input_is_chunked=True)
         output_one_crossing = zc_filter(one_crossing)
 
         # Should have exactly one zero crossing
@@ -1323,8 +1214,6 @@ class TestTemporalFilters:
         chunked_data = np.random.rand(num_chunks, num_channels, sequence_length)
 
         # Create SSCFilter
-        from myoverse.datasets.filters.temporal import SSCFilter
-
         ssc_filter = SSCFilter(
             window_size=window_size, shift=shift, input_is_chunked=True
         )
@@ -1369,8 +1258,6 @@ class TestTemporalFilters:
         data = np.random.rand(num_channels, sequence_length)
 
         # Create SSCFilter
-        from myoverse.datasets.filters.temporal import SSCFilter
-
         ssc_filter = SSCFilter(
             window_size=window_size, shift=shift, input_is_chunked=False
         )
@@ -1417,8 +1304,6 @@ class TestTemporalFilters:
             (5, 2, 3, 100),  # 4D (chunked)
         ]
 
-        from myoverse.datasets.filters.temporal import SSCFilter
-
         for i, shape in enumerate(shapes):
             # Generate data
             data = np.random.rand(*shape)
@@ -1453,8 +1338,6 @@ class TestTemporalFilters:
         """Test edge cases for SSCFilter."""
         window_size = 10
         shift = 5
-
-        from myoverse.datasets.filters.temporal import SSCFilter
 
         # Test with constant data (all zeros)
         data = np.zeros((3, 100))
@@ -1543,9 +1426,6 @@ class TestTemporalFilters:
             )
             test_data = test_data + interference_reshaped
 
-        from myoverse.datasets.filters.temporal import SpectralInterpolationFilter
-
-        # Create and apply the filter
         spectral_filter = SpectralInterpolationFilter(
             bandwidth=bandwidth,
             number_of_harmonics=number_of_harmonics,
@@ -1615,9 +1495,6 @@ class TestTemporalFilters:
             )
             test_data = test_data + interference_reshaped
 
-        from myoverse.datasets.filters.temporal import SpectralInterpolationFilter
-
-        # Create and apply the filter
         spectral_filter = SpectralInterpolationFilter(
             bandwidth=bandwidth,
             number_of_harmonics=number_of_harmonics,
