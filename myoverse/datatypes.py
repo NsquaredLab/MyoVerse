@@ -1,6 +1,8 @@
 import copy
+import os
+import pickle
 from abc import abstractmethod
-from typing import Dict, Optional, Sequence, TypedDict, Any
+from typing import Dict, Optional, Sequence, TypedDict, Any, Union, List, Tuple
 
 import mplcursors
 import networkx
@@ -8,13 +10,12 @@ import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
-from numpy import ndarray
 
 from myoverse.datasets.filters._template import FilterBaseClass
 
 Representation = TypedDict(
     "Representation",
-    {"data": np.ndarray, "filter_sequence": list[FilterBaseClass]},
+    {"data": np.ndarray, "filter_sequence": List[FilterBaseClass]},
 )
 
 
@@ -29,10 +30,10 @@ class _Data:
         self.__output_representation_name = "Output"
         self.__last_representation_name = "Last"
 
-        self._data: dict[str, np.ndarray | str] = {
+        self._data: Dict[str, Union[np.ndarray, str]] = {
             self.__input_representation_name: raw_data,
         }
-        self._filters_used: dict[str, FilterBaseClass] = {}
+        self._filters_used: Dict[str, FilterBaseClass] = {}
 
         self._processed_representations = networkx.DiGraph()
         self._processed_representations.add_node(self.__input_representation_name)
@@ -41,12 +42,12 @@ class _Data:
         self.__last_processing_step = self.__input_representation_name
 
     @property
-    def is_chunked(self) -> dict[str, bool]:
+    def is_chunked(self) -> Dict[str, bool]:
         """Returns whether the data is chunked or not.
 
         Returns
         -------
-        dict[str, bool]
+        Dict[str, bool]
             A dictionary where the keys are the representations and the values are whether the data is chunked or not.
         """
 
@@ -69,12 +70,12 @@ class _Data:
         return output
 
     @abstractmethod
-    def _check_if_chunked(self, data: np.ndarray) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : np.ndarray
+        data : Union[np.ndarray, str]
             The data to check.
 
         Returns
@@ -96,16 +97,16 @@ class _Data:
         raise RuntimeError("This property is read-only.")
 
     @property
-    def processed_representations(self) -> dict[str, ndarray]:
+    def processed_representations(self) -> Dict[str, np.ndarray]:
         """Returns the processed representations of the data."""
         return self._data
 
     @processed_representations.setter
-    def processed_representations(self, value: dict[str, Representation]):
+    def processed_representations(self, value: Dict[str, Representation]):
         raise RuntimeError("This property is read-only.")
 
     @property
-    def output_representations(self) -> dict[str, ndarray]:
+    def output_representations(self) -> Dict[str, np.ndarray]:
         """Returns the output representations of the data."""
 
         return {
@@ -120,7 +121,7 @@ class _Data:
         }
 
     @output_representations.setter
-    def output_representations(self, value: dict[str, Representation]):
+    def output_representations(self, value: Dict[str, Representation]):
         raise RuntimeError("This property is read-only.")
 
     @property
@@ -326,7 +327,7 @@ class _Data:
 
     def apply_filter_sequence(
         self,
-        filter_sequence: list[FilterBaseClass],
+        filter_sequence: List[FilterBaseClass],
         representation_to_filter: str,
         keep_individual_filter_steps: bool = True,
         keep_representation_to_filter: bool = True,
@@ -373,8 +374,8 @@ class _Data:
 
     def apply_filter_pipeline(
         self,
-        filter_pipeline: list[list[FilterBaseClass]],
-        representations_to_filter: list[str],
+        filter_pipeline: List[List[FilterBaseClass]],
+        representations_to_filter: List[str],
         keep_individual_filter_steps: bool = True,
         keep_representation_to_filter: bool = True,
     ):
@@ -426,7 +427,7 @@ class _Data:
                 for f in filter_sequence[:-1]:
                     self.delete_data(f.name)
 
-    def get_representation_history(self, representation: str) -> list[str]:
+    def get_representation_history(self, representation: str) -> List[str]:
         """Returns the history of a representation.
 
         Parameters
@@ -495,9 +496,12 @@ class _Data:
 
     def __getitem__(self, key: str) -> np.ndarray:
         if key == self.__input_representation_name:
-            return copy.copy(self.input_data)
+            # Use array.view() for more efficient copying when possible
+            data = self.input_data
+            return data.view() if data.flags.writeable else data.copy()
+
         if key == self.__last_representation_name:
-            return copy.copy(self[self._last_processing_step])
+            return self[self._last_processing_step]
 
         if key not in self._processed_representations:
             raise KeyError(f'The representation "{key}" does not exist.')
@@ -515,7 +519,9 @@ class _Data:
                 representation_to_filter=history[0],
             )
 
-        return copy.copy(self._data[key])
+        # Use view when possible for more efficient memory usage
+        data = self._data[key]
+        return data.view() if data.flags.writeable else data.copy()
 
     def __setitem__(self, key: str, value: np.ndarray) -> None:
         raise RuntimeError(
@@ -523,6 +529,16 @@ class _Data:
         )
 
     def delete_data(self, representation_to_delete: str):
+        """Delete data from a representation while keeping its metadata.
+
+        This replaces the actual numpy array with a string representation of its shape,
+        saving memory while allowing regeneration when needed.
+
+        Parameters
+        ----------
+        representation_to_delete : str
+            The representation to delete the data from.
+        """
         if representation_to_delete == self.__input_representation_name:
             return
         if representation_to_delete == self.__last_representation_name:
@@ -540,6 +556,13 @@ class _Data:
             )
 
     def delete_history(self, representation_to_delete: str):
+        """Delete the processing history for a representation.
+
+        Parameters
+        ----------
+        representation_to_delete : str
+            The representation to delete the history for.
+        """
         if representation_to_delete == self.__input_representation_name:
             return
         if representation_to_delete == self.__last_representation_name:
@@ -555,20 +578,87 @@ class _Data:
         self._processed_representations.remove_node(representation_to_delete)
 
     def delete(self, representation_to_delete: str):
+        """Delete both the data and history for a representation.
+
+        Parameters
+        ----------
+        representation_to_delete : str
+            The representation to delete.
+        """
         self.delete_data(representation_to_delete)
         self.delete_history(representation_to_delete)
 
     def __copy__(self) -> "_Data":
+        """Create a shallow copy of the instance.
+
+        Returns
+        -------
+        _Data
+            A shallow copy of the instance.
+        """
         new_instance = self.__class__(
             self._data[self.__input_representation_name].copy(), self.sampling_frequency
         )
-        new_instance._processed_representations = copy.deepcopy(
-            self._processed_representations
-        )
+        # Use a more efficient approach for copying the graph
+        new_instance._processed_representations = self._processed_representations.copy()
+        # Only deepcopy the data dictionary - full deepcopy is often unnecessary
         new_instance._data = copy.deepcopy(self._data)
         new_instance._last_processing_step = self._last_processing_step
+        new_instance._filters_used = copy.deepcopy(self._filters_used)
 
         return new_instance
+
+    def save(self, filename: str):
+        """Save the data to a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to save the data to.
+        """
+        # Make sure directory exists
+        os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
+
+        with open(filename, "wb") as f:
+            pickle.dump(self, f)
+
+    @classmethod
+    def load(cls, filename: str) -> "_Data":
+        """Load data from a file.
+
+        Parameters
+        ----------
+        filename : str
+            The name of the file to load the data from.
+
+        Returns
+        -------
+        _Data
+            The loaded data.
+        """
+        with open(filename, "rb") as f:
+            return pickle.load(f)
+
+    def memory_usage(self) -> Dict[str, Tuple[str, int]]:
+        """Calculate memory usage of each representation.
+
+        Returns
+        -------
+        Dict[str, Tuple[str, int]]
+            Dictionary with representation names as keys and tuples containing
+            shape as string and memory usage in bytes as values.
+        """
+        memory_usage = {}
+        for key, value in self._data.items():
+            if isinstance(value, np.ndarray):
+                memory_usage[key] = (str(value.shape), value.nbytes)
+            else:
+                memory_usage[key] = (
+                    value,
+                    0,
+                )  # Placeholder shape string uses negligible memory
+
+        return memory_usage
 
 
 class EMGData(_Data):
@@ -618,12 +708,12 @@ class EMGData(_Data):
 
         self.electrode_config = electrode_config
 
-    def _check_if_chunked(self, data: np.ndarray | str) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : np.ndarray | str
+        data : Union[np.ndarray, str]
             The data to check.
 
         Returns
@@ -638,9 +728,9 @@ class EMGData(_Data):
     def plot(
         self,
         representation: str,
-        nr_of_grids: int,
-        nr_of_electrodes_per_grid: int,
-        scaling_factor: float | list[float] = 20.0,
+        nr_of_grids: int = 1,
+        nr_of_electrodes_per_grid: Optional[int] = None,
+        scaling_factor: Union[float, List[float]] = 20.0,
     ):
         """Plots the data for a specific representation.
 
@@ -648,22 +738,32 @@ class EMGData(_Data):
         ----------
         representation : str
             The representation to plot.
-        nr_of_grids : int
-            The number of electrode grids to plot.
-        nr_of_electrodes_per_grid : int
-            The number of electrodes per grid to plot.
-        scaling_factor : float | list[float], optional
+        nr_of_grids : int, optional
+            The number of electrode grids to plot. Default is 1.
+        nr_of_electrodes_per_grid : Optional[int], optional
+            The number of electrodes per grid to plot. If None, will be determined from data shape.
+        scaling_factor : Union[float, List[float]], optional
             The scaling factor for the data. The default is 20.0.
             If a list is provided, the scaling factor for each grid is used.
         """
         data = self[representation]
 
+        # Auto-determine nr_of_electrodes_per_grid if not provided
+        if nr_of_electrodes_per_grid is None:
+            if self.is_chunked[representation]:
+                total_electrodes = data.shape[1]
+            else:
+                total_electrodes = data.shape[0]
+
+            # Try to determine a sensible default
+            nr_of_electrodes_per_grid = total_electrodes // nr_of_grids
+
         if isinstance(scaling_factor, float):
             scaling_factor = [scaling_factor] * nr_of_grids
 
-        assert (
-            len(scaling_factor) == nr_of_grids
-        ), "The number of scaling factors should be equal to the number of grids."
+        assert len(scaling_factor) == nr_of_grids, (
+            "The number of scaling factors should be equal to the number of grids."
+        )
 
         fig = plt.figure()
         # make for each grid a subplot
@@ -692,7 +792,9 @@ class EMGData(_Data):
             if grid != 0:
                 ax.set_ylabel("")
 
+        plt.tight_layout()
         plt.show()
+
 
 class KinematicsData(_Data):
     """Class for storing kinematics data.
@@ -737,12 +839,12 @@ class KinematicsData(_Data):
             )
         super().__init__(input_data, sampling_frequency)
 
-    def _check_if_chunked(self, data: np.ndarray | str) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : np.ndarray | str
+        data : Union[np.ndarray, str]
             The data to check.
 
         Returns
@@ -860,20 +962,43 @@ class KinematicsData(_Data):
             fig.canvas.draw_idle()
 
         sample_slider.on_changed(update)
-
+        plt.tight_layout()
         plt.show()
 
 
 class VirtualHandKinematics(_Data):
+    """Class for storing virtual hand kinematics data.
+
+    Attributes
+    ----------
+    input_data : np.ndarray
+        The raw kinematics data for a virtual hand. The shape of the array should be (9, n_samples)
+        or (n_chunks, 9, n_samples).
+        The 9 typically represents the degrees of freedom: wrist flexion/extension,
+        wrist pronation/supination, wrist deviation, and the flexion of all 5 fingers.
+
+    sampling_frequency : float
+        The sampling frequency of the kinematics data.
+
+    processed_data : Dict[str, np.ndarray]
+        A dictionary where the keys are the names of filters applied to the kinematics data and
+        the values are the processed kinematics data.
+
+    Parameters
+    ----------
+    is_chunked : bool
+        Whether the kinematics data is chunked or not.
+        If True, the shape of the raw kinematics data should be (n_chunks, 9, n_samples).
+    """
+
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
         """Initializes the VirtualHandKinematics object.
 
         Parameters
         ----------
         input_data : np.ndarray
-            The raw kinematics data. The shape of the array should be (n_joints, 3, n_samples)
-            or (n_chunks, n_joints, 3, n_samples).
-            The 3 represents the x, y, and z coordinates of the joints.
+            The raw kinematics data. The shape of the array should be (9, n_samples)
+            or (n_chunks, 9, n_samples).
         sampling_frequency : float
             The sampling frequency of the kinematics data.
         """
@@ -884,12 +1009,12 @@ class VirtualHandKinematics(_Data):
             )
         super().__init__(input_data, sampling_frequency)
 
-    def _check_if_chunked(self, data: np.ndarray | str) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : np.ndarray | str
+        data : Union[np.ndarray, str]
             The data to check.
 
         Returns
@@ -902,15 +1027,74 @@ class VirtualHandKinematics(_Data):
         return data.ndim == 3
 
     def plot(
-        self, representation: str, nr_of_fingers: int, wrist_included: bool = True
+        self, representation: str, nr_of_fingers: int = 5, visualize_wrist: bool = True
     ):
-        """Plots the data.
+        """Plots the virtual hand kinematics data.
 
-        raise NotImplementedError("This method is not implemented yet.")
+        Parameters
+        ----------
+        representation : str
+            The representation to plot.
+            The representation should be a 2D tensor with shape (9, n_samples)
+            or a 3D tensor with shape (n_chunks, 9, n_samples).
+        nr_of_fingers : int, optional
+            The number of fingers to plot. Default is 5.
+        visualize_wrist : bool, optional
+            Whether to visualize wrist movements. Default is True.
+
+        Raises
+        ------
+        KeyError
+            If the representation does not exist.
         """
-        # TODO: Implement this method
-        raise NotImplementedError("This method is not implemented yet.")
+        if representation not in self._data:
+            raise KeyError(f'The representation "{representation}" does not exist.')
+
+        data = self[representation]
+        is_chunked = self.is_chunked[representation]
+
+        if is_chunked:
+            # Use only the first chunk for visualization
+            data = data[0]
+
+        # Check if we have the expected number of DOFs
+        if data.shape[0] != 9:
+            raise ValueError(f"Expected 9 degrees of freedom, but got {data.shape[0]}")
+
+        fig = plt.figure(figsize=(12, 8))
+
+        # Create a separate plot for each DOF
+        wrist_ax = fig.add_subplot(2, 1, 1)
+        fingers_ax = fig.add_subplot(2, 1, 2)
+
+        # Plot wrist DOFs (first 3 channels)
+        if visualize_wrist:
+            wrist_ax.set_title("Wrist Kinematics")
+            wrist_ax.plot(data[0], label="Wrist Flexion/Extension")
+            wrist_ax.plot(data[1], label="Wrist Pronation/Supination")
+            wrist_ax.plot(data[2], label="Wrist Deviation")
+            wrist_ax.legend()
+            wrist_ax.set_xlabel("Time (samples)")
+            wrist_ax.set_ylabel("Normalized Position")
+            wrist_ax.grid(True)
+
+        # Plot finger DOFs (remaining channels)
+        fingers_ax.set_title("Finger Kinematics")
+        finger_names = ["Thumb", "Index", "Middle", "Ring", "Pinky"]
+        for i in range(min(nr_of_fingers, 5)):
+            fingers_ax.plot(data[i + 3], label=finger_names[i])
+
+        fingers_ax.legend()
+        fingers_ax.set_xlabel("Time (samples)")
+        fingers_ax.set_ylabel("Normalized Flexion")
+        fingers_ax.grid(True)
+
+        plt.tight_layout()
+        plt.show()
 
 
-
-DATA_TYPES_MAP = {"emg": EMGData, "kinematics": KinematicsData, "virtual_hand": VirtualHandKinematics}
+DATA_TYPES_MAP = {
+    "emg": EMGData,
+    "kinematics": KinematicsData,
+    "virtual_hand": VirtualHandKinematics,
+}
