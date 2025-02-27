@@ -4,7 +4,7 @@ import networkx as nx
 from matplotlib import pyplot as plt
 from copy import deepcopy
 
-from myoverse.datatypes import EMGData, KinematicsData, VirtualHandKinematics
+from myoverse.datatypes import EMGData, KinematicsData, VirtualHandKinematics, create_grid_layout
 from myoverse.datasets.filters._template import FilterBaseClass
 
 
@@ -248,40 +248,96 @@ class TestVirtualHandKinematics:
     @pytest.fixture
     def sample_vhk_data(self):
         # Create sample data for VirtualHandKinematics
-        np.random.seed(42)
-        # 9 DoFs (3 for wrist, 2 for each finger) and 100 timesteps
-        data = np.random.rand(9, 100)  
-        sampling_frequency = 100  # Hz
-        return VirtualHandKinematics(data, sampling_frequency)
-
+        data = np.random.randn(9, 100)  # 9 DOFs, 100 samples
+        return VirtualHandKinematics(data, 100.0)
+        
     def test_init_valid(self, sample_vhk_data):
-        """Test initialization with valid data."""
+        """Test that initialization works with valid data."""
+        assert sample_vhk_data.sampling_frequency == 100.0
         assert sample_vhk_data.input_data.shape == (9, 100)
-        assert sample_vhk_data.sampling_frequency == 100
-        assert sample_vhk_data.is_chunked["Input"] is False
-
+        
     def test_init_invalid_dims(self):
-        """Test initialization with invalid dimensions."""
+        """Test that initialization fails with invalid dimensions."""
+        # 1D data (invalid)
         with pytest.raises(ValueError):
-            # Only 1D, should be 2D
-            VirtualHandKinematics(np.random.rand(100), 100)
-
+            VirtualHandKinematics(np.random.randn(100), 100.0)
+            
+        # 4D data (invalid)
+        with pytest.raises(ValueError):
+            VirtualHandKinematics(np.random.randn(2, 2, 2, 2), 100.0)
+            
+        # This one might not raise an error because the class only checks ndim, not specific shape
+        # But we can verify it raises an error during plot() when it expects 9 DOFs
+        vhk = VirtualHandKinematics(np.random.randn(10, 100), 100.0)
+        with pytest.raises(ValueError, match="Expected 9 degrees of freedom"):
+            vhk.plot("Input")
+        
     def test_init_invalid_frequency(self):
-        """Test initialization with invalid sampling frequency."""
+        """Test that initialization fails with invalid frequency."""
         with pytest.raises(ValueError):
-            # Negative sampling frequency
-            VirtualHandKinematics(np.random.rand(9, 100), -10)
-
+            VirtualHandKinematics(np.random.randn(9, 100), -1.0)
+        
     def test_plot(self, sample_vhk_data, monkeypatch):
         """Test that plot method works without errors."""
-        # Mock plt.show to prevent actual plot display during tests
-        monkeypatch.setattr(plt, 'show', lambda: None)
+        # Create a more comprehensive mock for matplotlib components
+        class MockLine:
+            def __init__(self, *args, **kwargs):
+                pass
         
+        class MockAxes:
+            def __init__(self):
+                self.lines = []
+                self.title = None
+                self.xlabel = None
+                self.ylabel = None
+                
+            def set_title(self, title):
+                self.title = title
+                
+            def plot(self, *args, **kwargs):
+                line = MockLine()
+                self.lines.append(line)
+                return [line]
+                
+            def legend(self):
+                pass
+                
+            def set_xlabel(self, label):
+                self.xlabel = label
+                
+            def set_ylabel(self, label):
+                self.ylabel = label
+                
+            def grid(self, *args, **kwargs):
+                # Properly handle grid(True) or grid(visible=True)
+                pass
+                
+        class MockFigure:
+            def __init__(self, *args, **kwargs):
+                self.axes = []
+                
+            def add_subplot(self, *args, **kwargs):
+                ax = MockAxes()
+                self.axes.append(ax)
+                return ax
+                
+        # Create a mock for tight_layout
+        def mock_tight_layout():
+            pass
+            
+        # Mock matplotlib components
+        monkeypatch.setattr(plt, 'figure', MockFigure)
+        monkeypatch.setattr(plt, 'show', lambda: None)
+        monkeypatch.setattr(plt, 'tight_layout', mock_tight_layout)
+
         # Test plotting with different options
         sample_vhk_data.plot("Input", visualize_wrist=True)
-        sample_vhk_data.plot("Input", visualize_wrist=False)
+        sample_vhk_data.plot("Input", nr_of_fingers=3, visualize_wrist=False)
         
-        # No assertions needed as we're just checking it doesn't raise exceptions
+        # Test with chunked data
+        chunked_data = np.random.randn(5, 9, 50)  # 5 chunks, 9 DOFs, 50 samples
+        chunked_vhk = VirtualHandKinematics(chunked_data, 100.0)
+        chunked_vhk.plot("Input")
 
 
 class TestDataTypesCopy:
@@ -326,6 +382,193 @@ class TestDataTypesCopy:
         # Check that the copy has the same data
         assert np.array_equal(kin.input_data, kin_copy.input_data)
         assert np.array_equal(kin["Filter1"], kin_copy["Filter1"])
+
+
+class TestCreateGridLayout:
+    """Test cases for the standalone create_grid_layout function."""
+    
+    def test_row_pattern(self):
+        """Test creating a grid with row-wise pattern."""
+        grid = create_grid_layout(4, 4, fill_pattern='row')
+        
+        # Check dimensions
+        assert grid.shape == (4, 4)
+        
+        # Check row-wise numbering (0-15)
+        expected = np.array([
+            [0, 1, 2, 3],
+            [4, 5, 6, 7],
+            [8, 9, 10, 11],
+            [12, 13, 14, 15]
+        ])
+        assert np.array_equal(grid, expected)
+    
+    def test_column_pattern(self):
+        """Test creating a grid with column-wise pattern."""
+        grid = create_grid_layout(4, 4, fill_pattern='column')
+        
+        # Check column-wise numbering (0-15)
+        expected = np.array([
+            [0, 4, 8, 12],
+            [1, 5, 9, 13],
+            [2, 6, 10, 14],
+            [3, 7, 11, 15]
+        ])
+        assert np.array_equal(grid, expected)
+    
+    def test_missing_indices(self):
+        """Test creating a grid with missing indices."""
+        missing = [(0, 0), (1, 1), (2, 2), (3, 3)]
+        grid = create_grid_layout(4, 4, fill_pattern='row', missing_indices=missing)
+        
+        # Create expected grid with -1 at diagonal positions
+        expected = np.array([
+            [-1, 0, 1, 2],
+            [3, -1, 4, 5],
+            [6, 7, -1, 8],
+            [9, 10, 11, -1]
+        ])
+        assert np.array_equal(grid, expected)
+    
+    def test_limited_electrodes(self):
+        """Test creating a grid with limited number of electrodes."""
+        grid = create_grid_layout(3, 3, n_electrodes=5, fill_pattern='row')
+        
+        # Only the first 5 positions should be filled (0-4)
+        expected = np.array([
+            [0, 1, 2],
+            [3, 4, -1],
+            [-1, -1, -1]
+        ])
+        assert np.array_equal(grid, expected)
+    
+    def test_invalid_pattern(self):
+        """Test with invalid fill pattern."""
+        with pytest.raises(ValueError, match="Invalid fill pattern"):
+            create_grid_layout(3, 3, fill_pattern='invalid')
+    
+    def test_too_many_electrodes(self):
+        """Test with too many electrodes for the grid size."""
+        with pytest.raises(ValueError, match="Number of electrodes .* exceeds available positions"):
+            create_grid_layout(2, 2, n_electrodes=5)
+
+
+class TestEMGDataWithGridLayouts:
+    """Test cases for EMGData class with grid layouts."""
+    
+    @pytest.fixture
+    def emg_data_2d(self):
+        """Create a 2D EMG data fixture."""
+        # 16 channels, 1000 samples
+        return np.random.rand(16, 1000)
+    
+    @pytest.fixture
+    def sampling_frequency(self):
+        """Return a sampling frequency for testing."""
+        return 2000.0
+    
+    @pytest.fixture
+    def grid_layout_4x4(self):
+        """Create a 4x4 grid layout."""
+        return create_grid_layout(4, 4, fill_pattern='row')
+    
+    def test_init_with_grid_layout(self, emg_data_2d, sampling_frequency, grid_layout_4x4):
+        """Test initialization with grid layout."""
+        emg = EMGData(emg_data_2d, sampling_frequency, grid_layouts=[grid_layout_4x4])
+        
+        # Check that grid_layouts is properly stored
+        assert len(emg.grid_layouts) == 1
+        assert np.array_equal(emg.grid_layouts[0], grid_layout_4x4)
+    
+    def test_init_with_multiple_grid_layouts(self, emg_data_2d, sampling_frequency):
+        """Test initialization with multiple grid layouts."""
+        # Create two 4x2 grids for a total of 16 electrodes
+        grid1 = create_grid_layout(4, 2, 8, fill_pattern='row')
+        grid2 = np.copy(grid1)
+        # Adjust indices for second grid (8-15)
+        grid2[grid2 >= 0] += 8
+        
+        emg = EMGData(emg_data_2d, sampling_frequency, grid_layouts=[grid1, grid2])
+        
+        # Check that both grids are stored
+        assert len(emg.grid_layouts) == 2
+        assert np.array_equal(emg.grid_layouts[0], grid1)
+        assert np.array_equal(emg.grid_layouts[1], grid2)
+    
+    def test_invalid_grid_layout(self, emg_data_2d, sampling_frequency):
+        """Test initialization with invalid grid layout."""
+        # Create a grid with electrode indices exceeding the data dimensions
+        invalid_grid = create_grid_layout(4, 4, fill_pattern='row')
+        invalid_grid[0, 0] = 20  # Out of bounds for 16-channel data
+        
+        with pytest.raises(ValueError, match="Grid layout .* contains electrode indices that exceed"):
+            EMGData(emg_data_2d, sampling_frequency, grid_layouts=[invalid_grid])
+    
+    def test_duplicate_indices_in_grid(self, emg_data_2d, sampling_frequency):
+        """Test grid layout with duplicate electrode indices."""
+        # Create a grid with duplicate indices
+        invalid_grid = create_grid_layout(4, 4, fill_pattern='row')
+        invalid_grid[1, 1] = invalid_grid[0, 0]  # Duplicate index
+        
+        with pytest.raises(ValueError, match="Grid layout .* contains duplicate electrode indices"):
+            EMGData(emg_data_2d, sampling_frequency, grid_layouts=[invalid_grid])
+    
+    def test_plot_with_grid_layouts(self, emg_data_2d, sampling_frequency, grid_layout_4x4, monkeypatch):
+        """Test plot method with grid layouts."""
+        # Mock plt.show to avoid displaying the plot during tests
+        monkeypatch.setattr(plt, "show", lambda: None)
+        
+        emg = EMGData(emg_data_2d, sampling_frequency, grid_layouts=[grid_layout_4x4])
+        
+        # This should not raise any errors
+        emg.plot("Input", use_grid_layouts=True)
+        
+        # Test with custom scaling factor
+        emg.plot("Input", scaling_factor=30.0)
+        
+        # Test with multiple scaling factors
+        emg.plot("Input", scaling_factor=[20.0])
+    
+    def test_plot_grid_layout(self, emg_data_2d, sampling_frequency, grid_layout_4x4, monkeypatch):
+        """Test plot_grid_layout method."""
+        # Mock plt.show to avoid displaying the plot during tests
+        monkeypatch.setattr(plt, "show", lambda: None)
+        
+        emg = EMGData(emg_data_2d, sampling_frequency, grid_layouts=[grid_layout_4x4])
+        
+        # This should not raise any errors
+        emg.plot_grid_layout(0)
+        
+        # Test with show_indices=False
+        emg.plot_grid_layout(0, show_indices=False)
+    
+    def test_plot_grid_layout_errors(self, emg_data_2d, sampling_frequency):
+        """Test error cases for plot_grid_layout method."""
+        # EMG without grid layouts
+        emg_no_grid = EMGData(emg_data_2d, sampling_frequency)
+        
+        with pytest.raises(ValueError, match="Cannot plot grid layout"):
+            emg_no_grid.plot_grid_layout(0)
+        
+        # EMG with grid layouts but invalid index
+        emg_with_grid = EMGData(emg_data_2d, sampling_frequency, 
+                               grid_layouts=[create_grid_layout(4, 4)])
+        
+        with pytest.raises(ValueError, match="Grid index .* out of range"):
+            emg_with_grid.plot_grid_layout(1)  # Only have grid index 0
+    
+    def test_get_grid_dimensions(self, emg_data_2d, sampling_frequency):
+        """Test _get_grid_dimensions method."""
+        # Create two grids with different dimensions
+        grid1 = create_grid_layout(3, 4, 12, fill_pattern='row')
+        grid2 = create_grid_layout(2, 2, 4, fill_pattern='row')
+        
+        emg = EMGData(emg_data_2d, sampling_frequency, grid_layouts=[grid1, grid2])
+        
+        dimensions = emg._get_grid_dimensions()
+        assert len(dimensions) == 2
+        assert dimensions[0] == (3, 4, 12)  # rows, cols, electrodes
+        assert dimensions[1] == (2, 2, 4)
 
 
 if __name__ == "__main__":

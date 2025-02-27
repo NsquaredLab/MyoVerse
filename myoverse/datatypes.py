@@ -18,9 +18,158 @@ Representation = TypedDict(
     {"data": np.ndarray, "filter_sequence": List[FilterBaseClass]},
 )
 
+# Add the standalone function at the module level (before any class definitions)
+def create_grid_layout(
+    rows: int, 
+    cols: int, 
+    n_electrodes: int = None, 
+    fill_pattern: str = 'row',
+    missing_indices: List[Tuple[int, int]] = None
+) -> np.ndarray:
+    """Creates a grid layout based on specified parameters.
+    
+    Parameters
+    ----------
+    rows : int
+        Number of rows in the grid.
+    cols : int
+        Number of columns in the grid.
+    n_electrodes : int, optional
+        Number of electrodes in the grid. If None, will be set to rows*cols minus 
+        the number of missing indices. Default is None.
+    fill_pattern : str, optional
+        Pattern to fill the grid. Options are 'row' (row-wise) or 'column' (column-wise).
+        Default is 'row'.
+    missing_indices : List[Tuple[int, int]], optional
+        List of (row, col) indices that should be left empty (-1). Default is None.
+        
+    Returns
+    -------
+    np.ndarray
+        2D array representing the grid layout.
+        
+    Raises
+    ------
+    ValueError
+        If the parameters are invalid.
+        
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from myoverse.datatypes import create_grid_layout
+    >>> 
+    >>> # Create a 4×4 grid with row-wise numbering (0-15)
+    >>> grid1 = create_grid_layout(4, 4, fill_pattern='row')
+    >>> print(grid1)
+    [[ 0  1  2  3]
+     [ 4  5  6  7]
+     [ 8  9 10 11]
+     [12 13 14 15]]
+    >>> 
+    >>> # Create a 4×4 grid with column-wise numbering (0-15)
+    >>> grid2 = create_grid_layout(4, 4, fill_pattern='column')
+    >>> print(grid2)
+    [[ 0  4  8 12]
+     [ 1  5  9 13]
+     [ 2  6 10 14]
+     [ 3  7 11 15]]
+    >>> 
+    >>> # Create a 3×3 grid with only 8 electrodes (missing bottom-right)
+    >>> grid3 = create_grid_layout(3, 3, 8, 'row', 
+    ...                           missing_indices=[(2, 2)])
+    >>> print(grid3)
+    [[ 0  1  2]
+     [ 3  4  5]
+     [ 6  7 -1]]
+    """
+    # Initialize grid with -1 (gaps)
+    grid = np.full((rows, cols), -1, dtype=int)
+    
+    # Process missing indices
+    if missing_indices is None:
+        missing_indices = []
+    
+    missing_positions = set((r, c) for r, c in missing_indices if 0 <= r < rows and 0 <= c < cols)
+    max_electrodes = rows * cols - len(missing_positions)
+    
+    # Validate n_electrodes
+    if n_electrodes is None:
+        n_electrodes = max_electrodes
+    elif n_electrodes > max_electrodes:
+        raise ValueError(
+            f"Number of electrodes ({n_electrodes}) exceeds available positions "
+            f"({max_electrodes} = {rows}×{cols} - {len(missing_positions)} missing)"
+        )
+    
+    # Fill the grid based on the pattern
+    electrode_idx = 0
+    if fill_pattern.lower() == 'row':
+        for r in range(rows):
+            for c in range(cols):
+                if (r, c) not in missing_positions and electrode_idx < n_electrodes:
+                    grid[r, c] = electrode_idx
+                    electrode_idx += 1
+    elif fill_pattern.lower() == 'column':
+        for c in range(cols):
+            for r in range(rows):
+                if (r, c) not in missing_positions and electrode_idx < n_electrodes:
+                    grid[r, c] = electrode_idx
+                    electrode_idx += 1
+    else:
+        raise ValueError(f"Invalid fill pattern: {fill_pattern}. Use 'row' or 'column'.")
+    
+    return grid
 
 class _Data:
+    """Base class for all data types.
+    
+    This class provides common functionality for handling different types of data,
+    including maintaining original and processed representations, tracking filters
+    applied, and managing data flow.
+    
+    Attributes
+    ----------
+    sampling_frequency : float
+        The sampling frequency of the data.
+    input_data : np.ndarray
+        The raw input data.
+    processed_representations : Dict[str, np.ndarray] 
+        Dictionary of all processed representations of the data.
+    is_chunked : Dict[str, bool]
+        Dictionary indicating whether each representation is chunked or not.
+        
+    Examples
+    --------
+    This is an abstract base class and should not be instantiated directly.
+    Instead, use one of the concrete subclasses like EMGData or KinematicsData:
+    
+    >>> import numpy as np
+    >>> from myoverse.datatypes import EMGData
+    >>> 
+    >>> # Create sample data
+    >>> data = np.random.randn(16, 1000)
+    >>> emg = EMGData(data, 2000)  # 2000 Hz sampling rate
+    >>> 
+    >>> # Access attributes from the base _Data class
+    >>> print(f"Sampling frequency: {emg.sampling_frequency} Hz")
+    >>> print(f"Is input data chunked: {emg.is_chunked['Input']}")
+    """
+    
     def __init__(self, raw_data: np.ndarray, sampling_frequency: float):
+        """Initialize the data object.
+        
+        Parameters
+        ----------
+        raw_data : np.ndarray
+            The raw data to store.
+        sampling_frequency : float
+            The sampling frequency of the data.
+            
+        Raises
+        ------
+        ValueError
+            If the sampling frequency is less than or equal to 0.
+        """
         self.sampling_frequency = sampling_frequency
 
         if self.sampling_frequency <= 0:
@@ -670,8 +819,11 @@ class EMGData(_Data):
         The raw EMG data. The shape of the array should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples).
     sampling_frequency : float
         The sampling frequency of the EMG data.
-    electrode_config : Optional[Sequence[str]]
-        The configuration of the electrodes.
+    grid_layouts : Optional[List[np.ndarray]]
+        List of 2D arrays specifying the exact electrode arrangement for each grid.
+        Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
+        This provides precise control over electrode numbering patterns (row-wise, column-wise, etc.)
+        and allows specifying exactly which positions have electrodes.
     processed_data : Dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied
         to the EMG data and the values are the processed EMG data.
@@ -682,13 +834,29 @@ class EMGData(_Data):
         Whether the EMG data is chunked or not.
         If True, the shape of the raw EMG data should be (n_chunks, n_channels, n_samples).
 
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from myoverse.datatypes import EMGData, create_grid_layout
+    >>> 
+    >>> # Create sample EMG data (16 channels, 1000 samples)
+    >>> emg_data = np.random.randn(16, 1000)
+    >>> sampling_freq = 2000  # 2000 Hz
+    >>> 
+    >>> # Create a basic EMGData object
+    >>> emg = EMGData(emg_data, sampling_freq)
+    >>> 
+    >>> # Create an EMGData object with grid layouts
+    >>> # Define a 4×4 electrode grid with row-wise numbering
+    >>> grid = create_grid_layout(4, 4, fill_pattern='row')
+    >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
     """
 
     def __init__(
         self,
         input_data: np.ndarray,
         sampling_frequency: float,
-        electrode_config: Optional[Sequence[str]] = None,
+        grid_layouts: Optional[List[np.ndarray]] = None,
     ):
         """Initializes the EMGData object.
 
@@ -699,6 +867,35 @@ class EMGData(_Data):
              or (n_chunks, n_channels, n_samples).
         sampling_frequency : float
             The sampling frequency of the EMG data.
+        grid_layouts : Optional[List[np.ndarray]], optional
+            List of 2D arrays specifying the exact electrode arrangement for each grid.
+            Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
+            For example, a 2×3 grid with electrodes numbered column-wise and one gap might be:
+            [[0, 2, 4], [1, -1, 5]]
+            Default is None.
+            
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from myoverse.datatypes import EMGData, create_grid_layout
+        >>> 
+        >>> # Create sample EMG data (64 channels, 1000 samples)
+        >>> emg_data = np.random.randn(64, 1000)
+        >>> sampling_freq = 2000  # 2000 Hz
+        >>> 
+        >>> # Create a simple EMGData object
+        >>> emg = EMGData(emg_data, sampling_freq)
+        >>> 
+        >>> # Create EMGData with a custom electrode grid layout
+        >>> # 8×8 grid with column-wise numbering
+        >>> grid = np.full((8, 8), -1)  # Initialize with gaps
+        >>> for c in range(8):
+        ...     for r in range(8):
+        ...         idx = c * 8 + r
+        ...         if idx < 64:  # Only fill up to 64 electrodes
+        ...             grid[r, c] = idx
+        >>> 
+        >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
         """
         if input_data.ndim != 2 and input_data.ndim != 3:
             raise ValueError(
@@ -706,7 +903,51 @@ class EMGData(_Data):
             )
         super().__init__(input_data, sampling_frequency)
 
-        self.electrode_config = electrode_config
+        self.grid_layouts = None  # Initialize to None first
+        
+        # Get the number of electrodes from the data
+        data_electrodes = input_data.shape[0] if input_data.ndim == 2 else input_data.shape[1]
+        
+        # Process and validate grid layouts if provided
+        if grid_layouts is not None:
+            # Check that each layout array is 2D
+            for i, layout in enumerate(grid_layouts):
+                if not isinstance(layout, np.ndarray) or layout.ndim != 2:
+                    raise ValueError(f"Grid layout {i+1} must be a 2D numpy array")
+                
+                # Count valid electrodes (non-negative values)
+                valid_electrodes = np.sum(layout >= 0)
+                
+                # Check for duplicate electrode indices
+                valid_indices = layout[layout >= 0]
+                if len(np.unique(valid_indices)) != len(valid_indices):
+                    raise ValueError(f"Grid layout {i+1} contains duplicate electrode indices")
+                
+                # Check if any index is out of bounds
+                if np.any(valid_indices >= data_electrodes):
+                    raise ValueError(
+                        f"Grid layout {i+1} contains electrode indices that exceed the total "
+                        f"number of electrodes ({data_electrodes})"
+                    )
+            
+            # Store the validated grid layouts
+            self.grid_layouts = grid_layouts
+
+    def _get_grid_dimensions(self):
+        """Get dimensions and electrode counts for each grid.
+        
+        Returns
+        -------
+        List[Tuple[int, int, int]]
+            List of (rows, cols, electrodes) tuples for each grid, or empty list if no grid layouts are available.
+        """
+        if self.grid_layouts is None:
+            return []
+        
+        return [
+            (layout.shape[0], layout.shape[1], np.sum(layout >= 0))
+            for layout in self.grid_layouts
+        ]
 
     def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
         """Checks if the data is chunked or not.
@@ -728,9 +969,10 @@ class EMGData(_Data):
     def plot(
         self,
         representation: str,
-        nr_of_grids: int = 1,
+        nr_of_grids: Optional[int] = None,
         nr_of_electrodes_per_grid: Optional[int] = None,
         scaling_factor: Union[float, List[float]] = 20.0,
+        use_grid_layouts: bool = True,
     ):
         """Plots the data for a specific representation.
 
@@ -738,26 +980,76 @@ class EMGData(_Data):
         ----------
         representation : str
             The representation to plot.
-        nr_of_grids : int, optional
-            The number of electrode grids to plot. Default is 1.
+        nr_of_grids : Optional[int], optional
+            The number of electrode grids to plot. If None and grid_layouts is provided, 
+            will use the number of grids in grid_layouts. Default is None.
         nr_of_electrodes_per_grid : Optional[int], optional
-            The number of electrodes per grid to plot. If None, will be determined from data shape.
+            The number of electrodes per grid to plot. If None, will be determined from data shape
+            or grid_layouts if available. Default is None.
         scaling_factor : Union[float, List[float]], optional
             The scaling factor for the data. The default is 20.0.
             If a list is provided, the scaling factor for each grid is used.
+        use_grid_layouts : bool, optional
+            Whether to use the grid_layouts for plotting. Default is True.
+            If False, will use the nr_of_grids and nr_of_electrodes_per_grid parameters.
+            
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from myoverse.datatypes import EMGData, create_grid_layout
+        >>> 
+        >>> # Create sample EMG data (64 channels, 1000 samples)
+        >>> emg_data = np.random.randn(64, 1000)
+        >>> 
+        >>> # Create EMGData with two 4×8 grids (32 electrodes each)
+        >>> grid1 = create_grid_layout(4, 8, 32, fill_pattern='row')
+        >>> grid2 = create_grid_layout(4, 8, 32, fill_pattern='row')
+        >>> 
+        >>> # Adjust indices for second grid
+        >>> grid2[grid2 >= 0] += 32
+        >>> 
+        >>> emg = EMGData(emg_data, 2000, grid_layouts=[grid1, grid2])
+        >>> 
+        >>> # Plot the raw data using the grid layouts
+        >>> emg.plot('Input')
+        >>> 
+        >>> # Adjust scaling for better visualization
+        >>> emg.plot('Input', scaling_factor=[15.0, 25.0])
+        >>> 
+        >>> # Plot without using grid layouts (specify manual grid configuration)
+        >>> emg.plot('Input', nr_of_grids=2, nr_of_electrodes_per_grid=32, 
+        ...         use_grid_layouts=False)
         """
         data = self[representation]
 
-        # Auto-determine nr_of_electrodes_per_grid if not provided
-        if nr_of_electrodes_per_grid is None:
-            if self.is_chunked[representation]:
-                total_electrodes = data.shape[1]
-            else:
-                total_electrodes = data.shape[0]
+        # Use grid_layouts if available and requested
+        if self.grid_layouts is not None and use_grid_layouts:
+            grid_dimensions = self._get_grid_dimensions()
+            
+            if nr_of_grids is not None and nr_of_grids != len(self.grid_layouts):
+                print(f"Warning: nr_of_grids ({nr_of_grids}) does not match grid_layouts length "
+                      f"({len(self.grid_layouts)}). Using grid_layouts.")
+            
+            nr_of_grids = len(self.grid_layouts)
+            electrodes_per_grid = [dims[2] for dims in grid_dimensions]
+        else:
+            # Auto-determine nr_of_grids if not provided
+            if nr_of_grids is None:
+                nr_of_grids = 1
+            
+            # Auto-determine nr_of_electrodes_per_grid if not provided
+            if nr_of_electrodes_per_grid is None:
+                if self.is_chunked[representation]:
+                    total_electrodes = data.shape[1]
+                else:
+                    total_electrodes = data.shape[0]
+                
+                # Try to determine a sensible default
+                nr_of_electrodes_per_grid = total_electrodes // nr_of_grids
+            
+            electrodes_per_grid = [nr_of_electrodes_per_grid] * nr_of_grids
 
-            # Try to determine a sensible default
-            nr_of_electrodes_per_grid = total_electrodes // nr_of_grids
-
+        # Prepare scaling factors
         if isinstance(scaling_factor, float):
             scaling_factor = [scaling_factor] * nr_of_grids
 
@@ -765,33 +1057,130 @@ class EMGData(_Data):
             "The number of scaling factors should be equal to the number of grids."
         )
 
-        fig = plt.figure()
-        # make for each grid a subplot
-        for grid in range(nr_of_grids):
-            ax = fig.add_subplot(1, nr_of_grids, grid + 1)
-            ax.set_title(f"Grid {grid + 1}")
-
-            for electrode in range(nr_of_electrodes_per_grid):
-                ax.plot(
-                    data[grid * nr_of_electrodes_per_grid + electrode]
-                    + electrode * data.mean() * scaling_factor[grid]
-                )
+        fig = plt.figure(figsize=(5*nr_of_grids, 6))
+        
+        # Calculate electrode index offset for each grid
+        electrode_offsets = [0]
+        for i in range(len(electrodes_per_grid)-1):
+            electrode_offsets.append(electrode_offsets[-1] + electrodes_per_grid[i])
+        
+        # Make a subplot for each grid
+        for grid_idx in range(nr_of_grids):
+            ax = fig.add_subplot(1, nr_of_grids, grid_idx + 1)
+            
+            grid_title = f"Grid {grid_idx + 1}"
+            if self.grid_layouts is not None and use_grid_layouts:
+                rows, cols, _ = grid_dimensions[grid_idx]
+                grid_title += f" ({rows}×{cols})"
+            ax.set_title(grid_title)
+            
+            offset = electrode_offsets[grid_idx]
+            n_electrodes = electrodes_per_grid[grid_idx]
+            
+            for electrode_idx in range(n_electrodes):
+                data_idx = offset + electrode_idx
+                if self.is_chunked[representation]:
+                    # Handle chunked data - plot first chunk for visualization
+                    ax.plot(
+                        data[0, data_idx] + electrode_idx * data[0].mean() * scaling_factor[grid_idx]
+                    )
+                else:
+                    ax.plot(
+                        data[data_idx] + electrode_idx * data.mean() * scaling_factor[grid_idx]
+                    )
 
             ax.set_xlabel("Time (samples)")
             ax.set_ylabel("Electrode #")
 
-            # set the y-axis ticks to the electrode numbers begginning from 1
+            # Set the y-axis ticks to the electrode numbers beginning from 1
+            mean_val = data[0].mean() if self.is_chunked[representation] else data.mean()
             ax.set_yticks(
-                np.arange(0, nr_of_electrodes_per_grid)
-                * data.mean()
-                * scaling_factor[grid],
-                np.arange(1, nr_of_electrodes_per_grid + 1),
+                np.arange(0, n_electrodes) * mean_val * scaling_factor[grid_idx],
+                np.arange(1, n_electrodes + 1),
             )
 
-            # only for grid 1 keep the y-axis label
-            if grid != 0:
+            # Only for grid 1 keep the y-axis label
+            if grid_idx != 0:
                 ax.set_ylabel("")
 
+        plt.tight_layout()
+        plt.show()
+        
+    def plot_grid_layout(self, grid_idx: int = 0, show_indices: bool = True):
+        """Plots the 2D layout of a specific electrode grid.
+        
+        Parameters
+        ----------
+        grid_idx : int, optional
+            The index of the grid to plot. Default is 0.
+        show_indices : bool, optional
+            Whether to show the electrode indices in the plot. Default is True.
+            
+        Raises
+        ------
+        ValueError
+            If grid_layouts is not available or the grid_idx is out of range.
+            
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from myoverse.datatypes import EMGData, create_grid_layout
+        >>> 
+        >>> # Create sample EMG data (64 channels, 1000 samples)
+        >>> emg_data = np.random.randn(64, 1000)
+        >>> 
+        >>> # Create an 8×8 grid with some missing electrodes
+        >>> grid = create_grid_layout(8, 8, 64, fill_pattern='row',
+        ...                          missing_indices=[(7, 7), (0, 0)])
+        >>> 
+        >>> emg = EMGData(emg_data, 2000, grid_layouts=[grid])
+        >>> 
+        >>> # Visualize the grid layout
+        >>> emg.plot_grid_layout(0)
+        >>> 
+        >>> # Visualize without showing electrode indices
+        >>> emg.plot_grid_layout(0, show_indices=False)
+        """
+        if self.grid_layouts is None:
+            raise ValueError("Cannot plot grid layout: grid_layouts not provided.")
+            
+        if grid_idx < 0 or grid_idx >= len(self.grid_layouts):
+            raise ValueError(f"Grid index {grid_idx} out of range (0 to {len(self.grid_layouts)-1}).")
+            
+        # Get the grid layout
+        grid = self.grid_layouts[grid_idx]
+        rows, cols = grid.shape
+        
+        # Get number of electrodes
+        n_electrodes = np.sum(grid >= 0)
+        grid_title = f"Grid {grid_idx+1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
+        
+        # Create a masked array for plotting
+        masked_grid = np.ma.masked_less(grid, 0)
+        
+        # Plot the grid
+        fig, ax = plt.subplots(figsize=(cols/2 + 3, rows/2 + 1))
+        cmap = plt.cm.viridis
+        cmap.set_bad('white', 1.0)
+        im = ax.imshow(masked_grid, cmap=cmap)
+        
+        # Add grid lines
+        ax.set_xticks(np.arange(-0.5, cols, 1), minor=True)
+        ax.set_yticks(np.arange(-0.5, rows, 1), minor=True)
+        ax.grid(which="minor", color="black", linestyle='-', linewidth=1)
+        
+        # Add electrode numbers
+        if show_indices:
+            for i in range(rows):
+                for j in range(cols):
+                    if grid[i, j] >= 0:
+                        ax.text(j, i, str(grid[i, j]), ha="center", va="center", 
+                                color="w", fontweight='bold')
+        
+        # Add a title
+        plt.title(grid_title)
+        
+        # Fix the aspect ratio and display
         plt.tight_layout()
         plt.show()
 
@@ -818,6 +1207,23 @@ class KinematicsData(_Data):
     is_chunked : bool
         Whether the kinematics data is chunked or not.
         If True, the shape of the raw kinematics data should be (n_chunks, n_joints, 3, n_samples).
+        
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from myoverse.datatypes import KinematicsData
+    >>> 
+    >>> # Create sample kinematics data (16 joints, 3 coordinates, 1000 samples)
+    >>> # Each joint has x, y, z coordinates
+    >>> joint_data = np.random.randn(16, 3, 1000)
+    >>> 
+    >>> # Create a KinematicsData object with 100 Hz sampling rate
+    >>> kinematics = KinematicsData(joint_data, 100)
+    >>> 
+    >>> # Access the raw data
+    >>> raw_data = kinematics.input_data
+    >>> print(f"Data shape: {raw_data.shape}")
+    Data shape: (16, 3, 1000)
     """
 
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
@@ -831,6 +1237,23 @@ class KinematicsData(_Data):
             The 3 represents the x, y, and z coordinates of the joints.
         sampling_frequency : float
             The sampling frequency of the kinematics data.
+            
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from myoverse.datatypes import KinematicsData
+        >>> 
+        >>> # Create sample non-chunked data (21 joints, 3 coordinates, 500 samples)
+        >>> joint_data = np.random.randn(21, 3, 500)
+        >>> kinematics = KinematicsData(joint_data, 120)  # 120 Hz sampling rate
+        >>> 
+        >>> # Create sample chunked data (10 chunks, 21 joints, 3 coordinates, 100 samples)
+        >>> chunked_data = np.random.randn(10, 21, 3, 100)
+        >>> chunked_kinematics = KinematicsData(chunked_data, 120)
+        >>> 
+        >>> # Check if data is chunked
+        >>> print(f"Is chunked: {chunked_kinematics.is_chunked['Input']}")
+        Is chunked: True
         """
         if input_data.ndim != 3 and input_data.ndim != 4:
             raise ValueError(
@@ -876,6 +1299,22 @@ class KinematicsData(_Data):
         ------
         KeyError
             If the representation does not exist.
+            
+        Examples
+        --------
+        >>> import numpy as np
+        >>> from myoverse.datatypes import KinematicsData
+        >>> 
+        >>> # Create sample kinematics data for a hand with 5 fingers
+        >>> # 16 joints: 1 wrist + 3 joints for each of the 5 fingers
+        >>> joint_data = np.random.randn(16, 3, 100)
+        >>> kinematics = KinematicsData(joint_data, 100)
+        >>> 
+        >>> # Plot the kinematics data
+        >>> kinematics.plot('Input', nr_of_fingers=5)
+        >>> 
+        >>> # Plot without wrist
+        >>> kinematics.plot('Input', nr_of_fingers=5, wrist_included=False)
         """
         if representation not in self._data:
             raise KeyError(f'The representation "{representation}" does not exist.')
@@ -936,8 +1375,9 @@ class KinematicsData(_Data):
                 )
             )
 
+        samp = plt.axes([0.25, 0.02, 0.65, 0.03])
         sample_slider = Slider(
-            ax=fig.add_axes([0.25, 0.1, 0.65, 0.03]),
+            samp,
             label="Sample (a. u.)",
             valmin=0,
             valmax=kinematics.shape[2] - 1,
@@ -952,10 +1392,9 @@ class KinematicsData(_Data):
 
             for finger in range(nr_of_fingers):
                 finger_plots[finger][0]._verts3d = tuple(
-                    kinematics[
+                    kinematics_new_sample[
                         [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))),
                         :,
-                        int(val),
                     ].T
                 )
 
