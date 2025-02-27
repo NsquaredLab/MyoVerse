@@ -4,6 +4,8 @@ import numpy as np
 from scipy.signal import convolve
 import toml
 
+from myoverse.datasets.filters._template import FilterBaseClass
+
 # Dictionary below is used to define differential filters that can be applied across the monopolar electrode grids
 _DIFFERENTIAL_FILTERS = {
     "identity": np.array([[1]]),  # identity case when no filtering is applied
@@ -21,16 +23,18 @@ _DIFFERENTIAL_FILTERS = {
 }
 
 
-class ElectrodeSelector:
+class ElectrodeSelector(FilterBaseClass):
     def __init__(
         self,
         electrodes_to_select: Optional[List[int]] = None,
         electrode_setup: Optional[Dict[str, Any]] = None,
-        input_is_chunked: bool = False,
+        input_is_chunked: bool = None,
+        is_output: bool = False,
+        name: str = None,
     ):
         """Initialize the class.
 
-        Attributes
+        Parameters
         ----------
         electrodes_to_select : Optional[List[int]]
             List of electrodes to select from the original electrode setup. If None, then the electrode setup must be
@@ -40,7 +44,18 @@ class ElectrodeSelector:
             provided as a list of integers in electrodes_to_select.
         input_is_chunked : bool
             Whether the input is chunked or not.
+        is_output : bool
+            Whether the filter is an output filter.
+        name : str
+            Name of the filter.
         """
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
+        )
+
         if electrode_setup is None:
             # check if electrodes_to_select is a list of integers
             if not all(isinstance(x, int) for x in electrodes_to_select):
@@ -63,9 +78,7 @@ class ElectrodeSelector:
                     " the electrodes to select under the key 'electrodes_to_select' in the 'grid' key."
                 )
 
-        self.input_is_chunked = input_is_chunked
-
-    def __call__(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray) -> np.ndarray:
         """Select the electrodes from the input array."""
         return (
             input_array[:, :, self.electrodes_to_select]
@@ -74,19 +87,21 @@ class ElectrodeSelector:
         )
 
 
-class GridReshaper:
+class GridReshaper(FilterBaseClass):
     def __init__(
         self,
         operation: Literal["c2g", "g2c", "concat"],
         shape: Optional[Tuple[int, int, int]] = None,
         grid_type: Optional[str] = None,
         electrode_setup: Optional[Dict[str, Any]] = None,
-        input_is_chunked: bool = False,
+        input_is_chunked: bool = None,
+        is_output: bool = False,
+        name: str = None,
         **kwargs,
     ):
         """Initialize the class.
 
-        Attributes
+        Parameters
         ----------
         operation : Literal["c2g", "g2c", "concat"]
             Operation to be performed. Can be either "c2g" for channels to grid, "g2c" for grid to channels or
@@ -104,10 +119,19 @@ class GridReshaper:
             in shape and the grid type must be provided as a string in grid_type.
         input_is_chunked : bool
             Whether the input is chunked or not.
+        is_output : bool
+            Whether the filter is an output filter.
+        name : str
+            Name of the filter.
         kwargs : Any
             Additional keyword arguments to be passed to the specific operation.
         """
-        self.input_is_chunked = input_is_chunked
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
+        )
 
         if operation not in ["c2g", "g2c", "concat"]:
             raise ValueError(
@@ -156,7 +180,7 @@ class GridReshaper:
                     " the grid type under the key 'grid_type' in the 'grid' key."
                 )
 
-    def __call__(self, chunk: np.ndarray) -> np.ndarray:
+    def _filter(self, chunk: np.ndarray) -> np.ndarray:
         """Reshape the chunk based on the operation."""
         if self.operation == "c2g":
             return self._channels_to_grid(chunk)
@@ -306,26 +330,37 @@ class GridReshaper:
         )[:, None]
 
 
-class DifferentialSpatialFilter:
-    def __init__(self, filter_name: str, input_is_chunked: bool = False):
+class DifferentialSpatialFilter(FilterBaseClass):
+    def __init__(
+        self, 
+        filter_name: str, 
+        input_is_chunked: bool = None,
+        is_output: bool = False,
+        name: str = None,
+    ):
         """Initialize the class.
 
-        Attributes
+        Parameters
         ----------
         filter_name : str
             Name of the filter to be applied: "LSD", "TSD", "LDD", "TDD", "NDD", "IB2" or "IR". Filters are defined
             according to https://doi.org/10.1109/TBME.2003.808830. In case no filter is applied, use "identity".
         input_is_chunked : bool
             Whether the input is chunked or not.
+        is_output : bool
+            Whether the filter is an output filter.
+        name : str
+            Name of the filter.
         """
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
+        )
         self.filter_name = filter_name
-        self.input_is_chunked = input_is_chunked
 
-    def __call__(self, chunk: np.ndarray) -> np.ndarray:
-        """Apply the differential filter to the chunk."""
-        return self._spatial_filtering(chunk)
-
-    def _spatial_filtering(self, chunk: np.ndarray) -> np.ndarray:
+    def _filter(self, chunk: np.ndarray) -> np.ndarray:
         """This function applies the filters to the chunk."""
         return convolve(
             chunk,
@@ -337,26 +372,41 @@ class DifferentialSpatialFilter:
         ).astype(np.float32)
 
 
-class AveragingSpatialFilter:
-    def __init__(self, chunk: np.ndarray, order: int, filter_direction: str):
+class AveragingSpatialFilter(FilterBaseClass):
+    def __init__(
+        self, 
+        order: int, 
+        filter_direction: str,
+        input_is_chunked: bool = None,
+        is_output: bool = False,
+        name: str = None,
+    ):
         """Initialize the class.
 
-        Attributes
+        Parameters
         ----------
-        chunk : np.ndarray
-            Input EMG array with grid shape to be filtered.
         order : int
             Order of the moving average filter.
         filter_direction : str
             Grid direction over which the filter is applied. Can be either "longitudinal" or "transverse".
+        input_is_chunked : bool
+            Whether the input is chunked or not.
+        is_output : bool
+            Whether the filter is an output filter.
+        name : str
+            Name of the filter.
         """
-        self.chunk = chunk
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
+        )
         self.order = order
         self.filter_direction = filter_direction
 
-    def moving_avg(self):
+    def _filter(self, chunk: np.ndarray) -> np.ndarray:
         """This function applies the moving average filter across the chunk."""
-
         if self.filter_direction == "longitudinal":
             flt_coeff = np.expand_dims(
                 1
@@ -375,23 +425,25 @@ class AveragingSpatialFilter:
             raise ValueError("Averaging direction name not correct.")
 
         # Extend filter dimensions prior to performing a convolution
-        filtered_chunk = convolve(self.chunk, flt_coeff, mode="valid").astype(
+        filtered_chunk = convolve(chunk, flt_coeff, mode="valid").astype(
             np.float32
         )
 
-        self.chunk = filtered_chunk
-        return self.chunk
+        return filtered_chunk
 
 
-class ChannelSelector:
+class ChannelSelector(FilterBaseClass):
     def __init__(
         self,
         grid_position: Optional[List[Tuple[int, int]]] = None,
         electrode_setup: Optional[Dict[str, Any]] = None,
+        input_is_chunked: bool = None,
+        is_output: bool = False,
+        name: str = None,
     ):
         """Initialize the class.
 
-        Attributes
+        Parameters
         ----------
         grid_position : List[Tuple[int, int]]
             List of all grid electrode indexes based on row-column combination. If no channel selection is performed,
@@ -399,7 +451,20 @@ class ChannelSelector:
         electrode_setup : Optional[Dict[str, Any]]
             Dictionary containing the electrode setup to be used. If None, then the grid shape must be provided as a tuple
             in shape and the grid type must be provided as a string in grid_type.
+        input_is_chunked : bool
+            Whether the input is chunked or not.
+        is_output : bool
+            Whether the filter is an output filter.
+        name : str
+            Name of the filter.
         """
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            allowed_input_type="both",
+            is_output=is_output,
+            name=name,
+        )
+        
         if electrode_setup is None:
             if grid_position is None:
                 raise ValueError(
@@ -422,7 +487,7 @@ class ChannelSelector:
                     " the channel selection under the key 'channel_selection'."
                 )
 
-    def __call__(self, chunk: np.ndarray) -> np.ndarray:
+    def _filter(self, chunk: np.ndarray) -> np.ndarray:
         """Select the channels from the input array."""
         if self.grid_position is None or self.grid_position == "all":
             return chunk
@@ -438,24 +503,33 @@ class ChannelSelector:
             return chunk
 
 
-class BraceletDifferential:
-    def __init__(self, input_is_chunked: bool = False):
+class BraceletDifferential(FilterBaseClass):
+    def __init__(
+        self, 
+        input_is_chunked: bool = None, 
+        is_output: bool = False,
+        name: str = None,
+    ):
         """Initialize the class.
 
-        Attributes
+        Parameters
         ----------
         input_is_chunked : bool
             Whether the input is chunked or not.
+        is_output : bool
+            Whether the filter is an output filter.
+        name : str
+            Name of the filter.
         """
-        self.input_is_chunked = input_is_chunked
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            allowed_input_type="both", 
+            is_output=is_output,
+            name=name,
+        )
 
-    def __call__(self, chunk: np.ndarray) -> np.ndarray:
-        """Apply the differential filter to the chunk."""
-        return self._spatial_filtering(chunk)
-
-    def _spatial_filtering(self, chunk: np.ndarray) -> np.ndarray:
+    def _filter(self, chunk: np.ndarray) -> np.ndarray:
         """This function applies the filters to the chunk."""
-
         output = []
         if self.input_is_chunked:
             for representation in range(chunk.shape[0]):
@@ -521,10 +595,14 @@ if __name__ == "__main__":
         emg_data.shape,
     )
 
-    emg_data = ElectrodeSelector(electrode_setup=ELECTRODE_SETUP[emg_setup])(emg_data)
+    # Update the test code to use the new API
+    electrode_selector = ElectrodeSelector(electrode_setup=ELECTRODE_SETUP[emg_setup])
+    emg_data = electrode_selector(emg_data)
+    
     grid_reshaper = GridReshaper(
         electrode_setup=ELECTRODE_SETUP[emg_setup], operation="c2g"
-    )(emg_data)
+    )
+    emg_data = grid_reshaper(emg_data)
 
     print(
         "EMG dataset shape after reshaping from 1D channels array to grid shape",
@@ -532,28 +610,40 @@ if __name__ == "__main__":
     )
 
     if ELECTRODE_SETUP[emg_setup]["concatenate"]:
-        emg_data = grid_reshaper.grid_concatenation(emg_data)
+        # Create a new grid reshaper for concatenation
+        grid_concat_reshaper = GridReshaper(
+            electrode_setup=ELECTRODE_SETUP[emg_setup], operation="concat"
+        )
+        emg_data = grid_concat_reshaper(emg_data)
 
     print("EMG dataset shape after concatenating all grids together", emg_data.shape)
 
-    emg_data = AveragingSpatialFilter(
-        chunk=emg_data, **ELECTRODE_SETUP[emg_setup]["average"]
-    ).moving_avg()
+    # Create a proper filter instance
+    averaging_filter = AveragingSpatialFilter(
+        **ELECTRODE_SETUP[emg_setup]["average"]
+    )
+    emg_data = averaging_filter(emg_data)
 
     print("EMG dataset shape after applying the averaging filter", emg_data.shape)
 
-    emg_data = DifferentialSpatialFilter(
+    differential_filter = DifferentialSpatialFilter(
         filter_name=ELECTRODE_SETUP[emg_setup]["differential"]
-    )(emg_data)
+    )
+    emg_data = differential_filter(emg_data)
 
     print("EMG dataset shape after applying the differential filter", emg_data.shape)
 
     if ELECTRODE_SETUP[emg_setup]["channel_selection"] != "all":
-        emg_data = ChannelSelector(grid_position=ELECTRODE_SETUP[emg_setup])(emg_data)
+        channel_selector = ChannelSelector(electrode_setup=ELECTRODE_SETUP[emg_setup])
+        emg_data = channel_selector(emg_data)
     else:
-        emg_data = grid_reshaper.grid_to_channels(
-            emg_data, concatenated=ELECTRODE_SETUP[emg_setup]["concatenate"]
+        # Create a new grid reshaper for g2c operation
+        g2c_reshaper = GridReshaper(
+            electrode_setup=ELECTRODE_SETUP[emg_setup], 
+            operation="g2c",
+            concatenate=ELECTRODE_SETUP[emg_setup]["concatenate"]
         )
+        emg_data = g2c_reshaper(emg_data)
 
     print(
         "EMG dataset shape after selecting the needed channels and returning to 1D array shape",
