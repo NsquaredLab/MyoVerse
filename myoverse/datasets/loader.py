@@ -54,11 +54,11 @@ class EMGDatasetLoader(L.LightningDataModule):
             input_type=np.float32,
             ground_truth_type=np.float32,
             input_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
-                [IdentityFilter(is_output=True)]
+                [IdentityFilter(is_output=True, input_is_chunked=True)]
             ],
             input_augmentation_probabilities: Sequence[float] = (1,),
             ground_truth_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
-                [IndexDataFilter(indices=(0,), is_output=True)]
+                [IndexDataFilter(indices=(0,), is_output=True, input_is_chunked=True)]
             ],
             ground_truth_augmentation_probabilities: Sequence[float] = (1,),
         ):
@@ -121,14 +121,15 @@ class EMGDatasetLoader(L.LightningDataModule):
             for v in self._emg_data.values():
                 temp = EMGData(v[idx], sampling_frequency=2048)
                 temp.apply_filter_sequence(
-                    input_augmentation_chosen, representation_to_filter="Input"
+                    input_augmentation_chosen, representations_to_filter=["Input"]
                 )
                 input_data.append(list(temp.output_representations.values())[0])
 
             for v in self._ground_truth_data.values():
                 temp = EMGData(np.atleast_2d(v[idx]), sampling_frequency=2048)
                 temp.apply_filter_sequence(
-                    ground_truth_augmentation_chosen, representation_to_filter="Input"
+                    ground_truth_augmentation_chosen,
+                    representations_to_filter=["Input"],
                 )
                 ground_truth_data.append(list(temp.output_representations.values())[0])
 
@@ -146,11 +147,11 @@ class EMGDatasetLoader(L.LightningDataModule):
         ground_truth_type=np.float32,
         ground_truth_name: str = "ground_truth",
         input_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
-            [IdentityFilter(is_output=True)]
+            [IdentityFilter(is_output=True, input_is_chunked=True)]
         ],
         input_augmentation_probabilities: Sequence[float] = (1,),
         ground_truth_augmentation_pipeline: list[list[FilterBaseClass]] = [  # noqa
-            [IndexDataFilter(indices=(0,), is_output=True)]
+            [IndexDataFilter(indices=(0,), is_output=True, input_is_chunked=True)]
         ],
         ground_truth_augmentation_probabilities: Sequence[float] = (1,),
     ):
