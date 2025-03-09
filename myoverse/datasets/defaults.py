@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Sequence
+from typing import Sequence, Optional
 
 import numpy as np
 from scipy.signal import butter
@@ -35,6 +35,10 @@ class EMBCDataset:
         The path to save the dataset to. This should be a zarr file.
     tasks_to_use : Sequence[str], optional
         The tasks to use. The default is EXPERIMENTS_TO_USE.
+    debug : bool, optional
+        Whether to enable debug mode. The default is False.
+    silence_zarr_warnings : bool, optional
+        Whether to silence all Zarr-related warnings, including those from zarr.codecs and zarr.core modules. The default is False.
 
     Methods
     -------
@@ -56,12 +60,14 @@ class EMBCDataset:
         save_path: Path,
         tasks_to_use: Sequence[str] = ("Change Me",),
         debug: bool = False,
+        silence_zarr_warnings: bool = False,
     ):
         self.emg_data_path = emg_data_path
         self.ground_truth_data_path = ground_truth_data_path
         self.save_path = save_path
         self.tasks_to_use = tasks_to_use
         self.debug = debug
+        self.silence_zarr_warnings = silence_zarr_warnings
 
     def create_dataset(self):
         EMGDataset(
@@ -70,42 +76,59 @@ class EMBCDataset:
             sampling_frequency=2048,
             tasks_to_use=self.tasks_to_use,
             save_path=self.save_path,
+            debug_level=1 if self.debug else 0,
+            silence_zarr_warnings=self.silence_zarr_warnings,
             emg_filter_pipeline_after_chunking=[
                 [
-                    IdentityFilter(is_output=True),
+                    IdentityFilter(is_output=True, input_is_chunked=True),
                     SOSFrequencyFilter(
                         sos_filter_coefficients=butter(
                             4, 20, "lowpass", output="sos", fs=2048
                         ),
                         is_output=True,
+                        input_is_chunked=True,
                     ),
                 ]
             ],
-            emg_representations_to_filter_after_chunking=["Last"],
+            emg_representations_to_filter_after_chunking=[["Last"]],
             ground_truth_filter_pipeline_before_chunking=[
                 [
                     ApplyFunctionFilter(
-                        function=np.reshape, name="Reshape", newshape=(63, -1)
+                        function=np.reshape,
+                        name="Reshape",
+                        newshape=(63, -1),
+                        input_is_chunked=False,
                     ),
-                    IndexDataFilter(indices=(slice(3, 63),)),
+                    IndexDataFilter(indices=(slice(3, 63),), input_is_chunked=False),
                 ]
             ],
-            ground_truth_representations_to_filter_before_chunking=["Input"],
+            ground_truth_representations_to_filter_before_chunking=[["Input"]],
             ground_truth_filter_pipeline_after_chunking=[
                 [
                     ApplyFunctionFilter(
-                        function=np.mean, name="Mean", axis=-1, is_output=True
+                        function=np.mean,
+                        name="Mean",
+                        axis=-1,
+                        is_output=True,
+                        input_is_chunked=True,
                     )
                 ]
             ],
-            ground_truth_representations_to_filter_after_chunking=["Last"],
+            ground_truth_representations_to_filter_after_chunking=[["Last"]],
             augmentation_pipelines=[
-                [GaussianNoise(is_output=True)],
-                [MagnitudeWarping(is_output=True, nr_of_grids=5)],
-                [WaveletDecomposition(level=3, is_output=True, nr_of_grids=5)],
+                [GaussianNoise(is_output=True, input_is_chunked=False)],
+                [
+                    MagnitudeWarping(
+                        is_output=True, nr_of_grids=5, input_is_chunked=False
+                    )
+                ],
+                [
+                    WaveletDecomposition(
+                        level=3, is_output=True, nr_of_grids=5, input_is_chunked=False
+                    )
+                ],
             ],
             amount_of_chunks_to_augment_at_once=500,
-            debug=self.debug,
         ).create_dataset()
 
 
@@ -125,6 +148,10 @@ class CastelliniDataset:
         The ground truth data should be of shape (21, 3, samples).
     save_path : Path
         The path to save the dataset to. This should be a zarr file.
+    tasks_to_use : Sequence[str], optional
+        The tasks to use. The default is EXPERIMENTS_TO_USE.
+    silence_zarr_warnings : bool, optional
+        Whether to silence all Zarr-related warnings, including those from zarr.codecs and zarr.core modules. The default is False.
 
     Methods
     -------
@@ -144,18 +171,22 @@ class CastelliniDataset:
         ground_truth_data_path: Path,
         save_path: Path,
         tasks_to_use: Sequence[str] = ("Change Me",),
+        silence_zarr_warnings: bool = False,
     ):
         self.emg_data_path = emg_data_path
         self.ground_truth_data_path = ground_truth_data_path
         self.save_path = save_path
         self.tasks_to_use = tasks_to_use
+        self.silence_zarr_warnings = silence_zarr_warnings
 
     def create_dataset(self):
         EMGDataset(
             emg_data_path=self.emg_data_path,
             ground_truth_data_path=self.ground_truth_data_path,
+            sampling_frequency=2048,
             tasks_to_use=self.tasks_to_use,
             save_path=self.save_path,
+            silence_zarr_warnings=self.silence_zarr_warnings,
             emg_filter_pipeline_before_chunking=[
                 [
                     SOSFrequencyFilter(
