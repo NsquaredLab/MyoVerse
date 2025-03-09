@@ -18,7 +18,7 @@ This example shows how to train a deep learning model using the dataset created 
 from pathlib import Path
 from myoverse.datasets.loader import EMGDatasetLoader
 
-loader = EMGDatasetLoader(Path(r"data/dataset.zarr").resolve(), dataloader_parameters={"batch_size": 16, "drop_last": True})
+loader = EMGDatasetLoader(Path(r"data/dataset_zarr.zip").resolve(), dataloader_parameters={"batch_size": 16, "drop_last": True})
 
 # %%
 # Training the model
