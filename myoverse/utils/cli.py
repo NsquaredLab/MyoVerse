@@ -24,7 +24,10 @@ class ArgParserPlus:
     """
 
     def __init__(
-        self, description: str, advanced: bool = False, arguments: List[Tuple[Sequence[str], Dict[str, Any]]] = None
+        self,
+        description: str,
+        advanced: bool = False,
+        arguments: List[Tuple[Sequence[str], Dict[str, Any]]] = None,
     ):
         self.parser = argparse.ArgumentParser(
             description=description,

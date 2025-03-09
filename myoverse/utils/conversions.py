@@ -45,7 +45,7 @@ def convert_otb_plus_mat_to_pkl(
     output_dir_path: Path | str,
     gt_pkl_file_path: Optional[Path | str] = None,
     gt_fsamp: Optional[float] = None,
-    mat_to_gt_mapping: Optional[dict[str, str| int]] = None,
+    mat_to_gt_mapping: Optional[dict[str, str | int]] = None,
 ) -> None:
     """
     Converts .mat files generated from OTB+ software to pickle files.
@@ -84,9 +84,13 @@ def convert_otb_plus_mat_to_pkl(
 
         if gt_pkl_file_path is not None:
             if mat_to_gt_mapping is None:
-                raise ValueError("mat_to_gt_mapping must be provided when gt_pkl_file_path is provided.")
+                raise ValueError(
+                    "mat_to_gt_mapping must be provided when gt_pkl_file_path is provided."
+                )
             if gt_fsamp is None:
-                raise ValueError("gt_fsamp must be provided when gt_pkl_file_path is provided.")
+                raise ValueError(
+                    "gt_fsamp must be provided when gt_pkl_file_path is provided."
+                )
 
             gt_pkl_file__path = Path(gt_pkl_file_path)
             with gt_pkl_file__path.open("rb") as f:
