@@ -1,8 +1,9 @@
 import copy
 import os
 import pickle
+import inspect
 from abc import abstractmethod
-from typing import Dict, Optional, Sequence, TypedDict, Any, Union, List, Tuple
+from typing import Dict, Optional, TypedDict, Any, Union, List, Tuple, NamedTuple, Final
 
 import mplcursors
 import networkx
@@ -10,24 +11,51 @@ import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
+import matplotlib.patches as patches
 
 from myoverse.datasets.filters._template import FilterBaseClass
+
+
+class DeletedRepresentation(NamedTuple):
+    """Class to hold metadata about deleted representations.
+
+    This stores the shape and dtype of the deleted array. Making it compatible with the numpy array interface.
+
+    Attributes
+    ----------
+    shape : tuple
+        The shape of the deleted array
+    dtype : np.dtype
+        The data type of the deleted array
+    """
+
+    shape: tuple
+    dtype: np.dtype
+
+    def __str__(self) -> str:
+        """String representation of the deleted data."""
+        return str(self.shape)
+
 
 Representation = TypedDict(
     "Representation",
     {"data": np.ndarray, "filter_sequence": List[FilterBaseClass]},
 )
 
-# Add the standalone function at the module level (before any class definitions)
+InputRepresentationName: Final[str] = "Input"
+OutputRepresentationName: Final[str] = "Output"
+LastRepresentationName: Final[str] = "Last"
+
+
 def create_grid_layout(
-    rows: int, 
-    cols: int, 
-    n_electrodes: int = None, 
-    fill_pattern: str = 'row',
-    missing_indices: List[Tuple[int, int]] = None
+    rows: int,
+    cols: int,
+    n_electrodes: int = None,
+    fill_pattern: str = "row",
+    missing_indices: List[Tuple[int, int]] = None,
 ) -> np.ndarray:
     """Creates a grid layout based on specified parameters.
-    
+
     Parameters
     ----------
     rows : int
@@ -35,29 +63,29 @@ def create_grid_layout(
     cols : int
         Number of columns in the grid.
     n_electrodes : int, optional
-        Number of electrodes in the grid. If None, will be set to rows*cols minus 
+        Number of electrodes in the grid. If None, will be set to rows*cols minus
         the number of missing indices. Default is None.
     fill_pattern : str, optional
         Pattern to fill the grid. Options are 'row' (row-wise) or 'column' (column-wise).
         Default is 'row'.
     missing_indices : List[Tuple[int, int]], optional
         List of (row, col) indices that should be left empty (-1). Default is None.
-        
+
     Returns
     -------
     np.ndarray
         2D array representing the grid layout.
-        
+
     Raises
     ------
     ValueError
         If the parameters are invalid.
-        
+
     Examples
     --------
     >>> import numpy as np
     >>> from myoverse.datatypes import create_grid_layout
-    >>> 
+    >>>
     >>> # Create a 4×4 grid with row-wise numbering (0-15)
     >>> grid1 = create_grid_layout(4, 4, fill_pattern='row')
     >>> print(grid1)
@@ -65,7 +93,7 @@ def create_grid_layout(
      [ 4  5  6  7]
      [ 8  9 10 11]
      [12 13 14 15]]
-    >>> 
+    >>>
     >>> # Create a 4×4 grid with column-wise numbering (0-15)
     >>> grid2 = create_grid_layout(4, 4, fill_pattern='column')
     >>> print(grid2)
@@ -73,9 +101,9 @@ def create_grid_layout(
      [ 1  5  9 13]
      [ 2  6 10 14]
      [ 3  7 11 15]]
-    >>> 
+    >>>
     >>> # Create a 3×3 grid with only 8 electrodes (missing bottom-right)
-    >>> grid3 = create_grid_layout(3, 3, 8, 'row', 
+    >>> grid3 = create_grid_layout(3, 3, 8, 'row',
     ...                           missing_indices=[(2, 2)])
     >>> print(grid3)
     [[ 0  1  2]
@@ -84,14 +112,16 @@ def create_grid_layout(
     """
     # Initialize grid with -1 (gaps)
     grid = np.full((rows, cols), -1, dtype=int)
-    
+
     # Process missing indices
     if missing_indices is None:
         missing_indices = []
-    
-    missing_positions = set((r, c) for r, c in missing_indices if 0 <= r < rows and 0 <= c < cols)
+
+    missing_positions = set(
+        (r, c) for r, c in missing_indices if 0 <= r < rows and 0 <= c < cols
+    )
     max_electrodes = rows * cols - len(missing_positions)
-    
+
     # Validate n_electrodes
     if n_electrodes is None:
         n_electrodes = max_electrodes
@@ -100,95 +130,113 @@ def create_grid_layout(
             f"Number of electrodes ({n_electrodes}) exceeds available positions "
             f"({max_electrodes} = {rows}×{cols} - {len(missing_positions)} missing)"
         )
-    
+
     # Fill the grid based on the pattern
     electrode_idx = 0
-    if fill_pattern.lower() == 'row':
+    if fill_pattern.lower() == "row":
         for r in range(rows):
             for c in range(cols):
                 if (r, c) not in missing_positions and electrode_idx < n_electrodes:
                     grid[r, c] = electrode_idx
                     electrode_idx += 1
-    elif fill_pattern.lower() == 'column':
+    elif fill_pattern.lower() == "column":
         for c in range(cols):
             for r in range(rows):
                 if (r, c) not in missing_positions and electrode_idx < n_electrodes:
                     grid[r, c] = electrode_idx
                     electrode_idx += 1
     else:
-        raise ValueError(f"Invalid fill pattern: {fill_pattern}. Use 'row' or 'column'.")
-    
+        raise ValueError(
+            f"Invalid fill pattern: {fill_pattern}. Use 'row' or 'column'."
+        )
+
     return grid
+
 
 class _Data:
     """Base class for all data types.
-    
+
     This class provides common functionality for handling different types of data,
     including maintaining original and processed representations, tracking filters
     applied, and managing data flow.
-    
+
+    Parameters
+    ----------
+    raw_data : np.ndarray
+        The raw data to store.
+    sampling_frequency : float
+        The sampling frequency of the data.
+
     Attributes
     ----------
     sampling_frequency : float
         The sampling frequency of the data.
     input_data : np.ndarray
         The raw input data.
-    processed_representations : Dict[str, np.ndarray] 
+    processed_representations : Dict[str, np.ndarray]
         Dictionary of all processed representations of the data.
+    output_representations : Dict[str, np.ndarray]
+        Dictionary of all output representations of the data.
     is_chunked : Dict[str, bool]
         Dictionary indicating whether each representation is chunked or not.
-        
+    _last_processing_step : str
+        The last processing step applied to the data.
+    _processed_representations : networkx.DiGraph
+        The graph of the processed representations.
+    _filters_used : Dict[str, FilterBaseClass]
+        Dictionary of all filters used in the data. The keys are the names of the filters and the values are the filters themselves.
+    _data : Dict[str, Union[np.ndarray, DeletedRepresentation]]
+        Dictionary of all data. The keys are the names of the representations and the values are
+        either numpy arrays or DeletedRepresentation objects (for representations that have been
+        deleted to save memory but can be regenerated when needed).
+
+    Raises
+    ------
+    ValueError
+        If the sampling frequency is less than or equal to 0.
+
+    Notes
+    -----
+    Memory Management:
+        When representations are deleted with delete_data(), they are replaced with
+        DeletedRepresentation objects that store essential metadata (shape, dtype)
+        but don't consume memory for the actual data. These representations can be
+        automatically recomputed when accessed. The chunking status is determined from
+        the shape when needed.
+
     Examples
     --------
     This is an abstract base class and should not be instantiated directly.
     Instead, use one of the concrete subclasses like EMGData or KinematicsData:
-    
+
     >>> import numpy as np
     >>> from myoverse.datatypes import EMGData
-    >>> 
+    >>>
     >>> # Create sample data
     >>> data = np.random.randn(16, 1000)
     >>> emg = EMGData(data, 2000)  # 2000 Hz sampling rate
-    >>> 
+    >>>
     >>> # Access attributes from the base _Data class
     >>> print(f"Sampling frequency: {emg.sampling_frequency} Hz")
     >>> print(f"Is input data chunked: {emg.is_chunked['Input']}")
     """
-    
+
     def __init__(self, raw_data: np.ndarray, sampling_frequency: float):
-        """Initialize the data object.
-        
-        Parameters
-        ----------
-        raw_data : np.ndarray
-            The raw data to store.
-        sampling_frequency : float
-            The sampling frequency of the data.
-            
-        Raises
-        ------
-        ValueError
-            If the sampling frequency is less than or equal to 0.
-        """
-        self.sampling_frequency = sampling_frequency
+        self.sampling_frequency: float = sampling_frequency
 
         if self.sampling_frequency <= 0:
             raise ValueError("The sampling frequency should be greater than 0.")
 
-        self.__input_representation_name = "Input"
-        self.__output_representation_name = "Output"
-        self.__last_representation_name = "Last"
-
-        self._data: Dict[str, Union[np.ndarray, str]] = {
-            self.__input_representation_name: raw_data,
+        self._data: Dict[str, Union[np.ndarray, DeletedRepresentation]] = {
+            InputRepresentationName: raw_data,
         }
         self._filters_used: Dict[str, FilterBaseClass] = {}
 
-        self._processed_representations = networkx.DiGraph()
-        self._processed_representations.add_node(self.__input_representation_name)
-        self._processed_representations.add_node(self.__output_representation_name)
+        self._processed_representations: networkx.DiGraph = networkx.DiGraph()
+        self._processed_representations.add_node(InputRepresentationName)
+        self._processed_representations.add_node(OutputRepresentationName)
 
-        self.__last_processing_step = self.__input_representation_name
+        self.__last_processing_step: str = InputRepresentationName
 
     @property
     def is_chunked(self) -> Dict[str, bool]:
@@ -199,32 +247,23 @@ class _Data:
         Dict[str, bool]
             A dictionary where the keys are the representations and the values are whether the data is chunked or not.
         """
+        # Create cache if it doesn't exist or if _data might have changed
+        if not hasattr(self, "_chunked_cache") or len(self._chunked_cache) != len(
+            self._data
+        ):
+            self._chunked_cache = {
+                key: self._check_if_chunked(value) for key, value in self._data.items()
+            }
 
-        output = {}
-        for key, value in self._data.items():
-            output[key] = self._check_if_chunked(value)
-
-            # check if key is a "Chunkize" filter or comes after it
-            if (
-                any(
-                    [
-                        "Chunkize" in x
-                        for x in self._processed_representations.predecessors(key)
-                    ]
-                )
-                or "Chunkize" in key
-            ):
-                output[key] = True
-
-        return output
+        return self._chunked_cache
 
     @abstractmethod
-    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : Union[np.ndarray, str]
+        data : Union[np.ndarray, DeletedRepresentation]
             The data to check.
 
         Returns
@@ -239,7 +278,7 @@ class _Data:
     @property
     def input_data(self) -> np.ndarray:
         """Returns the input data."""
-        return self._data[self.__input_representation_name]
+        return self._data[InputRepresentationName]
 
     @input_data.setter
     def input_data(self, value: np.ndarray):
@@ -257,17 +296,11 @@ class _Data:
     @property
     def output_representations(self) -> Dict[str, np.ndarray]:
         """Returns the output representations of the data."""
-
-        return {
-            key: value
-            for key, value in self._data.items()
-            if key
-            in list(
-                self._processed_representations.predecessors(
-                    self.__output_representation_name
-                )
-            )
-        }
+        # Convert to set for faster lookups
+        output_nodes = set(
+            self._processed_representations.predecessors(OutputRepresentationName)
+        )
+        return {key: value for key, value in self._data.items() if key in output_nodes}
 
     @output_representations.setter
     def output_representations(self, value: Dict[str, Representation]):
@@ -307,110 +340,328 @@ class _Data:
 
     def plot_graph(self):
         """Draws the graph of the processed representations."""
-        pos = nx.spectral_layout(self._processed_representations)
+        # Use spectral layout but with enhancements for better flow
+        G = self._processed_representations
 
-        # if the output node is more to the left than the input node, flip the graph
-        if (
-            pos[self.__output_representation_name][0]
-            < pos[self.__input_representation_name][0]
-        ):
-            pos = {k: (-v[0], v[1]) for k, v in pos.items()}
+        # Initial layout using spectral positioning
+        pos = nx.spectral_layout(G)
 
-        _, ax = plt.subplots()
+        # Always position input node on the left and output node on the right
+        min_x = min(p[0] for p in pos.values())
+        max_x = max(p[0] for p in pos.values())
 
-        # color the raw and output nodes differently
-        node_colors = []
-        for node in self._processed_representations.nodes:
-            if node == self.__input_representation_name:
-                node_colors.append("red")
-            elif node == self.__output_representation_name:
-                node_colors.append("green")
-            elif isinstance(self._data[node], str):
-                node_colors.append("black")
-            else:
-                node_colors.append("blue")
-
-        # number the nodes and add the labels
-        nx.draw_networkx_labels(
-            self._processed_representations,
-            pos,
-            labels={
-                node: str(index)
-                for index, node in enumerate(
-                    [
-                        x
-                        for x in self._processed_representations.nodes
-                        if x != self.__output_representation_name
-                    ]
-                )
-            },
-            ax=ax,
-            font_color="white",
-            font_size=18,
-        )
-
-        nx.draw(
-            self._processed_representations,
-            pos=pos,
-            node_color=node_colors,
-            ax=ax,
-            alpha=0.5,
-            with_labels=False,  # Disable labels here,
-            node_size=1000,
-        )
-
-        # Add interactive labels with mplcursors
-        cursor = mplcursors.cursor(ax.collections[0], hover=True)
-
-        def on_hover(sel):
-            hovered_node_name = str(
-                list(self._processed_representations.nodes)[sel.index]
+        # Normalize x positions to ensure full range is used
+        for node in pos:
+            pos[node][0] = (
+                (pos[node][0] - min_x) / (max_x - min_x) if max_x != min_x else 0.5
             )
 
-            annotation = hovered_node_name
-            annotation += "\n\n"
+        # Force input/output node positions
+        pos[InputRepresentationName][0] = 0.0  # Left edge
+        pos[OutputRepresentationName][0] = 1.0  # Right edge
 
-            # add whether the node needs to be recomputed
-            need_recompute = False
-            if hovered_node_name != self.__output_representation_name:
-                if isinstance(self._data[hovered_node_name], str):
-                    need_recompute = True
-                    annotation += "needs to be\nrecomputed\n\n"
+        # Apply gentle force-directed adjustments to improve layout
+        # without completely changing the spectral positioning
+        for _ in range(20):
+            # Store current positions
+            old_pos = {n: p.copy() for n, p in pos.items()}
 
-            # add info whether the node is chunked or not
-            annotation += "chunked: "
-            if hovered_node_name != self.__output_representation_name:
-                annotation += str(self.is_chunked[hovered_node_name])
+            for node in G.nodes():
+                if node in [InputRepresentationName, OutputRepresentationName]:
+                    continue  # Skip fixed nodes
+
+                # Get node neighbors
+                neighbors = list(G.neighbors(node))
+                if not neighbors:
+                    continue
+
+                # Calculate average position of neighbors, weighted by in/out direction
+                pred_force = np.zeros(2)
+                succ_force = np.zeros(2)
+
+                # Predecessors pull left
+                predecessors = list(G.predecessors(node))
+                if predecessors:
+                    pred_force = (
+                        np.mean([old_pos[p] for p in predecessors], axis=0)
+                        - old_pos[node]
+                    )
+                    # Scale down x-force to maintain left-to-right flow
+                    pred_force[0] *= 0.1
+
+                # Successors pull right
+                successors = list(G.successors(node))
+                if successors:
+                    succ_force = (
+                        np.mean([old_pos[s] for s in successors], axis=0)
+                        - old_pos[node]
+                    )
+                    # Scale down x-force to maintain left-to-right flow
+                    succ_force[0] *= 0.1
+
+                # Apply force (weighted more toward maintaining x position)
+                force = pred_force + succ_force
+                pos[node] += 0.1 * force
+
+                # Maintain x position within 0-1 range
+                pos[node][0] = max(0.05, min(0.95, pos[node][0]))
+
+        # Final left-to-right check - ensure proper flow
+        # Sort nodes by x position
+        sorted_nodes = sorted(
+            [
+                (n, p[0])
+                for n, p in pos.items()
+                if n not in [InputRepresentationName, OutputRepresentationName]
+            ],
+            key=lambda x: x[1],
+        )
+
+        # Get topological sort of nodes (processing order)
+        try:
+            topo_sort = list(nx.topological_sort(G))
+            # Remove input and output nodes from the sort
+            topo_sort = [
+                n
+                for n in topo_sort
+                if n not in [InputRepresentationName, OutputRepresentationName]
+            ]
+
+            # Adjust positions of nodes that are out of order
+            for i in range(len(sorted_nodes) - 1):
+                node1, x1 = sorted_nodes[i]
+                node2, x2 = sorted_nodes[i + 1]
+
+                # Check if these nodes are in the wrong order according to topology
+                if topo_sort.index(node1) > topo_sort.index(node2):
+                    # Swap x positions (with small separation)
+                    mean_x = (x1 + x2) / 2
+                    pos[node1][0] = mean_x - 0.02
+                    pos[node2][0] = mean_x + 0.02
+        except:
+            # If topological sort fails, don't try to fix order
+            pass
+
+        # Create the figure and axis with a larger size for better visualization
+        plt.figure(figsize=(14, 10))
+        ax = plt.gca()
+
+        # Create dictionaries for node attributes
+        node_colors = {}
+        node_sizes = {}
+        node_shapes = {}
+
+        # Set attributes based on node type
+        for node in G.nodes():
+            if node == InputRepresentationName:
+                node_colors[node] = "crimson"
+                node_sizes[node] = 1500
+                node_shapes[node] = "o"  # Circle
+            elif node == OutputRepresentationName:
+                node_colors[node] = "forestgreen"
+                node_sizes[node] = 1500
+                node_shapes[node] = "o"  # Circle
+            elif isinstance(self._data[node], DeletedRepresentation):
+                node_colors[node] = "dimgray"
+                node_sizes[node] = 1200
+                node_shapes[node] = "o"  # Square for deleted representations
             else:
-                annotation += "(see previous node(s))"
+                node_colors[node] = "royalblue"
+                node_sizes[node] = 1200
+                node_shapes[node] = "o"  # Circle
 
-            # add shape information to the annotation
-            annotation += "\n" + "shape: "
-            if hovered_node_name != self.__output_representation_name:
-                if not need_recompute:
-                    annotation += str(self._data[hovered_node_name].shape)
-                else:
-                    annotation += self._data[hovered_node_name]
+        # Group nodes by shape for drawing
+        node_groups = {}
+        for shape in set(node_shapes.values()):
+            node_groups[shape] = [node for node, s in node_shapes.items() if s == shape]
+
+        # Draw each group of nodes with the correct shape
+        drawn_nodes = {}
+        for shape, nodes in node_groups.items():
+            if not nodes:
+                continue
+
+            # Create lists of node properties
+            node_list = nodes
+            color_list = [node_colors[node] for node in node_list]
+            size_list = [node_sizes[node] for node in node_list]
+
+            # Draw nodes with the current shape
+            if shape == "o":  # Circle
+                drawn_nodes[shape] = nx.draw_networkx_nodes(
+                    G,
+                    pos,
+                    nodelist=node_list,
+                    node_color=color_list,
+                    node_size=size_list,
+                    alpha=0.8,
+                    ax=ax,
+                )
+            elif shape == "s":  # Square
+                drawn_nodes[shape] = nx.draw_networkx_nodes(
+                    G,
+                    pos,
+                    nodelist=node_list,
+                    node_color=color_list,
+                    node_size=size_list,
+                    node_shape="s",
+                    alpha=0.8,
+                    ax=ax,
+                )
+
+            # Set z-order for nodes
+            if drawn_nodes[shape] is not None:
+                drawn_nodes[shape].set_zorder(1)
+
+        # Draw node labels with different colors based on node type
+        label_objects = {}
+
+        # Labels for all nodes (numbers), excluding output node
+        node_labels = {
+            node: str(index)
+            for index, node in enumerate(
+                [x for x in G.nodes if x != OutputRepresentationName]
+            )
+        }
+
+        label_objects["nodes"] = nx.draw_networkx_labels(
+            G, pos, labels=node_labels, font_size=18, font_color="white", ax=ax
+        )
+
+        # Set z-order for all labels
+        for label_group in label_objects.values():
+            for text in label_group.values():
+                text.set_zorder(3)
+
+        # Create edge styles based on connection type
+        edge_styles = []
+        edge_colors = []
+        edge_widths = []
+
+        for u, v in G.edges():
+            # Define edge properties based on connection type
+            if u == InputRepresentationName:
+                edge_colors.append("crimson")  # Input connections
+                edge_widths.append(2.0)
+                edge_styles.append("solid")
+            elif v == OutputRepresentationName:
+                edge_colors.append("forestgreen")  # Output connections
+                edge_widths.append(2.0)
+                edge_styles.append("solid")
             else:
-                annotation += "(see previous node(s))"
+                edge_colors.append("dimgray")  # Intermediate connections
+                edge_widths.append(1.5)
+                edge_styles.append("solid")
 
-            sel.annotation.set_text(annotation)
-            sel.annotation.get_bbox_patch().set(
-                fc="white", alpha=0.8
-            )  # Background color
-            sel.annotation.set_fontsize(12)  # Font size
-            sel.annotation.set_fontstyle("italic")
+        # Draw all edges with the defined styles
+        edges = nx.draw_networkx_edges(
+            G,
+            pos,
+            ax=ax,
+            edge_color=edge_colors,
+            width=edge_widths,
+            arrowstyle="-|>",
+            arrowsize=20,
+            connectionstyle="arc3,rad=0.2",  # Slightly increased curve for better visibility
+            alpha=0.8,
+        )
 
-        cursor.connect("add", on_hover)
+        # Set z-order for edges to be above nodes
+        if isinstance(edges, list):
+            for edge_collection in edges:
+                edge_collection.set_zorder(2)
+        elif edges is not None:
+            edges.set_zorder(2)
 
-        plt.margins(0.4)
+        # Add hover functionality for interactive exploration
+        # Combine all node collections for the hover effect
+        all_node_collections = [
+            collection for collection in drawn_nodes.values() if collection is not None
+        ]
+
+        if all_node_collections:
+            # Initialize the cursor without the hover behavior first
+            cursor = mplcursors.cursor(all_node_collections, hover=True)
+
+            # Map to keep track of the nodes for each collection
+            node_collection_map = {}
+            for shape, collection in drawn_nodes.items():
+                if collection is not None:
+                    node_collection_map[collection] = node_groups[shape]
+
+            def on_hover(sel):
+                try:
+                    # Get the artist (the PathCollection) and index within that collection
+                    artist = sel.artist
+                    idx = sel.index
+
+                    # Look up which nodes correspond to this artist
+                    if artist in node_collection_map and idx < len(
+                        node_collection_map[artist]
+                    ):
+                        hovered_node_name = node_collection_map[artist][idx]
+                    else:
+                        hovered_node_name = "Unknown Node"
+
+                    annotation = hovered_node_name
+                    annotation += "\n\n"
+
+                    # add whether the node needs to be recomputed
+                    if (
+                        hovered_node_name != OutputRepresentationName
+                        and hovered_node_name in self._data
+                    ):
+                        data = self._data[hovered_node_name]
+                        if isinstance(data, DeletedRepresentation):
+                            annotation += "needs to be\nrecomputed\n\n"
+
+                    # add info whether the node is chunked or not
+                    annotation += "chunked: "
+                    if (
+                        hovered_node_name != OutputRepresentationName
+                        and hovered_node_name in self.is_chunked
+                    ):
+                        annotation += str(self.is_chunked[hovered_node_name])
+                    else:
+                        annotation += "(see previous node(s))"
+
+                    # add shape information to the annotation
+                    annotation += "\n" + "shape: "
+                    if (
+                        hovered_node_name != OutputRepresentationName
+                        and hovered_node_name in self._data
+                    ):
+                        data = self._data[hovered_node_name]
+                        if isinstance(data, np.ndarray):
+                            annotation += str(data.shape)
+                        elif isinstance(data, DeletedRepresentation):
+                            annotation += str(data.shape)
+                    else:
+                        annotation += "(see previous node(s))"
+
+                    sel.annotation.set_text(annotation)
+                    sel.annotation.get_bbox_patch().set(
+                        fc="white", alpha=0.9
+                    )  # Background color
+                    sel.annotation.set_fontsize(12)  # Font size
+                    sel.annotation.set_fontstyle("italic")
+                except Exception as e:
+                    # If any error occurs, show a simplified annotation
+                    sel.annotation.set_text(f"Error: {str(e)}")
+
+            cursor.connect("add", on_hover)
+
+        # Improve visual appearance
+        plt.grid(False)
+        plt.axis("off")
+        plt.margins(0.15)
         plt.tight_layout()
         plt.show()
 
     def apply_filter(
         self,
         filter: FilterBaseClass,
-        representation_to_filter: str,
+        representations_to_filter: list[str] | None = None,
         keep_representation_to_filter: bool = True,
     ) -> str:
         """Applies a filter to the data.
@@ -419,97 +670,156 @@ class _Data:
         ----------
         filter : callable
             The filter to apply.
-        representation_to_filter : str
-            The representation to filter.
+        representations_to_filter : list[str], optional
+            A list of representations to filter. The filter is responsible for handling
+            the appropriate number of inputs or raising an error if incompatible.
+            If None, creates an empty list.
         keep_representation_to_filter : bool
-            Whether to keep the representation to filter or not.
-            If the representation to filter is "raw", this parameter is ignored.
+            Whether to keep the representation(s) to filter or not.
+            If the representation to filter is "Input", this parameter is ignored.
 
         Returns
         -------
         str
             The name of the representation after applying the filter.
+
+        Raises
+        ------
+        ValueError
+            If representations_to_filter is a string instead of a list
         """
         representation_name = filter.name
 
-        # check if the representation to filter is the last representation
-        # if so, we can use the last processing step as the representation to filter
-        if representation_to_filter == self.__last_representation_name:
-            representation_to_filter = self._last_processing_step
-
-        # check if the representation to filter exists
-        # if not add a node to the graph and an edge from the representation to filter to the representation to add
-        if representation_to_filter not in self._processed_representations:
-            self._processed_representations.add_node(representation_name)
-        if not self._processed_representations.has_edge(
-            representation_to_filter, representation_name
-        ):
-            self._processed_representations.add_edge(
-                representation_to_filter, representation_name
+        # Ensure representations_to_filter is a list, not a string
+        if isinstance(representations_to_filter, str):
+            raise ValueError(
+                f"representations_to_filter must be a list, not a string. "
+                f"Use ['{representations_to_filter}'] instead of '{representations_to_filter}'."
             )
+
+        # If representations_to_filter is None, create an empty list
+        if representations_to_filter is None:
+            representations_to_filter = []
+
+        # Replace LastRepresentationName with the actual last processing step
+        representations_to_filter = [
+            self._last_processing_step if rep == LastRepresentationName else rep
+            for rep in representations_to_filter
+        ]
+
+        # Add edges to the graph for all input representations
+        for rep in representations_to_filter:
+            if rep not in self._processed_representations:
+                self._processed_representations.add_node(representation_name)
+            # add edge from the representation to filter to the new representation if it doesn't exist yet
+            if not self._processed_representations.has_edge(rep, representation_name):
+                self._processed_representations.add_edge(rep, representation_name)
+
+        # Get the data for each representation
+        input_arrays = [self[rep] for rep in representations_to_filter]
+
+        # If there's only one input, pass it directly; otherwise pass the list
+        # This maintains backward compatibility with existing filters
+        if len(input_arrays) == 1:
+            filtered_data = filter(input_arrays[0])
+        else:
+            filtered_data = filter(input_arrays)
+
+        # Store the filtered data
+        self._data[representation_name] = filtered_data
 
         # check if the filter is going to be an output
         # if so, add an edge from the representation to add to the output node
         if filter.is_output:
             self._processed_representations.add_edge(
-                representation_name, self.__output_representation_name
+                representation_name, OutputRepresentationName
             )
 
         # save the used filter
         self._filters_used[representation_name] = filter
 
-        # set the input_is_chunked parameter if it is not set by looking at the representation to filter
-        if filter.input_is_chunked is None:
-            filter.input_is_chunked = self.is_chunked[representation_to_filter]
-
-        # apply the filter
-        self._data[representation_name] = filter(self[representation_to_filter])
-
-        # remove the representation to filter if needed
-        if not keep_representation_to_filter:
-            self.delete_data(representation_to_filter)
-
         # set the last processing step
         self._last_processing_step = representation_name
+
+        # remove the representations to filter if needed
+        if keep_representation_to_filter is False:
+            for rep in representations_to_filter:
+                if (
+                    rep != InputRepresentationName
+                ):  # Never delete the raw representation
+                    self.delete_data(rep)
 
         return representation_name
 
     def apply_filter_sequence(
         self,
         filter_sequence: List[FilterBaseClass],
-        representation_to_filter: str,
+        representations_to_filter: List[str] | None = None,
         keep_individual_filter_steps: bool = True,
         keep_representation_to_filter: bool = True,
-    ):
-        """Applies a sequence of filters to the data.
+    ) -> str:
+        """Applies a sequence of filters to the data sequentially.
 
         Parameters
         ----------
         filter_sequence : list[FilterBaseClass]
             The sequence of filters to apply.
-        representation_to_filter : str
-            The representation to filter.
+        representations_to_filter : List[str], optional
+            A list of representations to filter for the first filter in the sequence.
+            Each filter is responsible for validating and handling its inputs appropriately.
+            For subsequent filters in the sequence, the output of the previous filter is used.
         keep_individual_filter_steps : bool
             Whether to keep the results of each filter or not.
         keep_representation_to_filter : bool
-            Whether to keep the representation to filter or not.
-            If the representation to filter is "raw", this parameter is ignored.
+            Whether to keep the representation(s) to filter or not.
+            If the representation to filter is "Input", this parameter is ignored.
+
+        Returns
+        -------
+        str
+            The name of the last representation after applying all filters.
 
         Raises
         ------
         ValueError
-            If no filters were provided.
+            If filter_sequence is empty.
+            If representations_to_filter is empty.
+            If representations_to_filter is a string instead of a list.
         """
-        # check if there are any filters
         if len(filter_sequence) == 0:
-            raise ValueError("No filters were provided.")
+            raise ValueError("filter_sequence cannot be empty.")
 
-        what_to_filter = representation_to_filter
-        for f in filter_sequence:
+        # Ensure representations_to_filter is a list, not a string
+        if isinstance(representations_to_filter, str):
+            raise ValueError(
+                f"representations_to_filter must be a list, not a string. "
+                f"Use ['{representations_to_filter}'] instead of '{representations_to_filter}'."
+            )
+
+        # If representations_to_filter is None, create an empty list
+        if representations_to_filter is None:
+            representations_to_filter = []
+
+        # Replace LastRepresentationName with the actual last processing step
+        representations_to_filter = [
+            self._last_processing_step if rep == LastRepresentationName else rep
+            for rep in representations_to_filter
+        ]
+
+        # Apply the first filter with the provided representations
+        what_to_filter = self.apply_filter(
+            filter=filter_sequence[0],
+            representations_to_filter=representations_to_filter,
+            keep_representation_to_filter=True,  # We'll handle this at the end
+        )
+
+        # Apply subsequent filters in sequence (each using the output of the previous filter)
+        for f in filter_sequence[1:]:
+            # Convert the string result to a list for the next filter
             what_to_filter = self.apply_filter(
                 filter=f,
-                representation_to_filter=what_to_filter,
-                keep_representation_to_filter=True,
+                representations_to_filter=[what_to_filter],
+                keep_representation_to_filter=True,  # Always keep intermediate results until the end
             )
 
         # remove the individual filter steps if needed. The last step is always kept
@@ -519,12 +829,18 @@ class _Data:
 
         # remove the representation to filter if needed
         if not keep_representation_to_filter:
-            self.delete_data(representation_to_filter)
+            for rep in representations_to_filter:
+                if (
+                    rep != InputRepresentationName
+                ):  # Never delete the input representation
+                    self.delete_data(rep)
+
+        return what_to_filter
 
     def apply_filter_pipeline(
         self,
         filter_pipeline: List[List[FilterBaseClass]],
-        representations_to_filter: List[str],
+        representations_to_filter: List[List[str]],
         keep_individual_filter_steps: bool = True,
         keep_representation_to_filter: bool = True,
     ):
@@ -533,48 +849,125 @@ class _Data:
         Parameters
         ----------
         filter_pipeline : list[list[FilterBaseClass]]
-            The pipeline of filters to apply.
-        representations_to_filter : list[str]
-            The representations to filter.
-            .. note :: The length of the representations to filter should be the same as the length of the filter pipeline.
+            The pipeline of filters to apply. Each inner list represents a branch of filters.
+        representations_to_filter : list[list[str]]
+            A list of input representations for each branch. Each element corresponds to
+            a branch in the filter_pipeline and must be:
+            - A list with a single string for standard branches that take one input
+            - A list with multiple strings for branches starting with a multi-input filter
+            - An empty list is not allowed unless the filter explicitly accepts no input
+
+            .. note :: The length of the representations_to_filter should be the same as
+                      the length of the amount of branches in the filter_pipeline.
         keep_individual_filter_steps : bool
             Whether to keep the results of each filter or not.
         keep_representation_to_filter : bool
-            Whether to keep the representation to filter or not.
-            If the representation to filter is "raw", this parameter is ignored.
+            Whether to keep the representation(s) to filter or not.
+            If the representation to filter is "Input", this parameter is ignored.
 
         Raises
         ------
         ValueError
-            If the number of filters and representations to filter is different.
+            If the number of filter branches and representations to filter is different.
+            If a standard filter is provided with multiple representations.
+            If no representations are provided for a filter that requires input.
+            If any representations_to_filter element is a string instead of a list.
+
+        Examples
+        --------
+        >>> # Example of a pipeline with both standard and merging branches
+        >>> from myoverse.datatypes import EMGData
+        >>> from myoverse.datasets.filters.generic import ApplyFunctionFilter, MergeFilter
+        >>> import numpy as np
+        >>>
+        >>> # Create sample data
+        >>> data = EMGData(np.random.rand(10, 8), sampling_frequency=1000)
+        >>>
+        >>> # Define filter branches
+        >>> branch1 = [ApplyFunctionFilter(function=np.abs, name="absolute_values")]
+        >>> branch2 = [ApplyFunctionFilter(function=lambda x: x**2, name="squared_values")]
+        >>> # Merging branch that combines the outputs of branch1 and branch2
+        >>> branch3 = [MergeFilter(
+        >>>     mode='concatenate',
+        >>>     axis=1,
+        >>>     name="merged_features"
+        >>> )]
+        >>>
+        >>> # Apply pipeline with standard branches and a merging branch
+        >>> data.apply_filter_pipeline(
+        >>>     filter_pipeline=[branch1, branch2, branch3],
+        >>>     representations_to_filter=[
+        >>>         ["input_data"],  # Single input as a list with one string
+        >>>         ["input_data"],  # Single input as a list with one string
+        >>>         ["absolute_values", "squared_values"]  # Multiple inputs as a list of strings
+        >>>     ],
+        >>> )
+        >>>
+        >>> # The merged result is now available as "merged_features" representation
+        >>> merged_features = data["merged_features"]
         """
         if len(filter_pipeline) == 0:
             return
 
         if len(filter_pipeline) != len(representations_to_filter):
             raise ValueError(
-                "The number of filters and representations to filter should be the same."
+                f"The number of filter branches ({len(filter_pipeline)}) and "
+                f"representations to filter ({len(representations_to_filter)}) must be the same."
             )
 
-        for filter_sequence, representation_to_filter in zip(
-            filter_pipeline, representations_to_filter
+        # Ensure all elements in representations_to_filter are lists, not strings
+        for branch_idx, branch_inputs in enumerate(representations_to_filter):
+            if isinstance(branch_inputs, str):
+                raise ValueError(
+                    f"Element {branch_idx} of representations_to_filter is a string ('{branch_inputs}'), "
+                    f"but must be a list. Use ['{branch_inputs}'] instead."
+                )
+            if branch_inputs is None:
+                raise ValueError(
+                    f"Element {branch_idx} of representations_to_filter is None, "
+                    f"but must be a list. Use an empty list [] for filters that do not require input."
+                )
+
+            # Replace LastRepresentationName with the actual last processing step in each branch input
+            representations_to_filter[branch_idx] = [
+                self._last_processing_step if rep == LastRepresentationName else rep
+                for rep in branch_inputs
+            ]
+
+        # Collect intermediates to delete after all branches are processed
+        intermediates_to_delete = []
+
+        # Process each branch without deleting intermediates
+        for branch_idx, (filter_sequence, branch_inputs) in enumerate(
+            zip(filter_pipeline, representations_to_filter)
         ):
-            self.apply_filter_sequence(
-                filter_sequence=filter_sequence,
-                representation_to_filter=representation_to_filter,
-                keep_individual_filter_steps=keep_individual_filter_steps,
-                keep_representation_to_filter=keep_representation_to_filter,
-            )
+            try:
+                # Modified to collect intermediates to delete but not delete yet
+                if not keep_individual_filter_steps:
+                    for f in filter_sequence[:-1]:
+                        intermediates_to_delete.append(f.name)
 
-        # remove the representation to filter if needed
-        if not keep_representation_to_filter:
-            self.delete_data(representations_to_filter[-1])
+                # Apply filter sequence without deleting intermediates
+                self.apply_filter_sequence(
+                    filter_sequence=filter_sequence,
+                    representations_to_filter=branch_inputs,
+                    keep_individual_filter_steps=True,  # Always keep during processing
+                    keep_representation_to_filter=keep_representation_to_filter,
+                )
+            except ValueError as e:
+                # Enhance error message with branch information
+                raise ValueError(
+                    f"Error in branch {branch_idx + 1}/{len(filter_pipeline)}: {str(e)}"
+                ) from e
 
-        # remove the individual filter steps if needed. The last step is always kept
+        # After all branches are processed, delete collected intermediates if needed
         if not keep_individual_filter_steps:
-            for filter_sequence in filter_pipeline:
-                for f in filter_sequence[:-1]:
-                    self.delete_data(f.name)
+            for name in set(intermediates_to_delete):  # Use set to avoid duplicates
+                try:
+                    self.delete_data(name)
+                except KeyError:
+                    # If already deleted or doesn't exist, just continue
+                    pass
 
     def get_representation_history(self, representation: str) -> List[str]:
         """Returns the history of a representation.
@@ -592,47 +985,68 @@ class _Data:
         return list(
             nx.shortest_path(
                 self._processed_representations,
-                self.__input_representation_name,
+                InputRepresentationName,
                 representation,
             )
         )
 
     def __repr__(self) -> str:
-        representation = (
-            f"{self.__class__.__name__}; "
-            f"Sampling frequency: {self.sampling_frequency} Hz; (0) Input {self.input_data.shape}"
-        )
+        # Get input data shape directly from _data dictionary to avoid copying
+        input_shape = self._data[InputRepresentationName].shape
 
-        if len(self._processed_representations.nodes) < 3:
-            return representation
+        # Build a structured string representation
+        lines = []
+        lines.append(f"{self.__class__.__name__}")
+        lines.append(f"Sampling frequency: {self.sampling_frequency} Hz")
+        lines.append(f"(0) Input {input_shape}")
 
-        representation += "; Filter(s): "
+        if len(self._processed_representations.nodes) >= 3:
+            # Add an empty line for spacing between input and filters
+            lines.append("")
+            lines.append("Filter(s):")
 
-        representation_indices = {
-            key: index for index, key in enumerate(self._filters_used.keys())
-        }
+            # Create mapping of representation to index only if needed
+            if self._filters_used:
+                representation_indices = {
+                    key: index for index, key in enumerate(self._filters_used.keys())
+                }
 
-        for filter_index, (filter_name, filter_representation) in enumerate(
-            self._data.items()
-        ):
-            if filter_name == self.__input_representation_name:
-                continue
+                # Precompute output predecessors for faster lookup
+                output_predecessors = set(
+                    self._processed_representations.predecessors(
+                        OutputRepresentationName
+                    )
+                )
 
-            history = self.get_representation_history(filter_name)
-            history = " -> ".join(
-                [str(representation_indices[rep] + 1) for rep in history[1:]]
-            )
+                for filter_index, (filter_name, filter_representation) in enumerate(
+                    self._data.items()
+                ):
+                    if filter_name == InputRepresentationName:
+                        continue
 
-            representation += (
-                f"({filter_index} | " + history + ") "
-                f"{'(Output) ' if filter_name in self._processed_representations.predecessors('Output') else ''}"
-                f"{filter_name} "
-                f"{filter_representation.shape if not isinstance(filter_representation, str) else filter_representation}; "
-            )
+                    # Get history and format it more efficiently
+                    history = self.get_representation_history(filter_name)
+                    history_str = " -> ".join(
+                        str(representation_indices[rep] + 1) for rep in history[1:]
+                    )
 
-        representation = representation[:-2]
+                    # Build filter representation string
+                    is_output = filter_name in output_predecessors
+                    shape_str = (
+                        filter_representation.shape
+                        if not isinstance(filter_representation, str)
+                        else filter_representation
+                    )
 
-        return representation
+                    filter_str = f"({filter_index} | {history_str}) "
+                    if is_output:
+                        filter_str += "(Output) "
+                    filter_str += f"{filter_name} {shape_str}"
+
+                    lines.append(filter_str)
+
+        # Join all parts with newlines
+        return "\n".join(lines)
 
     def __str__(self) -> str:
         return (
@@ -644,12 +1058,12 @@ class _Data:
         )
 
     def __getitem__(self, key: str) -> np.ndarray:
-        if key == self.__input_representation_name:
+        if key == InputRepresentationName:
             # Use array.view() for more efficient copying when possible
             data = self.input_data
             return data.view() if data.flags.writeable else data.copy()
 
-        if key == self.__last_representation_name:
+        if key == LastRepresentationName:
             return self[self._last_processing_step]
 
         if key not in self._processed_representations:
@@ -657,7 +1071,7 @@ class _Data:
 
         data_to_return = self._data[key]
 
-        if isinstance(data_to_return, str):
+        if isinstance(data_to_return, DeletedRepresentation):
             print(f'Recomputing representation "{key}"')
 
             history = self.get_representation_history(key)
@@ -665,7 +1079,7 @@ class _Data:
                 filter_sequence=[
                     self._filters_used[filter_name] for filter_name in history[1:]
                 ],
-                representation_to_filter=history[0],
+                representations_to_filter=[history[0]],
             )
 
         # Use view when possible for more efficient memory usage
@@ -680,17 +1094,18 @@ class _Data:
     def delete_data(self, representation_to_delete: str):
         """Delete data from a representation while keeping its metadata.
 
-        This replaces the actual numpy array with a string representation of its shape,
-        saving memory while allowing regeneration when needed.
+        This replaces the actual numpy array with a DeletedRepresentation object
+        that contains metadata about the array, saving memory while allowing
+        regeneration when needed.
 
         Parameters
         ----------
         representation_to_delete : str
             The representation to delete the data from.
         """
-        if representation_to_delete == self.__input_representation_name:
+        if representation_to_delete == InputRepresentationName:
             return
-        if representation_to_delete == self.__last_representation_name:
+        if representation_to_delete == LastRepresentationName:
             self.delete_data(self._last_processing_step)
             return
 
@@ -699,9 +1114,10 @@ class _Data:
                 f'The representation "{representation_to_delete}" does not exist.'
             )
 
-        if isinstance(self._data[representation_to_delete], np.ndarray):
-            self._data[representation_to_delete] = str(
-                self._data[representation_to_delete].shape
+        data = self._data[representation_to_delete]
+        if isinstance(data, np.ndarray):
+            self._data[representation_to_delete] = DeletedRepresentation(
+                shape=data.shape, dtype=data.dtype
             )
 
     def delete_history(self, representation_to_delete: str):
@@ -712,9 +1128,9 @@ class _Data:
         representation_to_delete : str
             The representation to delete the history for.
         """
-        if representation_to_delete == self.__input_representation_name:
+        if representation_to_delete == InputRepresentationName:
             return
-        if representation_to_delete == self.__last_representation_name:
+        if representation_to_delete == LastRepresentationName:
             self.delete_history(self._last_processing_step)
             return
 
@@ -745,15 +1161,41 @@ class _Data:
         _Data
             A shallow copy of the instance.
         """
+        # Create a new instance with the basic initialization
         new_instance = self.__class__(
-            self._data[self.__input_representation_name].copy(), self.sampling_frequency
+            self._data[InputRepresentationName].copy(), self.sampling_frequency
         )
-        # Use a more efficient approach for copying the graph
-        new_instance._processed_representations = self._processed_representations.copy()
-        # Only deepcopy the data dictionary - full deepcopy is often unnecessary
-        new_instance._data = copy.deepcopy(self._data)
-        new_instance._last_processing_step = self._last_processing_step
-        new_instance._filters_used = copy.deepcopy(self._filters_used)
+
+        # Get all attributes of the current instance
+        for name, value in inspect.getmembers(self):
+            # Skip special methods, methods, and the already initialized attributes
+            if (
+                (
+                    not name.startswith("_")
+                    or name
+                    in [
+                        "_data",
+                        "_processed_representations",
+                        "_last_processing_step",
+                        "_filters_used",
+                    ]
+                )
+                and not inspect.ismethod(value)
+                and not name == "sampling_frequency"
+            ):
+                # Handle different attribute types appropriately
+                if name == "_data":
+                    # Deep copy the data dictionary
+                    setattr(new_instance, name, copy.deepcopy(value))
+                elif name == "_processed_representations":
+                    # Use the graph's copy method
+                    setattr(new_instance, name, value.copy())
+                elif name == "_filters_used":
+                    # Deep copy the filters used
+                    setattr(new_instance, name, copy.deepcopy(value))
+                else:
+                    # Shallow copy for other attributes
+                    setattr(new_instance, name, copy.copy(value))
 
         return new_instance
 
@@ -801,17 +1243,35 @@ class _Data:
         for key, value in self._data.items():
             if isinstance(value, np.ndarray):
                 memory_usage[key] = (str(value.shape), value.nbytes)
-            else:
+            elif isinstance(value, DeletedRepresentation):
                 memory_usage[key] = (
-                    value,
-                    0,
-                )  # Placeholder shape string uses negligible memory
+                    str(value.shape),
+                    0,  # DeletedRepresentation objects use negligible memory
+                )
 
         return memory_usage
 
 
 class EMGData(_Data):
     """Class for storing EMG data.
+
+    Parameters
+    ----------
+    input_data : np.ndarray
+        The raw EMG data. The shape of the array should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples).#
+
+        .. important:: The class will only accept 2D or 3D arrays.
+        There is no way to check if you actually have it in (n_chunks, n_samples) or (n_chunks, n_channels, n_samples) format.
+        Please make sure to provide the correct shape of the data.
+
+    sampling_frequency : float
+        The sampling frequency of the EMG data.
+    grid_layouts : Optional[List[np.ndarray]], optional
+        List of 2D arrays specifying the exact electrode arrangement for each grid.
+        Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
+        For example, a 2×3 grid with electrodes numbered column-wise and one gap might be:
+        [[0, 2, 4], [1, -1, 5]]
+        Default is None.
 
     Attributes
     ----------
@@ -828,24 +1288,24 @@ class EMGData(_Data):
         A dictionary where the keys are the names of filters applied
         to the EMG data and the values are the processed EMG data.
 
-    Parameters
-    ----------
-    is_chunked : bool
-        Whether the EMG data is chunked or not.
-        If True, the shape of the raw EMG data should be (n_chunks, n_channels, n_samples).
+    Raises
+    ------
+    ValueError
+        If the shape of the raw EMG data is not (n_channels, n_samples) or (n_chunks, n_channels, n_samples).
+        If the grid layouts are not provided or are not valid.
 
     Examples
     --------
     >>> import numpy as np
     >>> from myoverse.datatypes import EMGData, create_grid_layout
-    >>> 
+    >>>
     >>> # Create sample EMG data (16 channels, 1000 samples)
     >>> emg_data = np.random.randn(16, 1000)
     >>> sampling_freq = 2000  # 2000 Hz
-    >>> 
+    >>>
     >>> # Create a basic EMGData object
     >>> emg = EMGData(emg_data, sampling_freq)
-    >>> 
+    >>>
     >>> # Create an EMGData object with grid layouts
     >>> # Define a 4×4 electrode grid with row-wise numbering
     >>> grid = create_grid_layout(4, 4, fill_pattern='row')
@@ -858,45 +1318,6 @@ class EMGData(_Data):
         sampling_frequency: float,
         grid_layouts: Optional[List[np.ndarray]] = None,
     ):
-        """Initializes the EMGData object.
-
-        Parameters
-        ----------
-        input_data : np.ndarray
-            The raw EMG data. The shape of the array should be (n_channels, n_samples)
-             or (n_chunks, n_channels, n_samples).
-        sampling_frequency : float
-            The sampling frequency of the EMG data.
-        grid_layouts : Optional[List[np.ndarray]], optional
-            List of 2D arrays specifying the exact electrode arrangement for each grid.
-            Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
-            For example, a 2×3 grid with electrodes numbered column-wise and one gap might be:
-            [[0, 2, 4], [1, -1, 5]]
-            Default is None.
-            
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from myoverse.datatypes import EMGData, create_grid_layout
-        >>> 
-        >>> # Create sample EMG data (64 channels, 1000 samples)
-        >>> emg_data = np.random.randn(64, 1000)
-        >>> sampling_freq = 2000  # 2000 Hz
-        >>> 
-        >>> # Create a simple EMGData object
-        >>> emg = EMGData(emg_data, sampling_freq)
-        >>> 
-        >>> # Create EMGData with a custom electrode grid layout
-        >>> # 8×8 grid with column-wise numbering
-        >>> grid = np.full((8, 8), -1)  # Initialize with gaps
-        >>> for c in range(8):
-        ...     for r in range(8):
-        ...         idx = c * 8 + r
-        ...         if idx < 64:  # Only fill up to 64 electrodes
-        ...             grid[r, c] = idx
-        >>> 
-        >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
-        """
         if input_data.ndim != 2 and input_data.ndim != 3:
             raise ValueError(
                 "The shape of the raw EMG data should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples)."
@@ -904,38 +1325,42 @@ class EMGData(_Data):
         super().__init__(input_data, sampling_frequency)
 
         self.grid_layouts = None  # Initialize to None first
-        
-        # Get the number of electrodes from the data
-        data_electrodes = input_data.shape[0] if input_data.ndim == 2 else input_data.shape[1]
-        
+
         # Process and validate grid layouts if provided
         if grid_layouts is not None:
+            # Get the number of electrodes from the data
+            data_electrodes = (
+                input_data.shape[0] if input_data.ndim == 2 else input_data.shape[1]
+            )
+
             # Check that each layout array is 2D
             for i, layout in enumerate(grid_layouts):
                 if not isinstance(layout, np.ndarray) or layout.ndim != 2:
-                    raise ValueError(f"Grid layout {i+1} must be a 2D numpy array")
-                
+                    raise ValueError(f"Grid layout {i + 1} must be a 2D numpy array")
+
                 # Count valid electrodes (non-negative values)
                 valid_electrodes = np.sum(layout >= 0)
-                
+
                 # Check for duplicate electrode indices
                 valid_indices = layout[layout >= 0]
                 if len(np.unique(valid_indices)) != len(valid_indices):
-                    raise ValueError(f"Grid layout {i+1} contains duplicate electrode indices")
-                
+                    raise ValueError(
+                        f"Grid layout {i + 1} contains duplicate electrode indices"
+                    )
+
                 # Check if any index is out of bounds
                 if np.any(valid_indices >= data_electrodes):
                     raise ValueError(
-                        f"Grid layout {i+1} contains electrode indices that exceed the total "
+                        f"Grid layout {i + 1} contains electrode indices that exceed the total "
                         f"number of electrodes ({data_electrodes})"
                     )
-            
+
             # Store the validated grid layouts
             self.grid_layouts = grid_layouts
 
     def _get_grid_dimensions(self):
         """Get dimensions and electrode counts for each grid.
-        
+
         Returns
         -------
         List[Tuple[int, int, int]]
@@ -943,18 +1368,18 @@ class EMGData(_Data):
         """
         if self.grid_layouts is None:
             return []
-        
+
         return [
             (layout.shape[0], layout.shape[1], np.sum(layout >= 0))
             for layout in self.grid_layouts
         ]
 
-    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : Union[np.ndarray, str]
+        data : Union[np.ndarray, DeletedRepresentation]
             The data to check.
 
         Returns
@@ -962,9 +1387,7 @@ class EMGData(_Data):
         bool
             Whether the data is chunked or not.
         """
-        if isinstance(data, str):
-            return len(data.split(",")) == 3
-        return data.ndim == 3
+        return len(data.shape) == 3
 
     def plot(
         self,
@@ -981,7 +1404,7 @@ class EMGData(_Data):
         representation : str
             The representation to plot.
         nr_of_grids : Optional[int], optional
-            The number of electrode grids to plot. If None and grid_layouts is provided, 
+            The number of electrode grids to plot. If None and grid_layouts is provided,
             will use the number of grids in grid_layouts. Default is None.
         nr_of_electrodes_per_grid : Optional[int], optional
             The number of electrodes per grid to plot. If None, will be determined from data shape
@@ -992,32 +1415,32 @@ class EMGData(_Data):
         use_grid_layouts : bool, optional
             Whether to use the grid_layouts for plotting. Default is True.
             If False, will use the nr_of_grids and nr_of_electrodes_per_grid parameters.
-            
+
         Examples
         --------
         >>> import numpy as np
         >>> from myoverse.datatypes import EMGData, create_grid_layout
-        >>> 
+        >>>
         >>> # Create sample EMG data (64 channels, 1000 samples)
         >>> emg_data = np.random.randn(64, 1000)
-        >>> 
+        >>>
         >>> # Create EMGData with two 4×8 grids (32 electrodes each)
         >>> grid1 = create_grid_layout(4, 8, 32, fill_pattern='row')
         >>> grid2 = create_grid_layout(4, 8, 32, fill_pattern='row')
-        >>> 
+        >>>
         >>> # Adjust indices for second grid
         >>> grid2[grid2 >= 0] += 32
-        >>> 
+        >>>
         >>> emg = EMGData(emg_data, 2000, grid_layouts=[grid1, grid2])
-        >>> 
+        >>>
         >>> # Plot the raw data using the grid layouts
         >>> emg.plot('Input')
-        >>> 
+        >>>
         >>> # Adjust scaling for better visualization
         >>> emg.plot('Input', scaling_factor=[15.0, 25.0])
-        >>> 
+        >>>
         >>> # Plot without using grid layouts (specify manual grid configuration)
-        >>> emg.plot('Input', nr_of_grids=2, nr_of_electrodes_per_grid=32, 
+        >>> emg.plot('Input', nr_of_grids=2, nr_of_electrodes_per_grid=32,
         ...         use_grid_layouts=False)
         """
         data = self[representation]
@@ -1025,28 +1448,30 @@ class EMGData(_Data):
         # Use grid_layouts if available and requested
         if self.grid_layouts is not None and use_grid_layouts:
             grid_dimensions = self._get_grid_dimensions()
-            
+
             if nr_of_grids is not None and nr_of_grids != len(self.grid_layouts):
-                print(f"Warning: nr_of_grids ({nr_of_grids}) does not match grid_layouts length "
-                      f"({len(self.grid_layouts)}). Using grid_layouts.")
-            
+                print(
+                    f"Warning: nr_of_grids ({nr_of_grids}) does not match grid_layouts length "
+                    f"({len(self.grid_layouts)}). Using grid_layouts."
+                )
+
             nr_of_grids = len(self.grid_layouts)
             electrodes_per_grid = [dims[2] for dims in grid_dimensions]
         else:
             # Auto-determine nr_of_grids if not provided
             if nr_of_grids is None:
                 nr_of_grids = 1
-            
+
             # Auto-determine nr_of_electrodes_per_grid if not provided
             if nr_of_electrodes_per_grid is None:
                 if self.is_chunked[representation]:
                     total_electrodes = data.shape[1]
                 else:
                     total_electrodes = data.shape[0]
-                
+
                 # Try to determine a sensible default
                 nr_of_electrodes_per_grid = total_electrodes // nr_of_grids
-            
+
             electrodes_per_grid = [nr_of_electrodes_per_grid] * nr_of_grids
 
         # Prepare scaling factors
@@ -1057,43 +1482,47 @@ class EMGData(_Data):
             "The number of scaling factors should be equal to the number of grids."
         )
 
-        fig = plt.figure(figsize=(5*nr_of_grids, 6))
-        
+        fig = plt.figure(figsize=(5 * nr_of_grids, 6))
+
         # Calculate electrode index offset for each grid
         electrode_offsets = [0]
-        for i in range(len(electrodes_per_grid)-1):
+        for i in range(len(electrodes_per_grid) - 1):
             electrode_offsets.append(electrode_offsets[-1] + electrodes_per_grid[i])
-        
+
         # Make a subplot for each grid
         for grid_idx in range(nr_of_grids):
             ax = fig.add_subplot(1, nr_of_grids, grid_idx + 1)
-            
+
             grid_title = f"Grid {grid_idx + 1}"
             if self.grid_layouts is not None and use_grid_layouts:
                 rows, cols, _ = grid_dimensions[grid_idx]
                 grid_title += f" ({rows}×{cols})"
             ax.set_title(grid_title)
-            
+
             offset = electrode_offsets[grid_idx]
             n_electrodes = electrodes_per_grid[grid_idx]
-            
+
             for electrode_idx in range(n_electrodes):
                 data_idx = offset + electrode_idx
                 if self.is_chunked[representation]:
                     # Handle chunked data - plot first chunk for visualization
                     ax.plot(
-                        data[0, data_idx] + electrode_idx * data[0].mean() * scaling_factor[grid_idx]
+                        data[0, data_idx]
+                        + electrode_idx * data[0].mean() * scaling_factor[grid_idx]
                     )
                 else:
                     ax.plot(
-                        data[data_idx] + electrode_idx * data.mean() * scaling_factor[grid_idx]
+                        data[data_idx]
+                        + electrode_idx * data.mean() * scaling_factor[grid_idx]
                     )
 
             ax.set_xlabel("Time (samples)")
             ax.set_ylabel("Electrode #")
 
             # Set the y-axis ticks to the electrode numbers beginning from 1
-            mean_val = data[0].mean() if self.is_chunked[representation] else data.mean()
+            mean_val = (
+                data[0].mean() if self.is_chunked[representation] else data.mean()
+            )
             ax.set_yticks(
                 np.arange(0, n_electrodes) * mean_val * scaling_factor[grid_idx],
                 np.arange(1, n_electrodes + 1),
@@ -1105,81 +1534,92 @@ class EMGData(_Data):
 
         plt.tight_layout()
         plt.show()
-        
+
     def plot_grid_layout(self, grid_idx: int = 0, show_indices: bool = True):
         """Plots the 2D layout of a specific electrode grid.
-        
+
         Parameters
         ----------
         grid_idx : int, optional
             The index of the grid to plot. Default is 0.
         show_indices : bool, optional
             Whether to show the electrode indices in the plot. Default is True.
-            
+
         Raises
         ------
         ValueError
             If grid_layouts is not available or the grid_idx is out of range.
-            
+
         Examples
         --------
         >>> import numpy as np
         >>> from myoverse.datatypes import EMGData, create_grid_layout
-        >>> 
+        >>>
         >>> # Create sample EMG data (64 channels, 1000 samples)
         >>> emg_data = np.random.randn(64, 1000)
-        >>> 
+        >>>
         >>> # Create an 8×8 grid with some missing electrodes
         >>> grid = create_grid_layout(8, 8, 64, fill_pattern='row',
         ...                          missing_indices=[(7, 7), (0, 0)])
-        >>> 
+        >>>
         >>> emg = EMGData(emg_data, 2000, grid_layouts=[grid])
-        >>> 
+        >>>
         >>> # Visualize the grid layout
         >>> emg.plot_grid_layout(0)
-        >>> 
+        >>>
         >>> # Visualize without showing electrode indices
         >>> emg.plot_grid_layout(0, show_indices=False)
         """
         if self.grid_layouts is None:
             raise ValueError("Cannot plot grid layout: grid_layouts not provided.")
-            
+
         if grid_idx < 0 or grid_idx >= len(self.grid_layouts):
-            raise ValueError(f"Grid index {grid_idx} out of range (0 to {len(self.grid_layouts)-1}).")
-            
+            raise ValueError(
+                f"Grid index {grid_idx} out of range (0 to {len(self.grid_layouts) - 1})."
+            )
+
         # Get the grid layout
         grid = self.grid_layouts[grid_idx]
         rows, cols = grid.shape
-        
+
         # Get number of electrodes
         n_electrodes = np.sum(grid >= 0)
-        grid_title = f"Grid {grid_idx+1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
-        
+        grid_title = (
+            f"Grid {grid_idx + 1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
+        )
+
         # Create a masked array for plotting
         masked_grid = np.ma.masked_less(grid, 0)
-        
+
         # Plot the grid
-        fig, ax = plt.subplots(figsize=(cols/2 + 3, rows/2 + 1))
+        fig, ax = plt.subplots(figsize=(cols / 2 + 3, rows / 2 + 1))
         cmap = plt.cm.viridis
-        cmap.set_bad('white', 1.0)
+        cmap.set_bad("white", 1.0)
         im = ax.imshow(masked_grid, cmap=cmap)
-        
+
         # Add grid lines
         ax.set_xticks(np.arange(-0.5, cols, 1), minor=True)
         ax.set_yticks(np.arange(-0.5, rows, 1), minor=True)
-        ax.grid(which="minor", color="black", linestyle='-', linewidth=1)
-        
+        ax.grid(which="minor", color="black", linestyle="-", linewidth=1)
+
         # Add electrode numbers
         if show_indices:
             for i in range(rows):
                 for j in range(cols):
                     if grid[i, j] >= 0:
-                        ax.text(j, i, str(grid[i, j]), ha="center", va="center", 
-                                color="w", fontweight='bold')
-        
+                        ax.text(
+                            j,
+                            i,
+                            str(grid[i, j]),
+                            ha="center",
+                            va="center",
+                            color="w",
+                            fontweight="bold",
+                        )
+
         # Add a title
         plt.title(grid_title)
-        
+
         # Fix the aspect ratio and display
         plt.tight_layout()
         plt.show()
@@ -1188,38 +1628,43 @@ class EMGData(_Data):
 class KinematicsData(_Data):
     """Class for storing kinematics data.
 
+    Parameters
+    ----------
+    input_data : np.ndarray
+        The raw kinematics data. The shape of the array should be (n_joints, 3, n_samples)
+        or (n_chunks, n_joints, 3, n_samples).
+
+        .. important:: The class will only accept 3D or 4D arrays.
+        There is no way to check if you actually have it in (n_chunks, n_joints, 3, n_samples) format.
+        Please make sure to provide the correct shape of the data.
+
+    sampling_frequency : float
+        The sampling frequency of the kinematics data.
+
     Attributes
     ----------
     input_data : np.ndarray
         The raw kinematics data. The shape of the array should be (n_joints, 3, n_samples)
         or (n_chunks, n_joints, 3, n_samples).
         The 3 represents the x, y, and z coordinates of the joints.
-
     sampling_frequency : float
         The sampling frequency of the kinematics data.
-
     processed_data : Dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied to the kinematics data and
         the values are the processed kinematics data.
 
-    Parameters
-    ----------
-    is_chunked : bool
-        Whether the kinematics data is chunked or not.
-        If True, the shape of the raw kinematics data should be (n_chunks, n_joints, 3, n_samples).
-        
     Examples
     --------
     >>> import numpy as np
     >>> from myoverse.datatypes import KinematicsData
-    >>> 
+    >>>
     >>> # Create sample kinematics data (16 joints, 3 coordinates, 1000 samples)
     >>> # Each joint has x, y, z coordinates
     >>> joint_data = np.random.randn(16, 3, 1000)
-    >>> 
+    >>>
     >>> # Create a KinematicsData object with 100 Hz sampling rate
     >>> kinematics = KinematicsData(joint_data, 100)
-    >>> 
+    >>>
     >>> # Access the raw data
     >>> raw_data = kinematics.input_data
     >>> print(f"Data shape: {raw_data.shape}")
@@ -1227,34 +1672,6 @@ class KinematicsData(_Data):
     """
 
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
-        """Initializes the KinematicsData object.
-
-        Parameters
-        ----------
-        input_data : np.ndarray
-            The raw kinematics data. The shape of the array should be (n_joints, 3, n_samples)
-            or (n_chunks, n_joints, 3, n_samples).
-            The 3 represents the x, y, and z coordinates of the joints.
-        sampling_frequency : float
-            The sampling frequency of the kinematics data.
-            
-        Examples
-        --------
-        >>> import numpy as np
-        >>> from myoverse.datatypes import KinematicsData
-        >>> 
-        >>> # Create sample non-chunked data (21 joints, 3 coordinates, 500 samples)
-        >>> joint_data = np.random.randn(21, 3, 500)
-        >>> kinematics = KinematicsData(joint_data, 120)  # 120 Hz sampling rate
-        >>> 
-        >>> # Create sample chunked data (10 chunks, 21 joints, 3 coordinates, 100 samples)
-        >>> chunked_data = np.random.randn(10, 21, 3, 100)
-        >>> chunked_kinematics = KinematicsData(chunked_data, 120)
-        >>> 
-        >>> # Check if data is chunked
-        >>> print(f"Is chunked: {chunked_kinematics.is_chunked['Input']}")
-        Is chunked: True
-        """
         if input_data.ndim != 3 and input_data.ndim != 4:
             raise ValueError(
                 "The shape of the raw kinematics data should be (n_joints, 3, n_samples) "
@@ -1262,12 +1679,12 @@ class KinematicsData(_Data):
             )
         super().__init__(input_data, sampling_frequency)
 
-    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : Union[np.ndarray, str]
+        data : Union[np.ndarray, DeletedRepresentation]
             The data to check.
 
         Returns
@@ -1275,9 +1692,7 @@ class KinematicsData(_Data):
         bool
             Whether the data is chunked or not.
         """
-        if isinstance(data, str):
-            return len(data.split(",")) == 4
-        return data.ndim == 4
+        return len(data.shape) == 4
 
     def plot(
         self, representation: str, nr_of_fingers: int, wrist_included: bool = True
@@ -1299,20 +1714,20 @@ class KinematicsData(_Data):
         ------
         KeyError
             If the representation does not exist.
-            
+
         Examples
         --------
         >>> import numpy as np
         >>> from myoverse.datatypes import KinematicsData
-        >>> 
+        >>>
         >>> # Create sample kinematics data for a hand with 5 fingers
         >>> # 16 joints: 1 wrist + 3 joints for each of the 5 fingers
         >>> joint_data = np.random.randn(16, 3, 100)
         >>> kinematics = KinematicsData(joint_data, 100)
-        >>> 
+        >>>
         >>> # Plot the kinematics data
         >>> kinematics.plot('Input', nr_of_fingers=5)
-        >>> 
+        >>>
         >>> # Plot without wrist
         >>> kinematics.plot('Input', nr_of_fingers=5, wrist_included=False)
         """
@@ -1408,6 +1823,19 @@ class KinematicsData(_Data):
 class VirtualHandKinematics(_Data):
     """Class for storing virtual hand kinematics data.
 
+    Parameters
+    ----------
+    input_data : np.ndarray
+        The raw kinematics data for a virtual hand. The shape of the array should be (9, n_samples)
+        or (n_chunks, 9, n_samples).
+
+        .. important:: The class will only accept 2D or 3D arrays.
+        There is no way to check if you actually have it in (n_chunks, n_samples) or (n_chunks, 9, n_samples) format.
+        Please make sure to provide the correct shape of the data.
+
+    sampling_frequency : float
+        The sampling frequency of the kinematics data.
+
     Attributes
     ----------
     input_data : np.ndarray
@@ -1415,32 +1843,29 @@ class VirtualHandKinematics(_Data):
         or (n_chunks, 9, n_samples).
         The 9 typically represents the degrees of freedom: wrist flexion/extension,
         wrist pronation/supination, wrist deviation, and the flexion of all 5 fingers.
-
     sampling_frequency : float
         The sampling frequency of the kinematics data.
-
     processed_data : Dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied to the kinematics data and
         the values are the processed kinematics data.
 
-    Parameters
-    ----------
-    is_chunked : bool
-        Whether the kinematics data is chunked or not.
-        If True, the shape of the raw kinematics data should be (n_chunks, 9, n_samples).
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from myoverse.datatypes import VirtualHandKinematics
+    >>>
+    >>> # Create sample virtual hand kinematics data (9 DOFs, 1000 samples)
+    >>> joint_data = np.random.randn(9, 1000)
+    >>>
+    >>> # Create a VirtualHandKinematics object with 100 Hz sampling rate
+    >>> kinematics = VirtualHandKinematics(joint_data, 100)
+    >>>
+    >>> # Access the raw data
+    >>> raw_data = kinematics.input_data
+    >>> print(f"Data shape: {raw_data.shape}")
     """
 
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
-        """Initializes the VirtualHandKinematics object.
-
-        Parameters
-        ----------
-        input_data : np.ndarray
-            The raw kinematics data. The shape of the array should be (9, n_samples)
-            or (n_chunks, 9, n_samples).
-        sampling_frequency : float
-            The sampling frequency of the kinematics data.
-        """
         if input_data.ndim != 2 and input_data.ndim != 3:
             raise ValueError(
                 "The shape of the raw kinematics data should be (9, n_samples) "
@@ -1448,12 +1873,12 @@ class VirtualHandKinematics(_Data):
             )
         super().__init__(input_data, sampling_frequency)
 
-    def _check_if_chunked(self, data: Union[np.ndarray, str]) -> bool:
+    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : Union[np.ndarray, str]
+        data : Union[np.ndarray, DeletedRepresentation]
             The data to check.
 
         Returns
@@ -1461,9 +1886,7 @@ class VirtualHandKinematics(_Data):
         bool
             Whether the data is chunked or not.
         """
-        if isinstance(data, str):
-            return len(data.split(",")) == 3
-        return data.ndim == 3
+        return len(data.shape) == 3
 
     def plot(
         self, representation: str, nr_of_fingers: int = 5, visualize_wrist: bool = True
