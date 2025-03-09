@@ -1,14 +1,23 @@
 import pickle
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import zarr
-from tqdm import tqdm
+from rich.console import Console
+from rich.panel import Panel
+from rich.syntax import Syntax
+from rich.table import Table
+from rich.tree import Tree
+from rich.progress import track, Progress
+from rich.live import Live
+from rich.layout import Layout
+from rich.rule import Rule
+from rich import box
 
-from myoverse.datasets.filters._template import FilterBaseClass, EMGAugmentation
-from myoverse.datasets.filters.generic import ChunkizeDataFilter
-from myoverse.datatypes import DATA_TYPES_MAP, _Data
+from myoverse.datasets.filters.generic import ChunkizeDataFilter, FilterBaseClass
+from myoverse.datasets.filters.emg_augmentations import EMGAugmentation
+from myoverse.datatypes import InputRepresentationName, _Data, DATA_TYPES_MAP
 
 
 def _split_data(data: np.ndarray, split_ratio: float) -> tuple[np.ndarray, np.ndarray]:
@@ -22,15 +31,80 @@ def _split_data(data: np.ndarray, split_ratio: float) -> tuple[np.ndarray, np.nd
 
 
 def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
+    """Add data to a zarr group, handling compatibility with Zarr 3.
+
+    Parameters
+    ----------
+    group : zarr.Group
+        The zarr group to add data to
+    data : Optional[np.ndarray]
+        The data to add
+    name : str
+        The name of the dataset
+    """
     if data is None:
         return
 
-    try:
-        group[name].append(data)
-    except KeyError:
-        group.create_dataset(
-            name, data=data, shape=data.shape, chunks=(1, *data.shape[1:])
+    # Ensure data is a numpy array
+    if not isinstance(data, np.ndarray):
+        data = np.array(data)
+
+    # Special handling for string data to ensure zarr v2/v3 compatibility
+    if data.dtype.kind == "U":
+        # Convert Unicode strings to bytes for consistent handling in both zarr versions
+        max_length = max(
+            len(s.encode("utf-8")) for s in data.flat if isinstance(s, str)
         )
+        bytes_data = np.zeros(data.shape, dtype=f"S{max_length}")
+        for idx in np.ndindex(data.shape):
+            if isinstance(data[idx], str):
+                bytes_data[idx] = data[idx].encode("utf-8")
+        data = bytes_data
+
+    # Handle object arrays that might contain strings
+    elif data.dtype.kind == "O":
+        # Check if the array contains strings
+        contains_strings = False
+        for item in data.flat:
+            if isinstance(item, str):
+                contains_strings = True
+                break
+
+        if contains_strings:
+            # Find the maximum string length
+            max_length = max(
+                len(s.encode("utf-8")) for s in data.flat if isinstance(s, str)
+            )
+            bytes_data = np.zeros(data.shape, dtype=f"S{max_length}")
+            for idx in np.ndindex(data.shape):
+                if isinstance(data[idx], str):
+                    bytes_data[idx] = data[idx].encode("utf-8")
+            data = bytes_data
+
+    try:
+        if name in group:
+            # Zarr 3 doesn't have append but we can use setitem to add data
+            current_shape = group[name].shape
+            new_shape = list(current_shape)
+            new_shape[0] += data.shape[0]
+
+            # Resize the dataset
+            group[name].resize(new_shape)
+
+            # Insert the new data
+            group[name][current_shape[0] :] = data
+        else:
+            # Create new dataset with appropriate chunking
+            group.create_dataset(
+                name, data=data, shape=data.shape, chunks=(1, *data.shape[1:])
+            )
+    except Exception as e:
+        # Handle differences between Zarr 2 and 3
+        if "append" in str(e):
+            # This is Zarr 2 behavior
+            group[name].append(data)
+        else:
+            raise
 
 
 class EMGDataset:
@@ -42,26 +116,38 @@ class EMGDataset:
     emg_data_path : pathlib.Path
         Path to the EMG data file. It should be a pickle file containing a dictionary with the keys being the task
         number and the values being a numpy array of shape (n_channels, n_samples).
+    emg_data : dict[str, np.ndarray]
+        Optional dictionary containing EMG data if not loading from a file
     ground_truth_data_path : pathlib.Path
         Path to the ground truth data file. It should be a pickle file containing a dictionary with the keys being the
         task number and the values being a numpy array of custom shape (..., n_samples). The custom shape can be
         anything, but the last dimension should be the same as the EMG data.
+    ground_truth_data : dict[str, np.ndarray]
+        Optional dictionary containing ground truth data if not loading from a file
+    ground_truth_data_type : str
+        Type of ground truth data, e.g. 'kinematics'
+    sampling_frequency : float
+        Sampling frequency of the data in Hz
     tasks_to_use : Sequence[str]
         Sequence of strings containing the task numbers to use. If empty, all tasks will be used.
     save_path : pathlib.Path
         Path to save the dataset to. It should be a zarr file.
     emg_filter_pipeline_before_chunking : list[list[FilterBaseClass]]
-        Sequence of filters to apply to the EMG data before chunking. The filters should inherit from
-        FilterBaseClass.
+        Sequence of filters to apply to the EMG data before chunking.
+    emg_representations_to_filter_before_chunking : list[list[str]]
+        Representations of EMG data to filter before chunking.
     emg_filter_pipeline_after_chunking : list[list[FilterBaseClass]]
-        Sequence of filters to apply to the EMG data after chunking. The filters should inherit from
-        FilterBaseClass.
+        Sequence of filters to apply to the EMG data after chunking.
+    emg_representations_to_filter_after_chunking : list[list[str]]
+        Representations of EMG data to filter after chunking.
     ground_truth_filter_pipeline_before_chunking : list[list[FilterBaseClass]]
-        Sequence of filters to apply to the ground truth data before chunking. The filters should inherit from
-        FilterBaseClass.
+        Sequence of filters to apply to the ground truth data before chunking.
+    ground_truth_representations_to_filter_before_chunking : list[list[str]]
+        Representations of ground truth data to filter before chunking.
     ground_truth_filter_pipeline_after_chunking : list[list[FilterBaseClass]]
-        Sequence of filters to apply to the ground truth data after chunking. The filters should inherit from
-        FilterBaseClass.
+        Sequence of filters to apply to the ground truth data after chunking.
+    ground_truth_representations_to_filter_after_chunking : list[list[str]]
+        Representations of ground truth data to filter after chunking.
     chunk_size : int
         Size of the chunks to create from the data.
     chunk_shift : int
@@ -73,16 +159,21 @@ class EMGDataset:
         Ratio of the data to use for validation. The data will be split in the middle. The first half will be used for
         training and the second half will be used for validation. If 0, no data will be used for validation.
     augmentation_pipelines : list[list[EMGAugmentation]]
-        Sequence of augmentation_pipelines to apply to the training data. The augmentation_pipelines should inherit from
-        EMGAugmentation.
+        Sequence of augmentation_pipelines to apply to the training data.
     amount_of_chunks_to_augment_at_once : int
         Amount of chunks to augment at once. This is done to speed up the process.
+    debug_level : int
+        Debug level:
+        - 0: No debug output (default)
+        - 1: Full text debugging with Rich (configuration, progress, tables, data details)
+        - 2: Level 1 plus data visualizations (graphs and plots)
+    silence_zarr_warnings : bool
+        Whether to silence all Zarr-related warnings, including those from zarr.codecs and zarr.core modules
 
     Methods
     -------
     create_dataset()
         Creates the dataset.
-
     """
 
     def __init__(
@@ -96,20 +187,21 @@ class EMGDataset:
         tasks_to_use: Sequence[str] = (),
         save_path: Path = Path("REPLACE ME"),
         emg_filter_pipeline_before_chunking: list[list[FilterBaseClass]] = (),
-        emg_representations_to_filter_before_chunking: list[str] = (),
+        emg_representations_to_filter_before_chunking: list[list[str]] = (),
         emg_filter_pipeline_after_chunking: list[list[FilterBaseClass]] = (),
-        emg_representations_to_filter_after_chunking: list[str] = (),
+        emg_representations_to_filter_after_chunking: list[list[str]] = (),
         ground_truth_filter_pipeline_before_chunking: list[list[FilterBaseClass]] = (),
-        ground_truth_representations_to_filter_before_chunking: list[str] = (),
+        ground_truth_representations_to_filter_before_chunking: list[list[str]] = (),
         ground_truth_filter_pipeline_after_chunking: list[list[FilterBaseClass]] = (),
-        ground_truth_representations_to_filter_after_chunking: list[str] = (),
+        ground_truth_representations_to_filter_after_chunking: list[list[str]] = (),
         chunk_size: int = 192,
         chunk_shift: int = 64,
         testing_split_ratio: float = 0.2,
         validation_split_ratio: float = 0.2,
         augmentation_pipelines: list[list[EMGAugmentation]] = (),
         amount_of_chunks_to_augment_at_once: int = 250,
-        debug: bool = False,
+        debug_level: int = 0,
+        silence_zarr_warnings: bool = True,
     ):
         self.emg_data_path = emg_data_path
         self.emg_data = emg_data
@@ -125,11 +217,8 @@ class EMGDataset:
             )
 
         self.ground_truth_data_type = ground_truth_data_type
-
         self.sampling_frequency = sampling_frequency
-
         self.tasks_to_use = tasks_to_use
-
         self.save_path = save_path
 
         self.emg_filter_pipeline_before_chunking = emg_filter_pipeline_before_chunking
@@ -162,32 +251,85 @@ class EMGDataset:
 
         self.augmentation_pipelines = augmentation_pipelines
         self.amount_of_chunks_to_augment_at_once = amount_of_chunks_to_augment_at_once
+        self.debug_level = debug_level
+        self.silence_zarr_warnings = silence_zarr_warnings
 
-        self.debug = debug
+        self.console = Console()
 
         self.__tasks_string_length = 0
 
     def __add_data_to_dataset(
         self, data: _Data, groups: list[zarr.Group]
     ) -> Tuple[list[int], list[int], list[int]]:
+        """
+        Add data to zarr dataset groups.
+
+        Parameters
+        ----------
+        data : _Data
+            The data object to add to the dataset
+        groups : list[zarr.Group]
+            List of zarr groups for training, testing, and validation
+
+        Returns
+        -------
+        tuple[list[int], list[int], list[int]]
+            Lists of sizes for training, testing, and validation datasets
+        """
         training_data_sizes, testing_data_sizes, validation_data_sizes = [], [], []
+
+        if self.debug_level >= 1:
+            self.console.print(
+                f"[bold green]Adding data with keys:[/bold green] [cyan]{list(data.output_representations.keys())}[/cyan]"
+            )
+            self.console.print()  # Add empty line
 
         for k, v in data.output_representations.items():
             validation_data_from_task = None
+
+            if self.debug_level >= 1:
+                self.console.print(
+                    f"[bold]Splitting representation:[/bold] [yellow]{k}[/yellow] [dim]with shape {v.shape}[/dim]"
+                )
 
             if self.testing_split_ratio > 0:
                 training_data_from_task, testing_data_from_task = _split_data(
                     v, self.testing_split_ratio
                 )
 
+                if self.debug_level >= 1:
+                    self.console.print(
+                        f"  [green]Training shape:[/green] {training_data_from_task.shape}"
+                    )
+                    self.console.print(
+                        f"  [yellow]Testing shape:[/yellow] {testing_data_from_task.shape}"
+                    )
+
                 if self.validation_split_ratio > 0:
                     testing_data_from_task, validation_data_from_task = _split_data(
                         testing_data_from_task, self.validation_split_ratio
                     )
 
+                    if self.debug_level >= 1:
+                        self.console.print(
+                            f"  [yellow]After validation split - Testing shape:[/yellow] {testing_data_from_task.shape}"
+                        )
+                        self.console.print(
+                            f"  [blue]Validation shape:[/blue] {validation_data_from_task.shape}"
+                        )
+
             else:
                 training_data_from_task = v
                 testing_data_from_task = None
+
+                if self.debug_level >= 1:
+                    self.console.print(
+                        f"  [green]No testing split, all data for training:[/green] {training_data_from_task.shape}"
+                    )
+
+            # Add a space between different splits
+            if self.debug_level >= 1:
+                self.console.print()  # Add empty line
 
             for g, data_from_task in zip(
                 groups,
@@ -211,292 +353,905 @@ class EMGDataset:
                 else 0
             )
 
+        if self.debug_level >= 1:
+            # Create a table for the dataset sizes
+            sizes_table = Table(
+                title="Dataset Split Sizes",
+                show_header=True,
+                header_style="bold magenta",
+                box=box.ROUNDED,
+                padding=(0, 2),
+                width=40,
+            )
+            sizes_table.add_column("Split", style="cyan")
+            sizes_table.add_column("Sizes", style="green")
+
+            sizes_table.add_row("Training", str(training_data_sizes))
+            sizes_table.add_row("Testing", str(testing_data_sizes))
+            sizes_table.add_row("Validation", str(validation_data_sizes))
+
+            self.console.print(sizes_table)
+            self.console.print()  # Add empty line
+
         return training_data_sizes, testing_data_sizes, validation_data_sizes
 
     def create_dataset(self):
+        """Create a supervised dataset from EMG and ground truth data."""
+        # Silence zarr warnings if requested
+        if self.silence_zarr_warnings:
+            import warnings
+
+            # Silence warnings from zarr.codecs
+            warnings.filterwarnings(
+                "ignore", category=UserWarning, module="zarr.codecs"
+            )
+            # Silence warnings from zarr core
+            warnings.filterwarnings("ignore", category=UserWarning, module="zarr.core")
+            # Silence any other zarr-related warnings
+            warnings.filterwarnings("ignore", category=UserWarning, module="zarr")
+
+        # Display configuration when debugging is enabled
+        if self.debug_level > 0:
+            # Create header for dataset creation
+            self.console.rule(
+                "[bold blue]STARTING DATASET CREATION", style="blue double"
+            )
+            self.console.print()  # Add empty line
+
+            # Create a table for configuration
+            table = Table(
+                title="Dataset Configuration",
+                show_header=True,
+                header_style="bold magenta",
+                box=box.ROUNDED,
+                padding=(0, 2),
+            )
+            table.add_column("Parameter", style="dim", width=30)
+            table.add_column("Value", style="green")
+
+            # Add configuration parameters to table
+            table.add_row("EMG data path", str(self.emg_data_path))
+            table.add_row("Ground truth data path", str(self.ground_truth_data_path))
+            table.add_row("Ground truth data type", self.ground_truth_data_type)
+            table.add_row("Sampling frequency (Hz)", str(self.sampling_frequency))
+            table.add_row("Save path", str(self.save_path))
+            table.add_row("Chunk size", str(self.chunk_size))
+            table.add_row("Chunk shift", str(self.chunk_shift))
+            table.add_row("Testing split ratio", str(self.testing_split_ratio))
+            table.add_row("Validation split ratio", str(self.validation_split_ratio))
+            table.add_row(
+                "Amount of chunks to augment at once",
+                str(self.amount_of_chunks_to_augment_at_once),
+            )
+            table.add_row("Debug level", str(self.debug_level))
+            table.add_row("Silence Zarr warnings", str(self.silence_zarr_warnings))
+
+            # Display the table
+            self.console.print(table)
+            self.console.print()  # Add empty line
+
+        # Load data if not provided
         emg_data = self.emg_data or pickle.load(self.emg_data_path.open("rb"))
         ground_truth_data = self.ground_truth_data or pickle.load(
             self.ground_truth_data_path.open("rb")
         )
 
-        self.save_path.mkdir(parents=True, exist_ok=True)
-        dataset = zarr.open(str(self.save_path), mode="w", zarr_format=2)
+        # Use tasks_to_use if provided, otherwise use all tasks
+        if not self.tasks_to_use:
+            self.tasks_to_use = list(emg_data.keys())
 
+        if self.debug_level > 0:
+            self.console.print(
+                f"[bold cyan]Processing {len(self.tasks_to_use)} tasks:[/bold cyan] {', '.join(self.tasks_to_use)}"
+            )
+            self.console.print()  # Add empty line
+
+            # Create a tree for data shapes
+            data_tree = Tree("[bold yellow]Dataset Structure")
+            emg_branch = data_tree.add("[bold green]EMG Data")
+            for i, (k, v) in enumerate(list(emg_data.items())[:5]):
+                emg_branch.add(f"Task {k}: Shape {v.shape}")
+            if len(emg_data) > 5:
+                emg_branch.add(f"... {len(emg_data) - 5} more tasks")
+
+            gt_branch = data_tree.add("[bold green]Ground Truth Data")
+            for i, (k, v) in enumerate(list(ground_truth_data.items())[:5]):
+                gt_branch.add(f"Task {k}: Shape {v.shape}")
+            if len(ground_truth_data) > 5:
+                gt_branch.add(f"... {len(ground_truth_data) - 5} more tasks")
+
+            self.console.print(data_tree)
+            self.console.print()  # Add empty line
+
+        # Create zarr directory and open store
+        self.save_path.mkdir(parents=True, exist_ok=True)
+
+        # Open zarr dataset with specified format
+        dataset = zarr.open(str(self.save_path), mode="w", zarr_format=3)
+
+        # Create groups for training, testing, and validation
         training_group = dataset.create_group("training")
         testing_group = dataset.create_group("testing")
         validation_group = dataset.create_group("validation")
 
-        # need this to know the saving dtype for the labels
+        # Set the task string length for labels
         self.__tasks_string_length = len(max(self.tasks_to_use, key=len))
 
-        for task in tqdm(self.tasks_to_use, desc="Filtering and splitting data"):
-            emg_data_from_task = emg_data[task]
-            ground_truth_data_from_task = ground_truth_data[task]
+        # Process each task
+        if self.debug_level > 0:
+            self.console.rule("[bold blue]PROCESSING TASKS", style="blue double")
+            self.console.print()  # Add empty line
 
-            min_length = min(
-                emg_data_from_task.shape[-1], ground_truth_data_from_task.shape[-1]
-            )
-
-            emg_data_from_task = emg_data_from_task[..., :min_length]
-            ground_truth_data_from_task = ground_truth_data_from_task[..., :min_length]
-
-            emg_data_from_task = DATA_TYPES_MAP["emg"](
-                input_data=emg_data_from_task,
-                sampling_frequency=self.sampling_frequency,
-            )
-            ground_truth_data_from_task = DATA_TYPES_MAP[self.ground_truth_data_type](
-                input_data=ground_truth_data_from_task,
-                sampling_frequency=self.sampling_frequency,
-            )
-
-            if emg_data_from_task.is_chunked != ground_truth_data_from_task.is_chunked:
-                raise ValueError(
-                    f"The EMG and ground truth data should have the same chunking status, but the EMG data is "
-                    f"{'' if emg_data_from_task.is_chunked else 'not '}chunked and the ground truth data is "
-                    f"{'' if ground_truth_data_from_task.is_chunked else 'not '}chunked."
+            # Use Rich progress for task processing
+            with Progress(transient=True) as progress:
+                task_progress = progress.add_task(
+                    "[cyan]Processing tasks...", total=len(self.tasks_to_use)
                 )
 
-            if self.debug:
-                print("After loading:")
+                for task_idx, task in enumerate(self.tasks_to_use):
+                    progress.update(
+                        task_progress,
+                        advance=1,
+                        description=f"[cyan]Processing task [yellow]{task}[/yellow]...",
+                    )
 
-                print(emg_data_from_task)
-                emg_data_from_task.plot_graph()
+                    # Clear progress bar when displaying task info
+                    progress.stop()
 
-                print(ground_truth_data_from_task)
-                ground_truth_data_from_task.plot_graph()
+                    # Create a stylized task header
+                    self.console.print(
+                        f"[bold cyan on white] Task {task} ({task_idx + 1}/{len(self.tasks_to_use)}) [/bold cyan on white]",
+                        justify="center",
+                    )
+                    self.console.print()  # Add empty line
 
-            if not emg_data_from_task.is_chunked["Input"]:
+                    # Process this task
+                    self._process_task(
+                        task,
+                        task_idx,
+                        emg_data,
+                        ground_truth_data,
+                        dataset,
+                        training_group,
+                        testing_group,
+                        validation_group,
+                    )
+
+                    # Add separation between tasks
+                    if task_idx < len(self.tasks_to_use) - 1:
+                        self.console.print()  # Add empty line
+                        self.console.rule(characters="═", style="blue")
+                        self.console.print()  # Add empty line
+        else:
+            # No debug output, simple loop
+            with Progress(transient=True) as progress:
+                task_progress = progress.add_task(
+                    "[cyan]Processing tasks...", total=len(self.tasks_to_use)
+                )
+
+                for task_idx, task in enumerate(self.tasks_to_use):
+                    progress.update(
+                        task_progress,
+                        advance=1,
+                        description=f"[cyan]Processing task [yellow]{task}[/yellow]...",
+                    )
+                    self._process_task(
+                        task,
+                        task_idx,
+                        emg_data,
+                        ground_truth_data,
+                        dataset,
+                        training_group,
+                        testing_group,
+                        validation_group,
+                    )
+
+        # Apply data augmentation if requested
+        self._apply_augmentations(dataset, training_group)
+
+        # Print dataset summary at the end
+        if self.debug_level > 0:
+            self._print_dataset_summary(dataset)
+
+    def _process_task(
+        self,
+        task: str,
+        task_idx: int,
+        emg_data: dict[str, np.ndarray],
+        ground_truth_data: dict[str, np.ndarray],
+        dataset: zarr.Group,
+        training_group: zarr.Group,
+        testing_group: zarr.Group,
+        validation_group: zarr.Group,
+    ):
+        """Process a single task and add its data to the dataset."""
+        emg_data_from_task = emg_data[task]
+        ground_truth_data_from_task = ground_truth_data[task]
+
+        # Trim data to same length if needed
+        min_length = min(
+            emg_data_from_task.shape[-1], ground_truth_data_from_task.shape[-1]
+        )
+        emg_data_from_task = emg_data_from_task[..., :min_length]
+        ground_truth_data_from_task = ground_truth_data_from_task[..., :min_length]
+
+        # Create appropriate data objects
+        emg_data_from_task = DATA_TYPES_MAP["emg"](
+            input_data=emg_data_from_task,
+            sampling_frequency=self.sampling_frequency,
+        )
+        ground_truth_data_from_task = DATA_TYPES_MAP[self.ground_truth_data_type](
+            input_data=ground_truth_data_from_task,
+            sampling_frequency=self.sampling_frequency,
+        )
+
+        # Verify chunking status is the same
+        if (
+            emg_data_from_task.is_chunked["Input"]
+            != ground_truth_data_from_task.is_chunked["Input"]
+        ):
+            raise ValueError(
+                f"The EMG and ground truth data should have the same chunking status. "
+                f"EMG data is {'chunked' if emg_data_from_task.is_chunked else 'not chunked'} and "
+                f"ground truth data is {'chunked' if ground_truth_data_from_task.is_chunked else 'not chunked'}."
+            )
+
+        # Debug output based on debug level
+        if self.debug_level >= 1:
+            self.console.print(
+                "[bold white on blue] Initial Data [/bold white on blue]",
+                justify="center",
+            )
+            self.console.print()  # Add empty line
+
+            emg_panel = Panel.fit(
+                str(emg_data_from_task),
+                title=f"[bold green]EMG Data Task {task}[/bold green]",
+                border_style="green",
+                box=box.ROUNDED,
+                padding=(0, 2),
+            )
+            gt_panel = Panel.fit(
+                str(ground_truth_data_from_task),
+                title=f"[bold blue]Ground Truth Data Task {task}[/bold blue]",
+                border_style="blue",
+                box=box.ROUNDED,
+                padding=(0, 2),
+            )
+            self.console.print(emg_panel)
+            self.console.print(gt_panel)
+            self.console.print()  # Add empty line
+
+        # Plot graphs only for debug level 2
+        if self.debug_level >= 2:
+            self.console.print(
+                "[bold yellow]Generating EMG data graph...[/bold yellow]"
+            )
+            emg_data_from_task.plot_graph()
+            self.console.print(
+                "[bold yellow]Generating ground truth data graph...[/bold yellow]"
+            )
+            ground_truth_data_from_task.plot_graph()
+            self.console.print()  # Add empty line
+
+        # Process unchunked data
+        if not emg_data_from_task.is_chunked["Input"]:
+            if self.debug_level >= 1:
+                self.console.print(
+                    "[bold white on magenta] Pre-Chunking Processing [/bold white on magenta]",
+                    justify="center",
+                )
+                self.console.print()  # Add empty line
+
+            # Apply filters before chunking
+            if self.emg_filter_pipeline_before_chunking:
+                if self.debug_level >= 1:
+                    self.console.print(
+                        "▶ [bold cyan]Applying EMG filters before chunking...[/bold cyan]"
+                    )
                 emg_data_from_task.apply_filter_pipeline(
                     filter_pipeline=self.emg_filter_pipeline_before_chunking,
                     representations_to_filter=self.emg_representations_to_filter_before_chunking,
                 )
+
+            if self.ground_truth_filter_pipeline_before_chunking:
+                if self.debug_level >= 1:
+                    self.console.print(
+                        "▶ [bold cyan]Applying ground truth filters before chunking...[/bold cyan]"
+                    )
                 ground_truth_data_from_task.apply_filter_pipeline(
                     filter_pipeline=self.ground_truth_filter_pipeline_before_chunking,
                     representations_to_filter=self.ground_truth_representations_to_filter_before_chunking,
                 )
 
-                emg_data_from_task.apply_filter(
-                    filter=ChunkizeDataFilter(
-                        chunk_size=self.chunk_size,
-                        chunk_shift=self.chunk_shift,
-                        is_output=len(self.emg_filter_pipeline_after_chunking) == 0,
-                        name="EMG_Chunkizer",
-                    ),
-                    representation_to_filter="Last",
+            if self.debug_level >= 1:
+                self.console.print()  # Add empty line
+                self.console.print(
+                    "[bold white on green] Chunking Process [/bold white on green]",
+                    justify="center",
                 )
-                chunked_emg_data_from_task = emg_data_from_task
+                self.console.print()  # Add empty line
 
-                ground_truth_data_from_task.apply_filter(
-                    filter=ChunkizeDataFilter(
-                        chunk_size=self.chunk_size,
-                        chunk_shift=self.chunk_shift,
-                        is_output=len(self.ground_truth_filter_pipeline_after_chunking)
-                        == 0,
-                    ),
-                    representation_to_filter="Last",
+            # Apply chunking filters
+            if self.debug_level >= 1:
+                self.console.print("▶ [bold cyan]Chunking EMG data...[/bold cyan]")
+            emg_data_from_task.apply_filter(
+                filter=ChunkizeDataFilter(
+                    chunk_size=self.chunk_size,
+                    chunk_shift=self.chunk_shift,
+                    is_output=len(self.emg_filter_pipeline_after_chunking) == 0,
+                    name="EMG_Chunkizer",
+                    input_is_chunked=False,
+                ),
+                representations_to_filter=["Last"],
+            )
+            chunked_emg_data_from_task = emg_data_from_task
+
+            if self.debug_level >= 1:
+                self.console.print(
+                    "▶ [bold cyan]Chunking ground truth data...[/bold cyan]"
                 )
-                chunked_ground_truth_data_from_task = ground_truth_data_from_task
+            ground_truth_data_from_task.apply_filter(
+                filter=ChunkizeDataFilter(
+                    chunk_size=self.chunk_size,
+                    chunk_shift=self.chunk_shift,
+                    is_output=len(self.ground_truth_filter_pipeline_after_chunking)
+                    == 0,
+                    input_is_chunked=False,
+                ),
+                representations_to_filter=["Last"],
+            )
+            chunked_ground_truth_data_from_task = ground_truth_data_from_task
 
-                if self.debug:
-                    print("After chunking:")
+            # Debug output for chunking
+            if self.debug_level >= 1:
+                self.console.print()  # Add empty line
+                self.console.rule("[bold green]After Chunking", style="green")
+                self.console.print()  # Add empty line
 
-                    print(chunked_emg_data_from_task)
-                    chunked_emg_data_from_task.plot_graph()
+                emg_panel = Panel.fit(
+                    str(chunked_emg_data_from_task),
+                    title="[bold green]Chunked EMG Data[/bold green]",
+                    border_style="green",
+                    box=box.ROUNDED,
+                    padding=(0, 2),
+                )
+                gt_panel = Panel.fit(
+                    str(chunked_ground_truth_data_from_task),
+                    title="[bold blue]Chunked Ground Truth Data[/bold blue]",
+                    border_style="blue",
+                    box=box.ROUNDED,
+                    padding=(0, 2),
+                )
+                self.console.print(emg_panel)
+                self.console.print(gt_panel)
+                self.console.print()  # Add empty line
 
-                    print(chunked_ground_truth_data_from_task)
-                    chunked_ground_truth_data_from_task.plot_graph()
-            else:
-                chunked_emg_data_from_task = emg_data_from_task  # [:min_length]
-                i = 0
-                temp = []
-                while (
-                    i + self.amount_of_chunks_to_augment_at_once
-                    <= chunked_emg_data_from_task.shape[0]
-                ):
-                    temp.append(
-                        np.concatenate(
-                            chunked_emg_data_from_task[
-                                i : i + self.amount_of_chunks_to_augment_at_once
-                            ],
-                            axis=-1,
-                        )
+            # Plot graphs only for debug level 2
+            if self.debug_level >= 2:
+                self.console.print(
+                    "[bold yellow]Generating chunked EMG data graph...[/bold yellow]"
+                )
+                chunked_emg_data_from_task.plot_graph()
+                self.console.print(
+                    "[bold yellow]Generating chunked ground truth data graph...[/bold yellow]"
+                )
+                chunked_ground_truth_data_from_task.plot_graph()
+                self.console.print()  # Add empty line
+        else:
+            # Data is already chunked
+            chunked_emg_data_from_task = emg_data_from_task
+            # Process in batches to avoid memory issues
+            i = 0
+            temp = []
+            while (
+                i + self.amount_of_chunks_to_augment_at_once
+                <= chunked_emg_data_from_task.shape[0]
+            ):
+                temp.append(
+                    np.concatenate(
+                        chunked_emg_data_from_task[
+                            i : i + self.amount_of_chunks_to_augment_at_once
+                        ],
+                        axis=-1,
                     )
-                    i += self.amount_of_chunks_to_augment_at_once
-                chunked_emg_data_from_task = np.stack(temp, axis=1)
-
-                chunked_ground_truth_data_from_task = (
-                    ground_truth_data_from_task  # [:min_length]
                 )
+                i += self.amount_of_chunks_to_augment_at_once
+            chunked_emg_data_from_task = np.stack(temp, axis=1)
+            chunked_ground_truth_data_from_task = ground_truth_data_from_task
 
+        # Post-chunking processing section
+        if self.debug_level >= 1:
+            self.console.print(
+                "[bold white on magenta] Post-Chunking Processing [/bold white on magenta]",
+                justify="center",
+            )
+            self.console.print()  # Add empty line
+
+        # Apply filters after chunking
+        if self.emg_filter_pipeline_after_chunking:
+            if self.debug_level >= 1:
+                self.console.print(
+                    "▶ [bold cyan]Applying EMG filters after chunking...[/bold cyan]"
+                )
             chunked_emg_data_from_task.apply_filter_pipeline(
                 filter_pipeline=self.emg_filter_pipeline_after_chunking,
                 representations_to_filter=self.emg_representations_to_filter_after_chunking,
             )
 
+        if self.ground_truth_filter_pipeline_after_chunking:
+            if self.debug_level >= 1:
+                self.console.print(
+                    "▶ [bold cyan]Applying ground truth filters after chunking...[/bold cyan]"
+                )
             chunked_ground_truth_data_from_task.apply_filter_pipeline(
                 filter_pipeline=self.ground_truth_filter_pipeline_after_chunking,
                 representations_to_filter=self.ground_truth_representations_to_filter_after_chunking,
             )
 
-            if self.debug:
-                print("After filtering the chunked data:")
+        # Debug output after filtering chunked data
+        if self.debug_level >= 1:
+            self.console.print()  # Add empty line
+            self.console.rule("[bold green]After Filtering Chunked Data", style="green")
+            self.console.print()  # Add empty line
 
-                print(emg_data_from_task)
-                chunked_emg_data_from_task.plot_graph()
+            emg_panel = Panel.fit(
+                str(chunked_emg_data_from_task),
+                title="[bold green]Filtered Chunked EMG Data[/bold green]",
+                border_style="green",
+                box=box.ROUNDED,
+                padding=(0, 2),
+            )
+            gt_panel = Panel.fit(
+                str(chunked_ground_truth_data_from_task),
+                title="[bold blue]Filtered Chunked Ground Truth Data[/bold blue]",
+                border_style="blue",
+                box=box.ROUNDED,
+                padding=(0, 2),
+            )
+            self.console.print(emg_panel)
+            self.console.print(gt_panel)
+            self.console.print()  # Add empty line
 
-                print(ground_truth_data_from_task)
-                chunked_ground_truth_data_from_task.plot_graph()
+        # Plot graphs only for debug level 2
+        if self.debug_level >= 2:
+            self.console.print(
+                "[bold yellow]Generating filtered chunked EMG data graph...[/bold yellow]"
+            )
+            chunked_emg_data_from_task.plot_graph()
+            self.console.print(
+                "[bold yellow]Generating filtered chunked ground truth data graph...[/bold yellow]"
+            )
+            chunked_ground_truth_data_from_task.plot_graph()
+            self.console.print()  # Add empty line
 
-            for group_name, chunked_data_from_task in zip(
-                ["emg", "ground_truth"],
-                [chunked_emg_data_from_task, chunked_ground_truth_data_from_task],
-            ):
-                # assumption is made that the emg and ground truth data have the same amount of chunks
-                (
-                    training_sizes,
-                    testing_sizes,
-                    validation_sizes,
-                ) = self.__add_data_to_dataset(
-                    chunked_data_from_task,
-                    [
-                        (
-                            g.create_group(group_name)
-                            if group_name not in list(g.group_keys())
-                            else g[group_name]
-                        )
-                        for g in (training_group, testing_group, validation_group)
-                    ],
-                )
+        # Dataset creation section
+        if self.debug_level >= 1:
+            self.console.print(
+                "[bold white on blue] Dataset Creation [/bold white on blue]",
+                justify="center",
+            )
+            self.console.print(
+                "▶ [bold cyan]Adding processed data to dataset...[/bold cyan]"
+            )
+            self.console.print()  # Add empty line
 
-            data_length = list(
-                chunked_emg_data_from_task.output_representations.values()
-            )[-1].shape[0]
-
-            data_length_ground_truth = list(
-                chunked_ground_truth_data_from_task.output_representations.values()
-            )[-1].shape[0]
-
-            # check that all values in training_sizes, testing_sizes, and validation_sizes are the same
-            assert len(set(training_sizes)) == 1, "The training sizes are not the same."
-            assert len(set(testing_sizes)) == 1, "The testing sizes are not the same."
-            assert len(set(validation_sizes)) == 1, (
-                "The validation sizes are not the same."
+        for group_name, chunked_data_from_task in zip(
+            ["emg", "ground_truth"],
+            [chunked_emg_data_from_task, chunked_ground_truth_data_from_task],
+        ):
+            (
+                training_sizes,
+                testing_sizes,
+                validation_sizes,
+            ) = self.__add_data_to_dataset(
+                chunked_data_from_task,
+                [
+                    (
+                        g.create_group(group_name)
+                        if group_name not in list(g.group_keys())
+                        else g[group_name]
+                    )
+                    for g in (training_group, testing_group, validation_group)
+                ],
             )
 
-            assert data_length == data_length_ground_truth, (
-                "The data lengths of the EMG and ground truth data should be the same. For task {}, the EMG data has length {} and the ground truth data has length {}.".format(
-                    task, data_length, data_length_ground_truth
-                )
-            )
+        # Verify data lengths match
+        data_length = list(chunked_emg_data_from_task.output_representations.values())[
+            -1
+        ].shape[0]
 
-            for g, size in zip(
-                (training_group, testing_group, validation_group),
-                (
-                    training_sizes[0],
-                    testing_sizes[0],
-                    validation_sizes[0],
-                ),  # assumption is made that all output representations have the same length
-            ):
-                _add_to_dataset(
-                    g,
-                    np.array([task] * size)[..., None].astype(
-                        f"<U{self.__tasks_string_length}"
-                    ),
-                    "label",
-                )
-                _add_to_dataset(
-                    g,
-                    np.array([self.tasks_to_use.index(task)] * size)[..., None].astype(
-                        np.int8
-                    ),
-                    "class",
-                )
-                _add_to_dataset(
-                    g,
-                    np.repeat(
-                        np.array(
-                            [
-                                np.eye(len(self.tasks_to_use))[
-                                    self.tasks_to_use.index(task)
-                                ]
+        data_length_ground_truth = list(
+            chunked_ground_truth_data_from_task.output_representations.values()
+        )[-1].shape[0]
+
+        # Validate sizes
+        assert len(set(training_sizes)) == 1, "The training sizes are not the same."
+        assert len(set(testing_sizes)) == 1, "The testing sizes are not the same."
+        assert len(set(validation_sizes)) == 1, "The validation sizes are not the same."
+
+        assert data_length == data_length_ground_truth, (
+            f"The data lengths of the EMG and ground truth data should be the same. "
+            f"For task {task}, the EMG data has length {data_length} and the ground "
+            f"truth data has length {data_length_ground_truth}."
+        )
+
+        # Add labels, class indices, and one-hot encodings
+        for g, size in zip(
+            (training_group, testing_group, validation_group),
+            (training_sizes[0], testing_sizes[0], validation_sizes[0]),
+        ):
+            # Use consistent unicode string array approach since conversion
+            # happens in _add_to_dataset as needed
+            label_array = np.array(
+                [task] * size, dtype=f"<U{self.__tasks_string_length}"
+            ).reshape(-1, 1)
+
+            _add_to_dataset(
+                g,
+                label_array,
+                "label",
+            )
+            _add_to_dataset(
+                g,
+                np.array([self.tasks_to_use.index(task)] * size, dtype=np.int8).reshape(
+                    -1, 1
+                ),
+                "class",
+            )
+            _add_to_dataset(
+                g,
+                np.repeat(
+                    np.array(
+                        [
+                            np.eye(len(self.tasks_to_use), dtype=np.int8)[
+                                self.tasks_to_use.index(task)
                             ]
-                        ),
-                        size,
-                        axis=0,
-                    ).astype(np.int8),
-                    "one_hot_class",
-                )
+                        ]
+                    ),
+                    size,
+                    axis=0,
+                ),
+                "one_hot_class",
+            )
 
-        for augmentation_pipeline in self.augmentation_pipelines:
+    def _apply_augmentations(self, dataset: zarr.Group, training_group: zarr.Group):
+        """Apply augmentation pipelines to the training data.
+
+        Parameters
+        ----------
+        dataset : zarr.Group
+            The full zarr dataset
+        training_group : zarr.Group
+            The training group to augment
+        """
+        if not self.augmentation_pipelines:
+            if self.debug_level > 0:
+                self.console.print(
+                    "[bold yellow]No augmentation pipelines specified, skipping augmentation[/bold yellow]"
+                )
+                self.console.print()  # Add empty line
+            return
+
+        if self.debug_level > 0:
+            self.console.rule(
+                "[bold blue]APPLYING AUGMENTATION PIPELINES", style="blue double"
+            )
+            self.console.print()  # Add empty line
+            self.console.print(
+                f"[bold green]Applying {len(self.augmentation_pipelines)} augmentation pipelines[/bold green]"
+            )
+            self.console.print()  # Add empty line
+
+        for pipeline_idx, augmentation_pipeline in enumerate(
+            self.augmentation_pipelines
+        ):
+            if self.debug_level > 0:
+                self.console.print(
+                    f"[bold white on green] Augmentation Pipeline {pipeline_idx + 1}/{len(self.augmentation_pipelines)} [/bold white on green]",
+                    justify="center",
+                )
+                self.console.print(
+                    f"[bold cyan]{str(augmentation_pipeline)}[/bold cyan]"
+                )
+                self.console.print()  # Add empty line
+
             emg_to_append = {k: [] for k in dataset["training/emg"]}
             ground_truth_to_append = {k: [] for k in dataset["training/ground_truth"]}
             label_to_append = []
             class_to_append = []
             one_hot_class_to_append = []
-            for i in tqdm(
-                range(
-                    list(chunked_emg_data_from_task.output_representations.values())[
-                        -1
-                    ].shape[0]
-                ),
-                desc=f"Augmenting with {str(augmentation_pipeline)}",
-            ):
-                for k in dataset["training/emg"]:
-                    temp = DATA_TYPES_MAP["emg"](
-                        input_data=dataset["training/emg"][k][i].astype(np.float32),
-                        sampling_frequency=self.sampling_frequency,
-                    )
-                    temp.apply_filter_pipeline(
-                        filter_pipeline=[augmentation_pipeline],
-                        representations_to_filter=["Last"],
-                    )
-                    emg_to_append[k].append(temp["Last"])
-                for k in dataset["training/ground_truth"]:
-                    ground_truth_to_append[k].append(
-                        dataset["training/ground_truth"][k][i]
-                    )
 
-                label_to_append.append(dataset["training/label"][i])
-                class_to_append.append(dataset["training/class"][i])
-                one_hot_class_to_append.append(dataset["training/one_hot_class"][i])
+            # Get total number of items to augment
+            total_items = 0
+            for k in dataset["training/emg"]:
+                total_items = dataset["training/emg"][k].shape[0]
+                break
 
-                if i % self.amount_of_chunks_to_augment_at_once == 0:
-                    for k, v in emg_to_append.items():
-                        _add_to_dataset(training_group["emg"], np.array(v), name=k)
-                    for k, v in ground_truth_to_append.items():
-                        _add_to_dataset(
-                            training_group["ground_truth"], np.array(v), name=k
+            if self.debug_level > 0:
+                self.console.print(
+                    f"[bold green]Augmenting {total_items} items[/bold green]"
+                )
+
+            # Use Rich progress tracking
+            with Progress(transient=True) as progress:
+                augmentation_task = progress.add_task(
+                    f"[cyan]Applying {str(augmentation_pipeline)}...", total=total_items
+                )
+
+                for i in range(total_items):
+                    progress.update(augmentation_task, advance=1)
+
+                    # Apply augmentation to EMG data
+                    for k in dataset["training/emg"]:
+                        temp = DATA_TYPES_MAP["emg"](
+                            input_data=dataset["training/emg"][k][i].astype(np.float32),
+                            sampling_frequency=self.sampling_frequency,
                         )
-                    _add_to_dataset(
-                        training_group, np.array(label_to_append), name="label"
-                    )
-                    _add_to_dataset(
-                        training_group, np.array(class_to_append), name="class"
-                    )
-                    _add_to_dataset(
-                        training_group,
-                        np.array(one_hot_class_to_append),
-                        name="one_hot_class",
-                    )
-                    emg_to_append = {k: [] for k in dataset["training/emg"]}
-                    ground_truth_to_append = {
-                        k: [] for k in dataset["training/ground_truth"]
-                    }
-                    label_to_append = []
-                    class_to_append = []
-                    one_hot_class_to_append = []
+                        temp.apply_filter_pipeline(
+                            filter_pipeline=[augmentation_pipeline],
+                            representations_to_filter=[["Last"]],
+                        )
+                        emg_to_append[k].append(temp["Last"])
 
+                    # Copy corresponding ground truth data
+                    for k in dataset["training/ground_truth"]:
+                        ground_truth_to_append[k].append(
+                            dataset["training/ground_truth"][k][i]
+                        )
+
+                    # Copy labels and classes
+                    label_to_append.append(dataset["training/label"][i])
+                    class_to_append.append(dataset["training/class"][i])
+                    one_hot_class_to_append.append(dataset["training/one_hot_class"][i])
+
+                    # Batch process to avoid memory issues
+                    if i % self.amount_of_chunks_to_augment_at_once == 0 and i > 0:
+                        if self.debug_level > 0:
+                            # Clear progress for status message
+                            progress.stop()
+                            self.console.print()  # Add empty line
+                            self.console.print(
+                                f"[green]▶ Appending batch of {len(label_to_append)} augmented items[/green]"
+                            )
+
+                        self._append_augmented_batch(
+                            training_group,
+                            emg_to_append,
+                            ground_truth_to_append,
+                            label_to_append,
+                            class_to_append,
+                            one_hot_class_to_append,
+                        )
+                        # Reset accumulators
+                        emg_to_append = {k: [] for k in dataset["training/emg"]}
+                        ground_truth_to_append = {
+                            k: [] for k in dataset["training/ground_truth"]
+                        }
+                        label_to_append = []
+                        class_to_append = []
+                        one_hot_class_to_append = []
+
+            # Process any remaining items
             if len(list(emg_to_append.values())[0]) > 0:
-                for k, v in emg_to_append.items():
-                    _add_to_dataset(training_group["emg"], np.array(v), name=k)
-                for k, v in ground_truth_to_append.items():
-                    _add_to_dataset(training_group["ground_truth"], np.array(v), name=k)
-                _add_to_dataset(training_group, np.array(label_to_append), name="label")
-                _add_to_dataset(
-                    training_group, np.array(class_to_append), name=f"class"
-                )
-                _add_to_dataset(
+                if self.debug_level > 0:
+                    self.console.print()  # Add empty line
+                    self.console.print(
+                        f"[green]▶ Appending final batch of {len(label_to_append)} augmented items[/green]"
+                    )
+
+                self._append_augmented_batch(
                     training_group,
-                    np.array(one_hot_class_to_append),
-                    name=f"one_hot_class",
+                    emg_to_append,
+                    ground_truth_to_append,
+                    label_to_append,
+                    class_to_append,
+                    one_hot_class_to_append,
                 )
+
+            if self.debug_level > 0:
+                self.console.print()  # Add empty line
+                self.console.print(
+                    f"[bold blue]✓ Completed augmentation pipeline {pipeline_idx + 1}/{len(self.augmentation_pipelines)}[/bold blue]"
+                )
+
+                # Add a separator between pipelines
+                if pipeline_idx < len(self.augmentation_pipelines) - 1:
+                    self.console.print()  # Add empty line
+                    self.console.rule(characters="═", style="blue")
+                    self.console.print()  # Add empty line
+
+    def _append_augmented_batch(
+        self,
+        training_group: zarr.Group,
+        emg_to_append: Dict[str, List[np.ndarray]],
+        ground_truth_to_append: Dict[str, List[np.ndarray]],
+        label_to_append: List[np.ndarray],
+        class_to_append: List[np.ndarray],
+        one_hot_class_to_append: List[np.ndarray],
+    ):
+        """Append a batch of augmented data to the training group.
+
+        Parameters
+        ----------
+        training_group : zarr.Group
+            The training group to append data to
+        emg_to_append : Dict[str, List[np.ndarray]]
+            EMG data to append
+        ground_truth_to_append : Dict[str, List[np.ndarray]]
+            Ground truth data to append
+        label_to_append : List[np.ndarray]
+            Labels to append
+        class_to_append : List[np.ndarray]
+            Class indices to append
+        one_hot_class_to_append : List[np.ndarray]
+            One-hot encoded classes to append
+        """
+        # Debug shapes before appending
+        if self.debug_level >= 1:
+            # Create a table for shapes
+            shapes_table = Table(
+                title="Augmented Batch Shapes",
+                show_header=True,
+                header_style="bold magenta",
+                box=box.ROUNDED,
+                padding=(0, 2),
+                width=80,
+                title_style="bold magenta",
+                title_justify="center",
+            )
+            shapes_table.add_column("Data Type", style="cyan", width=50)
+            shapes_table.add_column("Shape", style="green")
+
+            # Add EMG shapes
+            for k, v in emg_to_append.items():
+                if v:
+                    shapes_table.add_row(f"EMG {k}", str(np.array(v).shape))
+                    break
+
+            # Add ground truth shapes
+            for k, v in ground_truth_to_append.items():
+                if v:
+                    shapes_table.add_row(f"Ground Truth {k}", str(np.array(v).shape))
+                    break
+
+            # Add label shape
+            if label_to_append:
+                shapes_table.add_row("Labels", str(np.array(label_to_append).shape))
+
+            self.console.print(shapes_table)
+
+        # Add EMG data
+        for k, v in emg_to_append.items():
+            if v:  # Check that list is not empty
+                _add_to_dataset(training_group["emg"], np.array(v), name=k)
+
+        # Add ground truth data
+        for k, v in ground_truth_to_append.items():
+            if v:  # Check that list is not empty
+                _add_to_dataset(training_group["ground_truth"], np.array(v), name=k)
+
+        # Add labels and classes
+        if label_to_append:
+            _add_to_dataset(training_group, np.array(label_to_append), name="label")
+
+        if class_to_append:
+            _add_to_dataset(training_group, np.array(class_to_append), name="class")
+            _add_to_dataset(
+                training_group,
+                np.array(one_hot_class_to_append),
+                name="one_hot_class",
+            )
+
+    def _print_dataset_summary(self, dataset: zarr.Group):
+        """Print a summary of the created dataset."""
+        # Get dataset sizes
+        training_emg_sizes = {
+            k: dataset["training/emg"][k].shape for k in dataset["training/emg"]
+        }
+        testing_emg_sizes = (
+            {k: dataset["testing/emg"][k].shape for k in dataset["testing/emg"]}
+            if "emg" in dataset["testing"]
+            else {}
+        )
+        validation_emg_sizes = (
+            {k: dataset["validation/emg"][k].shape for k in dataset["validation/emg"]}
+            if "emg" in dataset["validation"]
+            else {}
+        )
+
+        # Calculate memory usage
+        total_size_bytes = 0
+        split_sizes = {}
+        for split in ["training", "testing", "validation"]:
+            split_size_bytes = 0
+            for group in ["emg", "ground_truth"]:
+                if group in dataset[split]:
+                    for k in dataset[split][group]:
+                        arr = dataset[split][group][k]
+                        item_size = np.dtype(arr.dtype).itemsize
+                        arr_size = np.prod(arr.shape) * item_size
+                        split_size_bytes += arr_size
+                        total_size_bytes += arr_size
+            split_sizes[split] = split_size_bytes / (1024 * 1024)  # Convert to MB
+
+        # Total size in MB
+        total_size_mb = total_size_bytes / (1024 * 1024)
+
+        # Create a visually appealing summary with Rich
+        self.console.rule("[bold blue]DATASET CREATION COMPLETED", style="blue double")
+        self.console.print()  # Add empty line
+
+        # Summary table
+        summary_table = Table(
+            title="Dataset Summary",
+            show_header=True,
+            header_style="bold magenta",
+            box=box.ROUNDED,
+            padding=(0, 2),
+            width=60,
+            title_style="bold magenta",
+            title_justify="center",
+        )
+        summary_table.add_column("Metric", style="dim", width=30)
+        summary_table.add_column("Value", style="green")
+
+        # Add summary metrics
+        summary_table.add_row("Total tasks", str(len(self.tasks_to_use)))
+        summary_table.add_row(
+            "Training samples",
+            str(
+                dataset["training/label"].shape[0]
+                if "label" in dataset["training"]
+                else 0
+            ),
+        )
+        summary_table.add_row(
+            "Testing samples",
+            str(
+                dataset["testing/label"].shape[0]
+                if "label" in dataset["testing"]
+                else 0
+            ),
+        )
+        summary_table.add_row(
+            "Validation samples",
+            str(
+                dataset["validation/label"].shape[0]
+                if "label" in dataset["validation"]
+                else 0
+            ),
+        )
+        summary_table.add_row("Total dataset size", f"{total_size_mb:.2f} MB")
+
+        # Add split sizes
+        for split, size_mb in split_sizes.items():
+            summary_table.add_row(
+                f"{split.capitalize()} split size", f"{size_mb:.2f} MB"
+            )
+
+        self.console.print(summary_table)
+        self.console.print()  # Add empty line
+
+        # Dataset structure tree
+        structure_tree = Tree("[bold yellow]Dataset Structure")
+
+        for split, sizes in [
+            ("Training", training_emg_sizes),
+            ("Testing", testing_emg_sizes),
+            ("Validation", validation_emg_sizes),
+        ]:
+            if sizes:
+                split_branch = structure_tree.add(f"[bold cyan]{split}")
+
+                # EMG representations
+                emg_branch = split_branch.add("[bold green]EMG Representations")
+                for k, shape in sizes.items():
+                    emg_branch.add(f"{k}: {shape}")
+
+        self.console.print(structure_tree)
+        self.console.print()  # Add empty line
+
+        self.console.rule(
+            "[bold green]Dataset Creation Successfully Completed!", style="green double"
+        )
