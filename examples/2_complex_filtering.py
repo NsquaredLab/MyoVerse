@@ -24,41 +24,43 @@ with open("data/emg.pkl", "rb") as f:
 
 print(emg_data)
 
-task_one_data = copy(emg_data["1"])
+task_one_data = emg_data.copy()["1"]
 
 print(task_one_data)
 
 # %%
 # Applying a basic filter sequence
 # --------------------------------
-# A common filter sequence used by us in our deep learning papers is to first apply a bandpass between 47.5 and 52.5 Hz
+# A common filter sequence used by us in our deep learning papers is to first apply a bandstop between 47.5 and 52.5 Hz
 # to remove the powerline noise.
 #
 # Then we copied this filtered data and applied a lowpass filter at 20 Hz to remove high-frequency noise.
-# The deep learning models were thus trained with 2 representations of the data, one with the powerline noise removed and one with the high-frequency noise removed.
+# The deep learning models were thus trained with 2 representations of the data, one with the powerline noise removed and one with the high-frequency and powerline noise removed.
 #
 # We can achieve this by applying two filters to the data using the apply_filters method.
 #
 # .. note:: Please run this code on your local machine as the plots are interactive and information can be seen by hovering over the nodes.
 from scipy.signal import butter
 
-from myoverse.datasets.filters.temporal import SOSFrequencyFilter
+from myoverse.datasets.filters.temporal import SOSFrequencyFilter, RMSFilter
 
 # Define the filters
-bandpass_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=butter(4, [47.5, 52.5], "bandpass", output="sos", fs=2044),
+bandstop_filter = SOSFrequencyFilter(
+    sos_filter_coefficients=butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2044),
     is_output=True,
-    name="Bandpass 50",
+    name="Bandstop 50",
+    input_is_chunked=False,
 )
 lowpass_filter = SOSFrequencyFilter(
     sos_filter_coefficients=butter(4, 20, "lowpass", output="sos", fs=2044),
     is_output=True,
     name="Lowpass 20",
+    input_is_chunked=False,
 )
 
 # Apply the filters
 task_one_data.apply_filter_sequence(
-    filter_sequence=[bandpass_filter, lowpass_filter], representation_to_filter="Input"
+    filter_sequence=[bandstop_filter, lowpass_filter], representations_to_filter=["Input"]
 )
 
 print()
@@ -76,7 +78,7 @@ task_one_data.plot_graph()
 #
 # 1. Chunk the data into 100 ms windows.
 #
-# 2. Apply a bandpass filter between 47.5 and 52.5 Hz to remove powerline noise.
+# 2. Apply a bandstop filter between 47.5 and 52.5 Hz to remove powerline noise.
 #
 # 3. Copy the filtered data and apply a lowpass filter at 20 Hz to remove high-frequency noise.
 # 4. Compute the root mean square of the data from step 3.
@@ -94,21 +96,23 @@ from myoverse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionF
 from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
 # reset the data
-task_one_data = copy(emg_data["1"])
+task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2044)
 
 # Define the filters
-bandpass_filter = butter(4, [47.5, 52.5], "bandpass", output="sos", fs=2044)
+bandstop_filter = butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2044)
 lowpass_filter = butter(4, 20, "lowpass", output="sos", fs=2044)
 
 # %%
 # Apply the filters for steps 1 and 2
 # -----------------------------------
+CHUNK_SIZE = 320
+
 task_one_data.apply_filter_sequence(
     filter_sequence=[
-        ChunkizeDataFilter(chunk_size=192, chunk_shift=64),
-        SOSFrequencyFilter(sos_filter_coefficients=bandpass_filter, name="Bandpass 50"),
+        ChunkizeDataFilter(chunk_size=CHUNK_SIZE, chunk_shift=16, name="Windowed", input_is_chunked=False),
+        SOSFrequencyFilter(sos_filter_coefficients=bandstop_filter, name="Bandstop 50", input_is_chunked=True),
     ],
-    representation_to_filter="Input",
+    representations_to_filter=["Input"],
 )
 
 print(task_one_data)
@@ -120,14 +124,15 @@ task_one_data.plot_graph()
 # ----------------------------------
 task_one_data.apply_filter_sequence(
     filter_sequence=[
-        SOSFrequencyFilter(sos_filter_coefficients=lowpass_filter, name="Lowpass 20"),
-        ApplyFunctionFilter(
-            function=lambda x: np.sqrt(np.mean(np.square(x), axis=-1)),
+        SOSFrequencyFilter(sos_filter_coefficients=lowpass_filter, name="Lowpass 20", input_is_chunked=True),
+        RMSFilter(
             is_output=True,
             name="RMS on Lowpass 20",
+            input_is_chunked=True,
+            window_size=CHUNK_SIZE,
         ),
     ],
-    representation_to_filter="Bandpass 50",
+    representations_to_filter=["Bandstop 50"],
 )
 
 print(task_one_data)
@@ -138,12 +143,14 @@ task_one_data.plot_graph()
 # Apply the filters for step 5
 # -----------------------------
 task_one_data.apply_filter(
-    ApplyFunctionFilter(
-        function=lambda x: np.sqrt(np.mean(np.square(x), axis=-1)),
+    RMSFilter
+    (
         is_output=True,
-        name="RMS on Bandpass 50",
+        name="RMS on Bandstop 50",
+        input_is_chunked=True,
+        window_size=CHUNK_SIZE,
     ),
-    representation_to_filter="Bandpass 50",
+    representations_to_filter=["Bandstop 50"],
 )
 
 print(task_one_data)
@@ -164,7 +171,7 @@ filter_sequences = {0: "1->2->3->4", 1: "1->2->5"}
 fig, axs = plt.subplots(2, sharex=True, sharey=True)
 
 for i, (key, value) in enumerate(task_one_data.output_representations.items()):
-    for channel in range(value.shape[-1]):
+    for channel in range(value.shape[-2]):
         axs[i].plot(value[:, channel], color="black", alpha=0.01)
 
     axs[i].set_title(f"Filter sequence: {filter_sequences[i]}")
@@ -184,7 +191,7 @@ plt.show()
 # This will remove the intermediate representations (shown in grey) from the dataset object.
 #
 # .. note:: If new filters rely on the intermediate representations, they will be recalculated which can be computationally expensive.
-task_one_data = copy(emg_data["1"])
+task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2044)
 
 print(task_one_data)
 
@@ -192,28 +199,30 @@ print(task_one_data)
 task_one_data.apply_filter_pipeline(
     filter_pipeline=[
         [
-            ChunkizeDataFilter(chunk_size=192, chunk_shift=64),
+            ChunkizeDataFilter(chunk_size=CHUNK_SIZE, chunk_shift=16, name="Windowed", input_is_chunked=False),
             SOSFrequencyFilter(
-                sos_filter_coefficients=bandpass_filter, name="Bandpass 50"
+                sos_filter_coefficients=bandstop_filter, name="Bandstop 50", input_is_chunked=True
             ),
             SOSFrequencyFilter(
-                sos_filter_coefficients=lowpass_filter, name="Lowpass 20"
+                sos_filter_coefficients=lowpass_filter, name="Lowpass 20", input_is_chunked=True
             ),
-            ApplyFunctionFilter(
-                function=lambda x: np.sqrt(np.mean(np.square(x), axis=-1)),
+            RMSFilter(
                 is_output=True,
                 name="RMS on Lowpass 20",
+                input_is_chunked=True,
+                window_size=CHUNK_SIZE,
             ),
         ],
         [
-            ApplyFunctionFilter(
-                function=lambda x: np.sqrt(np.mean(np.square(x), axis=-1)),
+            RMSFilter(
                 is_output=True,
-                name="RMS on Bandpass 50",
-            )
+                name="RMS on Bandstop 50",
+                input_is_chunked=True,
+                window_size=CHUNK_SIZE,
+            ),
         ],
     ],
-    representations_to_filter=["Input", "Bandpass 50"],
+    representations_to_filter=[["Input"], ["Bandstop 50"]],
     keep_individual_filter_steps=False,
 )
 
