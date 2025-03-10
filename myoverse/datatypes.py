@@ -338,8 +338,14 @@ class _Data:
             "This method should be implemented in the child class."
         )
 
-    def plot_graph(self):
-        """Draws the graph of the processed representations."""
+    def plot_graph(self, title: Optional[str] = None):
+        """Draws the graph of the processed representations.
+
+        Parameters
+        ----------
+        title : Optional[str], default=None
+            Optional title for the graph. If None, no title will be displayed.
+        """
         # Use spectral layout but with enhancements for better flow
         G = self._processed_representations
 
@@ -446,6 +452,10 @@ class _Data:
         plt.figure(figsize=(14, 10))
         ax = plt.gca()
 
+        # Add title if provided
+        if title is not None:
+            plt.title(title, fontsize=16, pad=20)
+
         # Create dictionaries for node attributes
         node_colors = {}
         node_sizes = {}
@@ -516,13 +526,22 @@ class _Data:
         # Draw node labels with different colors based on node type
         label_objects = {}
 
-        # Labels for all nodes (numbers), excluding output node
-        node_labels = {
-            node: str(index)
-            for index, node in enumerate(
-                [x for x in G.nodes if x != OutputRepresentationName]
-            )
-        }
+        # Create custom labels: "I" for input, "O" for output, numbers for others starting from 1
+        node_labels = {}
+        # Filter out input and output nodes for separate labeling
+        intermediate_nodes = [
+            node
+            for node in G.nodes
+            if node not in [InputRepresentationName, OutputRepresentationName]
+        ]
+
+        # Label intermediate nodes starting from 1
+        for idx, node in enumerate(intermediate_nodes, start=1):
+            node_labels[node] = str(idx)
+
+        # Add labels for input and output nodes
+        node_labels[InputRepresentationName] = "I"
+        node_labels[OutputRepresentationName] = "O"
 
         label_objects["nodes"] = nx.draw_networkx_labels(
             G, pos, labels=node_labels, font_size=18, font_color="white", ax=ax
