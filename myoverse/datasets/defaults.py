@@ -80,7 +80,7 @@ class EMBCDataset:
             silence_zarr_warnings=self.silence_zarr_warnings,
             emg_filter_pipeline_after_chunking=[
                 [
-                    IdentityFilter(is_output=True, input_is_chunked=True),
+                    IdentityFilter(is_output=True, name="raw", input_is_chunked=True),
                     SOSFrequencyFilter(
                         sos_filter_coefficients=butter(
                             4, 20, "lowpass", output="sos", fs=2048
