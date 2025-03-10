@@ -1,23 +1,26 @@
 import pickle
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import zarr
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
-from rich.syntax import Syntax
+from rich.progress import (
+    Progress,
+    TextColumn,
+    BarColumn,
+    TaskProgressColumn,
+    TimeRemainingColumn,
+    SpinnerColumn,
+)
 from rich.table import Table
 from rich.tree import Tree
-from rich.progress import track, Progress
-from rich.live import Live
-from rich.layout import Layout
-from rich.rule import Rule
-from rich import box
 
-from myoverse.datasets.filters.generic import ChunkizeDataFilter, FilterBaseClass
 from myoverse.datasets.filters.emg_augmentations import EMGAugmentation
-from myoverse.datatypes import InputRepresentationName, _Data, DATA_TYPES_MAP
+from myoverse.datasets.filters.generic import ChunkizeDataFilter, FilterBaseClass
+from myoverse.datatypes import _Data, DATA_TYPES_MAP
 
 
 def _split_data(data: np.ndarray, split_ratio: float) -> tuple[np.ndarray, np.ndarray]:
@@ -254,6 +257,7 @@ class EMGDataset:
         self.debug_level = debug_level
         self.silence_zarr_warnings = silence_zarr_warnings
 
+        # Initialize Rich console for all debug levels
         self.console = Console()
 
         self.__tasks_string_length = 0
@@ -482,69 +486,45 @@ class EMGDataset:
             self.console.rule("[bold blue]PROCESSING TASKS", style="blue double")
             self.console.print()  # Add empty line
 
-            # Use Rich progress for task processing
-            with Progress(transient=True) as progress:
-                task_progress = progress.add_task(
-                    "[cyan]Processing tasks...", total=len(self.tasks_to_use)
+        # Create progress bar for task processing regardless of debug level
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[bold blue]{task.description}"),
+            BarColumn(bar_width=40),
+            TaskProgressColumn(),
+            TextColumn("•"),
+            TimeRemainingColumn(),
+            console=self.console,
+            expand=True,
+            transient=False,
+        ) as progress:
+            task_progress = progress.add_task(
+                f"[bold]Processing [cyan]{len(self.tasks_to_use)}[/cyan] tasks...",
+                total=len(self.tasks_to_use),
+            )
+
+            # Process each task with progress tracking
+            for task_idx, task in enumerate(self.tasks_to_use):
+                # Update the progress bar with current task information
+                progress.update(
+                    task_progress,
+                    description=f"[bold]Processing task [cyan]{task}[/cyan] ([cyan]{task_idx + 1}[/cyan]/[cyan]{len(self.tasks_to_use)}[/cyan])",
                 )
 
-                for task_idx, task in enumerate(self.tasks_to_use):
-                    progress.update(
-                        task_progress,
-                        advance=1,
-                        description=f"[cyan]Processing task [yellow]{task}[/yellow]...",
-                    )
-
-                    # Clear progress bar when displaying task info
-                    progress.stop()
-
-                    # Create a stylized task header
-                    self.console.print(
-                        f"[bold cyan on white] Task {task} ({task_idx + 1}/{len(self.tasks_to_use)}) [/bold cyan on white]",
-                        justify="center",
-                    )
-                    self.console.print()  # Add empty line
-
-                    # Process this task
-                    self._process_task(
-                        task,
-                        task_idx,
-                        emg_data,
-                        ground_truth_data,
-                        dataset,
-                        training_group,
-                        testing_group,
-                        validation_group,
-                    )
-
-                    # Add separation between tasks
-                    if task_idx < len(self.tasks_to_use) - 1:
-                        self.console.print()  # Add empty line
-                        self.console.rule(characters="═", style="blue")
-                        self.console.print()  # Add empty line
-        else:
-            # No debug output, simple loop
-            with Progress(transient=True) as progress:
-                task_progress = progress.add_task(
-                    "[cyan]Processing tasks...", total=len(self.tasks_to_use)
+                # Process the task
+                self._process_task(
+                    task,
+                    task_idx,
+                    emg_data,
+                    ground_truth_data,
+                    dataset,
+                    training_group,
+                    testing_group,
+                    validation_group,
                 )
 
-                for task_idx, task in enumerate(self.tasks_to_use):
-                    progress.update(
-                        task_progress,
-                        advance=1,
-                        description=f"[cyan]Processing task [yellow]{task}[/yellow]...",
-                    )
-                    self._process_task(
-                        task,
-                        task_idx,
-                        emg_data,
-                        ground_truth_data,
-                        dataset,
-                        training_group,
-                        testing_group,
-                        validation_group,
-                    )
+                # Advance the progress bar
+                progress.advance(task_progress)
 
         # Apply data augmentation if requested
         self._apply_augmentations(dataset, training_group)
@@ -627,11 +607,15 @@ class EMGDataset:
             self.console.print(
                 "[bold yellow]Generating EMG data graph...[/bold yellow]"
             )
-            emg_data_from_task.plot_graph()
+            emg_data_from_task.plot_graph(
+                title=f"EMG Data - Task: {task} (Pre-Processing)"
+            )
             self.console.print(
                 "[bold yellow]Generating ground truth data graph...[/bold yellow]"
             )
-            ground_truth_data_from_task.plot_graph()
+            ground_truth_data_from_task.plot_graph(
+                title=f"Ground Truth Data - Task: {task} (Pre-Processing)"
+            )
             self.console.print()  # Add empty line
 
         # Process unchunked data
@@ -732,11 +716,15 @@ class EMGDataset:
                 self.console.print(
                     "[bold yellow]Generating chunked EMG data graph...[/bold yellow]"
                 )
-                chunked_emg_data_from_task.plot_graph()
+                chunked_emg_data_from_task.plot_graph(
+                    title=f"Chunked EMG Data - Task: {task}"
+                )
                 self.console.print(
                     "[bold yellow]Generating chunked ground truth data graph...[/bold yellow]"
                 )
-                chunked_ground_truth_data_from_task.plot_graph()
+                chunked_ground_truth_data_from_task.plot_graph(
+                    title=f"Chunked Ground Truth Data - Task: {task}"
+                )
                 self.console.print()  # Add empty line
         else:
             # Data is already chunked
@@ -818,11 +806,15 @@ class EMGDataset:
             self.console.print(
                 "[bold yellow]Generating filtered chunked EMG data graph...[/bold yellow]"
             )
-            chunked_emg_data_from_task.plot_graph()
+            chunked_emg_data_from_task.plot_graph(
+                title=f"Filtered Chunked EMG Data - Task: {task}"
+            )
             self.console.print(
                 "[bold yellow]Generating filtered chunked ground truth data graph...[/bold yellow]"
             )
-            chunked_ground_truth_data_from_task.plot_graph()
+            chunked_ground_truth_data_from_task.plot_graph(
+                title=f"Filtered Chunked Ground Truth Data - Task: {task}"
+            )
             self.console.print()  # Add empty line
 
         # Dataset creation section
@@ -916,150 +908,170 @@ class EMGDataset:
             )
 
     def _apply_augmentations(self, dataset: zarr.Group, training_group: zarr.Group):
-        """Apply augmentation pipelines to the training data.
+        """Apply augmentations to the training data."""
+        # Start augmentation phase if there are augmentation pipelines
+        if self.augmentation_pipelines and len(self.augmentation_pipelines) > 0:
+            # Get all available samples in training group
+            training_size = training_group["emg"]["raw"].shape[0]
 
-        Parameters
-        ----------
-        dataset : zarr.Group
-            The full zarr dataset
-        training_group : zarr.Group
-            The training group to augment
-        """
-        if not self.augmentation_pipelines:
             if self.debug_level > 0:
-                self.console.print(
-                    "[bold yellow]No augmentation pipelines specified, skipping augmentation[/bold yellow]"
+                self.console.rule(
+                    "[bold blue]APPLYING AUGMENTATIONS", style="blue double"
                 )
                 self.console.print()  # Add empty line
-            return
 
-        if self.debug_level > 0:
-            self.console.rule(
-                "[bold blue]APPLYING AUGMENTATION PIPELINES", style="blue double"
-            )
-            self.console.print()  # Add empty line
-            self.console.print(
-                f"[bold green]Applying {len(self.augmentation_pipelines)} augmentation pipelines[/bold green]"
-            )
-            self.console.print()  # Add empty line
+                # Display augmentation info
+                augmentation_info = Table(
+                    title="Augmentation Configuration",
+                    show_header=True,
+                    header_style="bold magenta",
+                    box=box.ROUNDED,
+                    padding=(0, 2),
+                )
+                augmentation_info.add_column("Parameter", style="dim", width=30)
+                augmentation_info.add_column("Value", style="green")
 
-        for pipeline_idx, augmentation_pipeline in enumerate(
-            self.augmentation_pipelines
+                augmentation_info.add_row(
+                    "Total augmentation pipelines",
+                    str(len(self.augmentation_pipelines)),
+                )
+                pipeline_names = []
+                for pipeline in self.augmentation_pipelines:
+                    names = [f.name for f in pipeline]
+                    pipeline_names.append(" → ".join(names))
+                augmentation_info.add_row("Pipelines", "\n".join(pipeline_names))
+                augmentation_info.add_row(
+                    "Chunks to augment at once",
+                    str(self.amount_of_chunks_to_augment_at_once),
+                )
+                augmentation_info.add_row("Total training samples", str(training_size))
+
+                self.console.print(augmentation_info)
+                self.console.print()  # Add empty line
+
+            # Create progress bar for augmentation regardless of debug level
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[bold green]{task.description}"),
+                BarColumn(bar_width=40),
+                TaskProgressColumn(),
+                TextColumn("•"),
+                TimeRemainingColumn(),
+                console=self.console,
+                expand=True,
+                transient=False,
+            ) as progress:
+                # Calculate total batches for all augmentations
+                total_batches = int(
+                    np.ceil(training_size / self.amount_of_chunks_to_augment_at_once)
+                ) * len(self.augmentation_pipelines)
+
+                # Create main progress task
+                aug_progress = progress.add_task(
+                    f"[bold]Applying [green]{len(self.augmentation_pipelines)}[/green] augmentation pipelines...",
+                    total=total_batches,
+                )
+
+                # Process each augmentation pipeline
+                for aug_idx, augmentation_pipeline in enumerate(
+                    self.augmentation_pipelines
+                ):
+                    pipeline_name = " → ".join([f.name for f in augmentation_pipeline])
+
+                    # Update progress description for this pipeline
+                    progress.update(
+                        aug_progress,
+                        description=f"[bold]Pipeline [green]{aug_idx + 1}/{len(self.augmentation_pipelines)}[/green]: {pipeline_name}",
+                    )
+
+                    # Apply augmentation in batches
+                    self._apply_augmentation_pipeline(
+                        aug_idx,
+                        augmentation_pipeline,
+                        dataset,
+                        training_group,
+                        progress,
+                        aug_progress,
+                    )
+
+    def _apply_augmentation_pipeline(
+        self,
+        aug_idx: int,
+        augmentation_pipeline: list[EMGAugmentation],
+        dataset: zarr.Group,
+        training_group: zarr.Group,
+        progress: Optional[Progress] = None,
+        progress_task_id: Optional[int] = None,
+    ):
+        """Apply a single augmentation pipeline to training data in batches."""
+        # Get total samples to process
+        training_size = training_group["emg"]["raw"].shape[0]
+
+        # Process in batches
+        for start_idx in range(
+            0, training_size, self.amount_of_chunks_to_augment_at_once
         ):
-            if self.debug_level > 0:
-                self.console.print(
-                    f"[bold white on green] Augmentation Pipeline {pipeline_idx + 1}/{len(self.augmentation_pipelines)} [/bold white on green]",
-                    justify="center",
-                )
-                self.console.print(
-                    f"[bold cyan]{str(augmentation_pipeline)}[/bold cyan]"
-                )
-                self.console.print()  # Add empty line
+            # Calculate end index for current batch
+            end_idx = min(
+                start_idx + self.amount_of_chunks_to_augment_at_once, training_size
+            )
 
+            # Update progress information
+            if progress is not None and progress_task_id is not None:
+                batch_num = start_idx // self.amount_of_chunks_to_augment_at_once + 1
+                total_batches = int(
+                    np.ceil(training_size / self.amount_of_chunks_to_augment_at_once)
+                )
+                progress.update(
+                    progress_task_id,
+                    description=f"[bold]Pipeline [green]{aug_idx + 1}/{len(self.augmentation_pipelines)}[/green]: Batch [green]{batch_num}/{total_batches}[/green]",
+                )
+
+            # Initialize batch accumulators
             emg_to_append = {k: [] for k in dataset["training/emg"]}
             ground_truth_to_append = {k: [] for k in dataset["training/ground_truth"]}
             label_to_append = []
             class_to_append = []
             one_hot_class_to_append = []
 
-            # Get total number of items to augment
-            total_items = 0
-            for k in dataset["training/emg"]:
-                total_items = dataset["training/emg"][k].shape[0]
-                break
+            # Process each item in the batch
+            for i in range(start_idx, end_idx):
+                # Apply augmentation to EMG data
+                for k in dataset["training/emg"]:
+                    temp = DATA_TYPES_MAP["emg"](
+                        input_data=dataset["training/emg"][k][i].astype(np.float32),
+                        sampling_frequency=self.sampling_frequency,
+                    )
+                    temp.apply_filter_pipeline(
+                        filter_pipeline=[augmentation_pipeline],
+                        representations_to_filter=[["Last"]],
+                    )
+                    emg_to_append[k].append(temp["Last"])
 
-            if self.debug_level > 0:
-                self.console.print(
-                    f"[bold green]Augmenting {total_items} items[/bold green]"
-                )
-
-            # Use Rich progress tracking
-            with Progress(transient=True) as progress:
-                augmentation_task = progress.add_task(
-                    f"[cyan]Applying {str(augmentation_pipeline)}...", total=total_items
-                )
-
-                for i in range(total_items):
-                    progress.update(augmentation_task, advance=1)
-
-                    # Apply augmentation to EMG data
-                    for k in dataset["training/emg"]:
-                        temp = DATA_TYPES_MAP["emg"](
-                            input_data=dataset["training/emg"][k][i].astype(np.float32),
-                            sampling_frequency=self.sampling_frequency,
-                        )
-                        temp.apply_filter_pipeline(
-                            filter_pipeline=[augmentation_pipeline],
-                            representations_to_filter=[["Last"]],
-                        )
-                        emg_to_append[k].append(temp["Last"])
-
-                    # Copy corresponding ground truth data
-                    for k in dataset["training/ground_truth"]:
-                        ground_truth_to_append[k].append(
-                            dataset["training/ground_truth"][k][i]
-                        )
-
-                    # Copy labels and classes
-                    label_to_append.append(dataset["training/label"][i])
-                    class_to_append.append(dataset["training/class"][i])
-                    one_hot_class_to_append.append(dataset["training/one_hot_class"][i])
-
-                    # Batch process to avoid memory issues
-                    if i % self.amount_of_chunks_to_augment_at_once == 0 and i > 0:
-                        if self.debug_level > 0:
-                            # Clear progress for status message
-                            progress.stop()
-                            self.console.print()  # Add empty line
-                            self.console.print(
-                                f"[green]▶ Appending batch of {len(label_to_append)} augmented items[/green]"
-                            )
-
-                        self._append_augmented_batch(
-                            training_group,
-                            emg_to_append,
-                            ground_truth_to_append,
-                            label_to_append,
-                            class_to_append,
-                            one_hot_class_to_append,
-                        )
-                        # Reset accumulators
-                        emg_to_append = {k: [] for k in dataset["training/emg"]}
-                        ground_truth_to_append = {
-                            k: [] for k in dataset["training/ground_truth"]
-                        }
-                        label_to_append = []
-                        class_to_append = []
-                        one_hot_class_to_append = []
-
-            # Process any remaining items
-            if len(list(emg_to_append.values())[0]) > 0:
-                if self.debug_level > 0:
-                    self.console.print()  # Add empty line
-                    self.console.print(
-                        f"[green]▶ Appending final batch of {len(label_to_append)} augmented items[/green]"
+                # Copy corresponding ground truth data
+                for k in dataset["training/ground_truth"]:
+                    ground_truth_to_append[k].append(
+                        dataset["training/ground_truth"][k][i]
                     )
 
-                self._append_augmented_batch(
-                    training_group,
-                    emg_to_append,
-                    ground_truth_to_append,
-                    label_to_append,
-                    class_to_append,
-                    one_hot_class_to_append,
-                )
+                # Copy labels and classes
+                label_to_append.append(dataset["training/label"][i])
+                class_to_append.append(dataset["training/class"][i])
+                one_hot_class_to_append.append(dataset["training/one_hot_class"][i])
 
-            if self.debug_level > 0:
-                self.console.print()  # Add empty line
-                self.console.print(
-                    f"[bold blue]✓ Completed augmentation pipeline {pipeline_idx + 1}/{len(self.augmentation_pipelines)}[/bold blue]"
-                )
+            # Append the batch to the training group
+            self._append_augmented_batch(
+                training_group,
+                emg_to_append,
+                ground_truth_to_append,
+                label_to_append,
+                class_to_append,
+                one_hot_class_to_append,
+            )
 
-                # Add a separator between pipelines
-                if pipeline_idx < len(self.augmentation_pipelines) - 1:
-                    self.console.print()  # Add empty line
-                    self.console.rule(characters="═", style="blue")
-                    self.console.print()  # Add empty line
+            # Advance progress if tracking
+            if progress is not None and progress_task_id is not None:
+                progress.advance(progress_task_id)
 
     def _append_augmented_batch(
         self,
@@ -1070,25 +1082,9 @@ class EMGDataset:
         class_to_append: List[np.ndarray],
         one_hot_class_to_append: List[np.ndarray],
     ):
-        """Append a batch of augmented data to the training group.
-
-        Parameters
-        ----------
-        training_group : zarr.Group
-            The training group to append data to
-        emg_to_append : Dict[str, List[np.ndarray]]
-            EMG data to append
-        ground_truth_to_append : Dict[str, List[np.ndarray]]
-            Ground truth data to append
-        label_to_append : List[np.ndarray]
-            Labels to append
-        class_to_append : List[np.ndarray]
-            Class indices to append
-        one_hot_class_to_append : List[np.ndarray]
-            One-hot encoded classes to append
-        """
+        """Append a batch of augmented data to the training group."""
         # Debug shapes before appending
-        if self.debug_level >= 1:
+        if self.debug_level >= 2:  # Only show shapes in higher debug level
             # Create a table for shapes
             shapes_table = Table(
                 title="Augmented Batch Shapes",
