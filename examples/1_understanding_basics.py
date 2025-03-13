@@ -21,8 +21,7 @@ from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 # The only required parameter is the sampling frequency of the data and the data itself.
 
 # Get the path to the data file
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(SCRIPT_DIR, "data", "emg.pkl")
+data_path = os.path.join("data", "emg.pkl")
 
 with open(data_path, "rb") as f:
     emg_data = {k: EMGData(v, sampling_frequency=2044) for k, v in pkl.load(f).items()}
@@ -81,7 +80,7 @@ plt.xticks(
 plt.xlabel("Time (s)")
 
 # Add a grid for better readability
-plt.grid(True, linestyle='--', alpha=0.7)
+plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.tight_layout()
 plt.show()
@@ -110,11 +109,7 @@ SAMPLING_FREQ = 2044  # Hz
 
 # Create the filter coefficients using a Butterworth filter design
 sos_filter_coefficients = butter(
-    FILTER_ORDER, 
-    CUTOFF_FREQ, 
-    "lowpass", 
-    output="sos", 
-    fs=SAMPLING_FREQ
+    FILTER_ORDER, CUTOFF_FREQ, "lowpass", output="sos", fs=SAMPLING_FREQ
 )
 
 # %%
@@ -125,10 +120,10 @@ sos_filter_coefficients = butter(
 # Since we want to have the result of the filter as an output representation, we set the parameter **is_output** to True.
 # Further having the user specify this parameter forces them to think about the data they are working with.
 lowpass_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=sos_filter_coefficients, 
-    is_output=True, 
-    name="Lowpass", 
-    input_is_chunked=False
+    sos_filter_coefficients=sos_filter_coefficients,
+    is_output=True,
+    name="Lowpass",
+    input_is_chunked=False,
 )
 print("\nFilter configuration:")
 print(lowpass_filter)
@@ -137,9 +132,7 @@ print(lowpass_filter)
 # Applying the filter
 # -------------------
 # To apply the filter we call the apply_filter method on the EMGData object.
-task_one_data.apply_filter(
-    lowpass_filter, representations_to_filter=["Input"]
-)
+task_one_data.apply_filter(lowpass_filter, representations_to_filter=["Input"])
 print("\nFilter applied successfully!")
 print("Available processed representations:")
 print(task_one_data.processed_representations.keys())
@@ -176,18 +169,20 @@ filtered_emg = task_one_data["Lowpass"]
 # Plot raw EMG for the selected channel
 plt.subplot(2, 1, 1)
 plt.plot(raw_emg[channel_to_plot], color="blue", label="Raw EMG")
-plt.title(f"Raw EMG - Channel {channel_to_plot+1}")
+plt.title(f"Raw EMG - Channel {channel_to_plot + 1}")
 plt.ylabel("Amplitude (a.u.)")
-plt.grid(True, linestyle='--', alpha=0.7)
+plt.grid(True, linestyle="--", alpha=0.7)
 plt.legend()
 
 # Plot filtered EMG for the selected channel
 plt.subplot(2, 1, 2)
 plt.plot(filtered_emg[channel_to_plot], color="red", label="Lowpass Filtered EMG")
-plt.title(f"Lowpass Filtered EMG (Cutoff: {CUTOFF_FREQ} Hz) - Channel {channel_to_plot+1}")
+plt.title(
+    f"Lowpass Filtered EMG (Cutoff: {CUTOFF_FREQ} Hz) - Channel {channel_to_plot + 1}"
+)
 plt.ylabel("Amplitude (a.u.)")
 plt.xlabel("Time (s)")
-plt.grid(True, linestyle='--', alpha=0.7)
+plt.grid(True, linestyle="--", alpha=0.7)
 plt.legend()
 
 plt.tight_layout()

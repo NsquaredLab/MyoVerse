@@ -18,7 +18,10 @@ This example shows how to train a deep learning model using the dataset created 
 from pathlib import Path
 from myoverse.datasets.loader import EMGDatasetLoader
 
-loader = EMGDatasetLoader(Path(r"data/dataset_zarr.zip").resolve(), dataloader_parameters={"batch_size": 16, "drop_last": True})
+loader = EMGDatasetLoader(
+    Path(r"data/dataset.zarr").resolve(),
+    dataloader_parameters={"batch_size": 16, "drop_last": True},
+)
 
 # %%
 # Training the model
@@ -34,11 +37,9 @@ model = RaulNetV16(
     nr_of_outputs=60,
     nr_of_electrode_grids=5,
     nr_of_electrodes_per_grid=64,
-
     # Multiply following by 4, 8, 16 to have a useful network
     cnn_encoder_channels=(4, 1, 1),
     mlp_encoder_channels=(8, 8),
-
     event_search_kernel_length=31,
     event_search_kernel_stride=8,
 )
