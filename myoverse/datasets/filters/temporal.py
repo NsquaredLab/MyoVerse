@@ -6,54 +6,10 @@ from scipy.fft import irfft, rfft, rfftfreq
 from scipy.signal import savgol_filter, sosfilt, sosfiltfilt
 
 from myoverse.datasets.filters._template import FilterBaseClass
-from myoverse.datasets.filters.generic import ApplyFunctionFilter
-
-
-def _get_windows_with_shift(
-    input_array: np.ndarray, window_size: int, shift: int
-) -> np.ndarray:
-    """Create windows of specified size and shift from input array using strided operations.
-
-    Parameters
-    ----------
-    input_array : numpy.ndarray
-        The input array to window.
-    window_size : int
-        Size of each window.
-    shift : int
-        Number of samples to shift between consecutive windows.
-
-    Returns
-    -------
-    numpy.ndarray
-        Array of windows with shape (*input_array.shape[:-1], n_windows, window_size)
-        where n_windows = (input_array.shape[-1] - window_size) // shift + 1
-
-    Notes
-    -----
-    This function uses numpy's as_strided function for efficient windowing without
-    creating copies of the data. The returned array is read-only (writeable=False).
-    """
-    # Calculate how many windows we'll have
-    n_windows = (input_array.shape[-1] - window_size) // shift + 1
-
-    # Calculate new shape with windows
-    # Original dimensions (except the last) + number of windows + window size
-    window_shape = (*input_array.shape[:-1], n_windows, window_size)
-
-    # Calculate strides for the windowed view
-    # Original strides + stride for windows + original stride for last dimension
-    original_strides = input_array.strides
-    window_strides = (
-        *original_strides[:-1],
-        shift * original_strides[-1],  # Step between windows
-        original_strides[-1],
-    )  # Step within a window
-
-    # Create windowed view using as_strided
-    return as_strided(
-        input_array, shape=window_shape, strides=window_strides, writeable=False
-    )
+from myoverse.datasets.filters.generic import (
+    ApplyFunctionFilter,
+    _get_windows_with_shift,
+)
 
 
 class SOSFrequencyFilter(FilterBaseClass):
@@ -61,12 +17,21 @@ class SOSFrequencyFilter(FilterBaseClass):
 
     Parameters
     ----------
-    sos_filter_coefficients : np.ndarray
+    input_is_chunked : bool
+        Whether the input is chunked or not.
+    is_output : bool
+        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    sos_filter_coefficients : tuple[np.ndarray, np.ndarray | float, np.ndarray]
         The second-order-section filter coefficients, typically from scipy.signal.butter with output="sos".
     forwards_and_backwards : bool
         Whether to apply the filter forwards and backwards or only forwards.
-    input_is_chunked : bool
-        Whether the input is chunked or not.
     overlap : int or None
         If input_is_chunked=True, this determines how many samples to overlap when filtering each chunk
         to reduce boundary effects. If None, a default overlap based on filter order is used.
@@ -77,8 +42,6 @@ class SOSFrequencyFilter(FilterBaseClass):
         If True, enables real-time processing with a rolling buffer of chunks.
         This mode maintains filter state between calls and only uses past data.
         Note: When enabled, forwards_and_backwards must be False and use_continuous_approach must be False.
-    is_output : bool
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
 
     Methods
     -------
@@ -91,20 +54,23 @@ class SOSFrequencyFilter(FilterBaseClass):
 
     def __init__(
         self,
-        sos_filter_coefficients: np.ndarray,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
+        sos_filter_coefficients: tuple[np.ndarray, np.ndarray | float, np.ndarray],
         forwards_and_backwards: bool = True,
-        input_is_chunked: bool = None,
         overlap: int = None,
         use_continuous_approach: bool = True,
         real_time_mode: bool = False,
-        is_output: bool = False,
-        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
             allowed_input_type="both",
             is_output=is_output,
             name=name,
+            run_checks=run_checks,
         )
 
         self.sos_filter_coefficients = sos_filter_coefficients
@@ -386,31 +352,131 @@ class RectifyFilter(ApplyFunctionFilter):
         Whether the input is chunked or not.
     is_output : bool
         Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
     """
 
-    def __init__(self, input_is_chunked: bool = None, is_output: bool = False):
+    def __init__(
+        self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+    ):
         super().__init__(
-            input_is_chunked=input_is_chunked, function=np.abs, is_output=is_output
+            input_is_chunked=input_is_chunked,
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
+            function=np.abs,
         )
 
 
-class RMSFilter(FilterBaseClass):
+class WindowedFunctionFilter(ApplyFunctionFilter):
+    """Base class for filters that apply a function to windowed data.
+
+    This filter creates windows using _get_windows_with_shift and then applies
+    a specified function to each window.
+
+    Parameters
+    ----------
+    input_is_chunked : bool
+        Whether the input is chunked or not.
+    is_output : bool
+        Whether the filter is an output filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    window_size : int
+        The window size to use.
+    shift : int
+        The shift to use. Default is 1.
+    window_function : callable
+        Function to apply to each window (along the last axis).
+
+        .. note:: The function should take two arguments: the window and the axis to apply the function along.
+    """
+
+    def __init__(
+        self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
+        window_size: int,
+        shift: int = 1,
+        window_function: callable,
+    ):
+        # Validate parameters
+        if window_size < 1:
+            raise ValueError("window_size must be greater than 0.")
+        if shift < 1:
+            raise ValueError("shift must be greater than 0.")
+
+        # Define the windowed function application
+        def apply_window_function(x, window_size, shift, window_function):
+            # Get windows if not already chunked
+            windowed_array = _get_windows_with_shift(x, window_size, shift)
+            # Apply the function to each window
+            return np.transpose(
+                np.squeeze(window_function(windowed_array, axis=-1), axis=-1), (1, 2, 0)
+            )
+
+        # Initialize parent with the windowed function
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
+            function=apply_window_function,
+            window_size=window_size,
+            shift=shift,
+            window_function=window_function,
+        )
+
+        # Store parameters for reference
+        self.window_size = window_size
+        self.shift = shift
+
+
+class RMSFilter(WindowedFunctionFilter):
     """Filter that computes the root mean squared value [1]_ of the input array.
 
+    Root mean squared value is the square root of the mean of the squared values of the input array.
+    It is a measure of the magnitude of the signal.
+
+    .. math::
+        \\text{RMS} = \\sqrt{\\frac{1}{N} \\sum_{i=1}^{N} x_i^2}
+
     Parameters
     ----------
+    input_is_chunked : bool
+        Whether the input is chunked or not.
+    is_output : bool
+        Whether the filter is an output filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
     window_size : int
         The window size to use.
     shift : int
-        The shift to use.
-    input_is_chunked : bool
-        Whether the input is chunked or not.
-
-    Methods
-    -------
-    __call__(input_array: np.ndarray) -> np.ndarray
-        Filters the input array. Input shape is determined by whether the allowed_input_type
-        is "both", "chunked" or "not chunked".
+        The shift to use. Default is 1.
+    stabilization_factor : float
+        A small value to add to the squared values before taking the mean to stabilize the computation.
+        By default, this is the machine epsilon for float values. See numpy.finfo(float).eps.
 
     References
     ----------
@@ -419,51 +485,54 @@ class RMSFilter(FilterBaseClass):
 
     def __init__(
         self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
         window_size: int,
         shift: int = 1,
-        input_is_chunked: bool = None,
-        is_output: bool = False,
-        name: str = None,
+        stabilization_factor: float = np.finfo(float).eps,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
             is_output=is_output,
             name=name,
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=lambda x, axis: np.sqrt(
+                np.mean(np.square(x), axis=axis, keepdims=True) + stabilization_factor
+            ),
         )
 
-        self.window_size = window_size
-        self.shift = shift
 
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
+class VARFilter(WindowedFunctionFilter):
+    """Filter that computes the variance [1]_ of the input array.
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
-        )
+    Variance is the average of the squared differences from the mean.
+    It is a measure of the spread of the signal.
 
-        # Calculate RMS for each window
-        return np.sqrt(np.mean(np.square(windowed_array), axis=-1))
-
-
-class VARFilter(FilterBaseClass):
-    """Computes the Variance with given window length and window shift over the input signal.
+    .. math::
+        \\text{VAR} = \\frac{1}{N} \\sum_{i=1}^{N} (x_i - \\mu)^2
 
     Parameters
     ----------
+    input_is_chunked : bool
+        Whether the input is chunked or not.
+    is_output : bool
+        Whether the filter is an output filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
     window_size : int
         The window size to use.
-    shift : int, optional
-        The shift to use, by default 1.
-    input_is_chunked : bool, optional
-        Whether the input is chunked or not, by default True.
-    is_output : bool, optional
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by the dataset pipeline, by default False.
-    name : str, optional
-        The name of the filter, by default None.
+    shift : int
+        The shift to use. Default is 1.
 
     References
     ----------
@@ -472,305 +541,318 @@ class VARFilter(FilterBaseClass):
 
     def __init__(
         self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
         window_size: int,
         shift: int = 1,
-        input_is_chunked: bool = True,
-        is_output: bool = False,
-        name: str = None,
     ):
+        # Initialize with variance function
         super().__init__(
             input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
             is_output=is_output,
             name=name,
-        )
-        self.window_size = window_size
-        self.shift = shift
-
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
-
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        # Use the optimized window function instead of list comprehension
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=np.var,
         )
 
-        # Calculate variance for each window
-        return np.var(windowed_array, axis=-1)
 
+class MAVFilter(WindowedFunctionFilter):
+    """Filter that computes the mean absolute value [1]_ of the input array.
 
-class MAVFilter(FilterBaseClass):
-    """Computes the Mean Absolute Value with given window length and window shift over the input signal. See formula in
-    the following paper: https://doi.org/10.1080/10255842.2023.2165068.
+    Mean absolute value is the average of the absolute values of the input array.
+    It is a measure of the average magnitude of the signal.
+
+    .. math::
+        \\text{MAV} = \\frac{1}{N} \\sum_{i=1}^{N} |x_i|
 
     Parameters
     ----------
-    window_size : int
-        The window size to use.
-    shift : int
-        The shift to use.
     input_is_chunked : bool
         Whether the input is chunked or not.
     is_output : bool
         Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-    name : str
-        The name of the filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    window_size : int
+        The window size to use.
+    shift : int
+        The shift to use. Default is 1.
+
+    References
+    ----------
+    .. [1] https://doi.org/10.1080/10255842.2023.2165068
     """
 
     def __init__(
         self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
         window_size: int,
         shift: int = 1,
-        input_is_chunked: bool = True,
-        is_output: bool = False,
-        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
             is_output=is_output,
             name=name,
-        )
-        self.window_size = window_size
-        self.shift = shift
-
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
-
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        # Use the optimized window function instead of list comprehension
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=lambda x, axis: np.mean(
+                np.abs(x), axis=axis, keepdims=True
+            ),
         )
 
-        # Calculate mean absolute value for each window
-        return np.mean(np.abs(windowed_array), axis=-1)
 
+class IAVFilter(WindowedFunctionFilter):
+    """Filter that computes the integrated absolute value [1]_ of the input array.
 
-class IAVFilter(FilterBaseClass):
-    """Computes the Integrated Absolute Value with given window length and window shift over the input signal. See
-    formula in the following paper: https://doi.org/10.1080/10255842.2023.2165068.
+    Integrated absolute value is the sum of the absolute values of the input array.
+    It is a measure of the total magnitude of the signal.
+
+    .. math::
+        \\text{IAV} = \\sum_{i=1}^{N} |x_i|
 
     Parameters
     ----------
-    window_size : int
-        The window size to use.
-    shift : int
-        The shift to use.
     input_is_chunked : bool
         Whether the input is chunked or not.
     is_output : bool
         Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-    name : str
-        The name of the filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    window_size : int
+        The window size to use.
+    shift : int
+        The shift to use. Default is 1.
+
+    References
+    ----------
+    .. [1] https://doi.org/10.1080/10255842.2023.2165068
     """
 
     def __init__(
         self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
         window_size: int,
         shift: int = 1,
-        input_is_chunked: bool = True,
-        is_output: bool = False,
-        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
             is_output=is_output,
             name=name,
-        )
-        self.window_size = window_size
-        self.shift = shift
-
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
-
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        # Use the optimized window function instead of list comprehension
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=lambda x, axis: np.sum(np.abs(x), axis=axis, keepdims=True),
         )
 
-        # Calculate integrated absolute value (sum of absolute values) for each window
-        return np.sum(np.abs(windowed_array), axis=-1)
 
+class WFLFilter(WindowedFunctionFilter):
+    """Filter that computes the waveform length [1]_ of the input array.
 
-class WFLFilter(FilterBaseClass):
-    """Computes the Waveform Length with given window length and window shift over the input signal. See
-    formula in the following paper: https://doi.org/10.1080/10255842.2023.2165068.
+    Waveform length is the sum of the absolute differences between consecutive samples.
+    It is a measure of the total magnitude of the signal.
+
+    .. math::
+        \\text{WFL} = \\sum_{i=1}^{N} |x_i - x_{i-1}|
 
     Parameters
     ----------
-    window_size : int
-        The window size to use.
-    shift : int
-        The shift to use.
     input_is_chunked : bool
         Whether the input is chunked or not.
     is_output : bool
         Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-    name : str
-        The name of the filter.
-    """
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
 
-    def __init__(
-        self,
-        window_size: int,
-        shift: int = 1,
-        input_is_chunked: bool = True,
-        is_output: bool = False,
-        name: str = None,
-    ):
-        super().__init__(
-            input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
-            is_output=is_output,
-            name=name,
-        )
-        self.window_size = window_size
-        self.shift = shift
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
 
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
-
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        # Use the optimized window function
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
-        )
-
-        # Calculate waveform length (sum of absolute differences) for each window
-        # First compute differences between consecutive samples in each window
-        diffs = np.diff(windowed_array, axis=-1)
-
-        # Then sum the absolute differences for each window
-        return np.sum(np.abs(diffs), axis=-1)
-
-
-class ZCFilter(FilterBaseClass):
-    """Computes the Zero Crossings with given window length and window shift over the input signal. See formula in the
-    following paper: https://doi.org/10.1080/10255842.2023.2165068.
-
-    Parameters
-    ----------
     window_size : int
         The window size to use.
     shift : int
-        The shift to use.
-    input_is_chunked : bool
-        Whether the input is chunked or not.
-    is_output : bool
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-    name : str
-        The name of the filter.
+        The shift to use. Default is 1.
+
+    References
+    ----------
+    .. [1] https://doi.org/10.1080/10255842.2023.2165068
     """
 
     def __init__(
         self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
         window_size: int,
         shift: int = 1,
-        input_is_chunked: bool = True,
-        is_output: bool = False,
-        name: str = None,
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
             is_output=is_output,
             name=name,
-        )
-        self.window_size = window_size
-        self.shift = shift
-
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
-
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        # Use the optimized window function
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=lambda x, axis: np.sum(
+                np.abs(np.diff(x, axis=axis)), axis=axis, keepdims=True
+            ),
         )
 
-        # Calculate zero crossings for each window
-        # 1. Calculate sign of all elements in each window
-        signs = np.sign(windowed_array)
 
-        # 2. Calculate differences of signs to find changes
-        sign_changes = np.diff(signs, axis=-1)
+class ZCFilter(WindowedFunctionFilter):
+    """Computes the zero crossings [1]_ of the input array.
 
-        # 3. Count absolute changes (divided by 2 since each crossing counts twice)
-        return np.sum(np.abs(sign_changes) // 2, axis=-1)
+    Zero crossings are the number of times the signal crosses the zero axis.
+    It is a measure of the number of times the signal changes sign.
 
-
-class SSCFilter(FilterBaseClass):
-    """Computes the Slope Sign Change with given window length and window shift over the input signal. See formula in
-    the following paper: https://doi.org/10.1080/10255842.2023.2165068.
+    .. math::
+        \\text{ZC} = \\sum_{i=1}^{N} \\frac{1}{2} |\\text{sign}(x_i) - \\text{sign}(x_{i-1})|
 
     Parameters
     ----------
-    window_size : int
-        The window size to use.
-    shift : int
-        The shift to use.
     input_is_chunked : bool
         Whether the input is chunked or not.
     is_output : bool
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-    name : str
-        The name of the filter.
+        Whether the filter is an output filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    window_size : int
+        The window size to use.
+    shift : int
+        The shift to use. Default is 1.
+
+    References
+    ----------
+    .. [1] https://doi.org/10.1080/10255842.2023.2165068
     """
 
     def __init__(
         self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
         window_size: int,
         shift: int = 1,
-        input_is_chunked: bool = True,
-        is_output: bool = False,
-        name: str = None,
     ):
+        # Define Zero Crossing function
+        def zc_function(windowed_array, axis=-1):
+            # 1. Calculate sign of all elements in each window
+            signs = np.sign(windowed_array)
+
+            # 2. Calculate differences of signs to find changes
+            sign_changes = np.diff(signs, axis=axis)
+
+            # 3. Count absolute changes (divided by 2 since each crossing counts twice)
+            return np.sum(np.abs(sign_changes) // 2, axis=axis, keepdims=True)
+
         super().__init__(
             input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
             is_output=is_output,
             name=name,
-        )
-        self.window_size = window_size
-        self.shift = shift
-
-        if self.window_size < 1:
-            raise ValueError("window_size must be greater than 0.")
-        if self.shift < 1:
-            raise ValueError("shift must be greater than 0.")
-
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
-        # Use the optimized window function
-        windowed_array = _get_windows_with_shift(
-            input_array, self.window_size, self.shift
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=zc_function,
         )
 
-        # Calculate slope sign changes for each window
-        # 1. Calculate differences (first derivative)
-        diffs = np.diff(windowed_array, axis=-1)
 
-        # 2. Calculate sign of differences
-        sign_diffs = np.sign(diffs)
+class SSCFilter(WindowedFunctionFilter):
+    """Computes the slope sign change [1]_ of the input array.
 
-        # 3. Calculate sign changes of the sign differences (second derivative sign changes)
-        sign_changes = np.diff(sign_diffs, axis=-1)
+    Slope sign change is the number of times the slope of the signal changes sign.
+    It is a measure of the number of times the signal changes direction.
 
-        # 4. Count number of sign changes in each window
-        return np.sum(np.abs(sign_changes) // 2, axis=-1)
+    .. math::
+        \\text{SSC} = \\sum_{i=1}^{N} \\frac{1}{2} |\\text{sign}(x_i - x_{i-1}) - \\text{sign}(x_{i-1} - x_{i-2})|
+
+    Parameters
+    ----------
+    input_is_chunked : bool
+        Whether the input is chunked or not.
+    is_output : bool
+        Whether the filter is an output filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    window_size : int
+        The window size to use.
+    shift : int
+        The shift to use. Default is 1.
+
+    References
+    ----------
+    .. [1] https://doi.org/10.1080/10255842.2023.2165068
+    """
+
+    def __init__(
+        self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
+        window_size: int,
+        shift: int = 1,
+    ):
+        # Define Slope Sign Change function
+        def ssc_function(windowed_array, axis=-1):
+            # 1. Calculate differences (first derivative)
+            diffs = np.diff(windowed_array, axis=axis)
+
+            # 2. Calculate sign of differences
+            sign_diffs = np.sign(diffs)
+
+            # 3. Calculate sign changes of the sign differences (second derivative sign changes)
+            sign_changes = np.diff(sign_diffs, axis=axis)
+
+            # 4. Count number of sign changes in each window
+            return np.sum(np.abs(sign_changes) // 2, axis=axis, keepdims=True)
+
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
+            window_size=window_size,
+            shift=shift,
+            window_function=ssc_function,
+        )
 
 
 class SpectralInterpolationFilter(FilterBaseClass):
@@ -783,58 +865,58 @@ class SpectralInterpolationFilter(FilterBaseClass):
     3. Preserving the phase information
     4. Converting back to time domain
 
+    .. warning:: When used for real-time applications, performance depends on chunk size.
+                 Smaller chunks reduce latency but may decrease frequency resolution and
+                 interpolation quality, especially for narrow frequency bands.
+
+
     Parameters
     ----------
-    bandwidth : tuple, optional
+    input_is_chunked : bool
+        Whether the input is chunked or not.
+    is_output : bool
+        Whether the filter is an output filter.
+    name : str | None
+        Name of the filter, by default None.
+    run_checks : bool
+        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
+
+        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
+
+    bandwidth : tuple[float, float]
         Frequency band to remove (min_freq, max_freq) in Hz, by default (47.5, 52.5)
-    number_of_harmonics : int, optional
+    number_of_harmonics : int
         Number of harmonics to remove, by default 3
-    sampling_frequency : float, optional
+    sampling_frequency : float
         Sampling frequency in Hz, by default 2000
-    interpolation_window : int, optional
+    interpolation_window : int
         Window size for interpolation, must be an odd number, by default 15
-    interpolation_poly_order : int, optional
+    interpolation_poly_order : int
         Polynomial order for interpolation, must be less than interpolation_window, by default 3
-    input_is_chunked : bool, optional
-        Whether the input is chunked, by default True
-    representations_to_filter : str, optional
-        Representations to filter, by default "all"
+    remove_dc : bool
+        Whether to remove the DC component (set FFT[0] to 0), by default True
     """
 
     def __init__(
         self,
-        bandwidth=(47.5, 52.5),
-        number_of_harmonics=3,
-        sampling_frequency=2000,
-        interpolation_window=15,
-        interpolation_poly_order=3,
-        input_is_chunked=True,
-        representations_to_filter="all",
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+        *,
+        bandwidth: tuple[float, float] = (47.5, 52.5),
+        number_of_harmonics: int = 3,
+        sampling_frequency: float = 2000,
+        interpolation_window: int = 15,
+        interpolation_poly_order: int = 3,
+        remove_dc: bool = True,
     ):
-        """Initialize the filter.
-
-        Parameters
-        ----------
-        bandwidth : tuple, optional
-            Frequency band to remove (min_freq, max_freq) in Hz, by default (47.5, 52.5)
-        number_of_harmonics : int, optional
-            Number of harmonics to remove, by default 3
-        sampling_frequency : float, optional
-            Sampling frequency in Hz, by default 2000
-        interpolation_window : int, optional
-            Window size for interpolation, must be an odd number, by default 15
-        interpolation_poly_order : int, optional
-            Polynomial order for interpolation, must be less than interpolation_window, by default 3
-        input_is_chunked : bool, optional
-            Whether the input is chunked, by default True
-        representations_to_filter : str, optional
-            Representations to filter, by default "all"
-        """
         super().__init__(
             input_is_chunked=input_is_chunked,
             allowed_input_type="both",
-            is_output=False,
-            name="Spectral Interpolation Filter",
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
         )
         self.bandwidth = bandwidth
         self.number_of_harmonics = number_of_harmonics
@@ -850,6 +932,7 @@ class SpectralInterpolationFilter(FilterBaseClass):
 
         self.interpolation_window = interpolation_window
         self.interpolation_poly_order = interpolation_poly_order
+        self.remove_dc = remove_dc
 
         # Pre-compute harmonic frequencies
         center_freq = (bandwidth[0] + bandwidth[1]) / 2
@@ -903,7 +986,8 @@ class SpectralInterpolationFilter(FilterBaseClass):
                 signal_fft = rfft(reshaped_array[j], axis=-1)
 
                 # Set the DC component to zero (optional)
-                signal_fft[0] = 0
+                if self.remove_dc:
+                    signal_fft[0] = 0
 
                 # Calculate frequency bins
                 freqs = rfftfreq(original_shape[-1], d=1 / self.sampling_frequency)
@@ -958,7 +1042,8 @@ class SpectralInterpolationFilter(FilterBaseClass):
             signal_fft = rfft(input_array, axis=-1)
 
             # Set the DC component to zero (optional)
-            signal_fft[0] = 0
+            if self.remove_dc:
+                signal_fft[0] = 0
 
             # Get interpolation indices for each harmonic's frequency band
             for indices in self._get_indices_to_interpolate(freqs):
