@@ -915,9 +915,11 @@ class EMGDataset:
             # Use the first available filter key instead of hardcoding "raw"
             filter_keys = list(training_group["emg"].array_keys())
             if not filter_keys:
-                self.console.print("[bold red]No EMG filters found in training group![/bold red]")
+                self.console.print(
+                    "[bold red]No EMG filters found in training group![/bold red]"
+                )
                 return
-                
+
             training_size = training_group["emg"][filter_keys[0]].shape[0]
 
             if self.debug_level > 0:
@@ -1014,9 +1016,11 @@ class EMGDataset:
         # Use the first available filter key instead of hardcoding "raw"
         filter_keys = list(training_group["emg"].array_keys())
         if not filter_keys:
-            self.console.print("[bold red]No EMG filters found in training group![/bold red]")
+            self.console.print(
+                "[bold red]No EMG filters found in training group![/bold red]"
+            )
             return
-            
+
         training_size = training_group["emg"][filter_keys[0]].shape[0]
 
         # Process in batches
