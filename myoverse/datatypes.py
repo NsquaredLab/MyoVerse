@@ -1329,6 +1329,56 @@ class EMGData(_Data):
     >>> # Define a 4×4 electrode grid with row-wise numbering
     >>> grid = create_grid_layout(4, 4, fill_pattern='row')
     >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
+    
+    Working with Multiple Grid Layouts
+    ---------------------------------
+    
+    Grid layouts enable precise specification of how electrodes are arranged physically.
+    This is especially useful for visualizing and analyzing high-density EMG recordings
+    with multiple electrode grids:
+    
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from myoverse.datatypes import EMGData, create_grid_layout
+    >>> 
+    >>> # Create sample EMG data for 61 electrodes with 1000 samples each
+    >>> emg_data = np.random.randn(61, 1000)
+    >>> sampling_freq = 2048  # Hz
+    >>> 
+    >>> # Create layouts for three different electrode grids
+    >>> # First grid: 5×5 array with sequential numbering (0-24)
+    >>> grid1 = create_grid_layout(5, 5, fill_pattern='row')
+    >>> 
+    >>> # Second grid: 6×6 array with column-wise numbering and a few missing electrodes
+    >>> grid2 = create_grid_layout(6, 6, fill_pattern='column')
+    >>> # Mark positions (0,0), (5,5), and (2,3) as missing with -1
+    >>> grid2[0, 0] = -1
+    >>> grid2[5, 5] = -1
+    >>> grid2[2, 3] = -1
+    >>> # Shift indices to start after the first grid (add 25)
+    >>> grid2[grid2 >= 0] += 25
+    >>> 
+    >>> # Third grid: Irregular 3×4 array
+    >>> grid3 = np.array([
+    ...     [58, 59, 60, -1],
+    ...     [55, 56, 57, -1],
+    ...     [52, 53, 54, -1]
+    ... ])
+    >>> 
+    >>> # Create EMGData with all three grids
+    >>> emg = EMGData(emg_data, sampling_freq, grid_layouts=[grid1, grid2, grid3])
+    >>> 
+    >>> # Visualize the three grid layouts
+    >>> for i in range(3):
+    ...     emg.plot_grid_layout(i)
+    >>> 
+    >>> # Plot the raw EMG data using the grid arrangements
+    >>> emg.plot('Input', scaling_factor=[15.0, 12.0, 20.0])
+    >>> 
+    >>> # Access individual grid dimensions
+    >>> grid_dimensions = emg._get_grid_dimensions()
+    >>> for i, (rows, cols, electrodes) in enumerate(grid_dimensions):
+    ...     print(f"Grid {i+1}: {rows}×{cols} with {electrodes} electrodes")
     """
 
     def __init__(
@@ -1554,8 +1604,28 @@ class EMGData(_Data):
         plt.tight_layout()
         plt.show()
 
-    def plot_grid_layout(self, grid_idx: int = 0, show_indices: bool = True):
-        """Plots the 2D layout of a specific electrode grid.
+    def plot_grid_layout(
+        self, 
+        grid_idx: int = 0, 
+        show_indices: bool = True,
+        cmap: Optional[plt.cm.ScalarMappable] = None,
+        figsize: Optional[Tuple[float, float]] = None,
+        title: Optional[str] = None,
+        colorbar: bool = True,
+        grid_color: str = "black",
+        grid_alpha: float = 0.7,
+        text_color: str = "white",
+        text_fontsize: int = 10,
+        text_fontweight: str = "bold",
+        highlight_electrodes: Optional[List[int]] = None,
+        highlight_color: str = "red",
+        save_path: Optional[str] = None,
+        dpi: int = 150,
+        return_fig: bool = False,
+        ax: Optional[plt.Axes] = None,
+        autoshow: bool = True
+    ):
+        """Plots the 2D layout of a specific electrode grid with enhanced visualization.
 
         Parameters
         ----------
@@ -1563,6 +1633,45 @@ class EMGData(_Data):
             The index of the grid to plot. Default is 0.
         show_indices : bool, optional
             Whether to show the electrode indices in the plot. Default is True.
+        cmap : Optional[plt.cm.ScalarMappable], optional
+            Custom colormap to use for visualization. If None, a default viridis colormap is used.
+        figsize : Optional[Tuple[float, float]], optional
+            Custom figure size as (width, height) in inches. If None, size is calculated based on grid dimensions.
+            Ignored if an existing axes object is provided.
+        title : Optional[str], optional
+            Custom title for the plot. If None, a default title showing grid dimensions is used.
+        colorbar : bool, optional
+            Whether to show a colorbar. Default is True.
+        grid_color : str, optional
+            Color of the grid lines. Default is "black".
+        grid_alpha : float, optional
+            Transparency of grid lines (0-1). Default is 0.7.
+        text_color : str, optional
+            Color of the electrode indices text. Default is "white".
+        text_fontsize : int, optional
+            Font size for electrode indices. Default is 10.
+        text_fontweight : str, optional
+            Font weight for electrode indices. Default is "bold".
+        highlight_electrodes : Optional[List[int]], optional
+            List of electrode indices to highlight. Default is None.
+        highlight_color : str, optional
+            Color to use for highlighting electrodes. Default is "red".
+        save_path : Optional[str], optional
+            Path to save the figure. If None, figure is not saved. Default is None.
+        dpi : int, optional
+            DPI for saved figure. Default is 150.
+        return_fig : bool, optional
+            Whether to return the figure and axes. Default is False.
+        ax : Optional[plt.Axes], optional
+            Existing axes object to plot on. If None, a new figure and axes will be created.
+        autoshow : bool, optional
+            Whether to automatically show the figure. Default is True.
+            Set to False when plotting multiple grids on the same figure.
+
+        Returns
+        -------
+        Optional[Tuple[plt.Figure, plt.Axes]]
+            Figure and axes objects if return_fig is True.
 
         Raises
         ------
@@ -1583,11 +1692,25 @@ class EMGData(_Data):
         >>>
         >>> emg = EMGData(emg_data, 2000, grid_layouts=[grid])
         >>>
-        >>> # Visualize the grid layout
+        >>> # Basic visualization
         >>> emg.plot_grid_layout(0)
         >>>
-        >>> # Visualize without showing electrode indices
-        >>> emg.plot_grid_layout(0, show_indices=False)
+        >>> # Advanced visualization
+        >>> emg.plot_grid_layout(
+        ...     0, 
+        ...     figsize=(10, 10),
+        ...     colorbar=True,
+        ...     highlight_electrodes=[10, 20, 30],
+        ...     grid_alpha=0.5
+        ... )
+        >>>
+        >>> # Multiple grids in one figure
+        >>> import matplotlib.pyplot as plt
+        >>> fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+        >>> emg.plot_grid_layout(0, title="Grid 1", ax=ax1, autoshow=False)
+        >>> emg.plot_grid_layout(1, title="Grid 2", ax=ax2, autoshow=False)
+        >>> plt.tight_layout()
+        >>> plt.show()
         """
         if self.grid_layouts is None:
             raise ValueError("Cannot plot grid layout: grid_layouts not provided.")
@@ -1603,45 +1726,119 @@ class EMGData(_Data):
 
         # Get number of electrodes
         n_electrodes = np.sum(grid >= 0)
-        grid_title = (
-            f"Grid {grid_idx + 1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
-        )
+        
+        # Set default title if not provided
+        if title is None:
+            title = f"Grid {grid_idx + 1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
 
         # Create a masked array for plotting
         masked_grid = np.ma.masked_less(grid, 0)
-
-        # Plot the grid
-        fig, ax = plt.subplots(figsize=(cols / 2 + 3, rows / 2 + 1))
-        cmap = plt.cm.viridis
-        cmap.set_bad("white", 1.0)
-        im = ax.imshow(masked_grid, cmap=cmap)
-
-        # Add grid lines
+        
+        # Create figure and axes if not provided
+        if ax is None:
+            # Calculate optimal figure size if not provided
+            if figsize is None:
+                # Scale based on grid dimensions with minimum size
+                width = max(6, cols * 0.75 + 2)
+                height = max(5, rows * 0.75 + 1)
+                if colorbar:
+                    width += 1  # Add space for colorbar
+                figsize = (width, height)
+                
+            fig, ax = plt.subplots(figsize=figsize)
+        else:
+            # Get the figure object from the provided axes
+            fig = ax.figure
+        
+        # Setup colormap
+        if cmap is None:
+            cmap = plt.cm.viridis
+            cmap.set_bad("white", 1.0)
+        
+        # Create custom norm to ensure integer values are centered in color bands
+        norm = plt.Normalize(vmin=-0.5, vmax=np.max(grid) + 0.5)
+        
+        # Plot the grid with improved visuals
+        im = ax.imshow(masked_grid, cmap=cmap, norm=norm, interpolation='nearest')
+        
+        # Add colorbar if requested
+        if colorbar:
+            cbar = plt.colorbar(im, ax=ax, pad=0.01)
+            cbar.set_label('Electrode Index')
+            # Add tick labels only at integer positions
+            cbar.set_ticks(np.arange(0, np.max(grid) + 1))
+            
+        # Improve grid lines
+        # Major ticks at electrode centers
+        ax.set_xticks(np.arange(0, cols, 1))
+        ax.set_yticks(np.arange(0, rows, 1))
+        # Minor ticks at grid boundaries
         ax.set_xticks(np.arange(-0.5, cols, 1), minor=True)
         ax.set_yticks(np.arange(-0.5, rows, 1), minor=True)
-        ax.grid(which="minor", color="black", linestyle="-", linewidth=1)
-
-        # Add electrode numbers
+        
+        # Hide major tick labels for cleaner look
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
+        
+        # Apply grid styling
+        ax.grid(which="minor", color=grid_color, linestyle='-', linewidth=1, alpha=grid_alpha)
+        ax.tick_params(which="minor", bottom=False, left=False)
+        
+        # Add axis labels
+        ax.set_xlabel("Columns", fontsize=text_fontsize+1)
+        ax.set_ylabel("Rows", fontsize=text_fontsize+1)
+        
+        # Add electrode numbers with improved styling
         if show_indices:
             for i in range(rows):
                 for j in range(cols):
                     if grid[i, j] >= 0:
-                        ax.text(
-                            j,
-                            i,
-                            str(grid[i, j]),
-                            ha="center",
-                            va="center",
-                            color="w",
-                            fontweight="bold",
-                        )
+                        # Create a dictionary for text properties
+                        text_props = {
+                            "ha": "center",
+                            "va": "center",
+                            "color": text_color,
+                            "fontsize": text_fontsize,
+                            "fontweight": text_fontweight,
+                        }
+                        
+                        # Add highlight if this electrode is in highlight list
+                        if highlight_electrodes and grid[i, j] in highlight_electrodes:
+                            # Draw a circle around highlighted electrodes
+                            circle = plt.Circle(
+                                (j, i), 
+                                0.4, 
+                                fill=False, 
+                                edgecolor=highlight_color, 
+                                linewidth=2, 
+                                alpha=0.8
+                            )
+                            ax.add_patch(circle)
+                            # Change text properties for highlighted electrodes
+                            text_props["fontweight"] = "extra bold"
+                            
+                        # Add the electrode index text
+                        ax.text(j, i, str(grid[i, j]), **text_props)
 
-        # Add a title
-        plt.title(grid_title)
-
-        # Fix the aspect ratio and display
-        plt.tight_layout()
-        plt.show()
+        # Add a title with improved styling
+        ax.set_title(title, fontsize=text_fontsize+4, pad=10)
+        
+        # Set aspect ratio to be equal
+        ax.set_aspect('equal')
+        
+        # Save figure if path provided
+        if save_path:
+            plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
+        
+        # Show the figure if autoshow is True
+        if autoshow:
+            plt.tight_layout()
+            plt.show()
+            
+        # Return figure and axes if requested
+        if return_fig:
+            return fig, ax
+        return None
 
 
 class KinematicsData(_Data):
