@@ -427,9 +427,9 @@ class WindowedFunctionFilter(ApplyFunctionFilter):
             # Get windows if not already chunked
             windowed_array = _get_windows_with_shift(x, window_size, shift)
             # Apply the function to each window
-            return np.transpose(
-                np.squeeze(window_function(windowed_array, axis=-1), axis=-1), (1, 2, 0)
-            )
+            func_result = np.squeeze(window_function(windowed_array, axis=-1), axis=-1)
+            
+            return np.transpose(func_result, (*list(range(func_result.ndim))[1:], 0))
 
         # Initialize parent with the windowed function
         super().__init__(
@@ -557,7 +557,7 @@ class VARFilter(WindowedFunctionFilter):
             run_checks=run_checks,
             window_size=window_size,
             shift=shift,
-            window_function=np.var,
+            window_function=lambda x, axis: np.var(x, axis=axis, keepdims=True),
         )
 
 
