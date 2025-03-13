@@ -225,7 +225,11 @@ class CastelliniDataset:
                 [
                     SOSFrequencyFilter(
                         sos_filter_coefficients=butter(
-                            5, (20, 500), "bandpass", output="sos", fs=2048,
+                            5,
+                            (20, 500),
+                            "bandpass",
+                            output="sos",
+                            fs=2048,
                         ),
                         name="Bandpass 20-500 Hz",
                     ),
@@ -235,17 +239,27 @@ class CastelliniDataset:
                         ),
                         name="Bandstop 45-55 Hz",
                     ),
-                    RMSFilter(window_size=204, shift=20, name=f"RMS {204 / 2048 * 1000} ms"),
+                    RMSFilter(
+                        window_size=204, shift=20, name=f"RMS {204 / 2048 * 1000} ms"
+                    ),
                 ]
             ],
             ground_truth_filter_pipeline_before_chunking=[
                 [
-                    ApplyFunctionFilter(function=np.reshape, newshape=(63, -1), name="Reshape"),
-                    IndexDataFilter(indices=(slice(3, 63),), name="Indexing (Remove Wrist)"),
+                    ApplyFunctionFilter(
+                        function=np.reshape, newshape=(63, -1), name="Reshape"
+                    ),
+                    IndexDataFilter(
+                        indices=(slice(3, 63),), name="Indexing (Remove Wrist)"
+                    ),
                 ]
             ],
             ground_truth_filter_pipeline_after_chunking=[
-                [ApplyFunctionFilter(function=np.mean, axis=-1, is_output=True, name="Mean")]
+                [
+                    ApplyFunctionFilter(
+                        function=np.mean, axis=-1, is_output=True, name="Mean"
+                    )
+                ]
             ],
             augmentation_pipelines=[
                 [GaussianNoise(is_output=True)],
