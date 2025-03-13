@@ -11,7 +11,6 @@ This example shows how to apply a complex filter sequence to the data.
 # Just as in the previous example we load the EMG example data and convert it to a MyoVerse Data object.
 # Afterward, we select one task to work with.
 import pickle as pkl
-from copy import copy
 
 import numpy as np
 
@@ -20,7 +19,7 @@ from myoverse.datatypes import EMGData
 emg_data = {}
 with open("data/emg.pkl", "rb") as f:
     for k, v in pkl.load(f).items():
-        emg_data[k] = EMGData(v, sampling_frequency=2044)
+        emg_data[k] = EMGData(v, sampling_frequency=2048)
 
 print(emg_data)
 
@@ -46,13 +45,13 @@ from myoverse.datasets.filters.temporal import SOSFrequencyFilter, RMSFilter
 
 # Define the filters
 bandstop_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2044),
+    sos_filter_coefficients=butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2048),
     is_output=True,
     name="Bandstop 50",
     input_is_chunked=False,
 )
 lowpass_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=butter(4, 20, "lowpass", output="sos", fs=2044),
+    sos_filter_coefficients=butter(4, 20, "lowpass", output="sos", fs=2048),
     is_output=True,
     name="Lowpass 20",
     input_is_chunked=False,
@@ -60,7 +59,8 @@ lowpass_filter = SOSFrequencyFilter(
 
 # Apply the filters
 task_one_data.apply_filter_sequence(
-    filter_sequence=[bandstop_filter, lowpass_filter], representations_to_filter=["Input"]
+    filter_sequence=[bandstop_filter, lowpass_filter],
+    representations_to_filter=["Input"],
 )
 
 print()
@@ -92,25 +92,35 @@ task_one_data.plot_graph()
 #
 # We can achieve this by applying five filters to the data using the **apply_filter_sequence** method and setting the is_output
 # flag to True for the filters that should be kept in the dataset object.
-from myoverse.datasets.filters.generic import ChunkizeDataFilter, ApplyFunctionFilter
+from myoverse.datasets.filters.generic import ChunkizeDataFilter
 from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
 # reset the data
-task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2044)
+task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2048)
 
 # Define the filters
-bandstop_filter = butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2044)
-lowpass_filter = butter(4, 20, "lowpass", output="sos", fs=2044)
+bandstop_filter = butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2048)
+lowpass_filter = butter(4, 20, "lowpass", output="sos", fs=2048)
 
 # %%
 # Apply the filters for steps 1 and 2
 # -----------------------------------
-CHUNK_SIZE = 320
+CHUNK_SIZE = int(100 / 1000 * 2048)
+CHUNK_SHIFT = 64
 
 task_one_data.apply_filter_sequence(
     filter_sequence=[
-        ChunkizeDataFilter(chunk_size=CHUNK_SIZE, chunk_shift=16, name="Windowed", input_is_chunked=False),
-        SOSFrequencyFilter(sos_filter_coefficients=bandstop_filter, name="Bandstop 50", input_is_chunked=True),
+        ChunkizeDataFilter(
+            chunk_size=CHUNK_SIZE,
+            chunk_shift=CHUNK_SHIFT,
+            name="Windowed",
+            input_is_chunked=False,
+        ),
+        SOSFrequencyFilter(
+            sos_filter_coefficients=bandstop_filter,
+            name="Bandstop 50",
+            input_is_chunked=True,
+        ),
     ],
     representations_to_filter=["Input"],
 )
@@ -124,7 +134,11 @@ task_one_data.plot_graph()
 # ----------------------------------
 task_one_data.apply_filter_sequence(
     filter_sequence=[
-        SOSFrequencyFilter(sos_filter_coefficients=lowpass_filter, name="Lowpass 20", input_is_chunked=True),
+        SOSFrequencyFilter(
+            sos_filter_coefficients=lowpass_filter,
+            name="Lowpass 20",
+            input_is_chunked=True,
+        ),
         RMSFilter(
             is_output=True,
             name="RMS on Lowpass 20",
@@ -143,8 +157,7 @@ task_one_data.plot_graph()
 # Apply the filters for step 5
 # -----------------------------
 task_one_data.apply_filter(
-    RMSFilter
-    (
+    RMSFilter(
         is_output=True,
         name="RMS on Bandstop 50",
         input_is_chunked=True,
@@ -172,7 +185,7 @@ fig, axs = plt.subplots(2, sharex=True, sharey=True)
 
 for i, (key, value) in enumerate(task_one_data.output_representations.items()):
     for channel in range(value.shape[-2]):
-        axs[i].plot(value[:, channel], color="black", alpha=0.01)
+        axs[i].plot(value[:, channel, 0], color="black", alpha=0.01)
 
     axs[i].set_title(f"Filter sequence: {filter_sequences[i]}")
     axs[i].set_ylabel("Amplitude (a. u.)")
@@ -191,7 +204,7 @@ plt.show()
 # This will remove the intermediate representations (shown in grey) from the dataset object.
 #
 # .. note:: If new filters rely on the intermediate representations, they will be recalculated which can be computationally expensive.
-task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2044)
+task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2048)
 
 print(task_one_data)
 
@@ -199,12 +212,21 @@ print(task_one_data)
 task_one_data.apply_filter_pipeline(
     filter_pipeline=[
         [
-            ChunkizeDataFilter(chunk_size=CHUNK_SIZE, chunk_shift=16, name="Windowed", input_is_chunked=False),
-            SOSFrequencyFilter(
-                sos_filter_coefficients=bandstop_filter, name="Bandstop 50", input_is_chunked=True
+            ChunkizeDataFilter(
+                chunk_size=CHUNK_SIZE,
+                chunk_shift=CHUNK_SHIFT,
+                name="Windowed",
+                input_is_chunked=False,
             ),
             SOSFrequencyFilter(
-                sos_filter_coefficients=lowpass_filter, name="Lowpass 20", input_is_chunked=True
+                sos_filter_coefficients=bandstop_filter,
+                name="Bandstop 50",
+                input_is_chunked=True,
+            ),
+            SOSFrequencyFilter(
+                sos_filter_coefficients=lowpass_filter,
+                name="Lowpass 20",
+                input_is_chunked=True,
             ),
             RMSFilter(
                 is_output=True,

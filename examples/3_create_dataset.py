@@ -29,7 +29,7 @@ dataset = EMGDataset(
     ground_truth_data_type="kinematics",  # Specify the ground truth data type
     sampling_frequency=2044.0,
     tasks_to_use=["1", "2"],
-    save_path=Path(r"data/dataset.zarr").resolve(),
+    save_path=Path(r"data/dataset_zarr3.zarr").resolve(),
     emg_filter_pipeline_after_chunking=[
         [
             SOSFrequencyFilter(
@@ -37,13 +37,13 @@ dataset = EMGDataset(
                     4, [47.5, 52.5], "bandstop", output="sos", fs=2044
                 ),
                 is_output=True,
-                name="Raw No Powerline",
+                name="Raw No Powerline (Bandstop 50 Hz)",
                 input_is_chunked=True,
             ),
             SOSFrequencyFilter(
                 sos_filter_coefficients=butter(4, 20, "lowpass", output="sos", fs=2044),
                 is_output=True,
-                name="Raw No Powerline Lowpassed 20 Hz",
+                name="Raw No High Freq (Lowpass 20 Hz)",
                 input_is_chunked=True,
             ),
         ]
@@ -51,7 +51,9 @@ dataset = EMGDataset(
     emg_representations_to_filter_after_chunking=[["Last"]],
     ground_truth_filter_pipeline_before_chunking=[
         [
-            ApplyFunctionFilter(function=np.reshape, newshape=(63, -1), input_is_chunked=False),
+            ApplyFunctionFilter(
+                function=np.reshape, newshape=(63, -1), input_is_chunked=False
+            ),
             IndexDataFilter(indices=(slice(3, 63),), input_is_chunked=False),
         ]
     ],
@@ -72,9 +74,14 @@ dataset = EMGDataset(
     testing_split_ratio=0.3,
     validation_split_ratio=0.1,
     augmentation_pipelines=[
-        [WaveletDecomposition(nr_of_grids=5, is_output=True, level=2, input_is_chunked=False)]
+        [
+            WaveletDecomposition(
+                nr_of_grids=5, is_output=True, level=2, input_is_chunked=False
+            )
+        ]
     ],
-    debug_level=1
+    debug_level=1,  # Disable debug output
+    silence_zarr_warnings=True,  # Silence zarr codec warnings
 )
 
 # Create the dataset
@@ -92,6 +99,8 @@ dataset = EMBCDataset(
     ground_truth_data_path=Path(r"data/kinematics.pkl").resolve(),
     save_path=Path(r"data/dataset_embc.zarr").resolve(),
     tasks_to_use=["1", "2"],
+    debug_level=1,
+    silence_zarr_warnings=True,  # Silence zarr codec warnings
 )
 
 # Create the EMBC dataset
