@@ -33,12 +33,16 @@ class EMBCDataset:
         The ground truth data should be of shape (21, 3, samples).
     save_path : Path
         The path to save the dataset to. This should be a zarr file.
+    emg_data : dict[str, np.ndarray], optional
+        Optional dictionary containing EMG data if not loading from a file.
+    ground_truth_data : dict[str, np.ndarray], optional
+        Optional dictionary containing ground truth data if not loading from a file.
     tasks_to_use : Sequence[str], optional
-        The tasks to use. The default is EXPERIMENTS_TO_USE.
-    debug : bool, optional
-        Whether to enable debug mode. The default is False.
+        The tasks to use.
+    debug_level : int, optional
+        Debug level (0-2). Default is 0 (no debugging).
     silence_zarr_warnings : bool, optional
-        Whether to silence all Zarr-related warnings, including those from zarr.codecs and zarr.core modules. The default is False.
+        Whether to silence all Zarr-related warnings. Default is False.
 
     Methods
     -------
@@ -58,26 +62,39 @@ class EMBCDataset:
         emg_data_path: Path,
         ground_truth_data_path: Path,
         save_path: Path,
+        emg_data: dict[str, np.ndarray] = {},
+        ground_truth_data: dict[str, np.ndarray] = {},
         tasks_to_use: Sequence[str] = ("Change Me",),
-        debug: bool = False,
+        debug_level: int = 0,
         silence_zarr_warnings: bool = False,
     ):
         self.emg_data_path = emg_data_path
+        self.emg_data = emg_data
         self.ground_truth_data_path = ground_truth_data_path
-        self.save_path = save_path
+        self.ground_truth_data = ground_truth_data
         self.tasks_to_use = tasks_to_use
-        self.debug = debug
+        self.save_path = save_path
+        self.debug_level = debug_level
         self.silence_zarr_warnings = silence_zarr_warnings
 
     def create_dataset(self):
+        # EMBC default settings
         EMGDataset(
             emg_data_path=self.emg_data_path,
+            emg_data=self.emg_data,
             ground_truth_data_path=self.ground_truth_data_path,
-            sampling_frequency=2048,
+            ground_truth_data=self.ground_truth_data,
+            ground_truth_data_type="kinematics",
+            sampling_frequency=2048.0,
             tasks_to_use=self.tasks_to_use,
             save_path=self.save_path,
-            debug_level=1 if self.debug else 0,
+            chunk_size=192,
+            chunk_shift=64,
+            testing_split_ratio=0.2,
+            validation_split_ratio=0.2,
+            debug_level=self.debug_level,
             silence_zarr_warnings=self.silence_zarr_warnings,
+            # EMBC-specific filter pipelines and augmentations
             emg_filter_pipeline_after_chunking=[
                 [
                     IdentityFilter(is_output=True, name="raw", input_is_chunked=True),
@@ -148,10 +165,16 @@ class CastelliniDataset:
         The ground truth data should be of shape (21, 3, samples).
     save_path : Path
         The path to save the dataset to. This should be a zarr file.
+    emg_data : dict[str, np.ndarray], optional
+        Optional dictionary containing EMG data if not loading from a file.
+    ground_truth_data : dict[str, np.ndarray], optional
+        Optional dictionary containing ground truth data if not loading from a file.
     tasks_to_use : Sequence[str], optional
-        The tasks to use. The default is EXPERIMENTS_TO_USE.
+        The tasks to use.
+    debug_level : int, optional
+        Debug level (0-2). Default is 0 (no debugging).
     silence_zarr_warnings : bool, optional
-        Whether to silence all Zarr-related warnings, including those from zarr.codecs and zarr.core modules. The default is False.
+        Whether to silence all Zarr-related warnings. Default is False.
 
     Methods
     -------
@@ -170,46 +193,59 @@ class CastelliniDataset:
         emg_data_path: Path,
         ground_truth_data_path: Path,
         save_path: Path,
+        emg_data: dict[str, np.ndarray] = {},
+        ground_truth_data: dict[str, np.ndarray] = {},
         tasks_to_use: Sequence[str] = ("Change Me",),
+        debug_level: int = 0,
         silence_zarr_warnings: bool = False,
     ):
         self.emg_data_path = emg_data_path
+        self.emg_data = emg_data
         self.ground_truth_data_path = ground_truth_data_path
+        self.ground_truth_data = ground_truth_data
         self.save_path = save_path
         self.tasks_to_use = tasks_to_use
+        self.debug_level = debug_level
         self.silence_zarr_warnings = silence_zarr_warnings
 
     def create_dataset(self):
         EMGDataset(
             emg_data_path=self.emg_data_path,
+            emg_data=self.emg_data,
             ground_truth_data_path=self.ground_truth_data_path,
+            ground_truth_data=self.ground_truth_data,
+            ground_truth_data_type="kinematics",
             sampling_frequency=2048,
             tasks_to_use=self.tasks_to_use,
             save_path=self.save_path,
+            debug_level=self.debug_level,
             silence_zarr_warnings=self.silence_zarr_warnings,
+            # Castellini-specific filter pipelines
             emg_filter_pipeline_before_chunking=[
                 [
                     SOSFrequencyFilter(
                         sos_filter_coefficients=butter(
-                            5, (20, 500), "bandpass", output="sos", fs=2048
+                            5, (20, 500), "bandpass", output="sos", fs=2048,
                         ),
+                        name="Bandpass 20-500 Hz",
                     ),
                     SOSFrequencyFilter(
                         sos_filter_coefficients=butter(
-                            5, (45, 55), "bandpass", output="sos", fs=2048
+                            5, (45, 55), "bandstop", output="sos", fs=2048
                         ),
+                        name="Bandstop 45-55 Hz",
                     ),
-                    RMSFilter(window_size=204, shift=20),
+                    RMSFilter(window_size=204, shift=20, name=f"RMS {204 / 2048 * 1000} ms"),
                 ]
             ],
             ground_truth_filter_pipeline_before_chunking=[
                 [
-                    ApplyFunctionFilter(function=np.reshape, newshape=(63, -1)),
-                    IndexDataFilter(indices=(slice(3, 63),)),
+                    ApplyFunctionFilter(function=np.reshape, newshape=(63, -1), name="Reshape"),
+                    IndexDataFilter(indices=(slice(3, 63),), name="Indexing (Remove Wrist)"),
                 ]
             ],
             ground_truth_filter_pipeline_after_chunking=[
-                [ApplyFunctionFilter(function=np.mean, axis=-1, is_output=True)]
+                [ApplyFunctionFilter(function=np.mean, axis=-1, is_output=True, name="Mean")]
             ],
             augmentation_pipelines=[
                 [GaussianNoise(is_output=True)],
