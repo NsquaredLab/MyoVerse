@@ -56,31 +56,82 @@ sampling_freq = 2000  # 2000 Hz
 emg_row = EMGData(emg_data_16ch, sampling_freq, grid_layouts=[grid_row])
 emg_col = EMGData(emg_data_16ch, sampling_freq, grid_layouts=[grid_col])
 
-# Create a figure with subplots for comparison
-fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(5, 12))
-fig.suptitle("Comparing Row-wise vs\nColumn-wise Electrode Numbering", fontsize=16)
+# First, let's show the side-by-side comparison
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+fig.suptitle("Side-by-Side Comparison", fontsize=16)
 
-# Use the enhanced plot_grid_layout method with explicit axes and autoshow=False
+# Plot on separate axes
 emg_row.plot_grid_layout(
     0, 
     title="Row-wise Numbering",
     colorbar=False,
     grid_alpha=0.7,
     ax=ax1,
-    autoshow=False  # Don't show yet - wait until both grids are plotted
+    autoshow=False
 )
 
-# Plot column-wise grid on the second axis
 emg_col.plot_grid_layout(
     0,
     title="Column-wise Numbering",
     colorbar=False,
     grid_alpha=0.7,
     ax=ax2,
-    autoshow=False  # Don't show yet
+    autoshow=False
 )
 
-# Now show the complete figure with both subplots
+plt.tight_layout()
+plt.show()
+
+# Now, let's create an overlaid visualization on a single plot
+plt.figure(figsize=(8, 8))
+plt.suptitle("Overlaid Grid Layouts", fontsize=16)
+
+# Create a single set of axes for overlaid visualization
+ax = plt.gca()
+
+# First plot the row-wise grid with a custom colormap and transparency
+# Use a blue-based colormap for row-wise
+row_cmap = plt.cm.Blues
+row_cmap.set_bad("white", 0)  # Make missing electrodes transparent
+
+emg_row.plot_grid_layout(
+    0,
+    title="Row-wise (Blue) vs Column-wise (Red) Numbering",
+    cmap=row_cmap,
+    colorbar=False,
+    grid_alpha=0.3,
+    text_color='darkblue',
+    text_fontsize=12,
+    text_fontweight='bold',
+    ax=ax,
+    autoshow=False
+)
+
+# Then overlay the column-wise grid with a different colormap
+# Use a red-based colormap for column-wise
+col_cmap = plt.cm.Reds
+col_cmap.set_bad("white", 0)  # Make missing electrodes transparent
+
+emg_col.plot_grid_layout(
+    0,
+    cmap=col_cmap,
+    colorbar=False,
+    grid_alpha=0.3,
+    text_color='darkred',
+    text_fontsize=12,
+    text_fontweight='bold',
+    ax=ax,  # Use the same axes
+    autoshow=False
+)
+
+# Add a legend to explain the colors
+from matplotlib.patches import Patch
+legend_elements = [
+    Patch(facecolor='lightblue', edgecolor='blue', label='Row-wise numbering'),
+    Patch(facecolor='lightcoral', edgecolor='red', label='Column-wise numbering')
+]
+ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.05))
+
 plt.tight_layout()
 plt.show()
 
@@ -152,7 +203,7 @@ emg_data_41ch = np.random.randn(n_electrodes, 1000)
 emg_multi = EMGData(emg_data_41ch, sampling_freq, grid_layouts=[grid1, grid2, grid3])
 
 # Create a single figure with multiple subplots
-fig, axes = plt.subplots(3, 1, figsize=(5, 15))
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 fig.suptitle("Multiple Electrode Grids", fontsize=16)
 
 # We'll use our enhanced plot_grid_layout method with provided axes
@@ -257,3 +308,69 @@ emg_circular.plot_grid_layout(
     highlight_electrodes=[0, 4],  # Highlight a couple of electrodes
     highlight_color='cyan'
 )
+
+# %%
+# Multiple electrode grids overlay
+# ==============================
+#
+# We can also overlay multiple grids with different electrode configurations
+# to visualize their relative positions and coverage.
+
+# Create a 3×3 grid and a 4×4 grid with different patterns
+grid_3x3 = create_grid_layout(3, 3, fill_pattern='row')
+grid_4x4 = create_grid_layout(4, 4, fill_pattern='column')
+
+# Shift the indices in the 4×4 grid to avoid overlap
+grid_4x4[grid_4x4 >= 0] += 9  # Start after the 3×3 grid
+
+# Create EMG data for both grids combined
+emg_data_combined = np.random.randn(25, 1000)  # 9 + 16 = 25 channels
+emg_combined = EMGData(emg_data_combined, sampling_freq, grid_layouts=[grid_3x3, grid_4x4])
+
+# Create an overlaid visualization
+plt.figure(figsize=(8, 8))
+plt.suptitle("Overlaid Grid Configurations", fontsize=16)
+ax = plt.gca()
+
+# Plot the 3×3 grid with green colors
+green_cmap = plt.cm.Greens
+green_cmap.set_bad("white", 0)
+
+emg_combined.plot_grid_layout(
+    0,  # First grid (3×3)
+    title="3×3 Grid (Green) overlaid with 4×4 Grid (Purple)",
+    cmap=green_cmap,
+    colorbar=False,
+    grid_alpha=0.3,
+    text_color='darkgreen',
+    highlight_electrodes=[0, 4, 8],  # Highlight some electrodes
+    highlight_color='green',
+    ax=ax,
+    autoshow=False
+)
+
+# Overlay the 4×4 grid with purple colors
+purple_cmap = plt.cm.Purples
+purple_cmap.set_bad("white", 0)
+
+emg_combined.plot_grid_layout(
+    1,  # Second grid (4×4)
+    cmap=purple_cmap,
+    colorbar=False,
+    grid_alpha=0.3,
+    text_color='darkviolet',
+    highlight_electrodes=[10, 15, 20],  # Highlight some electrodes
+    highlight_color='purple',
+    ax=ax,
+    autoshow=False
+)
+
+# Add a legend
+legend_elements = [
+    Patch(facecolor='lightgreen', edgecolor='green', label='3×3 Grid (0-8)'),
+    Patch(facecolor='lavender', edgecolor='purple', label='4×4 Grid (9-24)')
+]
+ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.05))
+
+plt.tight_layout()
+plt.show()
