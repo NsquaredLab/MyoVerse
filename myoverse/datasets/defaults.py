@@ -232,39 +232,61 @@ class CastelliniDataset:
                             fs=2048,
                         ),
                         name="Bandpass 20-500 Hz",
+                        input_is_chunked=False,
                     ),
                     SOSFrequencyFilter(
                         sos_filter_coefficients=butter(
                             5, (45, 55), "bandstop", output="sos", fs=2048
                         ),
                         name="Bandstop 45-55 Hz",
+                        input_is_chunked=False,
                     ),
                     RMSFilter(
-                        window_size=204, shift=20, name=f"RMS {204 / 2048 * 1000} ms"
+                        window_size=204,
+                        shift=20,
+                        name=f"RMS {204 / 2048 * 1000} ms",
+                        input_is_chunked=False,
                     ),
                 ]
             ],
             ground_truth_filter_pipeline_before_chunking=[
                 [
                     ApplyFunctionFilter(
-                        function=np.reshape, newshape=(63, -1), name="Reshape"
+                        function=np.reshape,
+                        newshape=(63, -1),
+                        name="Reshape",
+                        input_is_chunked=False,
                     ),
                     IndexDataFilter(
-                        indices=(slice(3, 63),), name="Indexing (Remove Wrist)"
+                        indices=(slice(3, 63),),
+                        name="Indexing (Remove Wrist)",
+                        input_is_chunked=False,
                     ),
                 ]
             ],
             ground_truth_filter_pipeline_after_chunking=[
                 [
                     ApplyFunctionFilter(
-                        function=np.mean, axis=-1, is_output=True, name="Mean"
+                        function=np.mean,
+                        axis=-1,
+                        is_output=True,
+                        name="Mean",
+                        input_is_chunked=True,
                     )
                 ]
             ],
             augmentation_pipelines=[
-                [GaussianNoise(is_output=True)],
-                [MagnitudeWarping(is_output=True)],
-                [WaveletDecomposition(level=3, is_output=True)],
+                [GaussianNoise(is_output=True, input_is_chunked=False)],
+                [
+                    MagnitudeWarping(
+                        is_output=True, input_is_chunked=False, nr_of_grids=5
+                    )
+                ],
+                [
+                    WaveletDecomposition(
+                        level=3, is_output=True, input_is_chunked=False, nr_of_grids=5
+                    )
+                ],
             ],
             amount_of_chunks_to_augment_at_once=500,
         ).create_dataset()
