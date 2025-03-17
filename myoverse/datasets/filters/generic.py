@@ -163,13 +163,15 @@ class ApplyFunctionFilter(FilterBaseClass):
                 f"The provided function must be callable, but got {type(self.function)}"
             )
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         """Apply the function to the input array.
 
         Parameters
         ----------
         input_array : np.ndarray
             The input array to apply the function to
+        **kwargs
+            Additional keyword arguments from the Data object
 
         Returns
         -------
@@ -262,7 +264,7 @@ class IndexDataFilter(FilterBaseClass):
 
         self.indices = indices
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         """Apply the indices to the input array.
 
         This method directly applies the indices to the input array using NumPy's
@@ -273,6 +275,8 @@ class IndexDataFilter(FilterBaseClass):
         ----------
         input_array : np.ndarray
             The input array to index
+        **kwargs
+            Additional keyword arguments from the Data object
 
         Returns
         -------
@@ -405,7 +409,21 @@ class ChunkizeDataFilter(FilterBaseClass):
                     "chunk_overlap must be less than or equal to chunk_size."
                 )
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
+        """Chunk the input array into overlapping segments.
+
+        Parameters
+        ----------
+        input_array : np.ndarray
+            The input array to chunk
+        **kwargs
+            Additional keyword arguments from the Data object
+
+        Returns
+        -------
+        np.ndarray
+            The chunked array with shape (n_chunks, *original_shape, chunk_size)
+        """
         # Use the existing _get_windows_with_shift function for more efficient windowing
         return _get_windows_with_shift(
             input_array,
@@ -491,13 +509,15 @@ class IdentityFilter(FilterBaseClass):
                 f"This filter can only process one input at a time."
             )
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         """Return the input array unchanged.
 
         Parameters
         ----------
         input_array : np.ndarray
             The input array to pass through
+        **kwargs
+            Additional keyword arguments from the Data object
 
         Returns
         -------
@@ -505,146 +525,3 @@ class IdentityFilter(FilterBaseClass):
             The input array unchanged
         """
         return input_array
-
-
-class MergeFilter(FilterBaseClass):
-    """Filter that merges multiple representations.
-
-    This filter allows combining multiple input representations by either
-    concatenating them along a specified axis or stacking them.
-
-    Parameters
-    ----------
-    input_is_chunked : bool
-        Whether the input is chunked or not.
-    is_output : bool, optional
-        Whether the filter is an output filter, by default False
-    name : str, optional
-        Name of the filter, by default None
-    run_checks : bool
-        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.
-
-        .. warning:: If False, the user is responsible for ensuring that the input array is valid.
-
-    mode : str, optional
-        Mode for merging arrays. Options are:
-        - 'concatenate': Concatenate arrays along the specified axis
-        - 'stack': Stack arrays along a new axis
-        By default 'concatenate'
-    axis : int, optional
-        Axis along which to concatenate or stack, by default 0
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from myoverse.datatypes import EMGData
-    >>> from myoverse.datasets.filters.generic import ApplyFunctionFilter, MergeFilter
-    >>>
-    >>> # Create sample data
-    >>> data = EMGData(np.random.rand(10, 8), sampling_frequency=1000)
-    >>>
-    >>> # Apply two different transformations
-    >>> data.apply_filter(
-    >>>     filter=ApplyFunctionFilter(function=np.abs, name="absolute_values", input_is_chunked=False),
-    >>>     representations_to_filter=["input_data"]
-    >>> )
-    >>> data.apply_filter(
-    >>>     filter=ApplyFunctionFilter(function=lambda x: x**2, name="squared_values", input_is_chunked=False),
-    >>>     representations_to_filter=["input_data"]
-    >>> )
-    >>>
-    >>> # Merge the representations by providing them directly
-    >>> data.apply_filter(
-    >>>     filter=MergeFilter(mode='concatenate', axis=1, name="merged_features", input_is_chunked=False),
-    >>>     representations_to_filter=["absolute_values", "squared_values"]
-    >>> )
-    >>>
-    >>> # The merged result is now available
-    >>> merged_features = data["merged_features"]
-
-    Notes
-    -----
-    The arrays being merged must have compatible shapes for the chosen merge operation.
-    This filter requires at least two input arrays to perform an actual merge operation.
-
-    See Also
-    --------
-    ApplyFunctionFilter : A filter that applies a function to the input array
-    """
-
-    def __init__(
-        self,
-        input_is_chunked: bool,
-        is_output: bool = False,
-        name: str | None = None,
-        run_checks: bool = True,
-        *,
-        mode: Literal["concatenate", "stack"] = "concatenate",
-        axis: int = 0,
-    ):
-        super().__init__(
-            input_is_chunked=input_is_chunked,
-            allowed_input_type="both",
-            is_output=is_output,
-            name=name,
-            run_checks=run_checks,
-        )
-
-        if mode not in ["concatenate", "stack"]:
-            raise ValueError("Mode must be either 'concatenate' or 'stack'")
-
-        self.mode = mode
-        self._operation_to_perform = (
-            np.concatenate if mode == "concatenate" else np.stack
-        )
-
-        self.axis = axis
-
-    def _run_filter_checks(self, input_array_list: list[np.ndarray]):
-        """Run checks on the input array.
-
-        Parameters
-        ----------
-        input_array_list : list of np.ndarray
-            List of arrays to merge
-
-        Raises
-        ------
-        ValueError
-            If input is not a list of arrays or if arrays have incompatible shapes
-            If fewer than two arrays are provided
-        """
-        if not isinstance(input_array_list, list):
-            raise ValueError(
-                f"MergeFilter requires a list of arrays as input, but received {type(input_array_list)}. "
-                f"This likely means apply_filter was called with a single representation instead of a list."
-            )
-
-        if len(input_array_list) < 2:
-            raise ValueError(
-                f"MergeFilter requires at least two input arrays to perform a merge operation, "
-                f"but received {len(input_array_list)}. Please provide multiple representations to filter."
-            )
-
-    def _filter(self, input_array_list: list[np.ndarray]) -> np.ndarray:
-        """Merge multiple input arrays.
-
-        Parameters
-        ----------
-        input_array_list : list of np.ndarray
-            List of arrays to merge
-
-        Returns
-        -------
-        np.ndarray
-            Merged array
-
-        Raises
-        ------
-        ValueError
-            If the merge operation fails
-        """
-        try:
-            return self._operation_to_perform(input_array_list, axis=self.axis)
-        except Exception as e:
-            raise ValueError(f"Failed to merge arrays: {str(e)}")
