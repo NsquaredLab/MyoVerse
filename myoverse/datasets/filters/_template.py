@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Dict
 from abc import abstractmethod
 import inspect
 
@@ -25,18 +25,59 @@ class FilterBaseClass:
 
     Methods
     -------
-    __call__(input_array: np.ndarray | list[np.ndarray]) -> np.ndarray
+    __call__(input_array: np.ndarray | list[np.ndarray], **kwargs) -> np.ndarray | Dict[str, np.ndarray]
         Filters the input array(s).
 
         .. note:: A filter can accept a single numpy array OR a list of numpy arrays. Not both.
 
         Input shape is determined by whether the allowed_input_type is "both", "chunked" or "not chunked".
 
+        When a filter is applied via Data.apply_filter(), it automatically receives all Data object
+        parameters as keyword arguments. These are automatically set as attributes on the filter instance
+        if they don't already exist, making them accessible in the _filter method.
+
+        The filter can return either a single numpy array or a dictionary of numpy arrays. If a dictionary
+        is returned, each key-value pair will be stored as a separate representation in the data processing
+        graph with the key appended to the filter name.
+
     Raises
     ------
     ValueError
         If input_is_chunked is not explicitly set.
         If allowed_input_type is not valid.
+
+    Notes
+    -----
+    Filter Implementation:
+        When implementing a custom filter, ensure your _filter method accepts **kwargs:
+
+        def _filter(self, input_array, **kwargs):
+            # Access Data object parameters via self attributes
+            # For example, if the Data object has a 'sampling_frequency' attribute:
+            fs = self.sampling_frequency
+            ...
+            return filtered_data
+
+        This allows your filter to use parameters from the Data object without requiring
+        users to manually pass them.
+
+        To return multiple representations from a single filter, return a dictionary where:
+        - Each key will be appended to the filter name to create a unique representation name
+        - Each value should be a numpy array representing the data for that representation
+
+        Example:
+
+        def _filter(self, input_array, **kwargs):
+            # Split input into three grids
+            grid1 = input_array[:, :10]
+            grid2 = input_array[:, 10:20]
+            grid3 = input_array[:, 20:30]
+
+            return {
+                "grid1": grid1,
+                "grid2": grid2,
+                "grid3": grid3
+            }
     """
 
     def __init__(
@@ -115,16 +156,62 @@ class FilterBaseClass:
                 )
 
     def _filter_with_checks(
-        self, input_array: np.ndarray | list[np.ndarray]
-    ) -> np.ndarray:
+        self, input_array: np.ndarray | list[np.ndarray], **kwargs
+    ) -> np.ndarray | Dict[str, np.ndarray]:
         self._run_filter_checks(input_array)
-        return self._filter(input_array)
+        return self._filter(input_array, **kwargs)
 
-    def __call__(self, input_array: np.ndarray | list[np.ndarray]) -> np.ndarray:
-        return self._filter_function_to_run(input_array)
+    def __call__(
+        self, input_array: np.ndarray | list[np.ndarray], **kwargs
+    ) -> np.ndarray | Dict[str, np.ndarray]:
+        """Apply the filter to the input array.
+
+        Parameters
+        ----------
+        input_array : np.ndarray | list[np.ndarray]
+            The input array(s) to filter
+        **kwargs
+            Additional keyword arguments from the Data object. These will be set as
+            attributes on the filter instance if they don't already exist, making them
+            available in the _filter method.
+
+        Returns
+        -------
+        np.ndarray | Dict[str, np.ndarray]
+            The filtered data as either a single array or a dictionary of arrays.
+            If a dictionary is returned, each key-value pair will be stored as a
+            separate representation in the data processing graph.
+        """
+        # Set kwargs as attributes if they don't already exist
+        for key, value in kwargs.items():
+            if not hasattr(self, key):
+                setattr(self, key, value)
+
+        # Call the appropriate filter function
+        return self._filter_function_to_run(input_array, **kwargs)
 
     @abstractmethod
-    def _filter(self, input_array: np.ndarray | list[np.ndarray]) -> np.ndarray:
+    def _filter(
+        self, input_array: np.ndarray | list[np.ndarray], **kwargs
+    ) -> np.ndarray | Dict[str, np.ndarray]:
+        """Apply the filter to the input array.
+
+        This method must be implemented by subclasses.
+
+        Parameters
+        ----------
+        input_array : np.ndarray | list[np.ndarray]
+            The input array(s) to filter
+        **kwargs
+            Additional keyword arguments from the Data object
+
+        Returns
+        -------
+        np.ndarray | Dict[str, np.ndarray]
+            The filtered data as either a single array or a dictionary of arrays.
+            If a dictionary is returned, each key-value pair will be stored as a
+            separate representation in the data processing graph.
+        """
         raise NotImplementedError("This method must be implemented in the subclass.")
 
     def __repr__(self):
