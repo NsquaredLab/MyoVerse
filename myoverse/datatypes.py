@@ -3,7 +3,18 @@ import os
 import pickle
 import inspect
 from abc import abstractmethod
-from typing import Dict, Optional, TypedDict, Any, Union, List, Tuple, NamedTuple, Final
+from typing import (
+    Dict,
+    Optional,
+    TypedDict,
+    Any,
+    Union,
+    List,
+    Tuple,
+    NamedTuple,
+    Final,
+    Set,
+)
 
 import mplcursors
 import networkx
@@ -12,6 +23,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 import matplotlib.patches as patches
+import json
+import warnings
 
 from myoverse.datasets.filters._template import FilterBaseClass
 
@@ -366,9 +379,83 @@ class _Data:
         pos[InputRepresentationName][0] = 0.0  # Left edge
         pos[OutputRepresentationName][0] = 1.0  # Right edge
 
+        # Use topological sort to improve node positioning
+        try:
+            # Get topologically sorted nodes (excluding input and output)
+            topo_nodes = [
+                node
+                for node in nx.topological_sort(G)
+                if node not in [InputRepresentationName, OutputRepresentationName]
+            ]
+
+            # Group nodes by their topological "level" (distance from input)
+            node_levels = {}
+            for node in topo_nodes:
+                # Find all paths from input to this node
+                paths = list(nx.all_simple_paths(G, InputRepresentationName, node))
+                if paths:
+                    # Level is the longest path length (minus 1 for the input node)
+                    level = max(len(path) - 1 for path in paths)
+                    if level not in node_levels:
+                        node_levels[level] = []
+                    node_levels[level].append(node)
+
+            # Calculate the total number of levels
+            max_level = max(node_levels.keys()) if node_levels else 0
+
+            # Adjust x-positions based on level - without losing the original y-positions from spectral layout
+            for level, nodes in node_levels.items():
+                # Calculate new x-position (divide evenly between input and output)
+                x_pos = level / (max_level + 1) if max_level > 0 else 0.5
+
+                # Preserve the relative y-positions from spectral layout
+                for node in nodes:
+                    # Update only the x-position
+                    pos[node][0] = x_pos
+        except nx.NetworkXUnfeasible:
+            # If topological sort fails, we'll keep the original spectral layout
+            print("Warning: Topological sort failed, using default layout")
+            pass
+        except Exception as e:
+            # Catch other exceptions
+            print(f"Warning: Error in layout algorithm: {str(e)}")
+            pass
+
+        # Identify related nodes (nodes that share the same filter parent name)
+        # This is particularly useful for filters that return multiple outputs
+        related_nodes = {}
+        for node in G.nodes():
+            if node in [InputRepresentationName, OutputRepresentationName]:
+                continue
+
+            # Extract base filter name (part before the underscore)
+            if "_" in node:
+                base_name = node.split("_")[0]
+                if base_name not in related_nodes:
+                    related_nodes[base_name] = []
+                related_nodes[base_name].append(node)
+
+        # Adjust positions for related nodes to prevent overlap
+        for base_name, nodes in related_nodes.items():
+            if len(nodes) > 1:
+                # Find average position for this group
+                avg_x = sum(pos[node][0] for node in nodes) / len(nodes)
+
+                # Calculate better vertical spacing
+                vertical_spacing = 0.3 / len(nodes)
+
+                # Arrange nodes vertically around their average x-position
+                for i, node in enumerate(nodes):
+                    # Keep the same x position but adjust y position
+                    pos[node][0] = avg_x
+                    # Distribute nodes vertically, centered around original y position
+                    # Start from -0.15 to +0.15 to ensure good spacing
+                    vertical_offset = -0.15 + (i * vertical_spacing)
+                    pos[node][1] = pos[node][1] + vertical_offset
+
         # Apply gentle force-directed adjustments to improve layout
         # without completely changing the spectral positioning
-        for _ in range(20):
+        for _ in range(10):  # Reduced from 20 to 10 iterations
             # Store current positions
             old_pos = {n: p.copy() for n, p in pos.items()}
 
@@ -393,7 +480,7 @@ class _Data:
                         - old_pos[node]
                     )
                     # Scale down x-force to maintain left-to-right flow
-                    pred_force[0] *= 0.1
+                    pred_force[0] *= 0.05  # Reduced from 0.1 to 0.05
 
                 # Successors pull right
                 successors = list(G.successors(node))
@@ -403,53 +490,61 @@ class _Data:
                         - old_pos[node]
                     )
                     # Scale down x-force to maintain left-to-right flow
-                    succ_force[0] *= 0.1
+                    succ_force[0] *= 0.05  # Reduced from 0.1 to 0.05
 
                 # Apply force (weighted more toward maintaining x position)
                 force = pred_force + succ_force
-                pos[node] += 0.1 * force
+                # Reduce force magnitude to avoid disrupting the topological ordering
+                pos[node] += 0.05 * force  # Reduced from 0.1 to 0.05
 
                 # Maintain x position within 0-1 range
                 pos[node][0] = max(0.05, min(0.95, pos[node][0]))
 
-        # Final left-to-right check - ensure proper flow
-        # Sort nodes by x position
-        sorted_nodes = sorted(
-            [
-                (n, p[0])
-                for n, p in pos.items()
-                if n not in [InputRepresentationName, OutputRepresentationName]
-            ],
-            key=lambda x: x[1],
-        )
+        # Final overlap prevention - ensure minimum distance between nodes
+        min_distance = 0.1  # Minimum distance between nodes
+        for _ in range(3):  # Reduced from 5 to 3 iterations
+            overlap_forces = {node: np.zeros(2) for node in G.nodes()}
 
-        # Get topological sort of nodes (processing order)
-        try:
-            topo_sort = list(nx.topological_sort(G))
-            # Remove input and output nodes from the sort
-            topo_sort = [
-                n
-                for n in topo_sort
-                if n not in [InputRepresentationName, OutputRepresentationName]
-            ]
+            # Calculate repulsion forces between every pair of nodes
+            node_list = list(G.nodes())
+            for i, node1 in enumerate(node_list):
+                for node2 in node_list[i + 1 :]:
+                    # Skip input/output nodes
+                    if node1 in [
+                        InputRepresentationName,
+                        OutputRepresentationName,
+                    ] or node2 in [InputRepresentationName, OutputRepresentationName]:
+                        continue
 
-            # Adjust positions of nodes that are out of order
-            for i in range(len(sorted_nodes) - 1):
-                node1, x1 = sorted_nodes[i]
-                node2, x2 = sorted_nodes[i + 1]
+                    # Calculate distance between nodes
+                    dist_vec = pos[node1] - pos[node2]
+                    dist = np.linalg.norm(dist_vec)
 
-                # Check if these nodes are in the wrong order according to topology
-                if topo_sort.index(node1) > topo_sort.index(node2):
-                    # Swap x positions (with small separation)
-                    mean_x = (x1 + x2) / 2
-                    pos[node1][0] = mean_x - 0.02
-                    pos[node2][0] = mean_x + 0.02
-        except:
-            # If topological sort fails, don't try to fix order
-            pass
+                    # Apply repulsion if nodes are too close
+                    if dist < min_distance and dist > 0:
+                        # Normalize the vector
+                        repulsion = dist_vec / dist
+                        # Scale by how much they overlap
+                        scale = (min_distance - dist) * 0.4  # Modified from 0.5 to 0.4
+                        # Add to both nodes' forces (in opposite directions)
+                        overlap_forces[node1] += repulsion * scale
+                        overlap_forces[node2] -= repulsion * scale
+
+            # Apply forces
+            for node, force in overlap_forces.items():
+                if node not in [InputRepresentationName, OutputRepresentationName]:
+                    pos[node] += force
+                    # Maintain x position closer to its original value
+                    # to preserve the topological ordering
+                    x_original = pos[node][0]
+                    # Make sure nodes stay within bounds
+                    pos[node][0] = max(0.05, min(0.95, pos[node][0]))
+                    pos[node][1] = max(-0.95, min(0.95, pos[node][1]))
+                    # Restore x position with a small adjustment
+                    pos[node][0] = 0.9 * x_original + 0.1 * pos[node][0]
 
         # Create the figure and axis with a larger size for better visualization
-        plt.figure(figsize=(14, 10))
+        plt.figure(figsize=(16, 12))  # Increased from (14, 10)
         ax = plt.gca()
 
         # Add title if provided
@@ -470,6 +565,11 @@ class _Data:
             elif node == OutputRepresentationName:
                 node_colors[node] = "forestgreen"
                 node_sizes[node] = 1500
+                node_shapes[node] = "o"  # Circle
+            elif node not in self._data:
+                # If the node is not in the data dictionary, it's a dummy node (like a filter name)
+                node_colors[node] = "dimgray"
+                node_sizes[node] = 1200
                 node_shapes[node] = "o"  # Circle
             elif isinstance(self._data[node], DeletedRepresentation):
                 node_colors[node] = "dimgray"
@@ -535,13 +635,13 @@ class _Data:
             if node not in [InputRepresentationName, OutputRepresentationName]
         ]
 
-        # Label intermediate nodes starting from 1
-        for idx, node in enumerate(intermediate_nodes, start=1):
-            node_labels[node] = str(idx)
-
         # Add labels for input and output nodes
         node_labels[InputRepresentationName] = "I"
         node_labels[OutputRepresentationName] = "O"
+
+        # For intermediate nodes, use sequential numbers (1 to n)
+        for i, node in enumerate(intermediate_nodes, 1):
+            node_labels[node] = str(i)
 
         label_objects["nodes"] = nx.draw_networkx_labels(
             G, pos, labels=node_labels, font_size=18, font_color="white", ax=ax
@@ -551,6 +651,10 @@ class _Data:
         for label_group in label_objects.values():
             for text in label_group.values():
                 text.set_zorder(3)
+
+        # Remove the grid annotations since we're now showing the grid names directly in the nodes
+        # Add additional text annotations if needed for extra information (not grid names)
+        # This section is kept empty as we're now using the full representation names in the nodes
 
         # Create edge styles based on connection type
         edge_styles = []
@@ -592,6 +696,20 @@ class _Data:
         elif edges is not None:
             edges.set_zorder(2)
 
+        # Create annotation for hover information (initially invisible)
+        annot = ax.annotate(
+            "",
+            xy=(0, 0),
+            xytext=(20, 20),
+            textcoords="offset points",
+            bbox=dict(boxstyle="round,pad=0.5", fc="white", alpha=0.9),
+            fontsize=12,
+            fontweight="normal",
+            color="black",
+            zorder=5,
+        )
+        annot.set_visible(False)
+
         # Add hover functionality for interactive exploration
         # Combine all node collections for the hover effect
         all_node_collections = [
@@ -610,71 +728,86 @@ class _Data:
 
             def on_hover(sel):
                 try:
-                    # Get the artist (the PathCollection) and index within that collection
+                    # Get the artist (the PathCollection) and find its shape
                     artist = sel.artist
-                    idx = sel.index
+
+                    # Get the target index - this is called 'target.index' in mplcursors
+                    if hasattr(sel, "target") and hasattr(sel.target, "index"):
+                        idx = sel.target.index
+                    else:
+                        # Fall back to other possible attribute names
+                        idx = getattr(sel, "index", 0)
 
                     # Look up which nodes correspond to this artist
-                    if artist in node_collection_map and idx < len(
-                        node_collection_map[artist]
-                    ):
-                        hovered_node_name = node_collection_map[artist][idx]
-                    else:
-                        hovered_node_name = "Unknown Node"
+                    for shape, collection in drawn_nodes.items():
+                        if collection == artist:
+                            # Get list of nodes for this shape
+                            shape_nodes = node_groups[shape]
+                            if idx < len(shape_nodes):
+                                hovered_node_name = shape_nodes[idx]
 
-                    annotation = hovered_node_name
-                    annotation += "\n\n"
+                                # Create the annotation text with full representation name
+                                annotation = f"Representation: {hovered_node_name}\n\n"
 
-                    # add whether the node needs to be recomputed
-                    if (
-                        hovered_node_name != OutputRepresentationName
-                        and hovered_node_name in self._data
-                    ):
-                        data = self._data[hovered_node_name]
-                        if isinstance(data, DeletedRepresentation):
-                            annotation += "needs to be\nrecomputed\n\n"
+                                # add whether the node needs to be recomputed
+                                if (
+                                    hovered_node_name != OutputRepresentationName
+                                    and hovered_node_name in self._data
+                                ):
+                                    data = self._data[hovered_node_name]
+                                    if isinstance(data, DeletedRepresentation):
+                                        annotation += "needs to be\nrecomputed\n\n"
 
-                    # add info whether the node is chunked or not
-                    annotation += "chunked: "
-                    if (
-                        hovered_node_name != OutputRepresentationName
-                        and hovered_node_name in self.is_chunked
-                    ):
-                        annotation += str(self.is_chunked[hovered_node_name])
-                    else:
-                        annotation += "(see previous node(s))"
+                                # add info whether the node is chunked or not
+                                annotation += "chunked: "
+                                if (
+                                    hovered_node_name != OutputRepresentationName
+                                    and hovered_node_name in self.is_chunked
+                                ):
+                                    annotation += str(
+                                        self.is_chunked[hovered_node_name]
+                                    )
+                                else:
+                                    annotation += "(see previous node(s))"
 
-                    # add shape information to the annotation
-                    annotation += "\n" + "shape: "
-                    if (
-                        hovered_node_name != OutputRepresentationName
-                        and hovered_node_name in self._data
-                    ):
-                        data = self._data[hovered_node_name]
-                        if isinstance(data, np.ndarray):
-                            annotation += str(data.shape)
-                        elif isinstance(data, DeletedRepresentation):
-                            annotation += str(data.shape)
-                    else:
-                        annotation += "(see previous node(s))"
+                                # add shape information to the annotation
+                                annotation += "\n" + "shape: "
+                                if (
+                                    hovered_node_name != OutputRepresentationName
+                                    and hovered_node_name in self._data
+                                ):
+                                    data = self._data[hovered_node_name]
+                                    if isinstance(data, np.ndarray):
+                                        annotation += str(data.shape)
+                                    elif isinstance(data, DeletedRepresentation):
+                                        annotation += str(data.shape)
+                                else:
+                                    annotation += "(see previous node(s))"
 
-                    sel.annotation.set_text(annotation)
-                    sel.annotation.get_bbox_patch().set(
-                        fc="white", alpha=0.9
-                    )  # Background color
-                    sel.annotation.set_fontsize(12)  # Font size
-                    sel.annotation.set_fontstyle("italic")
+                                sel.annotation.set_text(annotation)
+                                sel.annotation.get_bbox_patch().set(
+                                    fc="white", alpha=0.9
+                                )  # Background color
+                                sel.annotation.set_fontsize(12)  # Font size
+                                sel.annotation.set_fontstyle("italic")
+                                break
                 except Exception as e:
-                    # If any error occurs, show a simplified annotation
-                    sel.annotation.set_text(f"Error: {str(e)}")
+                    # If any error occurs, show a simplified annotation with detailed error info
+                    error_info = f"Error in hover: {str(e)}\n"
+                    if hasattr(sel, "target"):
+                        error_info += f"Sel has target: {True}\n"
+                        if hasattr(sel.target, "index"):
+                            error_info += f"Target has index: {True}\n"
+                    error_info += f"Available attributes: {dir(sel)}"
+                    sel.annotation.set_text(error_info)
 
             cursor.connect("add", on_hover)
 
         # Improve visual appearance
         plt.grid(False)
         plt.axis("off")
-        plt.margins(0.15)
-        plt.tight_layout()
+        plt.margins(0.2)  # Increased from 0.15 to give more space around nodes
+        plt.tight_layout(pad=2.0)  # Increased padding
         plt.show()
 
     def apply_filter(
@@ -706,6 +839,8 @@ class _Data:
         ------
         ValueError
             If representations_to_filter is a string instead of a list
+        TypeError
+            If a filter returns a dictionary (no longer supported)
         """
         representation_name = filter.name
 
@@ -720,6 +855,14 @@ class _Data:
         if representations_to_filter is None:
             representations_to_filter = []
 
+        # Check if the list is empty
+        if len(representations_to_filter) == 0:
+            # For all filters, check if the list is empty
+            raise ValueError(
+                f"The filter {filter.name} requires an input representation. "
+                f"Please provide at least one representation to filter."
+            )
+
         # Replace LastRepresentationName with the actual last processing step
         representations_to_filter = [
             self._last_processing_step if rep == LastRepresentationName else rep
@@ -729,38 +872,61 @@ class _Data:
         # Add edges to the graph for all input representations
         for rep in representations_to_filter:
             if rep not in self._processed_representations:
+                self._processed_representations.add_node(rep)
+
+            # Add filter node and create edges from inputs to filter
+            if representation_name not in self._processed_representations:
                 self._processed_representations.add_node(representation_name)
-            # add edge from the representation to filter to the new representation if it doesn't exist yet
+            # Add edge from the representation to filter to the new representation if it doesn't exist yet
             if not self._processed_representations.has_edge(rep, representation_name):
                 self._processed_representations.add_edge(rep, representation_name)
 
         # Get the data for each representation
         input_arrays = [self[rep] for rep in representations_to_filter]
 
+        # Automatically extract all data object parameters to pass to the filter
+        data_params = {}
+        # Use inspect to get all instance attributes
+        for attr_name, attr_value in inspect.getmembers(self):
+            # Skip private attributes, methods, and callables
+            if (
+                not attr_name.startswith("_")
+                and not callable(attr_value)
+                and not isinstance(attr_value, property)
+            ):
+                data_params[attr_name] = attr_value
+
+        # Check if a standard filter is receiving multiple inputs inappropriately
+        if len(input_arrays) > 1:
+            raise ValueError(
+                f"You're trying to pass multiple representations ({', '.join(representations_to_filter)}) to a "
+                f"standard filter that only accepts a single input."
+            )
+
         # If there's only one input, pass it directly; otherwise pass the list
         # This maintains backward compatibility with existing filters
         if len(input_arrays) == 1:
-            filtered_data = filter(input_arrays[0])
+            filtered_data = filter(input_arrays[0], **data_params)
         else:
-            filtered_data = filter(input_arrays)
+            filtered_data = filter(input_arrays, **data_params)
 
         # Store the filtered data
         self._data[representation_name] = filtered_data
 
-        # check if the filter is going to be an output
-        # if so, add an edge from the representation to add to the output node
+        # Check if the filter is going to be an output
+        # If so, add an edge from the representation to add to the output node
         if filter.is_output:
             self._processed_representations.add_edge(
                 representation_name, OutputRepresentationName
             )
 
-        # save the used filter
+        # Save the used filter
         self._filters_used[representation_name] = filter
 
-        # set the last processing step
+        # Set the last processing step
         self._last_processing_step = representation_name
 
-        # remove the representations to filter if needed
+        # Remove the representations to filter if needed
         if keep_representation_to_filter is False:
             for rep in representations_to_filter:
                 if (
@@ -826,27 +992,36 @@ class _Data:
         ]
 
         # Apply the first filter with the provided representations
-        what_to_filter = self.apply_filter(
+        result = self.apply_filter(
             filter=filter_sequence[0],
             representations_to_filter=representations_to_filter,
             keep_representation_to_filter=True,  # We'll handle this at the end
         )
 
-        # Apply subsequent filters in sequence (each using the output of the previous filter)
-        for f in filter_sequence[1:]:
-            # Convert the string result to a list for the next filter
-            what_to_filter = self.apply_filter(
+        # Collect intermediate results for potential cleanup later
+        intermediate_results = [result]
+        what_to_filter = [result]
+
+        # Apply subsequent filters in sequence
+        for i, f in enumerate(filter_sequence[1:], 1):
+            # Apply the next filter using the previous result
+            result = self.apply_filter(
                 filter=f,
-                representations_to_filter=[what_to_filter],
+                representations_to_filter=what_to_filter,
                 keep_representation_to_filter=True,  # Always keep intermediate results until the end
             )
 
-        # remove the individual filter steps if needed. The last step is always kept
-        if not keep_individual_filter_steps:
-            for f in filter_sequence[:-1]:
-                self.delete_data(f.name)
+            # Update what to filter for the next iteration
+            intermediate_results.append(result)
+            what_to_filter = [result]
 
-        # remove the representation to filter if needed
+        # Remove intermediate filter steps if needed, keeping the final result
+        if not keep_individual_filter_steps:
+            # Delete all intermediates except the final result
+            for rep in intermediate_results[:-1]:  # Skip the last result
+                self.delete_data(rep)
+
+        # Remove the representation to filter if needed
         if not keep_representation_to_filter:
             for rep in representations_to_filter:
                 if (
@@ -854,7 +1029,7 @@ class _Data:
                 ):  # Never delete the input representation
                     self.delete_data(rep)
 
-        return what_to_filter
+        return result
 
     def apply_filter_pipeline(
         self,
@@ -862,7 +1037,7 @@ class _Data:
         representations_to_filter: List[List[str]],
         keep_individual_filter_steps: bool = True,
         keep_representation_to_filter: bool = True,
-    ):
+    ) -> List[str]:
         """Applies a pipeline of filters to the data.
 
         Parameters
@@ -884,6 +1059,11 @@ class _Data:
             Whether to keep the representation(s) to filter or not.
             If the representation to filter is "Input", this parameter is ignored.
 
+        Returns
+        -------
+        List[str]
+            A list containing the names of the final representations from all branches.
+
         Raises
         ------
         ValueError
@@ -892,41 +1072,39 @@ class _Data:
             If no representations are provided for a filter that requires input.
             If any representations_to_filter element is a string instead of a list.
 
+        Notes
+        -----
+        Each branch in the pipeline is processed sequentially using apply_filter_sequence.
+
         Examples
         --------
-        >>> # Example of a pipeline with both standard and merging branches
+        >>> # Example of a pipeline with multiple processing branches
         >>> from myoverse.datatypes import EMGData
-        >>> from myoverse.datasets.filters.generic import ApplyFunctionFilter, MergeFilter
+        >>> from myoverse.datasets.filters.generic import ApplyFunctionFilter
         >>> import numpy as np
         >>>
         >>> # Create sample data
         >>> data = EMGData(np.random.rand(10, 8), sampling_frequency=1000)
         >>>
-        >>> # Define filter branches
+        >>> # Define filter branches that perform different operations on the same input
         >>> branch1 = [ApplyFunctionFilter(function=np.abs, name="absolute_values")]
         >>> branch2 = [ApplyFunctionFilter(function=lambda x: x**2, name="squared_values")]
-        >>> # Merging branch that combines the outputs of branch1 and branch2
-        >>> branch3 = [MergeFilter(
-        >>>     mode='concatenate',
-        >>>     axis=1,
-        >>>     name="merged_features"
-        >>> )]
         >>>
-        >>> # Apply pipeline with standard branches and a merging branch
+        >>> # Apply pipeline with two branches
         >>> data.apply_filter_pipeline(
-        >>>     filter_pipeline=[branch1, branch2, branch3],
+        >>>     filter_pipeline=[branch1, branch2],
         >>>     representations_to_filter=[
-        >>>         ["input_data"],  # Single input as a list with one string
-        >>>         ["input_data"],  # Single input as a list with one string
-        >>>         ["absolute_values", "squared_values"]  # Multiple inputs as a list of strings
+        >>>         ["input_data"],  # Process branch1 on input_data
+        >>>         ["input_data"],  # Process branch2 on input_data
         >>>     ],
         >>> )
         >>>
-        >>> # The merged result is now available as "merged_features" representation
-        >>> merged_features = data["merged_features"]
+        >>> # The results are now available as separate representations
+        >>> abs_values = data["absolute_values"]
+        >>> squared_values = data["squared_values"]
         """
         if len(filter_pipeline) == 0:
-            return
+            return []
 
         if len(filter_pipeline) != len(representations_to_filter):
             raise ValueError(
@@ -955,24 +1133,32 @@ class _Data:
 
         # Collect intermediates to delete after all branches are processed
         intermediates_to_delete = []
+        all_results = []
 
         # Process each branch without deleting intermediates
         for branch_idx, (filter_sequence, branch_inputs) in enumerate(
             zip(filter_pipeline, representations_to_filter)
         ):
             try:
-                # Modified to collect intermediates to delete but not delete yet
-                if not keep_individual_filter_steps:
-                    for f in filter_sequence[:-1]:
-                        intermediates_to_delete.append(f.name)
-
-                # Apply filter sequence without deleting intermediates
-                self.apply_filter_sequence(
+                # Apply filter sequence and get results
+                branch_result = self.apply_filter_sequence(
                     filter_sequence=filter_sequence,
                     representations_to_filter=branch_inputs,
                     keep_individual_filter_steps=True,  # Always keep during processing
                     keep_representation_to_filter=keep_representation_to_filter,
                 )
+
+                # Track the branch result
+                all_results.append(branch_result)
+
+                # Track intermediates that might need to be deleted
+                if not keep_individual_filter_steps:
+                    # For each filter in the sequence (except the last),
+                    # add its name to intermediates to delete
+                    for f in filter_sequence[:-1]:
+                        if hasattr(f, "name") and f.name:
+                            intermediates_to_delete.append(f.name)
+
             except ValueError as e:
                 # Enhance error message with branch information
                 raise ValueError(
@@ -981,12 +1167,31 @@ class _Data:
 
         # After all branches are processed, delete collected intermediates if needed
         if not keep_individual_filter_steps:
-            for name in set(intermediates_to_delete):  # Use set to avoid duplicates
-                try:
-                    self.delete_data(name)
-                except KeyError:
-                    # If already deleted or doesn't exist, just continue
-                    pass
+            # First, identify all final outputs from the pipeline
+            final_outputs = set(all_results)
+
+            # For each representation in the data
+            for rep_name in list(self._data.keys()):
+                # Skip input and final outputs
+                if rep_name == InputRepresentationName or rep_name in final_outputs:
+                    continue
+
+                # Check if this is an intermediate from any branch
+                is_intermediate = False
+                for base_name in intermediates_to_delete:
+                    # Either exact match or prefix match for multi-output filters
+                    if rep_name == base_name or rep_name.startswith(f"{base_name}_"):
+                        is_intermediate = True
+                        break
+
+                if is_intermediate:
+                    try:
+                        self.delete_data(rep_name)
+                    except KeyError:
+                        # If already deleted or doesn't exist, just continue
+                        pass
+
+        return all_results
 
     def get_representation_history(self, representation: str) -> List[str]:
         """Returns the history of a representation.
@@ -1329,26 +1534,26 @@ class EMGData(_Data):
     >>> # Define a 4×4 electrode grid with row-wise numbering
     >>> grid = create_grid_layout(4, 4, fill_pattern='row')
     >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
-    
+
     Working with Multiple Grid Layouts
     ---------------------------------
-    
+
     Grid layouts enable precise specification of how electrodes are arranged physically.
     This is especially useful for visualizing and analyzing high-density EMG recordings
     with multiple electrode grids:
-    
+
     >>> import numpy as np
     >>> import matplotlib.pyplot as plt
     >>> from myoverse.datatypes import EMGData, create_grid_layout
-    >>> 
+    >>>
     >>> # Create sample EMG data for 61 electrodes with 1000 samples each
     >>> emg_data = np.random.randn(61, 1000)
     >>> sampling_freq = 2048  # Hz
-    >>> 
+    >>>
     >>> # Create layouts for three different electrode grids
     >>> # First grid: 5×5 array with sequential numbering (0-24)
     >>> grid1 = create_grid_layout(5, 5, fill_pattern='row')
-    >>> 
+    >>>
     >>> # Second grid: 6×6 array with column-wise numbering and a few missing electrodes
     >>> grid2 = create_grid_layout(6, 6, fill_pattern='column')
     >>> # Mark positions (0,0), (5,5), and (2,3) as missing with -1
@@ -1357,24 +1562,24 @@ class EMGData(_Data):
     >>> grid2[2, 3] = -1
     >>> # Shift indices to start after the first grid (add 25)
     >>> grid2[grid2 >= 0] += 25
-    >>> 
+    >>>
     >>> # Third grid: Irregular 3×4 array
     >>> grid3 = np.array([
     ...     [58, 59, 60, -1],
     ...     [55, 56, 57, -1],
     ...     [52, 53, 54, -1]
     ... ])
-    >>> 
+    >>>
     >>> # Create EMGData with all three grids
     >>> emg = EMGData(emg_data, sampling_freq, grid_layouts=[grid1, grid2, grid3])
-    >>> 
+    >>>
     >>> # Visualize the three grid layouts
     >>> for i in range(3):
     ...     emg.plot_grid_layout(i)
-    >>> 
+    >>>
     >>> # Plot the raw EMG data using the grid arrangements
     >>> emg.plot('Input', scaling_factor=[15.0, 12.0, 20.0])
-    >>> 
+    >>>
     >>> # Access individual grid dimensions
     >>> grid_dimensions = emg._get_grid_dimensions()
     >>> for i, (rows, cols, electrodes) in enumerate(grid_dimensions):
@@ -1605,8 +1810,8 @@ class EMGData(_Data):
         plt.show()
 
     def plot_grid_layout(
-        self, 
-        grid_idx: int = 0, 
+        self,
+        grid_idx: int = 0,
         show_indices: bool = True,
         cmap: Optional[plt.cm.ScalarMappable] = None,
         figsize: Optional[Tuple[float, float]] = None,
@@ -1623,7 +1828,7 @@ class EMGData(_Data):
         dpi: int = 150,
         return_fig: bool = False,
         ax: Optional[plt.Axes] = None,
-        autoshow: bool = True
+        autoshow: bool = True,
     ):
         """Plots the 2D layout of a specific electrode grid with enhanced visualization.
 
@@ -1697,7 +1902,7 @@ class EMGData(_Data):
         >>>
         >>> # Advanced visualization
         >>> emg.plot_grid_layout(
-        ...     0, 
+        ...     0,
         ...     figsize=(10, 10),
         ...     colorbar=True,
         ...     highlight_electrodes=[10, 20, 30],
@@ -1726,14 +1931,14 @@ class EMGData(_Data):
 
         # Get number of electrodes
         n_electrodes = np.sum(grid >= 0)
-        
+
         # Set default title if not provided
         if title is None:
             title = f"Grid {grid_idx + 1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
 
         # Create a masked array for plotting
         masked_grid = np.ma.masked_less(grid, 0)
-        
+
         # Create figure and axes if not provided
         if ax is None:
             # Calculate optimal figure size if not provided
@@ -1744,30 +1949,30 @@ class EMGData(_Data):
                 if colorbar:
                     width += 1  # Add space for colorbar
                 figsize = (width, height)
-                
+
             fig, ax = plt.subplots(figsize=figsize)
         else:
             # Get the figure object from the provided axes
             fig = ax.figure
-        
+
         # Setup colormap
         if cmap is None:
             cmap = plt.cm.viridis
             cmap.set_bad("white", 1.0)
-        
+
         # Create custom norm to ensure integer values are centered in color bands
         norm = plt.Normalize(vmin=-0.5, vmax=np.max(grid) + 0.5)
-        
+
         # Plot the grid with improved visuals
-        im = ax.imshow(masked_grid, cmap=cmap, norm=norm, interpolation='nearest')
-        
+        im = ax.imshow(masked_grid, cmap=cmap, norm=norm, interpolation="nearest")
+
         # Add colorbar if requested
         if colorbar:
             cbar = plt.colorbar(im, ax=ax, pad=0.01)
-            cbar.set_label('Electrode Index')
+            cbar.set_label("Electrode Index")
             # Add tick labels only at integer positions
             cbar.set_ticks(np.arange(0, np.max(grid) + 1))
-            
+
         # Improve grid lines
         # Major ticks at electrode centers
         ax.set_xticks(np.arange(0, cols, 1))
@@ -1775,19 +1980,25 @@ class EMGData(_Data):
         # Minor ticks at grid boundaries
         ax.set_xticks(np.arange(-0.5, cols, 1), minor=True)
         ax.set_yticks(np.arange(-0.5, rows, 1), minor=True)
-        
+
         # Hide major tick labels for cleaner look
         ax.set_xticklabels([])
         ax.set_yticklabels([])
-        
+
         # Apply grid styling
-        ax.grid(which="minor", color=grid_color, linestyle='-', linewidth=1, alpha=grid_alpha)
+        ax.grid(
+            which="minor",
+            color=grid_color,
+            linestyle="-",
+            linewidth=1,
+            alpha=grid_alpha,
+        )
         ax.tick_params(which="minor", bottom=False, left=False)
-        
+
         # Add axis labels
-        ax.set_xlabel("Columns", fontsize=text_fontsize+1)
-        ax.set_ylabel("Rows", fontsize=text_fontsize+1)
-        
+        ax.set_xlabel("Columns", fontsize=text_fontsize + 1)
+        ax.set_ylabel("Rows", fontsize=text_fontsize + 1)
+
         # Add electrode numbers with improved styling
         if show_indices:
             for i in range(rows):
@@ -1801,40 +2012,40 @@ class EMGData(_Data):
                             "fontsize": text_fontsize,
                             "fontweight": text_fontweight,
                         }
-                        
+
                         # Add highlight if this electrode is in highlight list
                         if highlight_electrodes and grid[i, j] in highlight_electrodes:
                             # Draw a circle around highlighted electrodes
                             circle = plt.Circle(
-                                (j, i), 
-                                0.4, 
-                                fill=False, 
-                                edgecolor=highlight_color, 
-                                linewidth=2, 
-                                alpha=0.8
+                                (j, i),
+                                0.4,
+                                fill=False,
+                                edgecolor=highlight_color,
+                                linewidth=2,
+                                alpha=0.8,
                             )
                             ax.add_patch(circle)
                             # Change text properties for highlighted electrodes
                             text_props["fontweight"] = "extra bold"
-                            
+
                         # Add the electrode index text
                         ax.text(j, i, str(grid[i, j]), **text_props)
 
         # Add a title with improved styling
-        ax.set_title(title, fontsize=text_fontsize+4, pad=10)
-        
+        ax.set_title(title, fontsize=text_fontsize + 4, pad=10)
+
         # Set aspect ratio to be equal
-        ax.set_aspect('equal')
-        
+        ax.set_aspect("equal")
+
         # Save figure if path provided
         if save_path:
-            plt.savefig(save_path, dpi=dpi, bbox_inches='tight')
-        
+            plt.savefig(save_path, dpi=dpi, bbox_inches="tight")
+
         # Show the figure if autoshow is True
         if autoshow:
             plt.tight_layout()
             plt.show()
-            
+
         # Return figure and axes if requested
         if return_fig:
             return fig, ax
