@@ -258,11 +258,62 @@ class FilterBaseClass:
 
 
 class EMGAugmentation(FilterBaseClass):
-    """Base class for EMG augmentation_pipelines."""
+    """Base class for EMG augmentation pipelines.
 
-    def __init__(self, input_is_chunked: bool = None, is_output: bool = False):
+    Parameters
+    ----------
+    input_is_chunked : bool
+        Whether the input is chunked or not. EMG augmentation typically works with non-chunked data.
+    is_output : bool, default=False
+        Whether the filter is an output filter. If True, the resulting signal will be outputted by the dataset pipeline.
+    name : str, optional
+        The name of the filter. This is used to identify the filter in the dataset. If not provided, the name of the filter class will be used.
+    run_checks : bool, default=True
+        Whether to run the checks when filtering.
+
+    Notes
+    -----
+    When implementing an EMG augmentation filter, override the _filter method:
+
+    def _filter(self, input_array, **kwargs):
+        # Implement your augmentation logic here
+        # ...
+        return augmented_data
+    """
+
+    def __init__(
+        self,
+        input_is_chunked: bool,
+        is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
+    ):
         super().__init__(
             input_is_chunked=input_is_chunked,
             allowed_input_type="not chunked",
             is_output=is_output,
+            name=name,
+            run_checks=run_checks,
         )
+
+    @abstractmethod
+    def _filter(
+        self, input_array: np.ndarray | list[np.ndarray], **kwargs
+    ) -> np.ndarray | Dict[str, np.ndarray]:
+        """Apply the EMG augmentation to the input array.
+
+        This method must be implemented by concrete subclasses.
+
+        Parameters
+        ----------
+        input_array : np.ndarray | list[np.ndarray]
+            The input array(s) to augment
+        **kwargs
+            Additional keyword arguments from the Data object
+
+        Returns
+        -------
+        np.ndarray | Dict[str, np.ndarray]
+            The augmented data as either a single array or a dictionary of arrays.
+        """
+        raise NotImplementedError("This method must be implemented in the subclass.")
