@@ -118,14 +118,28 @@ class SOSFrequencyFilter(FilterBaseClass):
             # Initialize history buffer for overlap
             self._history_buffer = None
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
+        """Apply the filter to the input array.
+
+        Parameters
+        ----------
+        input_array : numpy.ndarray
+            Input array to filter
+        **kwargs
+            Additional keyword arguments from the Data object
+
+        Returns
+        -------
+        numpy.ndarray
+            Filtered array
+        """
         if not self.input_is_chunked:
             # Simply apply the filter to the non-chunked data
             return self._filtering_method(self.sos_filter_coefficients, input_array)
 
         # Handle real-time mode (specifically designed for streaming data)
         if self.real_time_mode:
-            return self._filter_real_time(input_array)
+            return self._filter_real_time(input_array, **kwargs)
 
         # Handle chunked data in batch mode
         original_shape = input_array.shape
@@ -241,13 +255,15 @@ class SOSFrequencyFilter(FilterBaseClass):
 
             return output_array
 
-    def _filter_real_time(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter_real_time(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         """Process input in real-time mode with state preservation between calls.
 
         Parameters
         ----------
         input_array : numpy.ndarray
             The newest chunk(s) of data to process.
+        **kwargs
+            Additional keyword arguments from the Data object.
 
         Returns
         -------
@@ -269,25 +285,27 @@ class SOSFrequencyFilter(FilterBaseClass):
             output_array = np.zeros_like(input_array)
             for i in range(original_shape[0]):
                 chunk = input_array[i]
-                filtered_chunk = self._filter_real_time_single_chunk(chunk)
+                filtered_chunk = self._filter_real_time_single_chunk(chunk, **kwargs)
                 output_array[i] = filtered_chunk
             return output_array
         else:
             # Single chunk case
             if len(original_shape) > 1:  # Single chunk but has batch dimension
                 chunk = input_array[0]
-                filtered = self._filter_real_time_single_chunk(chunk)
+                filtered = self._filter_real_time_single_chunk(chunk, **kwargs)
                 return filtered.reshape(1, *filtered.shape)
             else:  # Just raw data without batch dimension
-                return self._filter_real_time_single_chunk(input_array)
+                return self._filter_real_time_single_chunk(input_array, **kwargs)
 
-    def _filter_real_time_single_chunk(self, chunk: np.ndarray) -> np.ndarray:
+    def _filter_real_time_single_chunk(self, chunk: np.ndarray, **kwargs) -> np.ndarray:
         """Process a single chunk in real-time mode, maintaining filter state between calls.
 
         Parameters
         ----------
         chunk : numpy.ndarray
             A single chunk of data to process.
+        **kwargs
+            Additional keyword arguments from the Data object.
 
         Returns
         -------
@@ -428,7 +446,7 @@ class WindowedFunctionFilter(ApplyFunctionFilter):
             windowed_array = _get_windows_with_shift(x, window_size, shift)
             # Apply the function to each window
             func_result = np.squeeze(window_function(windowed_array, axis=-1), axis=-1)
-            
+
             return np.transpose(func_result, (*list(range(func_result.ndim))[1:], 0))
 
         # Initialize parent with the windowed function
@@ -960,19 +978,24 @@ class SpectralInterpolationFilter(FilterBaseClass):
             indices_list.append(indices)
         return indices_list
 
-    def _filter(self, input_array):
+    def _filter(self, input_array, **kwargs):
         """Apply the filter to the input array.
 
         Parameters
         ----------
         input_array : numpy.ndarray
             Input array to filter
+        **kwargs
+            Additional keyword arguments from the Data object
 
         Returns
         -------
         numpy.ndarray
             Filtered array
         """
+        # Use sampling_frequency from kwargs if available, otherwise use the instance attribute
+        sampling_frequency = kwargs.get("sampling_frequency", self.sampling_frequency)
+
         # Save original shape
         original_shape = input_array.shape
 
@@ -990,7 +1013,7 @@ class SpectralInterpolationFilter(FilterBaseClass):
                     signal_fft[0] = 0
 
                 # Calculate frequency bins
-                freqs = rfftfreq(original_shape[-1], d=1 / self.sampling_frequency)
+                freqs = rfftfreq(original_shape[-1], d=1 / sampling_frequency)
 
                 # Get interpolation indices for each harmonic's frequency band
                 for indices in self._get_indices_to_interpolate(freqs):
@@ -1036,7 +1059,7 @@ class SpectralInterpolationFilter(FilterBaseClass):
             output_array = reshaped_array.reshape(original_shape)
         else:
             # Simple case: just one dimension
-            freqs = rfftfreq(original_shape[-1], d=1 / self.sampling_frequency)
+            freqs = rfftfreq(original_shape[-1], d=1 / sampling_frequency)
 
             # Compute the FFT
             signal_fft = rfft(input_array, axis=-1)
