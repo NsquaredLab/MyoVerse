@@ -325,3 +325,4 @@ _debug_test
 /examples/lightning_logs/
 /examples/data/dataset.zarr/
 /examples/data/
+/docs/source/modules/generated/
