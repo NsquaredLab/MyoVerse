@@ -1,12 +1,19 @@
-"""Model definition used in the Sîmpetru et al. (2022)"""
+"""Model definition not used in any publication"""
 
 from functools import reduce
 from typing import Any, Dict, Optional, Tuple, Union
 
-import pytorch_lightning as pl
+import numpy as np
+import lightning as L
 import torch
 import torch.optim as optim
 from torch import nn
+import warnings
+
+warnings.warn(
+    "This model definition is archival only and should not be used for new projects.",
+    UserWarning,
+)
 
 CRITERION = nn.L1Loss()
 
@@ -42,7 +49,7 @@ class CircularPad(nn.Module):
         return x
 
 
-class RaulNetV1(pl.LightningModule):
+class RaulNetV1(L.LightningModule):
     """Model definition used in Sîmpetru et al. [1]_
 
     Attributes
