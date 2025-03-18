@@ -18,18 +18,22 @@ import numpy as np
 from scipy.signal import butter
 
 from myoverse.datasets.filters.emg_augmentations import WaveletDecomposition
-from myoverse.datasets.filters.generic import ApplyFunctionFilter, IndexDataFilter
-from myoverse.datasets.filters.temporal import SOSFrequencyFilter
+from myoverse.datasets.filters.generic import (
+    ApplyFunctionFilter,
+    IndexDataFilter,
+    IdentityFilter,
+)
+from myoverse.datasets.filters.temporal import SOSFrequencyFilter, RMSFilter
 from myoverse.datasets.supervised import EMGDataset
 
 # Example 1: Creating a dataset with specific filter pipelines using Zarr 3
 dataset = EMGDataset(
     emg_data_path=Path(r"data/emg.pkl").resolve(),
     ground_truth_data_path=Path(r"data/kinematics.pkl").resolve(),
-    ground_truth_data_type="kinematics",  # Specify the ground truth data type
+    ground_truth_data_type="kinematics",
     sampling_frequency=2044.0,
     tasks_to_use=["1", "2"],
-    save_path=Path(r"data/dataset_zarr3.zarr").resolve(),
+    save_path=Path(r"data/dataset.zarr").resolve(),
     emg_filter_pipeline_after_chunking=[
         [
             SOSFrequencyFilter(
@@ -69,8 +73,8 @@ dataset = EMGDataset(
         ]
     ],
     ground_truth_representations_to_filter_after_chunking=[["Last"]],
-    chunk_size=192,  # Explicitly specify the chunk size
-    chunk_shift=64,  # Explicitly specify the chunk shift
+    chunk_size=192,
+    chunk_shift=64,
     testing_split_ratio=0.3,
     validation_split_ratio=0.1,
     augmentation_pipelines=[
