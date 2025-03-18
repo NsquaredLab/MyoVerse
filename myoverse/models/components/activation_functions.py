@@ -109,11 +109,11 @@ class SMU(nn.Module):
 class SMU_old(nn.Module):
     """SMU activation function from Biswas et al. This is an older version of the SMU activation function and should not
     be used.
-    
+
     Warning
     -------
     This is an older version of the SMU activation function and should not be used.
-    
+
     Parameters
     ----------
     alpha : float, optional
