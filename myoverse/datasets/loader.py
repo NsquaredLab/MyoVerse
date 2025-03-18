@@ -109,7 +109,7 @@ class EMGZarrDataset(Dataset):
 
         # Load data from zarr file
         try:
-            zarr_root = zarr.open(str(self.zarr_file))
+            zarr_root = zarr.open(store=str(self.zarr_file), mode="r", zarr_version=3)
             if self.subset_name not in zarr_root:
                 raise ValueError(f"Subset '{self.subset_name}' not found in Zarr file")
 
@@ -374,6 +374,7 @@ class EMGDatasetLoader(L.LightningDataModule):
             The dataset for the specified subset
         """
         if use_augmentation:
+            # For training, use the full augmentation pipeline
             return EMGZarrDataset(
                 zarr_file=self.data_path,
                 subset_name=subset_name,
@@ -390,7 +391,13 @@ class EMGDatasetLoader(L.LightningDataModule):
                 cache_size=self.cache_size,
             )
         else:
-            # Use identity filters for non-training sets (no augmentation)
+            # For validation/testing, use IdentityFilter to ensure consistent shape without augmentation
+            from myoverse.datasets.filters.generic import IdentityFilter
+
+            validation_target_pipeline = [
+                [IdentityFilter(is_output=True, input_is_chunked=True)]
+            ]
+
             return EMGZarrDataset(
                 zarr_file=self.data_path,
                 subset_name=subset_name,
@@ -400,6 +407,12 @@ class EMGDatasetLoader(L.LightningDataModule):
                 sampling_frequency=self.sampling_frequency,
                 input_data_class=self.input_data_class,
                 target_data_class=self.target_data_class,
+                # No input augmentation for validation
+                input_augmentation_pipeline=None,
+                input_augmentation_probabilities=None,
+                # Use identity filter for validation to ensure consistent shape without augmentation
+                target_augmentation_pipeline=validation_target_pipeline,
+                target_augmentation_probabilities=[1.0],
                 cache_size=self.cache_size,
             )
 
