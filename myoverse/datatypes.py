@@ -2248,7 +2248,7 @@ class KinematicsData(_Data):
 
 
 class VirtualHandKinematics(_Data):
-    """Class for storing virtual hand kinematics data.
+    """Class for storing virtual hand kinematics data from MyoGestic [1]_.
 
     Parameters
     ----------
@@ -2290,6 +2290,10 @@ class VirtualHandKinematics(_Data):
     >>> # Access the raw data
     >>> raw_data = kinematics.input_data
     >>> print(f"Data shape: {raw_data.shape}")
+
+    References
+    ----------
+    .. [1] MyoGestic: https://github.com/NsquaredLab/MyoGestic
     """
 
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
