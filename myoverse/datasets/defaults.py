@@ -79,7 +79,7 @@ class EMBCDataset:
 
     def create_dataset(self):
         # EMBC default settings
-        EMGDataset(
+        dataset = EMGDataset(
             emg_data_path=self.emg_data_path,
             emg_data=self.emg_data,
             ground_truth_data_path=self.ground_truth_data_path,
@@ -209,7 +209,7 @@ class CastelliniDataset:
         self.silence_zarr_warnings = silence_zarr_warnings
 
     def create_dataset(self):
-        EMGDataset(
+        dataset = EMGDataset(
             emg_data_path=self.emg_data_path,
             emg_data=self.emg_data,
             ground_truth_data_path=self.ground_truth_data_path,
@@ -249,6 +249,7 @@ class CastelliniDataset:
                     ),
                 ]
             ],
+            emg_representations_to_filter_before_chunking=[["Input"]],
             ground_truth_filter_pipeline_before_chunking=[
                 [
                     ApplyFunctionFilter(
@@ -264,6 +265,7 @@ class CastelliniDataset:
                     ),
                 ]
             ],
+            ground_truth_representations_to_filter_before_chunking=[["Input"]],
             ground_truth_filter_pipeline_after_chunking=[
                 [
                     ApplyFunctionFilter(
@@ -275,6 +277,7 @@ class CastelliniDataset:
                     )
                 ]
             ],
+            ground_truth_representations_to_filter_after_chunking=[["Last"]],
             augmentation_pipelines=[
                 [GaussianNoise(is_output=True, input_is_chunked=False)],
                 [
@@ -289,4 +292,5 @@ class CastelliniDataset:
                 ],
             ],
             amount_of_chunks_to_augment_at_once=500,
-        ).create_dataset()
+        )
+        dataset.create_dataset()

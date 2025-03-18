@@ -45,7 +45,7 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
     name : str
         The name of the dataset
     """
-    if data is None:
+    if data is None or (isinstance(data, np.ndarray) and data.size == 0):
         return
 
     # Ensure data is a numpy array
@@ -54,6 +54,10 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
 
     # Special handling for string data to ensure zarr v2/v3 compatibility
     if data.dtype.kind == "U":
+        # Check for empty array to avoid max() on empty iterable
+        if data.size == 0:
+            return
+
         # Convert Unicode strings to bytes for consistent handling in both zarr versions
         max_length = max(
             len(s.encode("utf-8")) for s in data.flat if isinstance(s, str)
@@ -74,6 +78,10 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
                 break
 
         if contains_strings:
+            # Check for empty array to avoid max() on empty iterable
+            if data.size == 0:
+                return
+
             # Find the maximum string length
             max_length = max(
                 len(s.encode("utf-8")) for s in data.flat if isinstance(s, str)
@@ -86,6 +94,10 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
 
     try:
         if name in group:
+            # Don't append empty data
+            if data.size == 0:
+                return
+
             # Zarr 3 doesn't have append but we can use setitem to add data
             current_shape = group[name].shape
             new_shape = list(current_shape)
@@ -97,6 +109,10 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
             # Insert the new data
             group[name][current_shape[0] :] = data
         else:
+            # Don't create empty datasets
+            if data.size == 0:
+                return
+
             # Create new dataset with appropriate chunking
             group.create_dataset(
                 name, data=data, shape=data.shape, chunks=(1, *data.shape[1:])
@@ -105,7 +121,8 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
         # Handle differences between Zarr 2 and 3
         if "append" in str(e):
             # This is Zarr 2 behavior
-            group[name].append(data)
+            if data.size > 0:  # Only append if there's data
+                group[name].append(data)
         else:
             raise
 
@@ -514,10 +531,8 @@ class EMGDataset:
                 # Process the task
                 self._process_task(
                     task,
-                    task_idx,
                     emg_data,
                     ground_truth_data,
-                    dataset,
                     training_group,
                     testing_group,
                     validation_group,
@@ -536,10 +551,8 @@ class EMGDataset:
     def _process_task(
         self,
         task: str,
-        task_idx: int,
         emg_data: dict[str, np.ndarray],
         ground_truth_data: dict[str, np.ndarray],
-        dataset: zarr.Group,
         training_group: zarr.Group,
         testing_group: zarr.Group,
         validation_group: zarr.Group,
