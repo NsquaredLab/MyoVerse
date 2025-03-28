@@ -139,7 +139,7 @@ def plot_predicted_and_ground_truth_kinematics(
     ground_truth_representation: str,
     wrist_included: bool = True,
     nr_of_fingers: int = 5,
-    background_style: str = 'seaborn-v0_8-whitegrid',  # Alternative: 'default' for white background
+    background_style: str = "seaborn-v0_8-whitegrid",  # Alternative: 'default' for white background
 ):
     """
     Plot the predicted and ground truth kinematics interactively.
@@ -179,12 +179,17 @@ def plot_predicted_and_ground_truth_kinematics(
 
     if not wrist_included:
         if prediction_kinematics.ndim == 3 and prediction_kinematics.shape[1] == 3:
-             prediction_kinematics = np.concatenate(
-                [np.zeros((1, 3, prediction_kinematics.shape[2])), prediction_kinematics],
+            prediction_kinematics = np.concatenate(
+                [
+                    np.zeros((1, 3, prediction_kinematics.shape[2])),
+                    prediction_kinematics,
+                ],
                 axis=0,
             )
         else:
-             raise ValueError("Unexpected shape for prediction_kinematics when wrist_included=False")
+            raise ValueError(
+                "Unexpected shape for prediction_kinematics when wrist_included=False"
+            )
 
         if ground_truth_kinematics.ndim == 3 and ground_truth_kinematics.shape[1] == 3:
             ground_truth_kinematics = np.concatenate(
@@ -195,14 +200,19 @@ def plot_predicted_and_ground_truth_kinematics(
                 axis=0,
             )
         else:
-            raise ValueError("Unexpected shape for ground_truth_kinematics when wrist_included=False")
+            raise ValueError(
+                "Unexpected shape for ground_truth_kinematics when wrist_included=False"
+            )
 
     # Apply selected style - 'seaborn-v0_8-whitegrid' gives a cleaner look than 'darkgrid'
     plt.style.use(background_style)
-    
+
     fig = plt.figure(figsize=(14, 7))  # Slightly larger figure
-    fig.suptitle(f"Kinematics Comparison\nPrediction: '{prediction_representation}' vs Ground Truth: '{ground_truth_representation}'", 
-                fontsize=16, y=0.98)  # Adjusted position
+    fig.suptitle(
+        f"Kinematics Comparison\nPrediction: '{prediction_representation}' vs Ground Truth: '{ground_truth_representation}'",
+        fontsize=16,
+        y=0.98,
+    )  # Adjusted position
 
     ax1 = fig.add_subplot(121, projection="3d")
     ax2 = fig.add_subplot(122, projection="3d")
@@ -210,7 +220,9 @@ def plot_predicted_and_ground_truth_kinematics(
     ax1.set_title("Predicted Kinematics", fontsize=14, pad=10)
     ax2.set_title("Ground Truth Kinematics", fontsize=14, pad=10)
 
-    all_kinematics = np.concatenate([prediction_kinematics, ground_truth_kinematics], axis=2)
+    all_kinematics = np.concatenate(
+        [prediction_kinematics, ground_truth_kinematics], axis=2
+    )
     min_coords = all_kinematics.min(axis=(0, 2))
     max_coords = all_kinematics.max(axis=(0, 2))
     mid_coords = (max_coords + min_coords) / 2.0
@@ -222,14 +234,14 @@ def plot_predicted_and_ground_truth_kinematics(
         ax.set_ylim(mid_coords[1] - max_range / 2.0, mid_coords[1] + max_range / 2.0)
         ax.set_zlim(mid_coords[2] - max_range / 2.0, mid_coords[2] + max_range / 2.0)
 
-        ax.set_aspect('equal', adjustable='box')
+        ax.set_aspect("equal", adjustable="box")
 
         # Make grid lines lighter and thinner
-        ax.grid(True, linestyle='--', linewidth=0.5, alpha=0.7)
-        
+        ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+
         # Set better viewing angle for hand visualization
         ax.view_init(elev=20, azim=-60)  # Adjust these values for best visualization
-        
+
         # Improve axis labels with units if applicable (assuming mm)
         ax.set_xlabel("X (mm)", fontsize=12)
         ax.set_ylabel("Y (mm)", fontsize=12)
@@ -237,40 +249,52 @@ def plot_predicted_and_ground_truth_kinematics(
 
     # Improve joint visualization
     initial_sample_idx = 0
-    joint_color = 'black'
-    joint_marker = 'o'
+    joint_color = "black"
+    joint_marker = "o"
     joint_size = 12  # Reduced from 20 to 12
     alpha_joints = 0.9  # More opaque
     alpha_lines = 0.8  # Slightly transparent lines
 
-    cmap = colormaps.get_cmap('tab10')
+    cmap = colormaps.get_cmap("tab10")
     finger_colors = [cmap(i) for i in range(nr_of_fingers)]
 
     # Plot wrist joint with a different color/size to highlight it
     wrist_size = 18  # Reduced from 30 to 18
-    
+
     # Plot all joints
     (prediction_joints_plot,) = ax1.plot(
         *prediction_kinematics[..., initial_sample_idx].T,
-        marker=joint_marker, color=joint_color, linestyle='', 
-        markersize=joint_size, alpha=alpha_joints
+        marker=joint_marker,
+        color=joint_color,
+        linestyle="",
+        markersize=joint_size,
+        alpha=alpha_joints,
     )
     (ground_truth_joints_plot,) = ax2.plot(
         *ground_truth_kinematics[..., initial_sample_idx].T,
-        marker=joint_marker, color=joint_color, linestyle='', 
-        markersize=joint_size, alpha=alpha_joints
+        marker=joint_marker,
+        color=joint_color,
+        linestyle="",
+        markersize=joint_size,
+        alpha=alpha_joints,
     )
-    
+
     # Add separate wrist markers (optional)
     (prediction_wrist_plot,) = ax1.plot(
         *prediction_kinematics[0:1, :, initial_sample_idx].T,
-        marker='o', color='darkblue', linestyle='', 
-        markersize=wrist_size, alpha=alpha_joints
+        marker="o",
+        color="darkblue",
+        linestyle="",
+        markersize=wrist_size,
+        alpha=alpha_joints,
     )
     (ground_truth_wrist_plot,) = ax2.plot(
         *ground_truth_kinematics[0:1, :, initial_sample_idx].T,
-        marker='o', color='darkblue', linestyle='', 
-        markersize=wrist_size, alpha=alpha_joints
+        marker="o",
+        color="darkblue",
+        linestyle="",
+        markersize=wrist_size,
+        alpha=alpha_joints,
     )
 
     prediction_finger_plots = []
@@ -283,7 +307,7 @@ def plot_predicted_and_ground_truth_kinematics(
                 *prediction_kinematics[finger_indices, :, initial_sample_idx].T,
                 color=finger_colors[finger],
                 linewidth=3.0,  # Thicker lines
-                alpha=alpha_lines
+                alpha=alpha_lines,
             )[0]
         )
         ground_truth_finger_plots.append(
@@ -291,24 +315,32 @@ def plot_predicted_and_ground_truth_kinematics(
                 *ground_truth_kinematics[finger_indices, :, initial_sample_idx].T,
                 color=finger_colors[finger],
                 linewidth=3.0,  # Thicker lines
-                alpha=alpha_lines
+                alpha=alpha_lines,
             )[0]
         )
 
     # Add a legend for fingers (optional)
-    finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky'][:nr_of_fingers]
+    finger_names = ["Thumb", "Index", "Middle", "Ring", "Pinky"][:nr_of_fingers]
     # Create dummy plots for legend
     dummy_lines = []
     for i in range(nr_of_fingers):
         dummy_lines.append(plt.Line2D([0], [0], color=finger_colors[i], lw=3))
-    
+
     # Add legend to figure (outside plots)
-    fig.legend(dummy_lines, finger_names, loc='lower center', 
-               bbox_to_anchor=(0.5, 0.01), ncol=nr_of_fingers, fontsize=12)
+    fig.legend(
+        dummy_lines,
+        finger_names,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.01),
+        ncol=nr_of_fingers,
+        fontsize=12,
+    )
 
     # Improve slider appearance
-    slider_ax = fig.add_axes([0.25, 0.07, 0.5, 0.03])  # Moved up slightly to make room for legend
-    slider_color = 'steelblue'  # More attractive color
+    slider_ax = fig.add_axes(
+        [0.25, 0.07, 0.5, 0.03]
+    )  # Moved up slightly to make room for legend
+    slider_color = "steelblue"  # More attractive color
     sample_slider = Slider(
         ax=slider_ax,
         label="Sample Index",
@@ -316,21 +348,29 @@ def plot_predicted_and_ground_truth_kinematics(
         valmax=prediction_kinematics.shape[2] - 1,
         valstep=1,
         valinit=initial_sample_idx,
-        color=slider_color
+        color=slider_color,
     )
 
     def update(val):
         current_sample_idx = int(val)
-        prediction_kinematics_new_sample = prediction_kinematics[..., current_sample_idx]
-        ground_truth_kinematics_new_sample = ground_truth_kinematics[..., current_sample_idx]
+        prediction_kinematics_new_sample = prediction_kinematics[
+            ..., current_sample_idx
+        ]
+        ground_truth_kinematics_new_sample = ground_truth_kinematics[
+            ..., current_sample_idx
+        ]
 
         # Update joint positions
         prediction_joints_plot.set_data_3d(*prediction_kinematics_new_sample.T)
         ground_truth_joints_plot.set_data_3d(*ground_truth_kinematics_new_sample.T)
-        
+
         # Update wrist positions
-        prediction_wrist_plot.set_data_3d(*prediction_kinematics[0:1, :, current_sample_idx].T)
-        ground_truth_wrist_plot.set_data_3d(*ground_truth_kinematics[0:1, :, current_sample_idx].T)
+        prediction_wrist_plot.set_data_3d(
+            *prediction_kinematics[0:1, :, current_sample_idx].T
+        )
+        ground_truth_wrist_plot.set_data_3d(
+            *ground_truth_kinematics[0:1, :, current_sample_idx].T
+        )
 
         # Update finger lines
         for finger in range(nr_of_fingers):
@@ -342,16 +382,22 @@ def plot_predicted_and_ground_truth_kinematics(
             ground_truth_finger_plots[finger].set_data_3d(
                 *ground_truth_kinematics[finger_indices, :, current_sample_idx].T
             )
-        
+
         fig.canvas.draw_idle()
 
     sample_slider.on_changed(update)
-    
+
     # Add sample count display
     total_samples = prediction_kinematics.shape[2]
-    fig.text(0.5, 0.12, f"Total Samples: {total_samples}", 
-             ha='center', va='center', fontsize=10, 
-             bbox=dict(boxstyle="round,pad=0.5", facecolor='white', alpha=0.8))
+    fig.text(
+        0.5,
+        0.12,
+        f"Total Samples: {total_samples}",
+        ha="center",
+        va="center",
+        fontsize=10,
+        bbox=dict(boxstyle="round,pad=0.5", facecolor="white", alpha=0.8),
+    )
 
     plt.tight_layout(rect=[0, 0.12, 1, 0.95])  # Adjusted to make room for finger legend
 

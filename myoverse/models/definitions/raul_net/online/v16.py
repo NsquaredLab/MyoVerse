@@ -162,17 +162,21 @@ class RaulNetV16(L.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.AdamW(
-            self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.32, fused=True,
+            self.parameters(),
+            lr=self.learning_rate,
+            amsgrad=True,
+            weight_decay=0.32,
+            fused=True,
         )
 
         onecycle_scheduler = {
             "scheduler": optim.lr_scheduler.OneCycleLR(
                 optimizer,
-                max_lr=self.learning_rate * (10 ** 1.5),
+                max_lr=self.learning_rate * (10**1.5),
                 total_steps=self.trainer.estimated_stepping_batches,
                 anneal_strategy="cos",
                 three_phase=False,
-                div_factor=10 ** 1.5,
+                div_factor=10**1.5,
                 final_div_factor=1e3,
             ),
             "name": "OneCycleLR",
