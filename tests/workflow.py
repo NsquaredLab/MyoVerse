@@ -10,7 +10,11 @@ from scipy.signal import butter
 from tqdm import tqdm
 
 import myoverse
-from myoverse.datasets.filters.generic import ApplyFunctionFilter, IdentityFilter, IndexDataFilter
+from myoverse.datasets.filters.generic import (
+    ApplyFunctionFilter,
+    IdentityFilter,
+    IndexDataFilter,
+)
 from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 from myoverse.datasets.loader import EMGDatasetLoader
 from myoverse.datasets.supervised import EMGDataset
@@ -22,16 +26,23 @@ from myoverse.utils.visualization import plot_predicted_and_ground_truth_kinemat
 class Workflow:
     DATA_DIR__PATH = Path(r"/home/oj98yqyk/work/datasets/13_subjects")
     DATA__AI_FORMAT__PATH = DATA_DIR__PATH / "AI Format"
-    DATA__AI_FORMAT__SAVE_PATH = Path(r"/home/oj98yqyk/work/datasets/13_subjects_processed/AI Format") 
-    MLFLOW__SAVE_PATH = Path(r"/home/oj98yqyk/work/datasets/13_subjects_processed/models_2/mlflow")
+    DATA__AI_FORMAT__SAVE_PATH = Path(
+        r"/home/oj98yqyk/work/datasets/13_subjects_processed/AI Format"
+    )
+    MLFLOW__SAVE_PATH = Path(
+        r"/home/oj98yqyk/work/datasets/13_subjects_processed/models_2/mlflow"
+    )
 
     class CustomDataClass(_Data):
         def __init__(self, raw_data, sampling_frequency=None):
             # Initialize parent class with raw data
-            super().__init__(raw_data.reshape(1, 60), sampling_frequency, nr_of_dimensions_when_unchunked=2)
+            super().__init__(
+                raw_data.reshape(1, 60),
+                sampling_frequency,
+                nr_of_dimensions_when_unchunked=2,
+            )
 
     def __init__(self):
-
         self.workflow()
 
     def create_dataset(self):
@@ -65,7 +76,10 @@ class Workflow:
             ground_truth_filter_pipeline_before_chunking=[
                 [
                     ApplyFunctionFilter(
-                        function=np.reshape, name="Reshape", newshape=(63, -1), input_is_chunked=False
+                        function=np.reshape,
+                        name="Reshape",
+                        newshape=(63, -1),
+                        input_is_chunked=False,
                     ),
                     IndexDataFilter(indices=(slice(3, 63),), input_is_chunked=False),
                 ]
@@ -74,7 +88,11 @@ class Workflow:
             ground_truth_filter_pipeline_after_chunking=[
                 [
                     ApplyFunctionFilter(
-                        function=np.mean, name="Mean", axis=-1, is_output=True, input_is_chunked=True
+                        function=np.mean,
+                        name="Mean",
+                        axis=-1,
+                        is_output=True,
+                        input_is_chunked=True,
                     )
                 ]
             ],
@@ -132,9 +150,11 @@ class Workflow:
                     monitor="val_loss", save_top_k=-1, save_last=True, every_n_epochs=5
                 ),
                 StochasticWeightAveraging(
-                    swa_lrs=10 ** (-4), swa_epoch_start=0.5, annealing_epochs=5, device=None
+                    swa_lrs=10 ** (-4),
+                    swa_epoch_start=0.5,
+                    annealing_epochs=5,
+                    device=None,
                 ),
-
             ],
             logger=logger,
             accelerator="auto",
@@ -160,9 +180,7 @@ class Workflow:
         mlflow.set_tracking_uri("file:///" + str(self.MLFLOW__SAVE_PATH.as_posix()))
 
         experiment_id = (
-            mlflow.tracking.MlflowClient()
-            .get_experiment_by_name("Sub1")
-            .experiment_id
+            mlflow.tracking.MlflowClient().get_experiment_by_name("Sub1").experiment_id
         )
 
         artifact_uri = mlflow.search_runs(
@@ -238,5 +256,6 @@ class Workflow:
         self.train_model()
         self.visualize_results()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     Workflow()

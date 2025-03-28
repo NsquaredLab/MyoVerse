@@ -222,7 +222,12 @@ class _Data:
     >>> print(f"Is input data chunked: {emg.is_chunked['Input']}")
     """
 
-    def __init__(self, raw_data: np.ndarray, sampling_frequency: float, nr_of_dimensions_when_unchunked: int):
+    def __init__(
+        self,
+        raw_data: np.ndarray,
+        sampling_frequency: float,
+        nr_of_dimensions_when_unchunked: int,
+    ):
         self.sampling_frequency: float = sampling_frequency
 
         self.nr_of_dimensions_when_unchunked: int = nr_of_dimensions_when_unchunked
@@ -1583,7 +1588,9 @@ class EMGData(_Data):
             raise ValueError(
                 "The shape of the raw EMG data should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples)."
             )
-        super().__init__(input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3)
+        super().__init__(
+            input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3
+        )
 
         self.grid_layouts = None  # Initialize to None first
 
@@ -2076,7 +2083,9 @@ class KinematicsData(_Data):
                 "The shape of the raw kinematics data should be (n_joints, 3, n_samples) "
                 "or (n_chunks, n_joints, 3, n_samples)."
             )
-        super().__init__(input_data, sampling_frequency, nr_of_dimensions_when_unchunked=4)
+        super().__init__(
+            input_data, sampling_frequency, nr_of_dimensions_when_unchunked=4
+        )
 
     def plot(
         self, representation: str, nr_of_fingers: int, wrist_included: bool = True
@@ -2259,7 +2268,9 @@ class VirtualHandKinematics(_Data):
                 "The shape of the raw kinematics data should be (9, n_samples) "
                 "or (n_chunks, 9, n_samples)."
             )
-        super().__init__(input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3)
+        super().__init__(
+            input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3
+        )
 
     def plot(
         self, representation: str, nr_of_fingers: int = 5, visualize_wrist: bool = True
