@@ -162,17 +162,17 @@ class RaulNetV16(L.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.AdamW(
-            self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.32
+            self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.32, fused=True,
         )
 
-        lr_scheduler = {
+        onecycle_scheduler = {
             "scheduler": optim.lr_scheduler.OneCycleLR(
                 optimizer,
-                max_lr=self.learning_rate * (10**1.5),
+                max_lr=self.learning_rate * (10 ** 1.5),
                 total_steps=self.trainer.estimated_stepping_batches,
                 anneal_strategy="cos",
                 three_phase=False,
-                div_factor=10**1.5,
+                div_factor=10 ** 1.5,
                 final_div_factor=1e3,
             ),
             "name": "OneCycleLR",
@@ -180,13 +180,13 @@ class RaulNetV16(L.LightningModule):
             "frequency": 1,
         }
 
-        return [optimizer], [lr_scheduler]
+        return [optimizer], [onecycle_scheduler]
 
     def training_step(
         self, train_batch, batch_idx: int
     ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
         inputs, ground_truths = train_batch
-        ground_truths = ground_truths[:, 0]
+        ground_truths = ground_truths.flatten(start_dim=1)
 
         prediction = self(inputs)
 
@@ -213,7 +213,7 @@ class RaulNetV16(L.LightningModule):
         self, batch, batch_idx
     ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
         inputs, ground_truths = batch
-        ground_truths = ground_truths[:, 0]
+        ground_truths = ground_truths.flatten(start_dim=1)
 
         prediction = self(inputs)
         scores_dict = {"val_loss": self.criterion(prediction, ground_truths)}
@@ -237,7 +237,7 @@ class RaulNetV16(L.LightningModule):
         self, batch, batch_idx
     ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
         inputs, ground_truths = batch
-        ground_truths = ground_truths[:, 0]
+        ground_truths = ground_truths.flatten(start_dim=1)
 
         prediction = self(inputs)
         scores_dict = {"loss": self.criterion(prediction, ground_truths)}
