@@ -1,7 +1,7 @@
 import copy
+import inspect
 import os
 import pickle
-import inspect
 from abc import abstractmethod
 from typing import (
     Dict,
@@ -13,7 +13,6 @@ from typing import (
     Tuple,
     NamedTuple,
     Final,
-    Set,
 )
 
 import mplcursors
@@ -22,9 +21,6 @@ import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
-import matplotlib.patches as patches
-import json
-import warnings
 
 from myoverse.datasets.filters._template import FilterBaseClass
 
@@ -184,14 +180,6 @@ class _Data:
     ----------
     sampling_frequency : float
         The sampling frequency of the data.
-    input_data : np.ndarray
-        The raw input data.
-    processed_representations : Dict[str, np.ndarray]
-        Dictionary of all processed representations of the data.
-    output_representations : Dict[str, np.ndarray]
-        Dictionary of all output representations of the data.
-    is_chunked : Dict[str, bool]
-        Dictionary indicating whether each representation is chunked or not.
     _last_processing_step : str
         The last processing step applied to the data.
     _processed_representations : networkx.DiGraph
@@ -234,8 +222,10 @@ class _Data:
     >>> print(f"Is input data chunked: {emg.is_chunked['Input']}")
     """
 
-    def __init__(self, raw_data: np.ndarray, sampling_frequency: float):
+    def __init__(self, raw_data: np.ndarray, sampling_frequency: float, nr_of_dimensions_when_unchunked: int):
         self.sampling_frequency: float = sampling_frequency
+
+        self.nr_of_dimensions_when_unchunked: int = nr_of_dimensions_when_unchunked
 
         if self.sampling_frequency <= 0:
             raise ValueError("The sampling frequency should be greater than 0.")
@@ -270,7 +260,6 @@ class _Data:
 
         return self._chunked_cache
 
-    @abstractmethod
     def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
         """Checks if the data is chunked or not.
 
@@ -284,9 +273,7 @@ class _Data:
         bool
             Whether the data is chunked or not.
         """
-        raise NotImplementedError(
-            "This method should be implemented in the child class."
-        )
+        return len(data.shape) == self.nr_of_dimensions_when_unchunked
 
     @property
     def input_data(self) -> np.ndarray:
@@ -1596,7 +1583,7 @@ class EMGData(_Data):
             raise ValueError(
                 "The shape of the raw EMG data should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples)."
             )
-        super().__init__(input_data, sampling_frequency)
+        super().__init__(input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3)
 
         self.grid_layouts = None  # Initialize to None first
 
@@ -1647,21 +1634,6 @@ class EMGData(_Data):
             (layout.shape[0], layout.shape[1], np.sum(layout >= 0))
             for layout in self.grid_layouts
         ]
-
-    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
-        """Checks if the data is chunked or not.
-
-        Parameters
-        ----------
-        data : Union[np.ndarray, DeletedRepresentation]
-            The data to check.
-
-        Returns
-        -------
-        bool
-            Whether the data is chunked or not.
-        """
-        return len(data.shape) == 3
 
     def plot(
         self,
@@ -2104,22 +2076,7 @@ class KinematicsData(_Data):
                 "The shape of the raw kinematics data should be (n_joints, 3, n_samples) "
                 "or (n_chunks, n_joints, 3, n_samples)."
             )
-        super().__init__(input_data, sampling_frequency)
-
-    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
-        """Checks if the data is chunked or not.
-
-        Parameters
-        ----------
-        data : Union[np.ndarray, DeletedRepresentation]
-            The data to check.
-
-        Returns
-        -------
-        bool
-            Whether the data is chunked or not.
-        """
-        return len(data.shape) == 4
+        super().__init__(input_data, sampling_frequency, nr_of_dimensions_when_unchunked=4)
 
     def plot(
         self, representation: str, nr_of_fingers: int, wrist_included: bool = True
@@ -2302,22 +2259,7 @@ class VirtualHandKinematics(_Data):
                 "The shape of the raw kinematics data should be (9, n_samples) "
                 "or (n_chunks, 9, n_samples)."
             )
-        super().__init__(input_data, sampling_frequency)
-
-    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
-        """Checks if the data is chunked or not.
-
-        Parameters
-        ----------
-        data : Union[np.ndarray, DeletedRepresentation]
-            The data to check.
-
-        Returns
-        -------
-        bool
-            Whether the data is chunked or not.
-        """
-        return len(data.shape) == 3
+        super().__init__(input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3)
 
     def plot(
         self, representation: str, nr_of_fingers: int = 5, visualize_wrist: bool = True
