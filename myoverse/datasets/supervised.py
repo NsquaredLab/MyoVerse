@@ -488,7 +488,7 @@ class EMGDataset:
         self.save_path.mkdir(parents=True, exist_ok=True)
 
         # Open zarr dataset with specified format
-        dataset = zarr.open(str(self.save_path), mode="w", zarr_format=3)
+        dataset = zarr.open(str(self.save_path), mode="w", zarr_version=2)
 
         # Create groups for training, testing, and validation
         training_group = dataset.create_group("training")

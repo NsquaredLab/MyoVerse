@@ -109,7 +109,7 @@ class EMGZarrDataset(Dataset):
 
         # Load data from zarr file
         try:
-            zarr_root = zarr.open(store=str(self.zarr_file), mode="r", zarr_version=3)
+            zarr_root = zarr.open(store=str(self.zarr_file), mode="r", zarr_version=2)
             if self.subset_name not in zarr_root:
                 raise ValueError(f"Subset '{self.subset_name}' not found in Zarr file")
 
