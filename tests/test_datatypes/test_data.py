@@ -202,7 +202,7 @@ class TestData(_Data):
     """Concrete implementation of _Data for testing."""
 
     def __init__(self, raw_data, sampling_frequency):
-        super().__init__(raw_data, sampling_frequency)
+        super().__init__(raw_data, sampling_frequency, nr_of_dimensions_when_unchunked=2)
 
     def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
         """Checks if the data is chunked or not.
