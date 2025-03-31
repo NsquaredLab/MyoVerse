@@ -5,7 +5,7 @@
 
 ```{tip}
 
-Dive deeper into our features and usage with the official [documentation](https://nsquaredlab.github.io/MyoVerse/README.html).
+Dive deeper into our features and usage with the official [documentation](https://nsquaredlab.github.io/MyoVerse/).
 ```
 
 
