@@ -1,13 +1,21 @@
 """Model definition not used in any publication"""
+
 from functools import reduce
 from typing import Any, Dict, Optional, Tuple, Union
 
-import pytorch_lightning as pl
+import numpy as np
+import lightning as L
 import torch
 import torch.optim as optim
 from torch import nn
+import warnings
 
 from myoverse.models.components.activation_functions import SMU
+
+warnings.warn(
+    "This model definition is archival only and should not be used for new projects.",
+    UserWarning,
+)
 
 
 class CircularPad(nn.Module):
@@ -17,10 +25,12 @@ class CircularPad(nn.Module):
         super(CircularPad, self).__init__()
 
     def forward(self, x) -> torch.Tensor:
-        return torch.cat([torch.narrow(x, 3, 48, 16), x, torch.narrow(x, 3, 0, 16)], dim=3)
+        return torch.cat(
+            [torch.narrow(x, 3, 48, 16), x, torch.narrow(x, 3, 0, 16)], dim=3
+        )
 
 
-class RaulNetV9(pl.LightningModule):
+class RaulNetV9(L.LightningModule):
     """Model definition used in Sîmpetru et al.
 
     Attributes
@@ -79,11 +89,18 @@ class RaulNetV9(pl.LightningModule):
             nn.Dropout3d(p=0.25),
             CircularPad(),
             nn.Conv3d(
-                self.cnn_encoder_channels[0], self.cnn_encoder_channels[1], kernel_size=(1, 32, 18), dilation=(1, 2, 1)
+                self.cnn_encoder_channels[0],
+                self.cnn_encoder_channels[1],
+                kernel_size=(1, 32, 18),
+                dilation=(1, 2, 1),
             ),
             SMU(),
             nn.BatchNorm3d(self.cnn_encoder_channels[1], track_running_stats=False),
-            nn.Conv3d(self.cnn_encoder_channels[1], self.cnn_encoder_channels[2], kernel_size=(2, 9, 1)),
+            nn.Conv3d(
+                self.cnn_encoder_channels[1],
+                self.cnn_encoder_channels[2],
+                kernel_size=(2, 9, 1),
+            ),
             SMU(),
             nn.BatchNorm3d(self.cnn_encoder_channels[2], track_running_stats=False),
             nn.Flatten(),
@@ -95,7 +112,15 @@ class RaulNetV9(pl.LightningModule):
                 reduce(
                     lambda x, y: x * int(y),
                     self.cnn_encoder(
-                        torch.rand((1, self.nr_of_input_channels, 2, 64, self.input_length__samples))
+                        torch.rand(
+                            (
+                                1,
+                                self.nr_of_input_channels,
+                                2,
+                                64,
+                                self.input_length__samples,
+                            )
+                        )
                     ).shape[1:],
                     1,
                 ),
@@ -116,7 +141,9 @@ class RaulNetV9(pl.LightningModule):
         return x
 
     def configure_optimizers(self):
-        optimizer = optim.AdamW(self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.1)
+        optimizer = optim.AdamW(
+            self.parameters(), lr=self.learning_rate, amsgrad=True, weight_decay=0.1
+        )
 
         lr_scheduler = {
             "scheduler": optim.lr_scheduler.OneCycleLR(
@@ -135,7 +162,9 @@ class RaulNetV9(pl.LightningModule):
 
         return [optimizer], [lr_scheduler]
 
-    def training_step(self, train_batch, batch_idx: int) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
+    def training_step(
+        self, train_batch, batch_idx: int
+    ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
         inputs, ground_truths = train_batch
 
         prediction = self(inputs)
@@ -146,12 +175,18 @@ class RaulNetV9(pl.LightningModule):
 
         self.log_dict(scores_dict, prog_bar=True, logger=False, on_epoch=True)
         self.log_dict(
-            {f"train/{k}": v for k, v in scores_dict.items()}, prog_bar=False, logger=True, on_epoch=True, on_step=False
+            {f"train/{k}": v for k, v in scores_dict.items()},
+            prog_bar=False,
+            logger=True,
+            on_epoch=True,
+            on_step=False,
         )
 
         return scores_dict
 
-    def validation_step(self, batch, batch_idx) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
+    def validation_step(
+        self, batch, batch_idx
+    ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
         inputs, ground_truths = batch
 
         prediction = self(inputs)
@@ -161,7 +196,9 @@ class RaulNetV9(pl.LightningModule):
 
         return scores_dict
 
-    def test_step(self, batch, batch_idx) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
+    def test_step(
+        self, batch, batch_idx
+    ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
         inputs, ground_truths = batch
 
         prediction = self(inputs)
@@ -169,7 +206,11 @@ class RaulNetV9(pl.LightningModule):
 
         self.log_dict(scores_dict, prog_bar=True, logger=False, on_epoch=True)
         self.log_dict(
-            {f"test/{k}": v for k, v in scores_dict.items()}, prog_bar=False, logger=True, on_epoch=False, on_step=True
+            {f"test/{k}": v for k, v in scores_dict.items()},
+            prog_bar=False,
+            logger=True,
+            on_epoch=False,
+            on_step=True,
         )
 
         return scores_dict

@@ -2,6 +2,7 @@ import numba
 import numpy as np
 import pywt
 from scipy import interpolate
+from typing import Dict
 
 from myoverse.datasets.filters._template import EMGAugmentation
 
@@ -35,17 +36,16 @@ class GaussianNoise(EMGAugmentation):
 
     Parameters
     ----------
-    target_snr__db : float, optional
-        The target signal-to-noise ratio in decibels, by default 5.0.
+    target_snr__db : float, default=5.0
+        The target signal-to-noise ratio in decibels.
     input_is_chunked : bool
         Whether the input is chunked or not.
-    is_output : bool
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-
-    Methods
-    -------
-    __call__(chunk: numpy.ndarray) -> numpy.ndarray
-        Augments the chunk.
+    is_output : bool, default=False
+        Whether the filter is an output filter. If True, the resulting signal will be outputted by the dataset pipeline.
+    name : str, optional
+        The name of the filter. This is used to identify the filter in the dataset. If not provided, the name of the filter class will be used.
+    run_checks : bool, default=True
+        Whether to run the checks when filtering.
 
     Notes
     -----
@@ -55,13 +55,20 @@ class GaussianNoise(EMGAugmentation):
     def __init__(
         self,
         target_snr__db: float = 5.0,
-        input_is_chunked: bool = None,
+        input_is_chunked: bool = False,
         is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
     ):
-        super().__init__(input_is_chunked=input_is_chunked, is_output=is_output)
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
+        )
         self.target_snr__db = target_snr__db
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         return _gaussian_noise(
             input_array=input_array, target_snr__db=self.target_snr__db
         )
@@ -72,23 +79,22 @@ class MagnitudeWarping(EMGAugmentation):
 
     Parameters
     ----------
-    nr_of_point_for_spline : int, optional
-        The number of points to use for the spline, by default 6.
-    gaussian_mean : float, optional
-        The mean of the Gaussian distribution, by default 1.0.
-    gaussian_std : float, optional
-        The standard deviation of the Gaussian distribution, by default 0.35.
-    nr_of_grids : int, optional
-        The number of grids to use, by default 5.
+    nr_of_point_for_spline : int, default=6
+        The number of points to use for the spline.
+    gaussian_mean : float, default=1.0
+        The mean of the Gaussian distribution.
+    gaussian_std : float, default=0.35
+        The standard deviation of the Gaussian distribution.
+    nr_of_grids : int
+        The number of grids to use.
     input_is_chunked : bool
         Whether the input is chunked or not.
-    is_output : bool
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-
-    Methods
-    -------
-    __call__(chunk: numpy.ndarray) -> numpy.ndarray
-        Augments the chunk.
+    is_output : bool, default=False
+        Whether the filter is an output filter. If True, the resulting signal will be outputted by the dataset pipeline.
+    name : str, optional
+        The name of the filter. This is used to identify the filter in the dataset. If not provided, the name of the filter class will be used.
+    run_checks : bool, default=True
+        Whether to run the checks when filtering.
 
     Notes
     -----
@@ -101,10 +107,17 @@ class MagnitudeWarping(EMGAugmentation):
         gaussian_mean: float = 1.0,
         gaussian_std: float = 0.35,
         nr_of_grids: int = None,
-        input_is_chunked: bool = None,
+        input_is_chunked: bool = False,
         is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
     ):
-        super().__init__(input_is_chunked=input_is_chunked, is_output=is_output)
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
+        )
         self.nr_of_point_for_spline = nr_of_point_for_spline
         self.gaussian_mean = gaussian_mean
         self.gaussian_std = gaussian_std
@@ -113,7 +126,7 @@ class MagnitudeWarping(EMGAugmentation):
         if self.nr_of_grids is None:
             raise ValueError("nr_of_grids must be specified.")
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         random_gens = [np.random.default_rng() for _ in range(self.nr_of_grids)]
 
         return np.multiply(
@@ -148,23 +161,22 @@ class WaveletDecomposition(EMGAugmentation):
 
     Parameters
     ----------
-    b : float, optional
-        The scaling factor, by default 0.25.
-    wavelet : str, optional
-        The wavelet to use, by default "db7".
-    level : int, optional
-        The level of decomposition, by default 5.
-    nr_of_grids : int, optional
-        The number of grids to use, by default 5.
+    b : float, default=0.25
+        The scaling factor.
+    wavelet : str, default="db7"
+        The wavelet to use.
+    level : int, default=5
+        The level of decomposition.
+    nr_of_grids : int
+        The number of grids to use.
     input_is_chunked : bool
         Whether the input is chunked or not.
-    is_output : bool
-        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.
-
-    Methods
-    -------
-    __call__(chunk: numpy.ndarray) -> numpy.ndarray
-        Augments the chunk.
+    is_output : bool, default=False
+        Whether the filter is an output filter. If True, the resulting signal will be outputted by the dataset pipeline.
+    name : str, optional
+        The name of the filter. This is used to identify the filter in the dataset. If not provided, the name of the filter class will be used.
+    run_checks : bool, default=True
+        Whether to run the checks when filtering.
 
     Notes
     -----
@@ -177,10 +189,17 @@ class WaveletDecomposition(EMGAugmentation):
         wavelet: str = "db7",
         level: int = 5,
         nr_of_grids: int = None,
-        input_is_chunked: bool = None,
+        input_is_chunked: bool = False,
         is_output: bool = False,
+        name: str | None = None,
+        run_checks: bool = True,
     ):
-        super().__init__(input_is_chunked=input_is_chunked, is_output=is_output)
+        super().__init__(
+            input_is_chunked=input_is_chunked,
+            is_output=is_output,
+            name=name,
+            run_checks=run_checks,
+        )
         self.b = b
         self.wavelet = wavelet
         self.level = level
@@ -189,7 +208,7 @@ class WaveletDecomposition(EMGAugmentation):
         if self.nr_of_grids is None:
             raise ValueError("nr_of_grids must be specified.")
 
-    def _filter(self, input_array: np.ndarray) -> np.ndarray:
+    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
         coefficients_per_grid = [
             pywt.wavedec(
                 grid.astype(np.float64),

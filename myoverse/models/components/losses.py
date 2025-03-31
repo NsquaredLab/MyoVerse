@@ -10,7 +10,13 @@ class EuclidianDistance(nn.Module):
         return torch.mean(
             torch.mean(
                 torch.sqrt(
-                    torch.sum(torch.square(prediction.reshape(-1, 20, 3) - ground_truth.reshape(-1, 20, 3)), dim=-1)
+                    torch.sum(
+                        torch.square(
+                            prediction.reshape(-1, 20, 3)
+                            - ground_truth.reshape(-1, 20, 3)
+                        ),
+                        dim=-1,
+                    )
                 ),
                 dim=-1,
             )
