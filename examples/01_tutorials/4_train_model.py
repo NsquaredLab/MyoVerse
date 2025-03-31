@@ -25,17 +25,7 @@ from myoverse.datatypes import _Data
 class CustomDataClass(_Data):
     def __init__(self, raw_data, sampling_frequency=None):
         # Initialize parent class with raw data
-        super().__init__(raw_data.reshape(1, 60), sampling_frequency)
-
-    # Implement required abstract method
-    def _check_if_chunked(self, data):
-        # For simplicity, we'll assume data is always chunked
-        return True
-
-    # Implement abstract method plot (can be a minimal implementation)
-    def plot(self, *args, **kwargs):
-        pass
-
+        super().__init__(raw_data.reshape(1, 60), sampling_frequency, nr_of_dimensions_when_unchunked=2)
 
 # Let's use the built-in IdentityFilter which just passes data through
 loader = EMGDatasetLoader(
