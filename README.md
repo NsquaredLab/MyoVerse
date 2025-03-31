@@ -4,7 +4,7 @@
 <a href="https://www.pytorchlightning.ai/"><img alt="Code style: black" src="https://img.shields.io/badge/uses-pytorch & pytorch lighting-blueviolet"></a>
 
 > [!TIP]
-> Dive deeper into our features and usage with the official [documentation](https://nsquaredlab.github.io/MyoVerse/README.html).
+> Dive deeper into our features and usage with the official [documentation](https://nsquaredlab.github.io/MyoVerse/).
 
 # MyoVerse - The AI toolkit for myocontrol research
 
