@@ -799,9 +799,9 @@ opening up possibilities for specialized EMG processing techniques.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.589 seconds)
+   **Total running time of the script:** (0 minutes 6.503 seconds)
 
-**Estimated memory usage:**  955 MB
+**Estimated memory usage:**  927 MB
 
 
 .. _sphx_glr_download_auto_examples_02_filters_3_temporal_filters.py:
