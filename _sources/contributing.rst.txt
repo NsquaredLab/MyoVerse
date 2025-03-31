@@ -11,7 +11,7 @@ Setting Up Development Environment
 
    .. code-block:: bash
 
-      git clone https://github.com/your-username/MyoVerse.git
+      git clone https://github.com/NsquaredLab/MyoVerse.git
       cd MyoVerse
 
 3. Install uv (if you don't have it yet):
