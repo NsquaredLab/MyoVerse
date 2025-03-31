@@ -26,7 +26,7 @@ import myoverse # noqa
 poetry_info = toml.load(base_dir / "pyproject.toml")["project"]
 project = poetry_info["name"]
 author = ", ".join([x["name"] + f" ({x['email']})" for x in poetry_info["authors"]])
-release = poetry_info["version"]
+version = poetry_info["version"]
 copyright = (
     f"2023 - {datetime.now().year}, n-squared lab, FAU Erlangen-Nürnberg, Germany"
 )
@@ -95,9 +95,22 @@ autosummary_imported_members = False
 templates_path = ["templates"]
 exclude_patterns = ["auto_examples/", "Thumbs.db", ".DS_Store"]
 
+html_context = {
+    "AUTHOR": author,
+    "VERSION": version,
+    "DESCRIPTION": "MyoVerse is a Python package for the analysis of myoelectric signals and hand kinematics.",
+}
+
 html_theme = "pydata_sphinx_theme"
+html_theme_options = {
+    "github_url": "https://github.com/NsquaredLab/MyoVerse",
+    "navbar_start": ["navbar-logo", "navbar-version.html", "header-text.html"],
+    "navbar_end": ["navbar-icon-links"],
+}
 html_static_path = ["_static"]
+html_logo = "_static/myoverse_logo.png"
 html_css_files = ["custom.css"]
+html_title = f"{project} {version} Documentation"
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
