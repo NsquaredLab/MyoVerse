@@ -1,124 +1,117 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
-
-# -- Project information -----------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-
-import pathlib
+import os
 import sys
+from pathlib import Path
 from datetime import datetime
-import torch._dynamo # needed to avoid circular import error in torch
-
+from importlib import import_module
+from inspect import getsource
 import toml
+from docutils import nodes
+from docutils.parsers.rst import Directive
+from sphinx import addnodes
 from sphinx_gallery.sorting import FileNameSortKey
+import torch._dynamo  # noqa
+# Setup paths
+base_dir = Path.cwd().parent.parent
+sys.path.insert(0, str(base_dir))
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('../../myoverse'))
+sys.path.insert(0, os.path.abspath('../../../myoverse'))
 
-sys.path.insert(0, pathlib.Path(__file__).parents[2].resolve().as_posix())
+print(os.path.abspath('..'))
 
+import myoverse # noqa
 
-# Info from poetry config:
-info = toml.load("../../pyproject.toml")["project"]
-
-project = info["name"]
-author = ", ".join([x["name"] + f" ({x['email']})" for x in info["authors"]])
-release = info["version"]
-
+# Project Information
+poetry_info = toml.load(base_dir / "pyproject.toml")["project"]
+project = poetry_info["name"]
+author = ", ".join([x["name"] + f" ({x['email']})" for x in poetry_info["authors"]])
+version = poetry_info["version"]
 copyright = (
     f"2023 - {datetime.now().year}, n-squared lab, FAU Erlangen-Nürnberg, Germany"
 )
 
-# -- General configuration ---------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-HERE = pathlib.Path(__file__).parent
-with (HERE.parent.parent / "README.md").open() as f:
-    out = f.read()
 
-lines = out.split("\n")
-# find the line_indices containing "[!"
-line_indices = [i for i, line in enumerate(lines) if "[!" in line]
-# find for each index the last line connected to it that does not contain ">".
-lines_connected = {}
-for i, l in enumerate(line_indices):
-    for j in range(l, len(lines) - 1):
-        if ">" in lines[j] and ">" not in lines[j + 1]:
-            lines_connected[l] = j
-            break
+def process_readme(readme_path: Path) -> str:
+    """Processes the README.md file and generates the modified content."""
+    print(readme_path)
 
-for start, end in lines_connected.items():
-    lines[start] = "```{" + lines[start][4:].strip().replace("]", "").lower() + "}\n"
-    for i in range(start + 1, end + 1):
-        lines[i] = lines[i].replace("> ", "") + "\n"
+    with readme_path.open() as f:
+        lines = f.read().split("\n")
 
-    lines[end] += "```\n"
+    line_indices = [i for i, line in enumerate(lines) if "[!" in line]
+    line_ranges = find_line_ranges(lines, line_indices)
 
-out = "\n".join(lines)
+    # Format lines
+    for start, end in line_ranges.items():
+        lines[start] = f"```{{{lines[start][4:].strip().replace(']', '').lower()}}}\n"
+        for i in range(start + 1, end + 1):
+            lines[i] = lines[i].replace("> ", "") + "\n"
+        lines[end] += "```\n"
 
-out = out.split("\n")
-
-# find the index of the line that contains "## What papers/preprints use this package?"
-idx = out.index("## What papers/preprints use this package?")
-# remove everything after that line
-out = out[: idx + 1]
-
-to_add = """<p float="middle">
-  <a href="https://doi.org/10.1109/TBME.2024.3432800" target="_blank"> <img src="_static/papers/Learning.jpg" width="31%" /> </a>
-  &nbsp;
-  <a href="https://doi.org/10.33965/ijcsis_2024190101" target="_blank"> <img src="_static/papers/Analysis.jpg" width="28.4%" /> </a>
-  &nbsp;
-  <a href="https://doi.org/10.1101/2024.05.28.24307964" target="_blank"> <img src="_static/papers/Identification.jpg" width="31%" /> </a>
-</p>
-
-<p float="middle">
-<a href="https://doi.org/10/gtm4bt" target="_blank"> <img src="_static/papers/Influence.jpg" width="28.4%" /> </a>
-  &nbsp;
-  <a href="https://doi.org/10/gsgk4s" target="_blank"> <img src="_static/papers/Proportional.jpg" width="31%" /> </a>
-  &nbsp
-  <a href="https://doi.org/10/gq2f47" target="_blank"> <img src="_static/papers/Accurate.jpg" width="31%" /> </a>
-</p>"""
-
-out.extend(to_add.split("\n"))
-
-out = "\n".join(out)
-
-with (HERE / "README.md").open("w+") as f:
-    f.write(out)
+    return "\n".join(lines)
 
 
+def find_line_ranges(lines, indices):
+    """Finds the range of lines connected to each matched line index."""
+    line_ranges = {}
+    for i, start in enumerate(indices):
+        for j in range(start, len(lines) - 1):
+            if ">" in lines[j] and ">" not in lines[j + 1]:
+                line_ranges[start] = j
+                break
+    return line_ranges
+
+
+# Process README and save
+modified_readme = process_readme(base_dir / "README.md")
+with (Path.cwd()/ "README.md").open("w+") as readme_file:
+    readme_file.write(modified_readme)
+
+# Sphinx Configuration
 extensions = [
     "sphinx.ext.autodoc",
+    # "sphinx_autodoc_typehints",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx_gallery.gen_gallery",
+    "sphinx.ext.doctest",
     "rinoh.frontend.sphinx",
     "myst_parser",
 ]
 
-# autosummary_generate = True
+numpydoc_class_members_toctree = False
+autodoc_default_options = {"members": True, "inherited-members": False}
+autodoc_inherit_docstrings = True
 autoclass_content = "both"
 autodoc_typehints = "description"
-
+autodoc_member_order = "groupwise"
 autosummary_generate = True
 autosummary_generate_overwrite = True
+autosummary_imported_members = False
 
-add_function_parentheses = False
+templates_path = ["templates"]
+exclude_patterns = ["auto_examples/", "Thumbs.db", ".DS_Store"]
 
+html_context = {
+    "AUTHOR": author,
+    "VERSION": version,
+    "DESCRIPTION": "MyoVerse is a Python package for the analysis of myoelectric signals and hand kinematics.",
+}
 
-napoleon_numpy_docstring = True
-
-templates_path = ["_templates"]
-exclude_patterns = []
-
-
-# -- Options for HTML output -------------------------------------------------
-# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-
-html_theme = "furo"
+html_theme = "pydata_sphinx_theme"
+html_theme_options = {
+    "github_url": "https://github.com/NsquaredLab/MyoVerse",
+    "navbar_start": ["navbar-logo", "navbar-version.html", "header-text.html"],
+    "navbar_end": ["navbar-icon-links"],
+}
 html_static_path = ["_static"]
+html_logo = "_static/myoverse_logo.png"
+html_css_files = ["custom.css"]
+html_title = f"{project} {version} Documentation"
 
-# -- Options for intersphinx extension ---------------------------------------
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
@@ -128,15 +121,65 @@ intersphinx_mapping = {
     "sklearn": ("https://scikit-learn.org/stable/", None),
     "torch": ("https://pytorch.org/docs/stable/", None),
     "torchvision": ("https://pytorch.org/vision/stable/", None),
+    "PySide6": (
+        "https://doc.qt.io/qtforpython-6/",
+        "https://doc.qt.io/qtforpython-6/objects.inv",
+    ),
 }
 
-# -- Options for sphinx_gallery ----------------------------------------------
 sphinx_gallery_conf = {
-    "examples_dirs": "../../examples",  # path to your example scripts
-    "gallery_dirs": "auto_examples",  # path to where to save gallery generated output
+    "examples_dirs": str(base_dir / "examples"),
+    "gallery_dirs": "auto_examples",
     "filename_pattern": r"\.py",
     "remove_config_comments": True,
-    "only_warn_on_example_error": True,
     "show_memory": True,
     "within_subsection_order": FileNameSortKey,
+    "plot_gallery": True,
+    "download_all_examples": False,
 }
+
+suppress_warnings = ["config.cache"]
+
+
+class PrettyPrintIterable(Directive):
+    """Directive to pretty print an iterable object in the documentation."""
+
+    required_arguments = 1
+
+    def run(self):
+        module_path, member_name = self.arguments[0].rsplit(".", 1)
+        src = getsource(import_module(module_path)).split("\n")
+        code = _get_iter_source(src, member_name)
+        literal = nodes.literal_block(code, code)
+        literal["language"] = "python"
+        return [
+            addnodes.desc_name(text=member_name),
+            addnodes.desc_content("", literal),
+        ]
+
+
+def _get_iter_source(src, varname):
+    """Fetches the source code of an iterable."""
+    start = end = None
+    open_brackets = closed_brackets = 0
+    for i, line in enumerate(src):
+        if line.startswith(varname):
+            if start is None:
+                start = i
+        if start is not None:
+            open_brackets += sum(line.count(b) for b in "([{")
+            closed_brackets += sum(line.count(b) for b in ")]}")
+        if open_brackets > 0 and (open_brackets - closed_brackets == 0):
+            end = i + 1
+            break
+    return "\n".join(src[start:end])
+
+
+def skip_modules(app, what, name, obj, skip, options):
+    exclude_modules = ["auto_examples/*", "README.md"]
+    return any(name.startswith(excluded) for excluded in exclude_modules) or skip
+
+
+def setup(app):
+    app.add_directive("pprint", PrettyPrintIterable)
+    app.connect("autodoc-skip-member", skip_modules)

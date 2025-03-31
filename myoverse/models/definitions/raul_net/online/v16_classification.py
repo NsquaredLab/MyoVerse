@@ -1,4 +1,5 @@
 """Model definition not used in any publication"""
+
 from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np

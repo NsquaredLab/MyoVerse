@@ -1,7 +1,0 @@
-V16
-===
-
-.. automodule:: myoverse.models.definitions.raul_net.online.v16
-    :members:
-    :undoc-members:
-    :exclude-members: configure_optimizers, test_step, training_step, validation_step
