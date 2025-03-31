@@ -436,9 +436,9 @@ Let's plot both the raw and filtered data to see the effect of the lowpass filte
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.711 seconds)
+   **Total running time of the script:** (0 minutes 6.668 seconds)
 
-**Estimated memory usage:**  1042 MB
+**Estimated memory usage:**  1041 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_1_understanding_basics.py:
