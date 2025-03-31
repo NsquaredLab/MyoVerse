@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.SpatialFilterGridAware.\_\_init\_\_
+=====================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: SpatialFilterGridAware.__init__

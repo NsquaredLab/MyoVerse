@@ -1,0 +1,21 @@
+﻿EMGZarrDataset
+=======================================
+
+.. currentmodule:: myoverse.datasets.loader
+
+.. autoclass:: EMGZarrDataset
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: EMGZarrDataset
+       
+            ~EMGZarrDataset.__getitem__
+            ~EMGZarrDataset.__init__
+            ~EMGZarrDataset.__len__
+            ~EMGZarrDataset._validate_augmentation_probabilities
+        
+        

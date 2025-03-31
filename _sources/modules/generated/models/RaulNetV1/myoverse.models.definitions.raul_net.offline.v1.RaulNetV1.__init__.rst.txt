@@ -1,0 +1,6 @@
+myoverse.models.definitions.raul\_net.offline.v1.RaulNetV1.\_\_init\_\_
+=======================================================================
+
+.. currentmodule:: myoverse.models.definitions.raul_net.offline.v1
+
+.. automethod:: RaulNetV1.__init__

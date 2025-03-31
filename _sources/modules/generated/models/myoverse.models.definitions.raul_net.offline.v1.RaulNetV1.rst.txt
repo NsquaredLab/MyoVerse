@@ -1,0 +1,23 @@
+﻿RaulNetV1
+=========================================================
+
+.. currentmodule:: myoverse.models.definitions.raul_net.offline.v1
+
+.. autoclass:: RaulNetV1
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: RaulNetV1
+       
+            ~RaulNetV1.__init__
+            ~RaulNetV1.configure_optimizers
+            ~RaulNetV1.forward
+            ~RaulNetV1.test_step
+            ~RaulNetV1.training_step
+            ~RaulNetV1.validation_step
+        
+        

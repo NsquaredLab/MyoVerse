@@ -1,0 +1,6 @@
+myoverse.datatypes.KinematicsData.plot
+======================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: KinematicsData.plot

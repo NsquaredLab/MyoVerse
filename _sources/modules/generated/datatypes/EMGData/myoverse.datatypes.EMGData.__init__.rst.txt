@@ -1,0 +1,6 @@
+myoverse.datatypes.EMGData.\_\_init\_\_
+=======================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: EMGData.__init__

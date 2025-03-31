@@ -1,0 +1,18 @@
+﻿IAVFilter
+============================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: IAVFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: IAVFilter
+       
+            ~IAVFilter.__init__
+        
+        

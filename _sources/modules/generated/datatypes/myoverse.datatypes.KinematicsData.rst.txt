@@ -1,0 +1,19 @@
+﻿KinematicsData
+=================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. autoclass:: KinematicsData
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: KinematicsData
+       
+            ~KinematicsData.__init__
+            ~KinematicsData.plot
+        
+        

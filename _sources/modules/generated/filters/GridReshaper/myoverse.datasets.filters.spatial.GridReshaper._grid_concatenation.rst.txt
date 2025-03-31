@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.GridReshaper.\_grid\_concatenation
+====================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: GridReshaper._grid_concatenation

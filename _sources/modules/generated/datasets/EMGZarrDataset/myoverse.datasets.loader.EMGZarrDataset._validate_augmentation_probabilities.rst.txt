@@ -1,0 +1,6 @@
+myoverse.datasets.loader.EMGZarrDataset.\_validate\_augmentation\_probabilities
+===============================================================================
+
+.. currentmodule:: myoverse.datasets.loader
+
+.. automethod:: EMGZarrDataset._validate_augmentation_probabilities

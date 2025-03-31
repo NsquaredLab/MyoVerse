@@ -1,310 +1,489 @@
-<!doctype html>
-<html class="no-js" lang="en" data-content_root="../../../../">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>myoverse.datasets.filters.generic - MyoVerse 0.7.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>myoverse.datasets.filters.generic &#8212; MyoVerse 1.0.0 Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=2204a824" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/myoverse/datasets/filters/generic';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
     
-    
-
-
-<style>
-  body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
-  
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
-
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
-    <title>Auto light/dark, in light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
-      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
-      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
-      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
-      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
-      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
-      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
-      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
-      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
-      <circle cx="14.5" cy="9.55" r="3.6"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
-    <title>Auto light/dark, in dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
-      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
-      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
-      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
-      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
-      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
-      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
-      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-pencil" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
-      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-      <path d="M13.5 6.5l4 4" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-  <symbol id="svg-eye" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-      <path
-        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-</svg>
-
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
-    </div>
-    <div class="header-center">
-      <a href="../../../../index.html"><div class="brand">MyoVerse 0.7.1 documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
-  
-  
-  <span class="sidebar-brand-text">MyoVerse 0.7.1 documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
 </form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../../README.html">Getting Started</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../auto_examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../../auto_examples/1_understanding_basics.html">Package basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../auto_examples/2_complex_filtering.html">Complex filtering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../auto_examples/3_create_dataset.html">Creating a dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../auto_examples/4_train_model.html">Training a deep learning model</a></li>
-</ul>
-</li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../api_documentation.html">API Documentation</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Documentation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../modules/filters.html">Filters</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Filters</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../../modules/filters/generic.html">Generic Filters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../modules/filters/temporal.html">Temporal Filters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../modules/filters/augmentation.html">Augmentations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../../modules/filters/template.html">Base Filter Template</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../modules/datasets.html">Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../../../../modules/model_components.html">Model Components</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../modules/models.html">Definitions</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Definitions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../modules/models/offline.html">Offline Only Models</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Offline Only Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../../modules/models/offline/v1.html">V1</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../modules/models/offline/v4.html">V4</a></li>
-</ul>
-</li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="../../../../modules/models/online.html">Online Capable Models</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Online Capable Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../../modules/models/online/v9.html">V9</a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../../modules/models/online/v16.html">V16</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
+  </dialog>
 
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
 </div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../../../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="nav-item">
+  <div class="version-switcher__container dropdown">
+      <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
+          Version 1.0.0
+      </button>
+      
+      
+      
+  </div>
+</div> </div>
+    
+      <div class="navbar-item"><div class="nav-item">
+   <span>
+      made at the <a href="https://www.nsquared.tf.fau.de/" target="_blank">N² Lab</a>
+   </span>
+</div> </div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api_documentation.html">
+    API Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing to MyoVerse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NsquaredLab/MyoVerse" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
 </div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api_documentation.html">
+    API Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing to MyoVerse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NsquaredLab/MyoVerse" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
 
       </div>
       
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">myoverse.datasets.filters.generic</span></li>
+  </ul>
+</nav>
+</div>
+      
     </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
-          <div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
-        </div>
-        <article role="main" id="furo-main-content">
-          <h1>Source code for myoverse.datasets.filters.generic</h1><div class="highlight"><pre>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for myoverse.datasets.filters.generic</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.lib.stride_tricks</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_strided</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters._template</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilterBaseClass</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_windows_with_shift</span><span class="p">(</span>
+    <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">shift</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create windows of specified size and shift from input array using strided operations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    input_array : numpy.ndarray</span>
+<span class="sd">        The input array to window.</span>
+<span class="sd">    window_size : int</span>
+<span class="sd">        Size of each window.</span>
+<span class="sd">    shift : int</span>
+<span class="sd">        Number of samples to shift between consecutive windows.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    numpy.ndarray</span>
+<span class="sd">        Array of windows with shape (n_windows, *input_array.shape[:-1], window_size)</span>
+<span class="sd">        where n_windows = (input_array.shape[-1] - window_size) // shift + 1</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function uses numpy&#39;s as_strided function for efficient windowing without</span>
+<span class="sd">    creating copies of the data. The returned array is read-only (writeable=False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Calculate how many windows we&#39;ll have</span>
+    <span class="n">n_windows</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">window_size</span><span class="p">)</span> <span class="o">//</span> <span class="n">shift</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="c1"># Calculate new shape with windows</span>
+    <span class="c1"># Original dimensions (except the last) + number of windows + window size</span>
+    <span class="n">window_shape</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">n_windows</span><span class="p">,</span> <span class="n">window_size</span><span class="p">)</span>
+
+    <span class="c1"># Calculate strides for the windowed view</span>
+    <span class="c1"># Original strides + stride for windows + original stride for last dimension</span>
+    <span class="n">original_strides</span> <span class="o">=</span> <span class="n">input_array</span><span class="o">.</span><span class="n">strides</span>
+    <span class="n">window_strides</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="o">*</span><span class="n">original_strides</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">shift</span> <span class="o">*</span> <span class="n">original_strides</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># Step between windows</span>
+        <span class="n">original_strides</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="p">)</span>  <span class="c1"># Step within a window</span>
+
+    <span class="c1"># Create windowed view using as_strided</span>
+    <span class="n">windows</span> <span class="o">=</span> <span class="n">as_strided</span><span class="p">(</span>
+        <span class="n">input_array</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">window_shape</span><span class="p">,</span> <span class="n">strides</span><span class="o">=</span><span class="n">window_strides</span><span class="p">,</span> <span class="n">writeable</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Transpose the windows dimension to be the first dimension</span>
+    <span class="c1"># The final shape will be (n_windows, *input_array.shape[:-1], window_size)</span>
+    <span class="n">transpose_axes</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">window_shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">window_shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">window_shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">windows</span><span class="p">,</span> <span class="n">transpose_axes</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="ApplyFunctionFilter">
-<a class="viewcode-back" href="../../../../modules/filters/generic.html#myoverse.datasets.filters.generic.ApplyFunctionFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/generated/filters/myoverse.datasets.filters.generic.ApplyFunctionFilter.html#myoverse.datasets.filters.generic.ApplyFunctionFilter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ApplyFunctionFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that applies a function to the input array.</span>
+
+<span class="sd">    This filter provides a flexible way to apply any function to the input data array.</span>
+<span class="sd">    The function can be a simple lambda, a NumPy function, or any custom function that</span>
+<span class="sd">    operates on numpy arrays.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    input_is_chunked : bool</span>
 <span class="sd">        Whether the input is chunked or not.</span>
-<span class="sd">    function : callable</span>
-<span class="sd">        The function to apply. This can be any function that accepts a numpy array as input</span>
-<span class="sd">        and returns a numpy array as output. Example: `np.mean` or lambda x: x + 1.</span>
-<span class="sd">    is_output : bool</span>
-<span class="sd">        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.</span>
+<span class="sd">    is_output : bool, optional</span>
+<span class="sd">        Whether this is an output filter, by default False.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of the filter, by default None.</span>
+<span class="sd">    run_checks : bool</span>
+<span class="sd">        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.</span>
 
-<span class="sd">    Methods</span>
-<span class="sd">    -------</span>
-<span class="sd">    __call__(input_array: np.ndarray) -&gt; np.ndarray</span>
-<span class="sd">        Apply the function to the input array.</span>
+<span class="sd">        .. warning:: If False, the user is responsible for ensuring that the input array is valid.</span>
+
+<span class="sd">    function : callable, optional</span>
+<span class="sd">        The function to apply to the input array, by default None</span>
+<span class="sd">    **function_kwargs</span>
+<span class="sd">        Additional keyword arguments to pass to the function.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from myoverse.datasets.filters.generic import ApplyFunctionFilter</span>
+<span class="sd">    &gt;&gt;&gt; # Create data</span>
+<span class="sd">    &gt;&gt;&gt; data = np.random.rand(10, 500)</span>
+<span class="sd">    &gt;&gt;&gt; # Apply absolute value function</span>
+<span class="sd">    &gt;&gt;&gt; abs_filter = ApplyFunctionFilter(function=np.abs, input_is_chunked=False)</span>
+<span class="sd">    &gt;&gt;&gt; abs_data = abs_filter(data)</span>
+<span class="sd">    &gt;&gt;&gt; # Apply mean function with axis parameter</span>
+<span class="sd">    &gt;&gt;&gt; mean_filter = ApplyFunctionFilter(function=np.mean, axis=-1, input_is_chunked=False)</span>
+<span class="sd">    &gt;&gt;&gt; mean_data = mean_filter(data)</span>
+<span class="sd">    &gt;&gt;&gt; # Apply custom function</span>
+<span class="sd">    &gt;&gt;&gt; custom_filter = ApplyFunctionFilter(function=lambda x: x**2 - x, input_is_chunked=False)</span>
+<span class="sd">    &gt;&gt;&gt; custom_data = custom_filter(data)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function is applied directly to the input array without any pre-processing.</span>
+<span class="sd">    The output shape depends on the function being applied. For example, np.mean with</span>
+<span class="sd">    axis=-1 will reduce the last dimension, changing the output shape.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    IdentityFilter : A filter that returns the input unchanged</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="ApplyFunctionFilter.__init__">
+<a class="viewcode-back" href="../../../../modules/generated/filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter.__init__.html#myoverse.datasets.filters.generic.ApplyFunctionFilter.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">is_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">function</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">function_kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -313,104 +492,276 @@
             <span class="n">allowed_input_type</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
             <span class="n">is_output</span><span class="o">=</span><span class="n">is_output</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">run_checks</span><span class="o">=</span><span class="n">run_checks</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="o">**</span><span class="n">function_kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">function</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">function</span><span class="p">,</span> <span class="o">**</span><span class="n">function_kwargs</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ApplyFunctionFilter._run_filter_checks">
+<a class="viewcode-back" href="../../../../modules/generated/filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter._run_filter_checks.html#myoverse.datasets.filters.generic.ApplyFunctionFilter._run_filter_checks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_filter_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run checks on the input array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_array : np.ndarray</span>
+<span class="sd">            The input array to check</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the input is not a numpy array</span>
+<span class="sd">            If multiple inputs are provided</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            If the function is not callable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_array</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;ApplyFunctionFilter expects a single numpy array, but received a list of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span><span class="si">}</span><span class="s2"> arrays. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;This filter can only process one input at a time.&quot;</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;function must be a callable.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The provided function must be callable, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+<div class="viewcode-block" id="ApplyFunctionFilter._filter">
+<a class="viewcode-back" href="../../../../modules/generated/filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter._filter.html#myoverse.datasets.filters.generic.ApplyFunctionFilter._filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the function to the input array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_array : np.ndarray</span>
+<span class="sd">            The input array to apply the function to</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments from the Data object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            The result of applying the function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span></div>
+</div>
 
 
 
 <div class="viewcode-block" id="IndexDataFilter">
-<a class="viewcode-back" href="../../../../modules/filters/generic.html#myoverse.datasets.filters.generic.IndexDataFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/generated/filters/myoverse.datasets.filters.generic.IndexDataFilter.html#myoverse.datasets.filters.generic.IndexDataFilter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IndexDataFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that indexes the input array.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that indexes the input array using NumPy-style indexing.</span>
+
+<span class="sd">    This filter provides a flexible way to select specific elements or slices from the input array</span>
+<span class="sd">    using NumPy&#39;s powerful indexing syntax. It supports basic slicing, integer array indexing,</span>
+<span class="sd">    boolean masks, ellipsis, and advanced indexing.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    indices : Sequence[Union[int, slice]]</span>
-<span class="sd">        The indices to use for indexing the input array. Example: [0, 1, slice(2, 4)] will select the</span>
-<span class="sd">        first two elements of the first dimension and the third and fourth elements of the second dimension.</span>
 <span class="sd">    input_is_chunked : bool</span>
 <span class="sd">        Whether the input is chunked or not.</span>
-<span class="sd">    is_output : bool</span>
-<span class="sd">        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.</span>
+<span class="sd">    is_output : bool, optional</span>
+<span class="sd">        Whether the filter is an output filter. If True, the resulting signal will be</span>
+<span class="sd">        outputted by any dataset pipeline, by default False.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        The name of the filter, by default None.</span>
+<span class="sd">    run_checks : bool</span>
+<span class="sd">        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.</span>
 
-<span class="sd">    Methods</span>
-<span class="sd">    -------</span>
-<span class="sd">    __call__(input_array: np.ndarray) -&gt; np.ndarray</span>
-<span class="sd">        Filters the input array. Input shape is determined by whether the allowed_input_type</span>
-<span class="sd">        is &quot;both&quot;, &quot;chunked&quot; or &quot;not chunked&quot;.</span>
+<span class="sd">        .. warning:: If False, the user is responsible for ensuring that the input array is valid.</span>
+
+<span class="sd">    indices : any valid NumPy index</span>
+<span class="sd">        The indices to use for indexing the input array. Can be:</span>
+<span class="sd">        - Single index: 0, -1</span>
+<span class="sd">        - Slice: slice(0, 10), slice(None, None, 2)</span>
+<span class="sd">        - Tuple of indices for multiple dimensions: (0, slice(None), [1, 2, 3])</span>
+<span class="sd">        - Ellipsis: ... or Ellipsis</span>
+<span class="sd">        - Boolean mask: array([True, False, True])</span>
+<span class="sd">        - Integer arrays for fancy indexing: np.array([0, 2, 4])</span>
+<span class="sd">        - Any combination of the above</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from myoverse.datasets.filters.generic import IndexDataFilter</span>
+<span class="sd">    &gt;&gt;&gt; # Create data</span>
+<span class="sd">    &gt;&gt;&gt; data = np.random.rand(5, 10, 100)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Select first element of first dimension</span>
+<span class="sd">    &gt;&gt;&gt; filter_first = IndexDataFilter(indices=0)</span>
+<span class="sd">    &gt;&gt;&gt; output = filter_first(data)  # shape: (10, 100)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Select first three elements of last dimension</span>
+<span class="sd">    &gt;&gt;&gt; filter_slice = IndexDataFilter(indices=(slice(None), slice(None), slice(0, 3)))</span>
+<span class="sd">    &gt;&gt;&gt; output = filter_slice(data)  # shape: (5, 10, 3)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Select specific elements with fancy indexing</span>
+<span class="sd">    &gt;&gt;&gt; filter_fancy = IndexDataFilter(indices=([0, 2], slice(None), [0, 50, 99]))</span>
+<span class="sd">    &gt;&gt;&gt; output = filter_fancy(data)  # shape: (2, 10, 3)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Use ellipsis to simplify indexing (equivalent to the above)</span>
+<span class="sd">    &gt;&gt;&gt; filter_ellipsis = IndexDataFilter(indices=([0, 2], ..., [0, 50, 99]))</span>
+<span class="sd">    &gt;&gt;&gt; output = filter_ellipsis(data)  # shape: (2, 10, 3)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Select specific elements from the last dimension</span>
+<span class="sd">    &gt;&gt;&gt; filter_lastdim = IndexDataFilter(indices=(slice(None), slice(None), [0, 1, 2]))</span>
+<span class="sd">    &gt;&gt;&gt; output = filter_lastdim(data)  # shape: (5, 10, 3)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This filter directly passes the provided indices to NumPy&#39;s indexing system.</span>
+<span class="sd">    The behavior will match exactly what you would expect from numpy.ndarray indexing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="IndexDataFilter.__init__">
+<a class="viewcode-back" href="../../../../modules/generated/filters/IndexDataFilter/myoverse.datasets.filters.generic.IndexDataFilter.__init__.html#myoverse.datasets.filters.generic.IndexDataFilter.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">indices</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">is_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">indices</span><span class="p">:</span> <span class="nb">any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">input_is_chunked</span><span class="o">=</span><span class="n">input_is_chunked</span><span class="p">,</span>
             <span class="n">allowed_input_type</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
             <span class="n">is_output</span><span class="o">=</span><span class="n">is_output</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">run_checks</span><span class="o">=</span><span class="n">run_checks</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">indices</span></div>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;indices must be a list or tuple.&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Each element in indices must be an int or a slice.&quot;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<div class="viewcode-block" id="IndexDataFilter._filter">
+<a class="viewcode-back" href="../../../../modules/generated/filters/IndexDataFilter/myoverse.datasets.filters.generic.IndexDataFilter._filter.html#myoverse.datasets.filters.generic.IndexDataFilter._filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the indices to the input array.</span>
+
+<span class="sd">        This method directly applies the indices to the input array using NumPy&#39;s</span>
+<span class="sd">        indexing system, which supports basic slicing, integer array indexing,</span>
+<span class="sd">        boolean masks, ellipsis, and advanced indexing.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_array : np.ndarray</span>
+<span class="sd">            The input array to index</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments from the Data object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            The indexed array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">input_array</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span></div>
+</div>
 
 
 
 <div class="viewcode-block" id="ChunkizeDataFilter">
-<a class="viewcode-back" href="../../../../modules/filters/generic.html#myoverse.datasets.filters.generic.ChunkizeDataFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/generated/filters/myoverse.datasets.filters.generic.ChunkizeDataFilter.html#myoverse.datasets.filters.generic.ChunkizeDataFilter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ChunkizeDataFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that chunks the input array.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that chunks the input array into overlapping or non-overlapping segments.</span>
+
+<span class="sd">    This filter divides a continuous signal into chunks along the last dimension.</span>
+<span class="sd">    It&#39;s useful for preparing data for window-based analysis or for applying</span>
+<span class="sd">    sliding window techniques.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    chunk_size : int</span>
-<span class="sd">        The size of each chunk.</span>
-<span class="sd">    chunk_shift : int</span>
-<span class="sd">        The shift between each chunk. If provided, the chunk_overlap parameter is ignored.</span>
-<span class="sd">    chunk_overlap : int</span>
-<span class="sd">        The overlap between each chunk. If provided, the chunk_shift parameter is ignored.</span>
 <span class="sd">    input_is_chunked : bool</span>
 <span class="sd">        Whether the input is chunked or not.</span>
-<span class="sd">    is_output : bool</span>
-<span class="sd">        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.</span>
+<span class="sd">    is_output : bool, optional</span>
+<span class="sd">        Whether the filter is an output filter. If True, the resulting signal will be</span>
+<span class="sd">        outputted by any dataset pipeline, by default False.</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        The name of the filter, by default None.</span>
+<span class="sd">    run_checks : bool</span>
+<span class="sd">        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.</span>
 
-<span class="sd">    Methods</span>
-<span class="sd">    -------</span>
-<span class="sd">    __call__(input_array: np.ndarray) -&gt; np.ndarray</span>
-<span class="sd">        Filters the input array. Input shape is determined by whether the allowed_input_type</span>
-<span class="sd">        is &quot;both&quot;, &quot;chunked&quot; or &quot;not chunked.</span>
+<span class="sd">        .. warning:: If False, the user is responsible for ensuring that the input array is valid.</span>
+
+<span class="sd">    chunk_size : int</span>
+<span class="sd">        The size of each chunk along the last dimension.</span>
+<span class="sd">    chunk_shift : int, optional</span>
+<span class="sd">        The shift between consecutive chunks. If provided, chunk_overlap is ignored.</span>
+<span class="sd">        A small shift creates more overlapping chunks.</span>
+<span class="sd">    chunk_overlap : int, optional</span>
+<span class="sd">        The overlap between consecutive chunks. If provided, chunk_shift is ignored.</span>
+<span class="sd">        Overlap = chunk_size - chunk_shift.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If input_is_chunked is True (this filter only accepts unchunked input).</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If chunk_size is not specified.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If neither chunk_shift nor chunk_overlap is specified.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If chunk_shift is less than 1.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If chunk_overlap is less than 0 or greater than chunk_size.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from myoverse.datasets.filters.generic import ChunkizeDataFilter</span>
+<span class="sd">    &gt;&gt;&gt; # Create data</span>
+<span class="sd">    &gt;&gt;&gt; data = np.random.rand(10, 1000)</span>
+<span class="sd">    &gt;&gt;&gt; # Create non-overlapping chunks</span>
+<span class="sd">    &gt;&gt;&gt; no_overlap = ChunkizeDataFilter(</span>
+<span class="sd">    ...     chunk_size=100,</span>
+<span class="sd">    ...     chunk_shift=100,</span>
+<span class="sd">    ...     input_is_chunked=False</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; chunked_data = no_overlap(data)  # shape: (10, 10, 100)</span>
+<span class="sd">    &gt;&gt;&gt; # Create overlapping chunks</span>
+<span class="sd">    &gt;&gt;&gt; with_overlap = ChunkizeDataFilter(</span>
+<span class="sd">    ...     chunk_size=100,</span>
+<span class="sd">    ...     chunk_overlap=50,</span>
+<span class="sd">    ...     input_is_chunked=False</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; overlapped_data = with_overlap(data)  # shape: (19, 10, 100)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The output shape will be (n_chunks, *original_dims, chunk_size), where</span>
+<span class="sd">    n_chunks = (input_length - chunk_size) // chunk_shift + 1 or</span>
+<span class="sd">    n_chunks = (input_length - chunk_size) // (chunk_size - chunk_overlap) + 1</span>
+
+<span class="sd">    When both chunk_shift and chunk_overlap are provided, chunk_shift takes precedence.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    _get_windows_with_shift : Efficient windowing function used in temporal filters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="ChunkizeDataFilter.__init__">
+<a class="viewcode-back" href="../../../../modules/generated/filters/ChunkizeDataFilter/myoverse.datasets.filters.generic.ChunkizeDataFilter.__init__.html#myoverse.datasets.filters.generic.ChunkizeDataFilter.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">is_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
         <span class="n">chunk_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chunk_shift</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">chunk_overlap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">is_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">input_is_chunked</span><span class="o">=</span><span class="n">input_is_chunked</span><span class="p">,</span>
             <span class="n">allowed_input_type</span><span class="o">=</span><span class="s2">&quot;not chunked&quot;</span><span class="p">,</span>
             <span class="n">is_output</span><span class="o">=</span><span class="n">is_output</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">name</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">run_checks</span><span class="o">=</span><span class="n">run_checks</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">input_is_chunked</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
@@ -438,101 +789,212 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_overlap</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;chunk_overlap must be less than or equal to chunk_size.&quot;</span>
-                <span class="p">)</span>
+                <span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_shift</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">input_array</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span><span class="p">]</span>
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_shift</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">&lt;=</span> <span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                <span class="p">]</span>
-            <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">input_array</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span>
-                    <span class="mi">0</span><span class="p">,</span> <span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_overlap</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">&lt;=</span> <span class="n">input_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="p">]</span>
+<div class="viewcode-block" id="ChunkizeDataFilter._filter">
+<a class="viewcode-back" href="../../../../modules/generated/filters/ChunkizeDataFilter/myoverse.datasets.filters.generic.ChunkizeDataFilter._filter.html#myoverse.datasets.filters.generic.ChunkizeDataFilter._filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Chunk the input array into overlapping segments.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_array : np.ndarray</span>
+<span class="sd">            The input array to chunk</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments from the Data object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            The chunked array with shape (n_chunks, *original_shape, chunk_size)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Use the existing _get_windows_with_shift function for more efficient windowing</span>
+        <span class="k">return</span> <span class="n">_get_windows_with_shift</span><span class="p">(</span>
+            <span class="n">input_array</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chunk_shift</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_shift</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_size</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">chunk_overlap</span><span class="p">,</span>
         <span class="p">)</span></div>
+</div>
 
 
 
 <div class="viewcode-block" id="IdentityFilter">
-<a class="viewcode-back" href="../../../../modules/filters/generic.html#myoverse.datasets.filters.generic.IdentityFilter">[docs]</a>
+<a class="viewcode-back" href="../../../../modules/generated/filters/myoverse.datasets.filters.generic.IdentityFilter.html#myoverse.datasets.filters.generic.IdentityFilter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">IdentityFilter</span><span class="p">(</span><span class="n">FilterBaseClass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that returns the input array unchanged.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter that returns the input unchanged.</span>
 
-<span class="sd">    This filter is useful for debugging and testing purposes.</span>
+<span class="sd">    This is useful as a placeholder in filter sequences or for testing.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    input_is_chunked : bool</span>
-<span class="sd">        Whether the input is chunked or not.</span>
-<span class="sd">    is_output : bool</span>
-<span class="sd">        Whether the filter is an output filter. If True, the resulting signal will be outputted by and dataset pipeline.</span>
+<span class="sd">        Whether the input is chunked or not. This must be explicitly set by the user</span>
+<span class="sd">        as they have the best knowledge of their data structure.</span>
+<span class="sd">    is_output : bool, optional</span>
+<span class="sd">        Whether this is an output filter, by default False</span>
+<span class="sd">    name : str, optional</span>
+<span class="sd">        Name of the filter, by default None</span>
+<span class="sd">    run_checks : bool</span>
+<span class="sd">        Whether to run the checks when filtering. By default, True. If False can potentially speed up performance.</span>
 
-<span class="sd">    Methods</span>
-<span class="sd">    -------</span>
-<span class="sd">    __call__(input_array: np.ndarray) -&gt; np.ndarray</span>
-<span class="sd">        Returns the input array unchanged. If the input_array attribute is not None, this array will be returned.</span>
+<span class="sd">        .. warning:: If False, the user is responsible for ensuring that the input array is valid.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from myoverse.datasets.filters.generic import IdentityFilter</span>
+<span class="sd">    &gt;&gt;&gt; # Create data</span>
+<span class="sd">    &gt;&gt;&gt; data = np.random.rand(10, 500)</span>
+<span class="sd">    &gt;&gt;&gt; # Apply identity filter</span>
+<span class="sd">    &gt;&gt;&gt; identity_filter = IdentityFilter(input_is_chunked=False)</span>
+<span class="sd">    &gt;&gt;&gt; output = identity_filter(data)</span>
+<span class="sd">    &gt;&gt;&gt; # Check that output is the same as input</span>
+<span class="sd">    &gt;&gt;&gt; np.array_equal(data, output)  # True</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This filter simply returns the input array unchanged.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ApplyFunctionFilter : A more general filter for applying arbitrary functions</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="IdentityFilter.__init__">
+<a class="viewcode-back" href="../../../../modules/generated/filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter.__init__.html#myoverse.datasets.filters.generic.IdentityFilter.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">input_is_chunked</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">is_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">run_checks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">input_is_chunked</span><span class="o">=</span><span class="n">input_is_chunked</span><span class="p">,</span>
             <span class="n">allowed_input_type</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span>
             <span class="n">is_output</span><span class="o">=</span><span class="n">is_output</span><span class="p">,</span>
             <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
-        <span class="p">)</span>
+            <span class="n">run_checks</span><span class="o">=</span><span class="n">run_checks</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+
+<div class="viewcode-block" id="IdentityFilter._run_filter_checks">
+<a class="viewcode-back" href="../../../../modules/generated/filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter._run_filter_checks.html#myoverse.datasets.filters.generic.IdentityFilter._run_filter_checks">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_run_filter_checks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run checks on the input array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_array : np.ndarray</span>
+<span class="sd">            The input array to check</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the input is not a numpy array</span>
+<span class="sd">            If multiple inputs are provided</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_array</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;IdentityFilter expects a single numpy array, but received a list of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">input_array</span><span class="p">)</span><span class="si">}</span><span class="s2"> arrays. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;This filter can only process one input at a time.&quot;</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IdentityFilter._filter">
+<a class="viewcode-back" href="../../../../modules/generated/filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter._filter.html#myoverse.datasets.filters.generic.IdentityFilter._filter">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the input array unchanged.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_array : np.ndarray</span>
+<span class="sd">            The input array to pass through</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments from the Data object</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        np.ndarray</span>
+<span class="sd">            The input array unchanged</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">input_array</span></div>
+</div>
 
 </pre></div>
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          
-          
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
             </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
             
-          </div>
-          <div class="right-details">
+              
             
           </div>
-        </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
         
-      </footer>
+      </main>
     </div>
-    <aside class="toc-drawer no-toc">
-      
-      
-      
-    </aside>
   </div>
-</div><script src="../../../../_static/documentation_options.js?v=5a057da9"></script>
-    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
-    </body>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

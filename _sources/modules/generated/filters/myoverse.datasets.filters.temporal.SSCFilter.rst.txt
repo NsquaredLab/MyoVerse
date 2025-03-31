@@ -1,0 +1,18 @@
+﻿SSCFilter
+============================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: SSCFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: SSCFilter
+       
+            ~SSCFilter.__init__
+        
+        

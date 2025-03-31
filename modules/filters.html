@@ -1,366 +1,861 @@
-<!doctype html>
-<html class="no-js" lang="en" data-content_root="../">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Generic Filters" href="filters/generic.html" /><link rel="prev" title="API Documentation" href="../api_documentation.html" />
 
-    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
-        <title>Filters - MyoVerse 0.7.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Filters &#8212; MyoVerse 1.0.0 Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
-    
-    
-
-
-<style>
-  body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=2204a824" />
   
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
-    <title>Auto light/dark, in light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
-      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
-      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
-      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
-      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
-      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
-      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
-      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
-      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
-      <circle cx="14.5" cy="9.55" r="3.6"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
-    <title>Auto light/dark, in dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
-      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
-      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
-      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
-      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
-      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
-      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
-      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
-      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
-      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-pencil" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
-      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
-      <path d="M13.5 6.5l4 4" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-  <symbol id="svg-eye" viewBox="0 0 24 24">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
-      <path
-        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
-      <path d="M20 21l2 -2l-2 -2" />
-      <path d="M17 17l-2 2l2 2" />
-    </svg>
-  </symbol>
-</svg>
-
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
-    </div>
-    <div class="header-center">
-      <a href="../index.html"><div class="brand">MyoVerse 0.7.1 documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
-  
-  
-  <span class="sidebar-brand-text">MyoVerse 0.7.1 documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../README.html">Getting Started</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../auto_examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/1_understanding_basics.html">Package basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/2_complex_filtering.html">Complex filtering</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/3_create_dataset.html">Creating a dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../auto_examples/4_train_model.html">Training a deep learning model</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../api_documentation.html">API Documentation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Documentation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Filters</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Filters</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="filters/generic.html">Generic Filters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="filters/temporal.html">Temporal Filters</a></li>
-<li class="toctree-l3"><a class="reference internal" href="filters/augmentation.html">Augmentations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="filters/template.html">Base Filter Template</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="datasets.html">Datasets</a></li>
-<li class="toctree-l2"><a class="reference internal" href="model_components.html">Model Components</a></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="models.html">Definitions</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Definitions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3 has-children"><a class="reference internal" href="models/offline.html">Offline Only Models</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Offline Only Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="models/offline/v1.html">V1</a></li>
-<li class="toctree-l4"><a class="reference internal" href="models/offline/v4.html">V4</a></li>
-</ul>
-</li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="models/online.html">Online Capable Models</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Online Capable Models</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l4"><a class="reference internal" href="models/online/v9.html">V9</a></li>
-<li class="toctree-l4"><a class="reference internal" href="models/online/v16.html">V16</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-</div>
-</div>
-
-      </div>
-      
-    </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
-          <div class="view-this-page">
-  <a class="muted-link" href="../_sources/modules/filters.rst.txt" title="View this page">
-    <svg><use href="#svg-eye"></use></svg>
-    <span class="visually-hidden">View this page</span>
-  </a>
-</div>
-<div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
-              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
-        </div>
-        <article role="main" id="furo-main-content">
-          <section id="filters">
-<span id="id1"></span><h1>Filters<a class="headerlink" href="#filters" title="Link to this heading">¶</a></h1>
-<p>Filters are used to preprocess the data before it is used by the model.
-Some filters can only work on chunked data, while others can work on both chunked and unchunked data.</p>
-<p>MyoVerse provides following types of filters:</p>
-<blockquote>
-<div><p>Generic filters e.g. allow the use of custom methods to preprocess the data.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="filters/generic.html">Generic Filters</a></li>
-</ul>
-</div>
-<p>Temporal filters can be used to compute most EMG features such as RMS.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="filters/temporal.html">Temporal Filters</a></li>
-</ul>
-</div>
-<p>Augmentations can be used to generate new data points by applying transformations to the existing data.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="filters/augmentation.html">Augmentations</a></li>
-</ul>
-</div>
-<p>The base filter template is provided in the following section. The template can be used to create custom filters.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="filters/template.html">Base Filter Template</a></li>
-</ul>
-</div>
-</div></blockquote>
-</section>
-
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          <a class="next-page" href="filters/generic.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">Generic Filters</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="../api_documentation.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">API Documentation</div>
-                
-              </div>
-            </a>
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
-          </div>
-          <div class="right-details">
-            
-          </div>
-        </div>
-        
-      </footer>
-    </div>
-    <aside class="toc-drawer no-toc">
-      
-      
-      
-    </aside>
-  </div>
-</div><script src="../_static/documentation_options.js?v=5a057da9"></script>
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
-    </body>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/filters';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ApplyFunctionFilter" href="generated/filters/myoverse.datasets.filters.generic.ApplyFunctionFilter.html" />
+    <link rel="prev" title="myoverse.datatypes._Data.save" href="generated/datatypes/_Data/myoverse.datatypes._Data.save.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="nav-item">
+  <div class="version-switcher__container dropdown">
+      <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
+          Version 1.0.0
+      </button>
+      
+      
+      
+  </div>
+</div> </div>
+    
+      <div class="navbar-item"><div class="nav-item">
+   <span>
+      made at the <a href="https://www.nsquared.tf.fau.de/" target="_blank">N² Lab</a>
+   </span>
+</div> </div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api_documentation.html">
+    API Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing to MyoVerse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NsquaredLab/MyoVerse" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api_documentation.html">
+    API Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing to MyoVerse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NsquaredLab/MyoVerse" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="datatypes.html">Data Types</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datatypes/myoverse.datatypes.EMGData.html">EMGData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/EMGData/myoverse.datatypes.EMGData.__init__.html">myoverse.datatypes.EMGData.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/EMGData/myoverse.datatypes.EMGData._get_grid_dimensions.html">myoverse.datatypes.EMGData._get_grid_dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/EMGData/myoverse.datatypes.EMGData.plot.html">myoverse.datatypes.EMGData.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/EMGData/myoverse.datatypes.EMGData.plot_grid_layout.html">myoverse.datatypes.EMGData.plot_grid_layout</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datatypes/myoverse.datatypes.KinematicsData.html">KinematicsData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/KinematicsData/myoverse.datatypes.KinematicsData.__init__.html">myoverse.datatypes.KinematicsData.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/KinematicsData/myoverse.datatypes.KinematicsData.plot.html">myoverse.datatypes.KinematicsData.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datatypes/myoverse.datatypes.VirtualHandKinematics.html">VirtualHandKinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/VirtualHandKinematics/myoverse.datatypes.VirtualHandKinematics.__init__.html">myoverse.datatypes.VirtualHandKinematics.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/VirtualHandKinematics/myoverse.datatypes.VirtualHandKinematics.plot.html">myoverse.datatypes.VirtualHandKinematics.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/datatypes/myoverse.datatypes._Data.apply_filter.html">myoverse.datatypes._Data.apply_filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/datatypes/myoverse.datatypes._Data.apply_filter_sequence.html">myoverse.datatypes._Data.apply_filter_sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/datatypes/myoverse.datatypes._Data.apply_filter_pipeline.html">myoverse.datatypes._Data.apply_filter_pipeline</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datatypes/myoverse.datatypes._Data.html">_Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.__copy__.html">myoverse.datatypes._Data.__copy__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.__getitem__.html">myoverse.datatypes._Data.__getitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.__init__.html">myoverse.datatypes._Data.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.__repr__.html">myoverse.datatypes._Data.__repr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.__setitem__.html">myoverse.datatypes._Data.__setitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.__str__.html">myoverse.datatypes._Data.__str__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data._check_if_chunked.html">myoverse.datatypes._Data._check_if_chunked</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.apply_filter.html">myoverse.datatypes._Data.apply_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.apply_filter_pipeline.html">myoverse.datatypes._Data.apply_filter_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.apply_filter_sequence.html">myoverse.datatypes._Data.apply_filter_sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.delete.html">myoverse.datatypes._Data.delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.delete_data.html">myoverse.datatypes._Data.delete_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.delete_history.html">myoverse.datatypes._Data.delete_history</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.get_representation_history.html">myoverse.datatypes._Data.get_representation_history</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.load.html">myoverse.datatypes._Data.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.memory_usage.html">myoverse.datatypes._Data.memory_usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.plot.html">myoverse.datatypes._Data.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.plot_graph.html">myoverse.datatypes._Data.plot_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datatypes/_Data/myoverse.datatypes._Data.save.html">myoverse.datatypes._Data.save</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">Filters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.ApplyFunctionFilter.html">ApplyFunctionFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter.__init__.html">myoverse.datasets.filters.generic.ApplyFunctionFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter._filter.html">myoverse.datasets.filters.generic.ApplyFunctionFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter._run_filter_checks.html">myoverse.datasets.filters.generic.ApplyFunctionFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.IndexDataFilter.html">IndexDataFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/IndexDataFilter/myoverse.datasets.filters.generic.IndexDataFilter.__init__.html">myoverse.datasets.filters.generic.IndexDataFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/IndexDataFilter/myoverse.datasets.filters.generic.IndexDataFilter._filter.html">myoverse.datasets.filters.generic.IndexDataFilter._filter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.ChunkizeDataFilter.html">ChunkizeDataFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ChunkizeDataFilter/myoverse.datasets.filters.generic.ChunkizeDataFilter.__init__.html">myoverse.datasets.filters.generic.ChunkizeDataFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ChunkizeDataFilter/myoverse.datasets.filters.generic.ChunkizeDataFilter._filter.html">myoverse.datasets.filters.generic.ChunkizeDataFilter._filter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.IdentityFilter.html">IdentityFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter.__init__.html">myoverse.datasets.filters.generic.IdentityFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter._filter.html">myoverse.datasets.filters.generic.IdentityFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter._run_filter_checks.html">myoverse.datasets.filters.generic.IdentityFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.SOSFrequencyFilter.html">SOSFrequencyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.RectifyFilter.html">RectifyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/RectifyFilter/myoverse.datasets.filters.temporal.RectifyFilter.__init__.html">myoverse.datasets.filters.temporal.RectifyFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.WindowedFunctionFilter.html">WindowedFunctionFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/WindowedFunctionFilter/myoverse.datasets.filters.temporal.WindowedFunctionFilter.__init__.html">myoverse.datasets.filters.temporal.WindowedFunctionFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.RMSFilter.html">RMSFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/RMSFilter/myoverse.datasets.filters.temporal.RMSFilter.__init__.html">myoverse.datasets.filters.temporal.RMSFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.VARFilter.html">VARFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/VARFilter/myoverse.datasets.filters.temporal.VARFilter.__init__.html">myoverse.datasets.filters.temporal.VARFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.MAVFilter.html">MAVFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/MAVFilter/myoverse.datasets.filters.temporal.MAVFilter.__init__.html">myoverse.datasets.filters.temporal.MAVFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.IAVFilter.html">IAVFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/IAVFilter/myoverse.datasets.filters.temporal.IAVFilter.__init__.html">myoverse.datasets.filters.temporal.IAVFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.WFLFilter.html">WFLFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/WFLFilter/myoverse.datasets.filters.temporal.WFLFilter.__init__.html">myoverse.datasets.filters.temporal.WFLFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.ZCFilter.html">ZCFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ZCFilter/myoverse.datasets.filters.temporal.ZCFilter.__init__.html">myoverse.datasets.filters.temporal.ZCFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.SSCFilter.html">SSCFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SSCFilter/myoverse.datasets.filters.temporal.SSCFilter.__init__.html">myoverse.datasets.filters.temporal.SSCFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.SpectralInterpolationFilter.html">SpectralInterpolationFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter.__init__.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._filter.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.ElectrodeSelector.html">ElectrodeSelector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector.__init__.html">myoverse.datasets.filters.spatial.ElectrodeSelector.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._filter.html">myoverse.datasets.filters.spatial.ElectrodeSelector._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks.html">myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid.html">myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.GridReshaper.html">GridReshaper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper.__init__.html">myoverse.datasets.filters.spatial.GridReshaper.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid.html">myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._filter.html">myoverse.datasets.filters.spatial.GridReshaper._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation.html">myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels.html">myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation.html">myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.html">DifferentialSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.AveragingSpatialFilter.html">AveragingSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.FilterBaseClass.html">FilterBaseClass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__call__.html">myoverse.datasets.filters.generic.FilterBaseClass.__call__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__init__.html">myoverse.datasets.filters.generic.FilterBaseClass.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__repr__.html">myoverse.datasets.filters.generic.FilterBaseClass.__repr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__str__.html">myoverse.datasets.filters.generic.FilterBaseClass.__str__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._filter.html">myoverse.datasets.filters.generic.FilterBaseClass._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._filter_with_checks.html">myoverse.datasets.filters.generic.FilterBaseClass._filter_with_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._run_filter_checks.html">myoverse.datasets.filters.generic.FilterBaseClass._run_filter_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._run_init_checks.html">myoverse.datasets.filters.generic.FilterBaseClass._run_init_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.SpatialFilterGridAware.html">SpatialFilterGridAware</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="datasets.html">Datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datasets/myoverse.datasets.supervised.EMGDataset.html">EMGDataset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset.__init__.html">myoverse.datasets.supervised.EMGDataset.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._append_augmented_batch.html">myoverse.datasets.supervised.EMGDataset._append_augmented_batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._apply_augmentation_pipeline.html">myoverse.datasets.supervised.EMGDataset._apply_augmentation_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._apply_augmentations.html">myoverse.datasets.supervised.EMGDataset._apply_augmentations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._print_dataset_summary.html">myoverse.datasets.supervised.EMGDataset._print_dataset_summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._process_task.html">myoverse.datasets.supervised.EMGDataset._process_task</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset.create_dataset.html">myoverse.datasets.supervised.EMGDataset.create_dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datasets/myoverse.datasets.defaults.EMBCDataset.html">EMBCDataset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMBCDataset/myoverse.datasets.defaults.EMBCDataset.__init__.html">myoverse.datasets.defaults.EMBCDataset.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMBCDataset/myoverse.datasets.defaults.EMBCDataset.create_dataset.html">myoverse.datasets.defaults.EMBCDataset.create_dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/datasets/myoverse.datasets.loader.EMGZarrDataset.html">EMGZarrDataset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset.__getitem__.html">myoverse.datasets.loader.EMGZarrDataset.__getitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset.__init__.html">myoverse.datasets.loader.EMGZarrDataset.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset.__len__.html">myoverse.datasets.loader.EMGZarrDataset.__len__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset._validate_augmentation_probabilities.html">myoverse.datasets.loader.EMGZarrDataset._validate_augmentation_probabilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="models.html">Definitions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/models/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.html">RaulNetV16</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.__init__.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16._reshape_and_normalize.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16._reshape_and_normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.configure_optimizers.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.forward.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.test_step.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.training_step.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.validation_step.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/models/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.html">RaulNetV16</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.__init__.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v2.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v3.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.configure_optimizers.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.forward.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.test_step.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.training_step.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.validation_step.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/models/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.html">RaulNetV9</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.__init__.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9._reshape_and_normalize.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9._reshape_and_normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.configure_optimizers.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.forward.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.test_step.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.training_step.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.validation_step.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/models/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.html">RaulNetV4</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.__init__.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4._normalize_input.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4._normalize_input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.configure_optimizers.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.forward.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.test_step.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.training_step.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.validation_step.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="generated/models/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.html">RaulNetV1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.__init__.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.configure_optimizers.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.forward.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.test_step.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.training_step.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.validation_step.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.validation_step</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api_documentation.html" class="nav-link">API Documentation</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Filters</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="filters">
+<span id="id1"></span><h1>Filters<a class="headerlink" href="#filters" title="Link to this heading">#</a></h1>
+<p>Filters are used to preprocess the data before it is used by the model.
+Some filters can only work on chunked data, while others can work on both chunked and unchunked data.</p>
+<section id="generic-filters">
+<h2>Generic Filters<a class="headerlink" href="#generic-filters" title="Link to this heading">#</a></h2>
+<p>Generic filters e.g. allow the use of custom methods to preprocess the data.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.ApplyFunctionFilter.html#myoverse.datasets.filters.generic.ApplyFunctionFilter" title="myoverse.datasets.filters.generic.ApplyFunctionFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ApplyFunctionFilter</span></code></a>(input_is_chunked[, ...])</p></td>
+<td><p>Filter that applies a function to the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.IndexDataFilter.html#myoverse.datasets.filters.generic.IndexDataFilter" title="myoverse.datasets.filters.generic.IndexDataFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IndexDataFilter</span></code></a>(input_is_chunked[, ...])</p></td>
+<td><p>Filter that indexes the input array using NumPy-style indexing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.ChunkizeDataFilter.html#myoverse.datasets.filters.generic.ChunkizeDataFilter" title="myoverse.datasets.filters.generic.ChunkizeDataFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChunkizeDataFilter</span></code></a>(input_is_chunked[, ...])</p></td>
+<td><p>Filter that chunks the input array into overlapping or non-overlapping segments.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.IdentityFilter.html#myoverse.datasets.filters.generic.IdentityFilter" title="myoverse.datasets.filters.generic.IdentityFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IdentityFilter</span></code></a>(input_is_chunked[, ...])</p></td>
+<td><p>Filter that returns the input unchanged.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="temporal-filters">
+<h2>Temporal Filters<a class="headerlink" href="#temporal-filters" title="Link to this heading">#</a></h2>
+<p>Temporal filters can be used to compute most EMG features such as the root mean square or the mean absolute value.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.SOSFrequencyFilter.html#myoverse.datasets.filters.temporal.SOSFrequencyFilter" title="myoverse.datasets.filters.temporal.SOSFrequencyFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SOSFrequencyFilter</span></code></a>(input_is_chunked[, ...])</p></td>
+<td><p>Filter that applies a second-order-section filter to the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.RectifyFilter.html#myoverse.datasets.filters.temporal.RectifyFilter" title="myoverse.datasets.filters.temporal.RectifyFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RectifyFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Filter that rectifies the input array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.WindowedFunctionFilter.html#myoverse.datasets.filters.temporal.WindowedFunctionFilter" title="myoverse.datasets.filters.temporal.WindowedFunctionFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WindowedFunctionFilter</span></code></a>(input_is_chunked[, ...])</p></td>
+<td><p>Base class for filters that apply a function to windowed data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.RMSFilter.html#myoverse.datasets.filters.temporal.RMSFilter" title="myoverse.datasets.filters.temporal.RMSFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RMSFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Filter that computes the root mean squared value <a href="#id9"><span class="problematic" id="id2">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.VARFilter.html#myoverse.datasets.filters.temporal.VARFilter" title="myoverse.datasets.filters.temporal.VARFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VARFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Filter that computes the variance <a href="#id10"><span class="problematic" id="id3">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.MAVFilter.html#myoverse.datasets.filters.temporal.MAVFilter" title="myoverse.datasets.filters.temporal.MAVFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAVFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Filter that computes the mean absolute value <a href="#id11"><span class="problematic" id="id4">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.IAVFilter.html#myoverse.datasets.filters.temporal.IAVFilter" title="myoverse.datasets.filters.temporal.IAVFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IAVFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Filter that computes the integrated absolute value <a href="#id12"><span class="problematic" id="id5">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.WFLFilter.html#myoverse.datasets.filters.temporal.WFLFilter" title="myoverse.datasets.filters.temporal.WFLFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WFLFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Filter that computes the waveform length <a href="#id13"><span class="problematic" id="id6">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.ZCFilter.html#myoverse.datasets.filters.temporal.ZCFilter" title="myoverse.datasets.filters.temporal.ZCFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ZCFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Computes the zero crossings <a href="#id14"><span class="problematic" id="id7">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.SSCFilter.html#myoverse.datasets.filters.temporal.SSCFilter" title="myoverse.datasets.filters.temporal.SSCFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SSCFilter</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p>Computes the slope sign change <a href="#id15"><span class="problematic" id="id8">[1]_</span></a> of the input array.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.temporal.SpectralInterpolationFilter.html#myoverse.datasets.filters.temporal.SpectralInterpolationFilter" title="myoverse.datasets.filters.temporal.SpectralInterpolationFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpectralInterpolationFilter</span></code></a>(input_is_chunked)</p></td>
+<td><p>Filter that removes certain frequency bands from the signal and interpolates the gaps.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="spatial-filters">
+<h2>Spatial Filters<a class="headerlink" href="#spatial-filters" title="Link to this heading">#</a></h2>
+<p>Spatial filters can be used to compute spatial features such as the Laplacian.</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.ElectrodeSelector.html#myoverse.datasets.filters.spatial.ElectrodeSelector" title="myoverse.datasets.filters.spatial.ElectrodeSelector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ElectrodeSelector</span></code></a>(electrodes_to_select, ...)</p></td>
+<td><p>A filter that selects specific electrodes from the input array.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.GridReshaper.html#myoverse.datasets.filters.spatial.GridReshaper" title="myoverse.datasets.filters.spatial.GridReshaper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridReshaper</span></code></a>(operation[, shape, grid_type, ...])</p></td>
+<td><p>Initialize the class.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.html#myoverse.datasets.filters.spatial.DifferentialSpatialFilter" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DifferentialSpatialFilter</span></code></a>(filter_name[, ...])</p></td>
+<td><p>Differential spatial filter for EMG data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.AveragingSpatialFilter.html#myoverse.datasets.filters.spatial.AveragingSpatialFilter" title="myoverse.datasets.filters.spatial.AveragingSpatialFilter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AveragingSpatialFilter</span></code></a>(order, ...[, ...])</p></td>
+<td><p>Spatial filter that applies moving average across electrodes in a specified direction.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="base-filter-classes">
+<h2>Base Filter Classes<a class="headerlink" href="#base-filter-classes" title="Link to this heading">#</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If you wish to add a new filter make sure they inherit from the following base classes.</p>
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.generic.FilterBaseClass.html#myoverse.datasets.filters.generic.FilterBaseClass" title="myoverse.datasets.filters.generic.FilterBaseClass"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FilterBaseClass</span></code></a>(input_is_chunked, ...[, ...])</p></td>
+<td><p>Base class for filters.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/filters/myoverse.datasets.filters.spatial.SpatialFilterGridAware.html#myoverse.datasets.filters.spatial.SpatialFilterGridAware" title="myoverse.datasets.filters.spatial.SpatialFilterGridAware"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpatialFilterGridAware</span></code></a>([input_is_chunked, ...])</p></td>
+<td><p>Base class for spatial filters that need to be grid-aware.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="generated/datatypes/_Data/myoverse.datatypes._Data.save.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">myoverse.datatypes._Data.save</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="generated/filters/myoverse.datasets.filters.generic.ApplyFunctionFilter.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ApplyFunctionFilter</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generic-filters">Generic Filters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temporal-filters">Temporal Filters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#spatial-filters">Spatial Filters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#base-filter-classes">Base Filter Classes</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/modules/filters.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
 </html>

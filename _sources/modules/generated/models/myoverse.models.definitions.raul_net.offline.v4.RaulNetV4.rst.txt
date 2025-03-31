@@ -1,0 +1,24 @@
+﻿RaulNetV4
+=========================================================
+
+.. currentmodule:: myoverse.models.definitions.raul_net.offline.v4
+
+.. autoclass:: RaulNetV4
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: RaulNetV4
+       
+            ~RaulNetV4.__init__
+            ~RaulNetV4._normalize_input
+            ~RaulNetV4.configure_optimizers
+            ~RaulNetV4.forward
+            ~RaulNetV4.test_step
+            ~RaulNetV4.training_step
+            ~RaulNetV4.validation_step
+        
+        

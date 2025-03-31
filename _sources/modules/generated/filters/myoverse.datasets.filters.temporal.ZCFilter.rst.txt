@@ -1,0 +1,18 @@
+﻿ZCFilter
+===========================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: ZCFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ZCFilter
+       
+            ~ZCFilter.__init__
+        
+        

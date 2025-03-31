@@ -1,0 +1,8 @@
+﻿myoverse.datatypes._Data.apply_filter_pipeline
+==================================================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. autofunction:: _Data.apply_filter_pipeline
+
+.. include:: /modules/generated/backreferences/myoverse.datatypes._Data.apply_filter_pipeline.examples

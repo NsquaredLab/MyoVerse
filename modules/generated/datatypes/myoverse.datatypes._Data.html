@@ -1,0 +1,1228 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>_Data &#8212; MyoVerse 1.0.0 Documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=2204a824" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/generated/datatypes/myoverse.datatypes._Data';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="myoverse.datatypes._Data.__copy__" href="_Data/myoverse.datatypes._Data.__copy__.html" />
+    <link rel="prev" title="myoverse.datatypes._Data.apply_filter_pipeline" href="myoverse.datatypes._Data.apply_filter_pipeline.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+  
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="nav-item">
+  <div class="version-switcher__container dropdown">
+      <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
+          Version 1.0.0
+      </button>
+      
+      
+      
+  </div>
+</div> </div>
+    
+      <div class="navbar-item"><div class="nav-item">
+   <span>
+      made at the <a href="https://www.nsquared.tf.fau.de/" target="_blank">N² Lab</a>
+   </span>
+</div> </div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../api_documentation.html">
+    API Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing to MyoVerse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NsquaredLab/MyoVerse" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../auto_examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../api_documentation.html">
+    API Documentation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing to MyoVerse
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/NsquaredLab/MyoVerse" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../datatypes.html">Data Types</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datatypes.EMGData.html">EMGData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="EMGData/myoverse.datatypes.EMGData.__init__.html">myoverse.datatypes.EMGData.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="EMGData/myoverse.datatypes.EMGData._get_grid_dimensions.html">myoverse.datatypes.EMGData._get_grid_dimensions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="EMGData/myoverse.datatypes.EMGData.plot.html">myoverse.datatypes.EMGData.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="EMGData/myoverse.datatypes.EMGData.plot_grid_layout.html">myoverse.datatypes.EMGData.plot_grid_layout</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datatypes.KinematicsData.html">KinematicsData</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="KinematicsData/myoverse.datatypes.KinematicsData.__init__.html">myoverse.datatypes.KinematicsData.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="KinematicsData/myoverse.datatypes.KinematicsData.plot.html">myoverse.datatypes.KinematicsData.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datatypes.VirtualHandKinematics.html">VirtualHandKinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="VirtualHandKinematics/myoverse.datatypes.VirtualHandKinematics.__init__.html">myoverse.datatypes.VirtualHandKinematics.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VirtualHandKinematics/myoverse.datatypes.VirtualHandKinematics.plot.html">myoverse.datatypes.VirtualHandKinematics.plot</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="myoverse.datatypes._Data.apply_filter.html">myoverse.datatypes._Data.apply_filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myoverse.datatypes._Data.apply_filter_sequence.html">myoverse.datatypes._Data.apply_filter_sequence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="myoverse.datatypes._Data.apply_filter_pipeline.html">myoverse.datatypes._Data.apply_filter_pipeline</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">_Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.__copy__.html">myoverse.datatypes._Data.__copy__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.__getitem__.html">myoverse.datatypes._Data.__getitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.__init__.html">myoverse.datatypes._Data.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.__repr__.html">myoverse.datatypes._Data.__repr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.__setitem__.html">myoverse.datatypes._Data.__setitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.__str__.html">myoverse.datatypes._Data.__str__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data._check_if_chunked.html">myoverse.datatypes._Data._check_if_chunked</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.apply_filter.html">myoverse.datatypes._Data.apply_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.apply_filter_pipeline.html">myoverse.datatypes._Data.apply_filter_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.apply_filter_sequence.html">myoverse.datatypes._Data.apply_filter_sequence</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.delete.html">myoverse.datatypes._Data.delete</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.delete_data.html">myoverse.datatypes._Data.delete_data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.delete_history.html">myoverse.datatypes._Data.delete_history</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.get_representation_history.html">myoverse.datatypes._Data.get_representation_history</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.load.html">myoverse.datatypes._Data.load</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.memory_usage.html">myoverse.datatypes._Data.memory_usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.plot.html">myoverse.datatypes._Data.plot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.plot_graph.html">myoverse.datatypes._Data.plot_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="_Data/myoverse.datatypes._Data.save.html">myoverse.datatypes._Data.save</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../filters.html">Filters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.ApplyFunctionFilter.html">ApplyFunctionFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter.__init__.html">myoverse.datasets.filters.generic.ApplyFunctionFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter._filter.html">myoverse.datasets.filters.generic.ApplyFunctionFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionFilter/myoverse.datasets.filters.generic.ApplyFunctionFilter._run_filter_checks.html">myoverse.datasets.filters.generic.ApplyFunctionFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.IndexDataFilter.html">IndexDataFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/IndexDataFilter/myoverse.datasets.filters.generic.IndexDataFilter.__init__.html">myoverse.datasets.filters.generic.IndexDataFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/IndexDataFilter/myoverse.datasets.filters.generic.IndexDataFilter._filter.html">myoverse.datasets.filters.generic.IndexDataFilter._filter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.ChunkizeDataFilter.html">ChunkizeDataFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ChunkizeDataFilter/myoverse.datasets.filters.generic.ChunkizeDataFilter.__init__.html">myoverse.datasets.filters.generic.ChunkizeDataFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ChunkizeDataFilter/myoverse.datasets.filters.generic.ChunkizeDataFilter._filter.html">myoverse.datasets.filters.generic.ChunkizeDataFilter._filter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.IdentityFilter.html">IdentityFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter.__init__.html">myoverse.datasets.filters.generic.IdentityFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter._filter.html">myoverse.datasets.filters.generic.IdentityFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/IdentityFilter/myoverse.datasets.filters.generic.IdentityFilter._run_filter_checks.html">myoverse.datasets.filters.generic.IdentityFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.SOSFrequencyFilter.html">SOSFrequencyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.RectifyFilter.html">RectifyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/RectifyFilter/myoverse.datasets.filters.temporal.RectifyFilter.__init__.html">myoverse.datasets.filters.temporal.RectifyFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.WindowedFunctionFilter.html">WindowedFunctionFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/WindowedFunctionFilter/myoverse.datasets.filters.temporal.WindowedFunctionFilter.__init__.html">myoverse.datasets.filters.temporal.WindowedFunctionFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.RMSFilter.html">RMSFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/RMSFilter/myoverse.datasets.filters.temporal.RMSFilter.__init__.html">myoverse.datasets.filters.temporal.RMSFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.VARFilter.html">VARFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/VARFilter/myoverse.datasets.filters.temporal.VARFilter.__init__.html">myoverse.datasets.filters.temporal.VARFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.MAVFilter.html">MAVFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/MAVFilter/myoverse.datasets.filters.temporal.MAVFilter.__init__.html">myoverse.datasets.filters.temporal.MAVFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.IAVFilter.html">IAVFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/IAVFilter/myoverse.datasets.filters.temporal.IAVFilter.__init__.html">myoverse.datasets.filters.temporal.IAVFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.WFLFilter.html">WFLFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/WFLFilter/myoverse.datasets.filters.temporal.WFLFilter.__init__.html">myoverse.datasets.filters.temporal.WFLFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.ZCFilter.html">ZCFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ZCFilter/myoverse.datasets.filters.temporal.ZCFilter.__init__.html">myoverse.datasets.filters.temporal.ZCFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.SSCFilter.html">SSCFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SSCFilter/myoverse.datasets.filters.temporal.SSCFilter.__init__.html">myoverse.datasets.filters.temporal.SSCFilter.__init__</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.SpectralInterpolationFilter.html">SpectralInterpolationFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter.__init__.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._filter.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.ElectrodeSelector.html">ElectrodeSelector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector.__init__.html">myoverse.datasets.filters.spatial.ElectrodeSelector.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._filter.html">myoverse.datasets.filters.spatial.ElectrodeSelector._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks.html">myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid.html">myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.GridReshaper.html">GridReshaper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper.__init__.html">myoverse.datasets.filters.spatial.GridReshaper.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid.html">myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._filter.html">myoverse.datasets.filters.spatial.GridReshaper._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation.html">myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels.html">myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation.html">myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.html">DifferentialSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.AveragingSpatialFilter.html">AveragingSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.FilterBaseClass.html">FilterBaseClass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__call__.html">myoverse.datasets.filters.generic.FilterBaseClass.__call__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__init__.html">myoverse.datasets.filters.generic.FilterBaseClass.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__repr__.html">myoverse.datasets.filters.generic.FilterBaseClass.__repr__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass.__str__.html">myoverse.datasets.filters.generic.FilterBaseClass.__str__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._filter.html">myoverse.datasets.filters.generic.FilterBaseClass._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._filter_with_checks.html">myoverse.datasets.filters.generic.FilterBaseClass._filter_with_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._run_filter_checks.html">myoverse.datasets.filters.generic.FilterBaseClass._run_filter_checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/FilterBaseClass/myoverse.datasets.filters.generic.FilterBaseClass._run_init_checks.html">myoverse.datasets.filters.generic.FilterBaseClass._run_init_checks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.SpatialFilterGridAware.html">SpatialFilterGridAware</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../datasets.html">Datasets</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../datasets/myoverse.datasets.supervised.EMGDataset.html">EMGDataset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset.__init__.html">myoverse.datasets.supervised.EMGDataset.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._append_augmented_batch.html">myoverse.datasets.supervised.EMGDataset._append_augmented_batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._apply_augmentation_pipeline.html">myoverse.datasets.supervised.EMGDataset._apply_augmentation_pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._apply_augmentations.html">myoverse.datasets.supervised.EMGDataset._apply_augmentations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._print_dataset_summary.html">myoverse.datasets.supervised.EMGDataset._print_dataset_summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset._process_task.html">myoverse.datasets.supervised.EMGDataset._process_task</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGDataset/myoverse.datasets.supervised.EMGDataset.create_dataset.html">myoverse.datasets.supervised.EMGDataset.create_dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../datasets/myoverse.datasets.defaults.EMBCDataset.html">EMBCDataset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMBCDataset/myoverse.datasets.defaults.EMBCDataset.__init__.html">myoverse.datasets.defaults.EMBCDataset.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMBCDataset/myoverse.datasets.defaults.EMBCDataset.create_dataset.html">myoverse.datasets.defaults.EMBCDataset.create_dataset</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../datasets/myoverse.datasets.loader.EMGZarrDataset.html">EMGZarrDataset</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset.__getitem__.html">myoverse.datasets.loader.EMGZarrDataset.__getitem__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset.__init__.html">myoverse.datasets.loader.EMGZarrDataset.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset.__len__.html">myoverse.datasets.loader.EMGZarrDataset.__len__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../datasets/EMGZarrDataset/myoverse.datasets.loader.EMGZarrDataset._validate_augmentation_probabilities.html">myoverse.datasets.loader.EMGZarrDataset._validate_augmentation_probabilities</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../models.html">Definitions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.html">RaulNetV16</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.__init__.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16._reshape_and_normalize.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16._reshape_and_normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.configure_optimizers.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.forward.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.test_step.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.training_step.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16.RaulNetV16.validation_step.html">myoverse.models.definitions.raul_net.online.v16.RaulNetV16.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.html">RaulNetV16</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.__init__.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v2.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v3.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16._reshape_and_normalize_v3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.configure_optimizers.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.forward.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.test_step.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.training_step.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV16/myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.validation_step.html">myoverse.models.definitions.raul_net.online.v16_classification.RaulNetV16.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.html">RaulNetV9</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.__init__.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9._reshape_and_normalize.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9._reshape_and_normalize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.configure_optimizers.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.forward.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.test_step.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.training_step.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV9/myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.validation_step.html">myoverse.models.definitions.raul_net.online.v9_5_grids.RaulNetV9.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.html">RaulNetV4</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.__init__.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4._normalize_input.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4._normalize_input</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.configure_optimizers.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.forward.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.test_step.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.training_step.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV4/myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.validation_step.html">myoverse.models.definitions.raul_net.offline.v4.RaulNetV4.validation_step</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../models/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.html">RaulNetV1</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.__init__.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.configure_optimizers.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.configure_optimizers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.forward.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.forward</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.test_step.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.test_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.training_step.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.training_step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/RaulNetV1/myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.validation_step.html">myoverse.models.definitions.raul_net.offline.v1.RaulNetV1.validation_step</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../api_documentation.html" class="nav-link">API Documentation</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../datatypes.html" class="nav-link">Data Types</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">_Data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="data">
+<h1>_Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datatypes.</span></span><span class="sig-name descname"><span class="pre">_Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sampling_frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nr_of_dimensions_when_unchunked</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data" title="Link to this definition">#</a></dt>
+<dd><p>Base class for all data types.</p>
+<p>This class provides common functionality for handling different types of data,
+including maintaining original and processed representations, tracking filters
+applied, and managing data flow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_data</strong> (<em>np.ndarray</em>) – The raw data to store.</p></li>
+<li><p><strong>sampling_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The sampling frequency of the data.</p></li>
+<li><p><strong>nr_of_dimensions_when_unchunked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.sampling_frequency">
+<span class="sig-name descname"><span class="pre">sampling_frequency</span></span><a class="headerlink" href="#myoverse.datatypes._Data.sampling_frequency" title="Link to this definition">#</a></dt>
+<dd><p>The sampling frequency of the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data._last_processing_step">
+<span class="sig-name descname"><span class="pre">_last_processing_step</span></span><a class="headerlink" href="#myoverse.datatypes._Data._last_processing_step" title="Link to this definition">#</a></dt>
+<dd><p>The last processing step applied to the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data._processed_representations">
+<span class="sig-name descname"><span class="pre">_processed_representations</span></span><a class="headerlink" href="#myoverse.datatypes._Data._processed_representations" title="Link to this definition">#</a></dt>
+<dd><p>The graph of the processed representations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>networkx.DiGraph</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data._filters_used">
+<span class="sig-name descname"><span class="pre">_filters_used</span></span><a class="headerlink" href="#myoverse.datatypes._Data._filters_used" title="Link to this definition">#</a></dt>
+<dd><p>Dictionary of all filters used in the data. The keys are the names of the filters and the values are the filters themselves.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference internal" href="../filters/myoverse.datasets.filters.generic.FilterBaseClass.html#myoverse.datasets.filters.generic.FilterBaseClass" title="myoverse.datasets.filters.generic.FilterBaseClass">FilterBaseClass</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data._data">
+<span class="sig-name descname"><span class="pre">_data</span></span><a class="headerlink" href="#myoverse.datatypes._Data._data" title="Link to this definition">#</a></dt>
+<dd><p>Dictionary of all data. The keys are the names of the representations and the values are
+either numpy arrays or DeletedRepresentation objects (for representations that have been
+deleted to save memory but can be regenerated when needed).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, Union[np.ndarray, DeletedRepresentation]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If the sampling frequency is less than or equal to 0.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>raw_data</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><em>ndarray</em></a>)</p></li>
+<li><p><strong>sampling_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>)</p></li>
+<li><p><strong>nr_of_dimensions_when_unchunked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>Memory Management:</dt><dd><p>When representations are deleted with delete_data(), they are replaced with
+DeletedRepresentation objects that store essential metadata (shape, dtype)
+but don’t consume memory for the actual data. These representations can be
+automatically recomputed when accessed. The chunking status is determined from
+the shape when needed.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>This is an abstract base class and should not be instantiated directly.
+Instead, use one of the concrete subclasses like EMGData or KinematicsData:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGData</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create sample data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emg</span> <span class="o">=</span> <span class="n">EMGData</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>  <span class="c1"># 2000 Hz sampling rate</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Access attributes from the base _Data class</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sampling frequency: </span><span class="si">{</span><span class="n">emg</span><span class="o">.</span><span class="n">sampling_frequency</span><span class="si">}</span><span class="s2"> Hz&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Is input data chunked: </span><span class="si">{</span><span class="n">emg</span><span class="o">.</span><span class="n">is_chunked</span><span class="p">[</span><span class="s1">&#39;Input&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data.__copy__.html#myoverse.datatypes._Data.__copy__" title="myoverse.datatypes._Data.__copy__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__copy__</span></code></a>()</p></td>
+<td><p>Create a shallow copy of the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data.__getitem__.html#myoverse.datatypes._Data.__getitem__" title="myoverse.datatypes._Data.__getitem__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getitem__</span></code></a>(key)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data.__init__.html#myoverse.datatypes._Data.__init__" title="myoverse.datatypes._Data.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(raw_data, sampling_frequency, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data.__repr__.html#myoverse.datatypes._Data.__repr__" title="myoverse.datatypes._Data.__repr__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code></a>()</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data.__setitem__.html#myoverse.datatypes._Data.__setitem__" title="myoverse.datatypes._Data.__setitem__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setitem__</span></code></a>(key, value)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data.__str__.html#myoverse.datatypes._Data.__str__" title="myoverse.datatypes._Data.__str__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__str__</span></code></a>()</p></td>
+<td><p>Return str(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="_Data/myoverse.datatypes._Data._check_if_chunked.html#myoverse.datatypes._Data._check_if_chunked" title="myoverse.datatypes._Data._check_if_chunked"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_check_if_chunked</span></code></a>(data)</p></td>
+<td><p>Checks if the data is chunked or not.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.apply_filter" title="myoverse.datatypes._Data.apply_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_filter</span></code></a>(filter[, ...])</p></td>
+<td><p>Applies a filter to the data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.apply_filter_pipeline" title="myoverse.datatypes._Data.apply_filter_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_filter_pipeline</span></code></a>(filter_pipeline, ...)</p></td>
+<td><p>Applies a pipeline of filters to the data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.apply_filter_sequence" title="myoverse.datatypes._Data.apply_filter_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_filter_sequence</span></code></a>(filter_sequence[, ...])</p></td>
+<td><p>Applies a sequence of filters to the data sequentially.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.delete" title="myoverse.datatypes._Data.delete"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete</span></code></a>(representation_to_delete)</p></td>
+<td><p>Delete both the data and history for a representation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.delete_data" title="myoverse.datatypes._Data.delete_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_data</span></code></a>(representation_to_delete)</p></td>
+<td><p>Delete data from a representation while keeping its metadata.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.delete_history" title="myoverse.datatypes._Data.delete_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">delete_history</span></code></a>(representation_to_delete)</p></td>
+<td><p>Delete the processing history for a representation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.get_representation_history" title="myoverse.datatypes._Data.get_representation_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_representation_history</span></code></a>(representation)</p></td>
+<td><p>Returns the history of a representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.load" title="myoverse.datatypes._Data.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code></a>(filename)</p></td>
+<td><p>Load data from a file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.memory_usage" title="myoverse.datatypes._Data.memory_usage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">memory_usage</span></code></a>()</p></td>
+<td><p>Calculate memory usage of each representation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.plot" title="myoverse.datatypes._Data.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a>(*_, **__)</p></td>
+<td><p>Plots the data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.plot_graph" title="myoverse.datatypes._Data.plot_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_graph</span></code></a>([title])</p></td>
+<td><p>Draws the graph of the processed representations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#myoverse.datatypes._Data.save" title="myoverse.datatypes._Data.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a>(filename)</p></td>
+<td><p>Save the data to a file.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.load">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.load" title="Link to this definition">#</a></dt>
+<dd><p>Load data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the file to load the data from.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The loaded data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#myoverse.datatypes._Data" title="myoverse.datatypes._Data">_Data</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.apply_filter">
+<span class="sig-name descname"><span class="pre">apply_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representations_to_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_representation_to_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.apply_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.apply_filter" title="Link to this definition">#</a></dt>
+<dd><p>Applies a filter to the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filter</strong> (<em>callable</em>) – The filter to apply.</p></li>
+<li><p><strong>representations_to_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – A list of representations to filter. The filter is responsible for handling
+the appropriate number of inputs or raising an error if incompatible.
+If None, creates an empty list.</p></li>
+<li><p><strong>keep_representation_to_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to keep the representation(s) to filter or not.
+If the representation to filter is “Input”, this parameter is ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The name of the representation after applying the filter.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If representations_to_filter is a string instead of a list</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.13)"><strong>TypeError</strong></a> – If a filter returns a dictionary (no longer supported)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.apply_filter_pipeline">
+<span class="sig-name descname"><span class="pre">apply_filter_pipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_pipeline</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representations_to_filter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_individual_filter_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_representation_to_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.apply_filter_pipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.apply_filter_pipeline" title="Link to this definition">#</a></dt>
+<dd><p>Applies a pipeline of filters to the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filter_pipeline</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.FilterBaseClass.html#myoverse.datasets.filters.generic.FilterBaseClass" title="myoverse.datasets.filters.generic.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em><em>]</em>) – The pipeline of filters to apply. Each inner list represents a branch of filters.</p></li>
+<li><p><strong>representations_to_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>]</em>) – <p>A list of input representations for each branch. Each element corresponds to
+a branch in the filter_pipeline and must be:
+- A list with a single string for standard branches that take one input
+- A list with multiple strings for branches starting with a multi-input filter
+- An empty list is not allowed unless the filter explicitly accepts no input</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The length of the representations_to_filter should be the same as
+the length of the amount of branches in the filter_pipeline.</p>
+</div>
+</p></li>
+<li><p><strong>keep_individual_filter_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to keep the results of each filter or not.</p></li>
+<li><p><strong>keep_representation_to_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to keep the representation(s) to filter or not.
+If the representation to filter is “Input”, this parameter is ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list containing the names of the final representations from all branches.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If the number of filter branches and representations to filter is different.
+    If a standard filter is provided with multiple representations.
+    If no representations are provided for a filter that requires input.
+    If any representations_to_filter element is a string instead of a list.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Each branch in the pipeline is processed sequentially using apply_filter_sequence.</p>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example of a pipeline with multiple processing branches</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGData</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApplyFunctionFilter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create sample data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">EMGData</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Define filter branches that perform different operations on the same input</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">branch1</span> <span class="o">=</span> <span class="p">[</span><span class="n">ApplyFunctionFilter</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;absolute_values&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">branch2</span> <span class="o">=</span> <span class="p">[</span><span class="n">ApplyFunctionFilter</span><span class="p">(</span><span class="n">function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;squared_values&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Apply pipeline with two branches</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">apply_filter_pipeline</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">filter_pipeline</span><span class="o">=</span><span class="p">[</span><span class="n">branch1</span><span class="p">,</span> <span class="n">branch2</span><span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">representations_to_filter</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">[</span><span class="s2">&quot;input_data&quot;</span><span class="p">],</span>  <span class="c1"># Process branch1 on input_data</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="p">[</span><span class="s2">&quot;input_data&quot;</span><span class="p">],</span>  <span class="c1"># Process branch2 on input_data</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">],</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># The results are now available as separate representations</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abs_values</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;absolute_values&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">squared_values</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;squared_values&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.apply_filter_sequence">
+<span class="sig-name descname"><span class="pre">apply_filter_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_sequence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">representations_to_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_individual_filter_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_representation_to_filter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.apply_filter_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.apply_filter_sequence" title="Link to this definition">#</a></dt>
+<dd><p>Applies a sequence of filters to the data sequentially.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filter_sequence</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em>[</em><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.FilterBaseClass.html#myoverse.datasets.filters.generic.FilterBaseClass" title="myoverse.datasets.filters.generic.FilterBaseClass"><em>FilterBaseClass</em></a><em>]</em>) – The sequence of filters to apply.</p></li>
+<li><p><strong>representations_to_filter</strong> (<em>List</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>, </em><em>optional</em>) – A list of representations to filter for the first filter in the sequence.
+Each filter is responsible for validating and handling its inputs appropriately.
+For subsequent filters in the sequence, the output of the previous filter is used.</p></li>
+<li><p><strong>keep_individual_filter_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to keep the results of each filter or not.</p></li>
+<li><p><strong>keep_representation_to_filter</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to keep the representation(s) to filter or not.
+If the representation to filter is “Input”, this parameter is ignored.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The name of the last representation after applying all filters.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If filter_sequence is empty.
+    If representations_to_filter is empty.
+    If representations_to_filter is a string instead of a list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">representation_to_delete</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.delete"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.delete" title="Link to this definition">#</a></dt>
+<dd><p>Delete both the data and history for a representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>representation_to_delete</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The representation to delete.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.delete_data">
+<span class="sig-name descname"><span class="pre">delete_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">representation_to_delete</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.delete_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.delete_data" title="Link to this definition">#</a></dt>
+<dd><p>Delete data from a representation while keeping its metadata.</p>
+<p>This replaces the actual numpy array with a DeletedRepresentation object
+that contains metadata about the array, saving memory while allowing
+regeneration when needed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>representation_to_delete</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The representation to delete the data from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.delete_history">
+<span class="sig-name descname"><span class="pre">delete_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">representation_to_delete</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.delete_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.delete_history" title="Link to this definition">#</a></dt>
+<dd><p>Delete the processing history for a representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>representation_to_delete</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The representation to delete the history for.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.get_representation_history">
+<span class="sig-name descname"><span class="pre">get_representation_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">representation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.get_representation_history"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.get_representation_history" title="Link to this definition">#</a></dt>
+<dd><p>Returns the history of a representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>representation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The representation to get the history of.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The history of the representation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.memory_usage">
+<span class="sig-name descname"><span class="pre">memory_usage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.memory_usage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.memory_usage" title="Link to this definition">#</a></dt>
+<dd><p>Calculate memory usage of each representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with representation names as keys and tuples containing
+shape as string and memory usage in bytes as values.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, Tuple[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.plot">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">_</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">__</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.plot" title="Link to this definition">#</a></dt>
+<dd><p>Plots the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>_</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><em>Any</em></a>)</p></li>
+<li><p><strong>__</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><em>Any</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.plot_graph">
+<span class="sig-name descname"><span class="pre">plot_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.plot_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.plot_graph" title="Link to this definition">#</a></dt>
+<dd><p>Draws the graph of the processed representations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>title</strong> (<em>Optional</em><em>[</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>]</em><em>, </em><em>default=None</em>) – Optional title for the graph. If None, no title will be displayed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datatypes.html#_Data.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datatypes._Data.save" title="Link to this definition">#</a></dt>
+<dd><p>Save the data to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The name of the file to save the data to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.input_data">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_data</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">ndarray</span></a></em><a class="headerlink" href="#myoverse.datatypes._Data.input_data" title="Link to this definition">#</a></dt>
+<dd><p>Returns the input data.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.is_chunked">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_chunked</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#myoverse.datatypes._Data.is_chunked" title="Link to this definition">#</a></dt>
+<dd><p>Returns whether the data is chunked or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary where the keys are the representations and the values are whether the data is chunked or not.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.output_representations">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_representations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#myoverse.datatypes._Data.output_representations" title="Link to this definition">#</a></dt>
+<dd><p>Returns the output representations of the data.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="myoverse.datatypes._Data.processed_representations">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">processed_representations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.2)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#myoverse.datatypes._Data.processed_representations" title="Link to this definition">#</a></dt>
+<dd><p>Returns the processed representations of the data.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="myoverse.datatypes._Data.apply_filter_pipeline.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">myoverse.datatypes._Data.apply_filter_pipeline</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="_Data/myoverse.datatypes._Data.__copy__.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">myoverse.datatypes._Data.__copy__</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data"><code class="docutils literal notranslate"><span class="pre">_Data</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.sampling_frequency"><code class="docutils literal notranslate"><span class="pre">_Data.sampling_frequency</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data._last_processing_step"><code class="docutils literal notranslate"><span class="pre">_Data._last_processing_step</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data._processed_representations"><code class="docutils literal notranslate"><span class="pre">_Data._processed_representations</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data._filters_used"><code class="docutils literal notranslate"><span class="pre">_Data._filters_used</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data._data"><code class="docutils literal notranslate"><span class="pre">_Data._data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.load"><code class="docutils literal notranslate"><span class="pre">_Data.load()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.apply_filter"><code class="docutils literal notranslate"><span class="pre">_Data.apply_filter()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.apply_filter_pipeline"><code class="docutils literal notranslate"><span class="pre">_Data.apply_filter_pipeline()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.apply_filter_sequence"><code class="docutils literal notranslate"><span class="pre">_Data.apply_filter_sequence()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.delete"><code class="docutils literal notranslate"><span class="pre">_Data.delete()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.delete_data"><code class="docutils literal notranslate"><span class="pre">_Data.delete_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.delete_history"><code class="docutils literal notranslate"><span class="pre">_Data.delete_history()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.get_representation_history"><code class="docutils literal notranslate"><span class="pre">_Data.get_representation_history()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.memory_usage"><code class="docutils literal notranslate"><span class="pre">_Data.memory_usage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.plot"><code class="docutils literal notranslate"><span class="pre">_Data.plot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.plot_graph"><code class="docutils literal notranslate"><span class="pre">_Data.plot_graph()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.save"><code class="docutils literal notranslate"><span class="pre">_Data.save()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.input_data"><code class="docutils literal notranslate"><span class="pre">_Data.input_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.is_chunked"><code class="docutils literal notranslate"><span class="pre">_Data.is_chunked</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.output_representations"><code class="docutils literal notranslate"><span class="pre">_Data.output_representations</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#myoverse.datatypes._Data.processed_representations"><code class="docutils literal notranslate"><span class="pre">_Data.processed_representations</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../_sources/modules/generated/datatypes/myoverse.datatypes._Data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

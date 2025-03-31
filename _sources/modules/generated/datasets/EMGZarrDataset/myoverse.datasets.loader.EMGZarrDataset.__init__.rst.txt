@@ -1,0 +1,6 @@
+myoverse.datasets.loader.EMGZarrDataset.\_\_init\_\_
+====================================================
+
+.. currentmodule:: myoverse.datasets.loader
+
+.. automethod:: EMGZarrDataset.__init__

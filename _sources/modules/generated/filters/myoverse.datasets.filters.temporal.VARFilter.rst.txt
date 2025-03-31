@@ -1,0 +1,18 @@
+﻿VARFilter
+============================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: VARFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: VARFilter
+       
+            ~VARFilter.__init__
+        
+        

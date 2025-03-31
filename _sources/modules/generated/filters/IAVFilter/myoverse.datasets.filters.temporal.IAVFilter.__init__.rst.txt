@@ -1,0 +1,6 @@
+myoverse.datasets.filters.temporal.IAVFilter.\_\_init\_\_
+=========================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. automethod:: IAVFilter.__init__

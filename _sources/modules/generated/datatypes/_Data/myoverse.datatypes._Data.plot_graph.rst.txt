@@ -1,0 +1,6 @@
+myoverse.datatypes.\_Data.plot\_graph
+=====================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: _Data.plot_graph

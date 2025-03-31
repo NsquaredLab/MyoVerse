@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.SpatialFilterGridAware.\_combine\_grid\_results
+=================================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: SpatialFilterGridAware._combine_grid_results

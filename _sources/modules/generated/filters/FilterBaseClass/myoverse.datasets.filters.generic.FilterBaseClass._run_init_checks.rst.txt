@@ -1,0 +1,6 @@
+myoverse.datasets.filters.generic.FilterBaseClass.\_run\_init\_checks
+=====================================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. automethod:: FilterBaseClass._run_init_checks

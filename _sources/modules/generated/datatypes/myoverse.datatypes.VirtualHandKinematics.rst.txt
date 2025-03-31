@@ -1,0 +1,19 @@
+﻿VirtualHandKinematics
+========================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. autoclass:: VirtualHandKinematics
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: VirtualHandKinematics
+       
+            ~VirtualHandKinematics.__init__
+            ~VirtualHandKinematics.plot
+        
+        

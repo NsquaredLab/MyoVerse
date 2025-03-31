@@ -1,0 +1,6 @@
+myoverse.datatypes.\_Data.\_check\_if\_chunked
+==============================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: _Data._check_if_chunked

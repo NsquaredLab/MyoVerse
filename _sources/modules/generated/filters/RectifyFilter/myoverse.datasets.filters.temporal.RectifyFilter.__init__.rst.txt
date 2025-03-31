@@ -1,0 +1,6 @@
+myoverse.datasets.filters.temporal.RectifyFilter.\_\_init\_\_
+=============================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. automethod:: RectifyFilter.__init__

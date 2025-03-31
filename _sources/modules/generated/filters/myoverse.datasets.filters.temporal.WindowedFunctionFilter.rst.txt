@@ -1,0 +1,18 @@
+﻿WindowedFunctionFilter
+=========================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: WindowedFunctionFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: WindowedFunctionFilter
+       
+            ~WindowedFunctionFilter.__init__
+        
+        

@@ -1,0 +1,18 @@
+﻿RectifyFilter
+================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: RectifyFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: RectifyFilter
+       
+            ~RectifyFilter.__init__
+        
+        

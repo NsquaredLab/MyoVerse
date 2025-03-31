@@ -1,0 +1,6 @@
+myoverse.datasets.filters.generic.IdentityFilter.\_\_init\_\_
+=============================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. automethod:: IdentityFilter.__init__

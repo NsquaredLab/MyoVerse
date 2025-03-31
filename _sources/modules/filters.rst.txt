@@ -6,32 +6,72 @@ Filters
 Filters are used to preprocess the data before it is used by the model.
 Some filters can only work on chunked data, while others can work on both chunked and unchunked data.
 
-MyoVerse provides following types of filters:
+Generic Filters
+---------------
+Generic filters e.g. allow the use of custom methods to preprocess the data.
 
-    Generic filters e.g. allow the use of custom methods to preprocess the data.
+.. currentmodule:: myoverse.datasets.filters.generic
+.. autosummary::
+    :toctree: generated/filters
+    :template: class.rst
 
-    .. toctree::
-        :maxdepth: 1
+    ApplyFunctionFilter
+    IndexDataFilter
+    ChunkizeDataFilter
+    IdentityFilter
 
-        filters/generic
+Temporal Filters
+----------------
+Temporal filters can be used to compute most EMG features such as the root mean square or the mean absolute value.
 
-    Temporal filters can be used to compute most EMG features such as RMS.
+.. currentmodule:: myoverse.datasets.filters.temporal
+.. autosummary::
+    :toctree: generated/filters
+    :template: class.rst
 
-    .. toctree::
-        :maxdepth: 1
+    SOSFrequencyFilter
+    RectifyFilter
+    WindowedFunctionFilter
+    RMSFilter
+    VARFilter
+    MAVFilter
+    IAVFilter
+    WFLFilter
+    ZCFilter
+    SSCFilter
+    SpectralInterpolationFilter
 
-        filters/temporal
 
-    Augmentations can be used to generate new data points by applying transformations to the existing data.
+Spatial Filters
+---------------
+Spatial filters can be used to compute spatial features such as the Laplacian.
 
-    .. toctree::
-        :maxdepth: 1
+.. currentmodule:: myoverse.datasets.filters.spatial
+.. autosummary::
+    :toctree: generated/filters
+    :template: class.rst
 
-        filters/augmentation
+    ElectrodeSelector
+    GridReshaper
+    DifferentialSpatialFilter
+    AveragingSpatialFilter
 
-    The base filter template is provided in the following section. The template can be used to create custom filters.
 
-    .. toctree::
-        :maxdepth: 1
+Base Filter Classes
+-------------------
+.. important:: If you wish to add a new filter make sure they inherit from the following base classes.
 
-        filters/template
+.. currentmodule:: myoverse.datasets.filters.generic
+.. autosummary::
+    :toctree: generated/filters
+    :template: class.rst
+
+    FilterBaseClass
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+.. autosummary::
+    :toctree: generated/filters
+    :template: class.rst
+
+    SpatialFilterGridAware
+

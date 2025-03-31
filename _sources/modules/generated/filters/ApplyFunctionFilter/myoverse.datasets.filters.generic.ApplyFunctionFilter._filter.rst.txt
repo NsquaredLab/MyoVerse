@@ -1,0 +1,6 @@
+myoverse.datasets.filters.generic.ApplyFunctionFilter.\_filter
+==============================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. automethod:: ApplyFunctionFilter._filter

@@ -1,0 +1,6 @@
+myoverse.datasets.filters.temporal.SOSFrequencyFilter.\_filter\_real\_time\_single\_chunk
+=========================================================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. automethod:: SOSFrequencyFilter._filter_real_time_single_chunk

@@ -1,0 +1,26 @@
+﻿RaulNetV16
+=========================================================================
+
+.. currentmodule:: myoverse.models.definitions.raul_net.online.v16_classification
+
+.. autoclass:: RaulNetV16
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: RaulNetV16
+       
+            ~RaulNetV16.__init__
+            ~RaulNetV16._reshape_and_normalize
+            ~RaulNetV16._reshape_and_normalize_v2
+            ~RaulNetV16._reshape_and_normalize_v3
+            ~RaulNetV16.configure_optimizers
+            ~RaulNetV16.forward
+            ~RaulNetV16.test_step
+            ~RaulNetV16.training_step
+            ~RaulNetV16.validation_step
+        
+        

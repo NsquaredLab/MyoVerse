@@ -1,0 +1,21 @@
+﻿DifferentialSpatialFilter
+===========================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. autoclass:: DifferentialSpatialFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: DifferentialSpatialFilter
+       
+            ~DifferentialSpatialFilter.__init__
+            ~DifferentialSpatialFilter._apply_differential_filter
+            ~DifferentialSpatialFilter._filter
+            ~DifferentialSpatialFilter._run_filter_checks
+        
+        

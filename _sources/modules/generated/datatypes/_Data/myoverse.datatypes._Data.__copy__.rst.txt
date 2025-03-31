@@ -1,0 +1,6 @@
+myoverse.datatypes.\_Data.\_\_copy\_\_
+======================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: _Data.__copy__

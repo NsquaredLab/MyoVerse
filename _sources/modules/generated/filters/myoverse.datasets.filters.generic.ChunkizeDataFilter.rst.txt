@@ -1,0 +1,19 @@
+﻿ChunkizeDataFilter
+====================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. autoclass:: ChunkizeDataFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ChunkizeDataFilter
+       
+            ~ChunkizeDataFilter.__init__
+            ~ChunkizeDataFilter._filter
+        
+        

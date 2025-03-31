@@ -1,0 +1,22 @@
+﻿SOSFrequencyFilter
+=====================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: SOSFrequencyFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: SOSFrequencyFilter
+       
+            ~SOSFrequencyFilter.__init__
+            ~SOSFrequencyFilter._filter
+            ~SOSFrequencyFilter._filter_real_time
+            ~SOSFrequencyFilter._filter_real_time_single_chunk
+            ~SOSFrequencyFilter.reset_state
+        
+        

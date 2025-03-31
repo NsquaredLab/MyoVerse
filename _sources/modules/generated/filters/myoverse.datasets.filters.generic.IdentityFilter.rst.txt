@@ -1,0 +1,20 @@
+﻿IdentityFilter
+================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. autoclass:: IdentityFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: IdentityFilter
+       
+            ~IdentityFilter.__init__
+            ~IdentityFilter._filter
+            ~IdentityFilter._run_filter_checks
+        
+        

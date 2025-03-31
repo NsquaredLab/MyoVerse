@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.AveragingSpatialFilter.\_run\_filter\_checks
+==============================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: AveragingSpatialFilter._run_filter_checks

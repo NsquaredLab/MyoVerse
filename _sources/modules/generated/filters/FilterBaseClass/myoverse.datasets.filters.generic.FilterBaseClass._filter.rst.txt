@@ -1,0 +1,6 @@
+myoverse.datasets.filters.generic.FilterBaseClass.\_filter
+==========================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. automethod:: FilterBaseClass._filter

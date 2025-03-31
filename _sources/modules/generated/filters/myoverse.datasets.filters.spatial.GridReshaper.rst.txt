@@ -1,0 +1,23 @@
+﻿GridReshaper
+==============================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. autoclass:: GridReshaper
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: GridReshaper
+       
+            ~GridReshaper.__init__
+            ~GridReshaper._channels_to_grid
+            ~GridReshaper._filter
+            ~GridReshaper._grid_concatenation
+            ~GridReshaper._grid_to_channels
+            ~GridReshaper._process_grid_operation
+        
+        

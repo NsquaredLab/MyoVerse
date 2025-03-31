@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.AveragingSpatialFilter.\_\_init\_\_
+=====================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: AveragingSpatialFilter.__init__

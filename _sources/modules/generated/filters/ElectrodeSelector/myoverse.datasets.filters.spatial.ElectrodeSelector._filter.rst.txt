@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.ElectrodeSelector.\_filter
+============================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: ElectrodeSelector._filter

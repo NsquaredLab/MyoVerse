@@ -1,0 +1,18 @@
+﻿WFLFilter
+============================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. autoclass:: WFLFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: WFLFilter
+       
+            ~WFLFilter.__init__
+        
+        

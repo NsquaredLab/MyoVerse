@@ -1,0 +1,8 @@
+﻿myoverse.datatypes._Data.apply_filter
+=========================================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. autofunction:: _Data.apply_filter
+
+.. include:: /modules/generated/backreferences/myoverse.datatypes._Data.apply_filter.examples

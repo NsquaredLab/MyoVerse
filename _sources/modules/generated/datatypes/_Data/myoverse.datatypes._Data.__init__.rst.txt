@@ -1,0 +1,6 @@
+myoverse.datatypes.\_Data.\_\_init\_\_
+======================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: _Data.__init__

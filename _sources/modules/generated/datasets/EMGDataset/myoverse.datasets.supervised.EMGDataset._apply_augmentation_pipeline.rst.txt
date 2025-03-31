@@ -1,0 +1,6 @@
+myoverse.datasets.supervised.EMGDataset.\_apply\_augmentation\_pipeline
+=======================================================================
+
+.. currentmodule:: myoverse.datasets.supervised
+
+.. automethod:: EMGDataset._apply_augmentation_pipeline

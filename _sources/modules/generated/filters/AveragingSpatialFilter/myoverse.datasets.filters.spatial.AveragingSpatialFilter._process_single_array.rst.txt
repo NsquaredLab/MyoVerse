@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.AveragingSpatialFilter.\_process\_single\_array
+=================================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: AveragingSpatialFilter._process_single_array

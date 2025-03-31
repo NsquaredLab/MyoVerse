@@ -1,0 +1,6 @@
+myoverse.datasets.filters.generic.ApplyFunctionFilter.\_run\_filter\_checks
+===========================================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. automethod:: ApplyFunctionFilter._run_filter_checks

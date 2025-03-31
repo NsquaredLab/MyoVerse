@@ -1,0 +1,6 @@
+myoverse.datatypes.\_Data.apply\_filter\_sequence
+=================================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: _Data.apply_filter_sequence

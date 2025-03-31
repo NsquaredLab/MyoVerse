@@ -1,0 +1,19 @@
+﻿IndexDataFilter
+=================================================
+
+.. currentmodule:: myoverse.datasets.filters.generic
+
+.. autoclass:: IndexDataFilter
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: IndexDataFilter
+       
+            ~IndexDataFilter.__init__
+            ~IndexDataFilter._filter
+        
+        

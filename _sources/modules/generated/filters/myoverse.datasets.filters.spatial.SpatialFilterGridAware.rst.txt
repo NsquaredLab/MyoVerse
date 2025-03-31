@@ -1,0 +1,20 @@
+﻿SpatialFilterGridAware
+========================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. autoclass:: SpatialFilterGridAware
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: SpatialFilterGridAware
+       
+            ~SpatialFilterGridAware.__init__
+            ~SpatialFilterGridAware._combine_grid_results
+            ~SpatialFilterGridAware._process_grids_separately
+        
+        

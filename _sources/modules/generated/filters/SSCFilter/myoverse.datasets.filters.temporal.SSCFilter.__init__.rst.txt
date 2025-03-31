@@ -1,0 +1,6 @@
+myoverse.datasets.filters.temporal.SSCFilter.\_\_init\_\_
+=========================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. automethod:: SSCFilter.__init__

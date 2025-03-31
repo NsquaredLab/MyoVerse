@@ -1,0 +1,19 @@
+﻿EMBCDataset
+======================================
+
+.. currentmodule:: myoverse.datasets.defaults
+
+.. autoclass:: EMBCDataset
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: EMBCDataset
+       
+            ~EMBCDataset.__init__
+            ~EMBCDataset.create_dataset
+        
+        

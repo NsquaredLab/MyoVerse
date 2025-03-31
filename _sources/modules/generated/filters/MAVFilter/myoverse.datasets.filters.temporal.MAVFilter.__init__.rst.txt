@@ -1,0 +1,6 @@
+myoverse.datasets.filters.temporal.MAVFilter.\_\_init\_\_
+=========================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. automethod:: MAVFilter.__init__

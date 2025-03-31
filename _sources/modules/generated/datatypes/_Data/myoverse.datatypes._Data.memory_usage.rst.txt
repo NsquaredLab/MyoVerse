@@ -1,0 +1,6 @@
+myoverse.datatypes.\_Data.memory\_usage
+=======================================
+
+.. currentmodule:: myoverse.datatypes
+
+.. automethod:: _Data.memory_usage

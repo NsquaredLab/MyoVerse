@@ -1,0 +1,6 @@
+myoverse.datasets.supervised.EMGDataset.\_print\_dataset\_summary
+=================================================================
+
+.. currentmodule:: myoverse.datasets.supervised
+
+.. automethod:: EMGDataset._print_dataset_summary

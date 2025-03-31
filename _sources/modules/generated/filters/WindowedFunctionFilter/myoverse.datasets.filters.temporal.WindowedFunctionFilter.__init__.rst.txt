@@ -1,0 +1,6 @@
+myoverse.datasets.filters.temporal.WindowedFunctionFilter.\_\_init\_\_
+======================================================================
+
+.. currentmodule:: myoverse.datasets.filters.temporal
+
+.. automethod:: WindowedFunctionFilter.__init__
