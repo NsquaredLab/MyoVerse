@@ -54,11 +54,11 @@ MyoVerse has been used in several publications:
     <!-- Raw HTML for Carousel -->
     <style>
     .paper-carousel-container {
-        width: 95%; /* Use more width */
-        max-width: 80em; /* Increased max width */
-        height: 700px; /* Match image max-height */
+        width: 95%;
+        max-width: 80em; /* Keep max-width */
+        /* Remove fixed height, let content define it */
         overflow: hidden;
-        margin: 25px auto; /* Slightly more margin */
+        margin: 2em auto; /* Use relative margin */
         border: 0px solid #ddd;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         position: relative;
@@ -66,26 +66,30 @@ MyoVerse has been used in several publications:
     
     .paper-carousel-track {
         display: flex;
-        /* Adjusted calculation: (max-width + margin) * num images * 2 */
-        /* (650px + 15px) * 6 * 2 = 7980px */
-        width: 7980px; /* Use fixed pixel value based on max-width */
-        animation: scroll 60s linear infinite; /* Slower scroll for bigger images */
+        /* Width = (Number of items / Items visible) * 100% = (12 / 2) * 100% */
+        width: 600%; /* 6 items wide relative to container (fits 2 visible) */
+        animation: scroll 60s linear infinite; /* Keep animation */
     }
 
     .paper-carousel-track a {
-        display: block; /* Make anchor fill space */
-        margin-right: 15px; /* Space between images */
+        display: flex; /* Change to flex */
+        align-items: center; /* Vertically center */
+        justify-content: center; /* Horizontally center */
+        /* Width relative to track width. 12 items total, so each is 1/12th of track */
+        /* (1/12) * 400% = 33.33% of container width */
+        width: calc(100% / 12);
+        margin-right: 1em; /* Relative margin */
         flex-shrink: 0; /* Prevent shrinking */
     }
     
     .paper-carousel-track img {
-        width: auto; /* Auto width based on height */
-        max-width: 700px; /* Add max-width */
-        height: auto;
-        max-height: 700px; /* Increased max height */
+        width: auto; /* Let height control width via aspect ratio */
+        max-width: 100%; /* Scale image within its 'a' container */
+        height: auto; /* Maintain aspect ratio */
+        /* Remove fixed max-height */
         object-fit: contain;
-        display: block; /* Remove potential extra space below image */
-        border: 1px solid #eee; /* Optional subtle border for each image */
+        display: block;
+        border: 1px solid #eee; /* Optional subtle border */
     }
     
     @keyframes scroll {
@@ -93,14 +97,28 @@ MyoVerse has been used in several publications:
             transform: translateX(0);
         }
         100% {
-            /* Adjusted translation: -(max-width + margin) * num images */
-            /* -(650px + 15px) * 6 = -3990px */
-            transform: translateX(-3990px); /* Use fixed pixel value */
+            /* Translate by half the track width (since content is duplicated) */
+            transform: translateX(-50%);
         }
     }
     
     .paper-carousel-container:hover .paper-carousel-track {
         animation-play-state: paused;
+    }
+
+    /* Media Query for smaller screens */
+    @media (max-width: 768px) {
+        .paper-carousel-container {
+            margin: 1em auto; /* Smaller margin */
+        }
+        .paper-carousel-track a {
+            margin-right: 0.5em; /* Smaller margin */
+        }
+        /* Optional: Adjust animation speed or other properties */
+         .paper-carousel-track {
+            /* Example: Slow down animation slightly on mobile */
+            /* animation-duration: 70s; */
+        }
     }
     </style>
     
@@ -128,6 +146,7 @@ MyoVerse has been used in several publications:
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :hidden:
 
    auto_examples/index.rst
    api_documentation.rst
@@ -135,6 +154,7 @@ MyoVerse has been used in several publications:
 .. toctree::
    :maxdepth: 1
    :caption: Development:
+   :hidden:
 
    contributing.rst
    Changelog <../CHANGELOG.md>
