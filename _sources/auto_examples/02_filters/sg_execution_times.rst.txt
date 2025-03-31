@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:14.518** total execution time for 3 files **from auto_examples/02_filters**:
+**00:15.197** total execution time for 3 files **from auto_examples/02_filters**:
 
 .. container::
 
@@ -33,11 +33,11 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_02_filters_3_temporal_filters.py` (``3_temporal_filters.py``)
-     - 00:06.361
-     - 819.1
+     - 00:06.589
+     - 954.7
    * - :ref:`sphx_glr_auto_examples_02_filters_2_spatial_filtering.py` (``2_spatial_filtering.py``)
-     - 00:05.576
-     - 578.2
+     - 00:05.851
+     - 578.8
    * - :ref:`sphx_glr_auto_examples_02_filters_1_emg_grid_layouts.py` (``1_emg_grid_layouts.py``)
-     - 00:02.582
-     - 569.7
+     - 00:02.757
+     - 570.2

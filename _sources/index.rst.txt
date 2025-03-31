@@ -11,6 +11,14 @@ MyoVerse is your cutting-edge **research** companion for unlocking the secrets h
 
 Leveraging the power of **PyTorch** and **PyTorch Lightning**, MyoVerse provides a comprehensive suite of tools for researchers and developers working with myoelectric signal analysis and AI-driven biomechanical applications.
 
+.. raw:: html
+
+    <div>
+        <form class="bd-search align-items-center" action="search.html" method="get">
+          <input type="search" class="form-control search-front-page" name="q" id="search-input" placeholder="&#128269; Search the docs ..." aria-label="Search the docs ..." autocomplete="off">
+        </form>
+    </div>
+
 Key Features
 -----------
 
