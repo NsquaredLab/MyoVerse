@@ -1,4 +1,4 @@
-<img src="https://github.com/NsquaredLab/MyoVerse/tree/main/docs/source/_static/myoverse_logo.png" alt="MyoVerse Logo" width="300"/>
+<img src="./docs/source/_static/myoverse_logo.png" height="250">
 
 <a href="https://www.python.org/downloads/release/python-3100/"><img alt="Code style: black" src="https://img.shields.io/badge/python-%3E=3.10,%20%3C=3.13-blue"></a>
 <a href="https://www.pytorchlightning.ai/"><img alt="Code style: black" src="https://img.shields.io/badge/uses-pytorch & pytorch lighting-blueviolet"></a>
