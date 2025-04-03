@@ -51,10 +51,8 @@ Spatial filters can be used to compute spatial features such as the Laplacian.
     :toctree: generated/filters
     :template: class.rst
 
-    ElectrodeSelector
-    GridReshaper
     DifferentialSpatialFilter
-    AveragingSpatialFilter
+    ApplyFunctionSpatialFilter
 
 
 Base Filter Classes
