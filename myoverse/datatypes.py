@@ -1484,9 +1484,10 @@ class EMGData(_Data):
         The sampling frequency of the EMG data.
     grid_layouts : Optional[List[np.ndarray]], optional
         List of 2D arrays specifying the exact electrode arrangement for each grid.
-        Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
-        For example, a 2×3 grid with electrodes numbered column-wise and one gap might be:
-        [[0, 2, 4], [1, -1, 5]]
+        Each array element contains the electrode index (0-based).
+
+        .. note:: All electrodes numbers must be unique and non-negative. The numbers must be contiguous (0 to n) spread over however many grids.
+
         Default is None.
 
     Attributes
@@ -1497,9 +1498,7 @@ class EMGData(_Data):
         The sampling frequency of the EMG data.
     grid_layouts : Optional[List[np.ndarray]]
         List of 2D arrays specifying the exact electrode arrangement for each grid.
-        Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
-        This provides precise control over electrode numbering patterns (row-wise, column-wise, etc.)
-        and allows specifying exactly which positions have electrodes.
+        Each array element contains the electrode index (0-based).
     processed_data : Dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied
         to the EMG data and the values are the processed EMG data.
@@ -1546,21 +1545,14 @@ class EMGData(_Data):
     >>> # First grid: 5×5 array with sequential numbering (0-24)
     >>> grid1 = create_grid_layout(5, 5, fill_pattern='row')
     >>>
-    >>> # Second grid: 6×6 array with column-wise numbering and a few missing electrodes
+    >>> # Second grid: 6×6 array with column-wise numbering
     >>> grid2 = create_grid_layout(6, 6, fill_pattern='column')
-    >>> # Mark positions (0,0), (5,5), and (2,3) as missing with -1
-    >>> grid2[0, 0] = -1
-    >>> grid2[5, 5] = -1
-    >>> grid2[2, 3] = -1
     >>> # Shift indices to start after the first grid (add 25)
     >>> grid2[grid2 >= 0] += 25
     >>>
     >>> # Third grid: Irregular 3×4 array
-    >>> grid3 = np.array([
-    ...     [58, 59, 60, -1],
-    ...     [55, 56, 57, -1],
-    ...     [52, 53, 54, -1]
-    ... ])
+    >>> grid3 = create_grid_layout(3, 4, fill_pattern='row')
+    >>> grid3[grid3 >= 0] += 50
     >>>
     >>> # Create EMGData with all three grids
     >>> emg = EMGData(emg_data, sampling_freq, grid_layouts=[grid1, grid2, grid3])
@@ -1596,31 +1588,25 @@ class EMGData(_Data):
 
         # Process and validate grid layouts if provided
         if grid_layouts is not None:
-            # Get the number of electrodes from the data
-            data_electrodes = (
-                input_data.shape[0] if input_data.ndim == 2 else input_data.shape[1]
-            )
+            # Transform to list if it is a numpy array
+            if isinstance(grid_layouts, np.ndarray):
+                grid_layouts = list(grid_layouts)
 
-            # Check that each layout array is 2D
             for i, layout in enumerate(grid_layouts):
                 if not isinstance(layout, np.ndarray) or layout.ndim != 2:
                     raise ValueError(f"Grid layout {i + 1} must be a 2D numpy array")
 
-                # Count valid electrodes (non-negative values)
-                valid_electrodes = np.sum(layout >= 0)
+                # Check that not all elements are -1
+                if np.all(layout == -1):
+                    raise ValueError(
+                        f"Grid layout {i + 1} contains all -1 values, indicating no electrodes!"
+                    )
 
                 # Check for duplicate electrode indices
                 valid_indices = layout[layout >= 0]
                 if len(np.unique(valid_indices)) != len(valid_indices):
                     raise ValueError(
                         f"Grid layout {i + 1} contains duplicate electrode indices"
-                    )
-
-                # Check if any index is out of bounds
-                if np.any(valid_indices >= data_electrodes):
-                    raise ValueError(
-                        f"Grid layout {i + 1} contains electrode indices that exceed the total "
-                        f"number of electrodes ({data_electrodes})"
                     )
 
             # Store the validated grid layouts
