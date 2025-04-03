@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>DifferentialSpatialFilter &#8212; MyoVerse 1.0.0 Documentation</title>
+    <title>DifferentialSpatialFilter &#8212; MyoVerse 1.1.0 Documentation</title>
   
   
   
@@ -43,17 +43,17 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/generated/filters/myoverse.datasets.filters.spatial.DifferentialSpatialFilter';</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
     <link rel="next" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html" />
-    <link rel="prev" title="myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation.html" />
+    <link rel="prev" title="myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate" href="SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.1.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
-    <img src="../../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.0 Documentation - Home"/>
+    <img src="../../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.0.0
+          Version 1.1.0
       </button>
       
       
@@ -399,9 +399,6 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.temporal.SOSFrequencyFilter.html">SOSFrequencyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__</a></li>
 <li class="toctree-l3"><a class="reference internal" href="SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time</a></li>
-<li class="toctree-l3"><a class="reference internal" href="SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk</a></li>
-<li class="toctree-l3"><a class="reference internal" href="SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.temporal.RectifyFilter.html">RectifyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -446,22 +443,6 @@
 <li class="toctree-l3"><a class="reference internal" href="SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.spatial.ElectrodeSelector.html">ElectrodeSelector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector.__init__.html">myoverse.datasets.filters.spatial.ElectrodeSelector.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._filter.html">myoverse.datasets.filters.spatial.ElectrodeSelector._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks.html">myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid.html">myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.spatial.GridReshaper.html">GridReshaper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper.__init__.html">myoverse.datasets.filters.spatial.GridReshaper.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid.html">myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._filter.html">myoverse.datasets.filters.spatial.GridReshaper._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation.html">myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels.html">myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation.html">myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation</a></li>
-</ul>
-</details></li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">DifferentialSpatialFilter</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__</a></li>
 <li class="toctree-l3"><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter</a></li>
@@ -469,12 +450,11 @@
 <li class="toctree-l3"><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.spatial.AveragingSpatialFilter.html">AveragingSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array</a></li>
-<li class="toctree-l3"><a class="reference internal" href="AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.html">ApplyFunctionSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._apply_custom_filter.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._apply_custom_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._filter.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._run_filter_checks</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.generic.FilterBaseClass.html">FilterBaseClass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -490,8 +470,8 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="myoverse.datasets.filters.spatial.SpatialFilterGridAware.html">SpatialFilterGridAware</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._filter.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._get_grids_to_filter.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._get_grids_to_filter</a></li>
 </ul>
 </details></li>
 </ul>
@@ -646,31 +626,33 @@
 <h1>DifferentialSpatialFilter<a class="headerlink" href="#differentialspatialfilter" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="myoverse.datasets.filters.spatial.DifferentialSpatialFilter">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datasets.filters.spatial.</span></span><span class="sig-name descname"><span class="pre">DifferentialSpatialFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filter_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_is_chunked</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grids_to_process</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preserve_unprocessed_grids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datasets/filters/spatial.html#DifferentialSpatialFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.filters.spatial.DifferentialSpatialFilter" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">myoverse.datasets.filters.spatial.</span></span><span class="sig-name descname"><span class="pre">DifferentialSpatialFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_is_chunked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_checks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grids_to_process</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/myoverse/datasets/filters/spatial.html#DifferentialSpatialFilter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#myoverse.datasets.filters.spatial.DifferentialSpatialFilter" title="Link to this definition">#</a></dt>
 <dd><p>Differential spatial filter for EMG data.</p>
 <p>This filter applies various differential spatial filters to EMG data,
 which help improve signal quality by enhancing differences between adjacent electrodes.
-The filters are defined according to <a class="reference external" href="https://doi.org/10.1109/TBME.2003.808830">https://doi.org/10.1109/TBME.2003.808830</a>.</p>
+The filters are defined according to <a class="reference external" href="https://doi.org/10.1088/1741-2552/ad3498">https://doi.org/10.1088/1741-2552/ad3498</a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filter_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the filter to be applied. Options include:
-- “LSD”: Longitudinal Single Differential - computes difference between adjacent electrodes along columns
-- “TSD”: Transverse Single Differential - computes difference between adjacent electrodes along rows
-- “LDD”: Longitudinal Double Differential - computes double difference along columns
-- “TDD”: Transverse Double Differential - computes double difference along rows
-- “NDD”: Normal Double Differential - combines information from electrodes in cross pattern
-- “IB2”: Inverse Binomial filter of the 2nd order
-- “IR”: Inverse Rectangle filter
-- “identity”: No filtering, returns the original signal</p></li>
+<li><p><strong>filter_name</strong> (<em>Literal</em><em>[</em><em>&quot;LSD&quot;</em><em>, </em><em>&quot;TSD&quot;</em><em>, </em><em>&quot;LDD&quot;</em><em>, </em><em>&quot;TDD&quot;</em><em>, </em><em>&quot;NDD&quot;</em><em>, </em><em>&quot;IB2&quot;</em><em>, </em><em>&quot;IR&quot;</em><em>, </em><em>&quot;identity&quot;</em><em>]</em>) – <p>Name of the filter to be applied. Options include:</p>
+<ul>
+<li><p>”LSD”: Longitudinal Single Differential - computes difference between adjacent electrodes along columns</p></li>
+<li><p>”TSD”: Transverse Single Differential - computes difference between adjacent electrodes along rows</p></li>
+<li><p>”LDD”: Longitudinal Double Differential - computes double difference along columns</p></li>
+<li><p>”TDD”: Transverse Double Differential - computes double difference along rows</p></li>
+<li><p>”NDD”: Normal Double Differential - combines information from electrodes in cross pattern</p></li>
+<li><p>”IB2”: Inverse Binomial filter of the 2nd order</p></li>
+<li><p>”IR”: Inverse Rectangle filter</p></li>
+<li><p>”identity”: No filtering, returns the original signal</p></li>
+</ul>
+</p></li>
 <li><p><strong>input_is_chunked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether the input data is organized in chunks (3D array) or not (2D array).</p></li>
-<li><p><strong>grids_to_process</strong> (<em>Union</em><em>[</em><em>Literal</em><em>[</em><em>&quot;all&quot;</em><em>]</em><em>, </em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Specifies which grids to apply the filter to:
-- “all”: Process all grids (default)
-- int: Process only the grid with this index
-- List[int]: Process only the grids with these indices</p></li>
-<li><p><strong>preserve_unprocessed_grids</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – If True, unprocessed grids will be preserved in the output.
-If False, only processed grids will be included in the output.
-Default is True.</p></li>
+<li><p><strong>grids_to_process</strong> (<em>Union</em><em>[</em><em>Literal</em><em>[</em><em>&quot;all&quot;</em><em>]</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – <p>Specifies which grids to apply the filter to:</p>
+<ul>
+<li><p>”all”: Process all grids (default)</p></li>
+<li><p>List[int]: Process only the grids with these indices</p></li>
+</ul>
+</p></li>
 <li><p><strong>is_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=False</em>) – Whether the filter is an output filter.</p></li>
 <li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Custom name for the filter. If None, the class name will be used.</p></li>
 <li><p><strong>run_checks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to run validation checks when filtering.</p></li>
@@ -707,28 +689,13 @@ which means the output will have fewer electrodes than the input.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">filtered_first</span> <span class="o">=</span> <span class="n">emg</span><span class="o">.</span><span class="n">apply_filter</span><span class="p">(</span><span class="n">ndd_first_grid</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Initialize the differential spatial filter.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filter_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Name of the filter to be applied: “LSD”, “TSD”, “LDD”, “TDD”, “NDD”, “IB2”, “IR”, or “identity”.
-Filters are defined according to <a class="reference external" href="https://doi.org/10.1109/TBME.2003.808830">https://doi.org/10.1109/TBME.2003.808830</a>.</p></li>
-<li><p><strong>input_is_chunked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether the input is chunked (3D array) or not (2D array).</p></li>
-<li><p><strong>grids_to_process</strong> (<em>Union</em><em>[</em><em>Literal</em><em>[</em><em>&quot;all&quot;</em><em>]</em><em>, </em><em>int</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Specifies which grids to apply the filter to. Default is “all”.</p></li>
-<li><p><strong>preserve_unprocessed_grids</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to keep unprocessed grids in the output. Default is True.</p></li>
-<li><p><strong>is_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=False</em>) – Whether the filter is an output filter.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Custom name for the filter. If None, the class name will be used.</p></li>
-<li><p><strong>run_checks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to run validation checks when filtering.</p></li>
-</ul>
-</dd>
-</dl>
 <p class="rubric">Methods</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html#myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(filter_name[, input_is_chunked, ...])</p></td>
-<td><p>Initialize the differential spatial filter.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html#myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(input_is_chunked[, is_output, ...])</p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter.html#myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_differential_filter</span></code></a>(grid_data, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter.html#myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_differential_filter</span></code></a>(grid_data, ...)</p></td>
 <td><p>Apply differential filter to a single grid's data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter.html#myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter" title="myoverse.datasets.filters.spatial.DifferentialSpatialFilter._filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_filter</span></code></a>(input_array, **kwargs)</p></td>

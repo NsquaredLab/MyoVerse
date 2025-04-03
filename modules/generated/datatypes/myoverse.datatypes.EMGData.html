@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>EMGData &#8212; MyoVerse 1.0.0 Documentation</title>
+    <title>EMGData &#8212; MyoVerse 1.1.0 Documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'modules/generated/datatypes/myoverse.datatypes.EMGData';</script>
@@ -53,7 +53,7 @@
     <link rel="prev" title="Data Types" href="../../datatypes.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.1.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
-    <img src="../../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.0 Documentation - Home"/>
+    <img src="../../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.0.0
+          Version 1.1.0
       </button>
       
       
@@ -399,9 +399,6 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.SOSFrequencyFilter.html">SOSFrequencyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.__init__</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter._filter_real_time_single_chunk</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/SOSFrequencyFilter/myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state.html">myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset_state</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.temporal.RectifyFilter.html">RectifyFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -446,22 +443,6 @@
 <li class="toctree-l3"><a class="reference internal" href="../filters/SpectralInterpolationFilter/myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate.html">myoverse.datasets.filters.temporal.SpectralInterpolationFilter._get_indices_to_interpolate</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.ElectrodeSelector.html">ElectrodeSelector</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector.__init__.html">myoverse.datasets.filters.spatial.ElectrodeSelector.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._filter.html">myoverse.datasets.filters.spatial.ElectrodeSelector._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks.html">myoverse.datasets.filters.spatial.ElectrodeSelector._run_filter_checks</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/ElectrodeSelector/myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid.html">myoverse.datasets.filters.spatial.ElectrodeSelector._select_electrodes_from_grid</a></li>
-</ul>
-</details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.GridReshaper.html">GridReshaper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper.__init__.html">myoverse.datasets.filters.spatial.GridReshaper.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid.html">myoverse.datasets.filters.spatial.GridReshaper._channels_to_grid</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._filter.html">myoverse.datasets.filters.spatial.GridReshaper._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation.html">myoverse.datasets.filters.spatial.GridReshaper._grid_concatenation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels.html">myoverse.datasets.filters.spatial.GridReshaper._grid_to_channels</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/GridReshaper/myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation.html">myoverse.datasets.filters.spatial.GridReshaper._process_grid_operation</a></li>
-</ul>
-</details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.html">DifferentialSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter.__init__</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._apply_differential_filter</a></li>
@@ -469,12 +450,11 @@
 <li class="toctree-l3"><a class="reference internal" href="../filters/DifferentialSpatialFilter/myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.DifferentialSpatialFilter._run_filter_checks</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.AveragingSpatialFilter.html">AveragingSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._apply_averaging_filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._filter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._process_single_array</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/AveragingSpatialFilter/myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.AveragingSpatialFilter._run_filter_checks</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.html">ApplyFunctionSpatialFilter</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.__init__.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.__init__</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._apply_custom_filter.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._apply_custom_filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._filter.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/ApplyFunctionSpatialFilter/myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._run_filter_checks.html">myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter._run_filter_checks</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.generic.FilterBaseClass.html">FilterBaseClass</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -490,8 +470,8 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../filters/myoverse.datasets.filters.spatial.SpatialFilterGridAware.html">SpatialFilterGridAware</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware.__init__</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._combine_grid_results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._process_grids_separately</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._filter.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._filter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../filters/SpatialFilterGridAware/myoverse.datasets.filters.spatial.SpatialFilterGridAware._get_grids_to_filter.html">myoverse.datasets.filters.spatial.SpatialFilterGridAware._get_grids_to_filter</a></li>
 </ul>
 </details></li>
 </ul>
@@ -660,11 +640,14 @@
 Please make sure to provide the correct shape of the data.</p>
 </p></li>
 <li><p><strong>sampling_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The sampling frequency of the EMG data.</p></li>
-<li><p><strong>grid_layouts</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>np.ndarray</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – List of 2D arrays specifying the exact electrode arrangement for each grid.
-Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
-For example, a 2×3 grid with electrodes numbered column-wise and one gap might be:
-[[0, 2, 4], [1, -1, 5]]
-Default is None.</p></li>
+<li><p><strong>grid_layouts</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>np.ndarray</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – <p>List of 2D arrays specifying the exact electrode arrangement for each grid.
+Each array element contains the electrode index (0-based).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All electrodes numbers must be unique and non-negative. The numbers must be contiguous (0 to n) spread over however many grids.</p>
+</div>
+<p>Default is None.</p>
+</p></li>
 </ul>
 </dd>
 </dl>
@@ -694,9 +677,7 @@ Default is None.</p></li>
 <dt class="sig sig-object py" id="myoverse.datatypes.EMGData.grid_layouts">
 <span class="sig-name descname"><span class="pre">grid_layouts</span></span><a class="headerlink" href="#myoverse.datatypes.EMGData.grid_layouts" title="Link to this definition">#</a></dt>
 <dd><p>List of 2D arrays specifying the exact electrode arrangement for each grid.
-Each array element contains the electrode index (0-based) or -1 for gaps/missing electrodes.
-This provides precise control over electrode numbering patterns (row-wise, column-wise, etc.)
-and allows specifying exactly which positions have electrodes.</p>
+Each array element contains the electrode index (0-based).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Optional[List[np.ndarray]]</p>
@@ -763,21 +744,14 @@ with multiple electrode grids:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># First grid: 5×5 array with sequential numbering (0-24)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">grid1</span> <span class="o">=</span> <span class="n">create_grid_layout</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">fill_pattern</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Second grid: 6×6 array with column-wise numbering and a few missing electrodes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Second grid: 6×6 array with column-wise numbering</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">grid2</span> <span class="o">=</span> <span class="n">create_grid_layout</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="n">fill_pattern</span><span class="o">=</span><span class="s1">&#39;column&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Mark positions (0,0), (5,5), and (2,3) as missing with -1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">grid2</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">grid2</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">grid2</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Shift indices to start after the first grid (add 25)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">grid2</span><span class="p">[</span><span class="n">grid2</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">25</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Third grid: Irregular 3×4 array</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">grid3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mi">58</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mi">55</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">57</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">[</span><span class="mi">52</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid3</span> <span class="o">=</span> <span class="n">create_grid_layout</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">fill_pattern</span><span class="o">=</span><span class="s1">&#39;row&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid3</span><span class="p">[</span><span class="n">grid3</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">50</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create EMGData with all three grids</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">emg</span> <span class="o">=</span> <span class="n">EMGData</span><span class="p">(</span><span class="n">emg_data</span><span class="p">,</span> <span class="n">sampling_freq</span><span class="p">,</span> <span class="n">grid_layouts</span><span class="o">=</span><span class="p">[</span><span class="n">grid1</span><span class="p">,</span> <span class="n">grid2</span><span class="p">,</span> <span class="n">grid3</span><span class="p">])</span>

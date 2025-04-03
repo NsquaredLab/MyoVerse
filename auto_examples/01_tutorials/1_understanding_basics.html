@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Package basics &#8212; MyoVerse 1.0.0 Documentation</title>
+    <title>Package basics &#8212; MyoVerse 1.1.0 Documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/documentation_options.js?v=fc837d61"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/01_tutorials/1_understanding_basics';</script>
@@ -53,7 +53,7 @@
     <link rel="prev" title="Tutorials" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.1.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.0.0
+          Version 1.1.0
       </button>
       
       
@@ -335,8 +335,8 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../02_filters/index.html">Filters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/1_emg_grid_layouts.html">EMG Grid Layouts: Electrode Arrangements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_spatial_filtering.html">Spatial Filtering with AveragingSpatialFilter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02_filters/3_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_filters/3_spatial_filters.html">Applying Spatial Filters to EMG Data</a></li>
 </ul>
 </details></li>
 </ul>
@@ -563,7 +563,7 @@ Further having the user specify this parameter forces them to think about the da
 Lowpass (SOSFrequencyFilter): input_is_chunked=False, is_output=True, name=&#39;Lowpass&#39;, run_checks=True, sos_filter_coefficients=array([[ 8.24995090e-07,  1.64999018e-06,  8.24995090e-07,
          1.00000000e+00, -1.88899513e+00,  8.92570685e-01],
        [ 1.00000000e+00,  2.00000000e+00,  1.00000000e+00,
-         1.00000000e+00, -1.95036395e+00,  9.54055667e-01]]), forwards_and_backwards=True, overlap=16, use_continuous_approach=True, real_time_mode=False
+         1.00000000e+00, -1.95036395e+00,  9.54055667e-01]]), forwards_and_backwards=True, continuous_approach=None, real_time_support_chunks=None
 </pre></div>
 </div>
 </section>
@@ -644,7 +644,7 @@ Lowpass and Last point to the same data: True
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_1_understanding_basics_002.png" srcset="../../_images/sphx_glr_1_understanding_basics_002.png" alt="Raw EMG - Channel 1, Lowpass Filtered EMG (Cutoff: 20 Hz) - Channel 1" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.881 seconds)</p>
+<img src="../../_images/sphx_glr_1_understanding_basics_002.png" srcset="../../_images/sphx_glr_1_understanding_basics_002.png" alt="Raw EMG - Channel 1, Lowpass Filtered EMG (Cutoff: 20 Hz) - Channel 1" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.064 seconds)</p>
 <p><strong>Estimated memory usage:</strong>  1042 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-tutorials-1-understanding-basics-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">

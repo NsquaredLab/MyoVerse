@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.GridReshaper.\_grid\_to\_channels
-===================================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: GridReshaper._grid_to_channels

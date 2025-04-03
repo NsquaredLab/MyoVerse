@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.ElectrodeSelector.\_select\_electrodes\_from\_grid
-====================================================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: ElectrodeSelector._select_electrodes_from_grid

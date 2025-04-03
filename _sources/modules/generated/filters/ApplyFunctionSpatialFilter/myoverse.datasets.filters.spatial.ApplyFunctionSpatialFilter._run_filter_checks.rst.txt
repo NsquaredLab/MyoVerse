@@ -1,0 +1,6 @@
+myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.\_run\_filter\_checks
+==================================================================================
+
+.. currentmodule:: myoverse.datasets.filters.spatial
+
+.. automethod:: ApplyFunctionSpatialFilter._run_filter_checks

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>EMG Grid Layouts: Electrode Arrangements &#8212; MyoVerse 1.0.0 Documentation</title>
+    <title>EMG Grid Layouts: Electrode Arrangements &#8212; MyoVerse 1.1.0 Documentation</title>
   
   
   
@@ -43,17 +43,17 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../../_static/documentation_options.js?v=fc837d61"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/02_filters/1_emg_grid_layouts';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Spatial Filtering with AveragingSpatialFilter" href="2_spatial_filtering.html" />
+    <link rel="next" title="Working with Temporal Filters" href="2_temporal_filters.html" />
     <link rel="prev" title="Filters" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.0.0" />
+  <meta name="docsearch:version" content="1.1.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.0.0 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.0.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.0.0
+          Version 1.1.0
       </button>
       
       
@@ -335,8 +335,8 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Filters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">EMG Grid Layouts: Electrode Arrangements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_spatial_filtering.html">Spatial Filtering with AveragingSpatialFilter</a></li>
-<li class="toctree-l2"><a class="reference internal" href="3_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3_spatial_filters.html">Applying Spatial Filters to EMG Data</a></li>
 </ul>
 </details></li>
 </ul>
@@ -640,10 +640,10 @@ as long as they correctly map to the corresponding channels in your EMG data.</p
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Demonstrating validation with incorrect number of channels:
-Validation error: Grid layout 3 contains electrode indices that exceed the total number of electrodes (40)
+Note: In the current version, this doesn&#39;t raise an error yet
 
 Demonstrating validation with out-of-bounds electrode indices:
-Validation error: Grid layout 3 contains electrode indices that exceed the total number of electrodes (41)
+Note: In the current version, this doesn&#39;t raise an error yet
 </pre></div>
 </div>
 <p>The validation logic described earlier would help ensure electrode indices correctly
@@ -684,7 +684,7 @@ grid layout for a circular electrode array.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_1_emg_grid_layouts_004.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_004.png" alt="Circular Electrode Arrangement" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 2.714 seconds)</p>
+<img src="../../_images/sphx_glr_1_emg_grid_layouts_004.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_004.png" alt="Circular Electrode Arrangement" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.090 seconds)</p>
 <p><strong>Estimated memory usage:</strong>  570 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-filters-1-emg-grid-layouts-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">

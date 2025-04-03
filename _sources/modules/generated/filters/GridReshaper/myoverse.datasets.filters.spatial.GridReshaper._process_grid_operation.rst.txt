@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.GridReshaper.\_process\_grid\_operation
-=========================================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: GridReshaper._process_grid_operation

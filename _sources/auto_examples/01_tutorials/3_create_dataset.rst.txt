@@ -434,18 +434,18 @@ In this example we will create a dataset that was used in our real-time paper [1
     ────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
 
                           Dataset Summary                       
-    ╭──────────────────────────────────────────┬───────────────╮
-    │  Metric                                  │  Value        │
-    ├──────────────────────────────────────────┼───────────────┤
-    │  Total tasks                             │  2            │
-    │  Training samples                        │  892          │
-    │  Testing samples                         │  172          │
-    │  Validation samples                      │  16           │
-    │  Total dataset size                      │  253.37 MB    │
-    │  Training split size                     │  209.27 MB    │
-    │  Testing split size                      │  40.35 MB     │
-    │  Validation split size                   │  3.75 MB      │
-    ╰──────────────────────────────────────────┴───────────────╯
+    ╭─────────────────────────────────────────┬────────────────╮
+    │  Metric                                 │  Value         │
+    ├─────────────────────────────────────────┼────────────────┤
+    │  Total tasks                            │  2             │
+    │  Training samples                       │  892           │
+    │  Testing samples                        │  172           │
+    │  Validation samples                     │  16            │
+    │  Total dataset size                     │  1012.75 MB    │
+    │  Training split size                    │  836.45 MB     │
+    │  Testing split size                     │  161.29 MB     │
+    │  Validation split size                  │  15.00 MB      │
+    ╰─────────────────────────────────────────┴────────────────╯
 
     Dataset Structure
     ├── Training
@@ -804,18 +804,18 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
     ────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
 
                           Dataset Summary                       
-    ╭──────────────────────────────────────────┬───────────────╮
-    │  Metric                                  │  Value        │
-    ├──────────────────────────────────────────┼───────────────┤
-    │  Total tasks                             │  2            │
-    │  Training samples                        │  4080         │
-    │  Testing samples                         │  100          │
-    │  Validation samples                      │  24           │
-    │  Total dataset size                      │  986.27 MB    │
-    │  Training split size                     │  957.18 MB    │
-    │  Testing split size                      │  23.46 MB     │
-    │  Validation split size                   │  5.63 MB      │
-    ╰──────────────────────────────────────────┴───────────────╯
+    ╭─────────────────────────────────────────┬────────────────╮
+    │  Metric                                 │  Value         │
+    ├─────────────────────────────────────────┼────────────────┤
+    │  Total tasks                            │  2             │
+    │  Training samples                       │  4080          │
+    │  Testing samples                        │  100           │
+    │  Validation samples                     │  24            │
+    │  Total dataset size                     │  2464.24 MB    │
+    │  Training split size                    │  2391.56 MB    │
+    │  Testing split size                     │  58.62 MB      │
+    │  Validation split size                  │  14.07 MB      │
+    ╰─────────────────────────────────────────┴────────────────╯
 
     Dataset Structure
     ├── Training
@@ -839,9 +839,9 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 42.590 seconds)
+   **Total running time of the script:** (0 minutes 46.765 seconds)
 
-**Estimated memory usage:**  1469 MB
+**Estimated memory usage:**  1948 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_3_create_dataset.py:

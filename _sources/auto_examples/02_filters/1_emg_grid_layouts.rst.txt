@@ -364,10 +364,10 @@ Let's also demonstrate what happens when validation fails:
 
 
     Demonstrating validation with incorrect number of channels:
-    Validation error: Grid layout 3 contains electrode indices that exceed the total number of electrodes (40)
+    Note: In the current version, this doesn't raise an error yet
 
     Demonstrating validation with out-of-bounds electrode indices:
-    Validation error: Grid layout 3 contains electrode indices that exceed the total number of electrodes (41)
+    Note: In the current version, this doesn't raise an error yet
 
 
 
@@ -434,7 +434,7 @@ grid layout for a circular electrode array.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.714 seconds)
+   **Total running time of the script:** (0 minutes 3.090 seconds)
 
 **Estimated memory usage:**  570 MB
 

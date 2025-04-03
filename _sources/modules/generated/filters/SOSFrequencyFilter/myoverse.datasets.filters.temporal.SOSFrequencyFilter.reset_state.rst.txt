@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.SOSFrequencyFilter.reset\_state
-==================================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: SOSFrequencyFilter.reset_state

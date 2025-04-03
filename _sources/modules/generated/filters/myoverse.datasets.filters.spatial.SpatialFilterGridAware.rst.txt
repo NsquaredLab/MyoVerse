@@ -14,7 +14,7 @@
       :toctree: SpatialFilterGridAware
        
             ~SpatialFilterGridAware.__init__
-            ~SpatialFilterGridAware._combine_grid_results
-            ~SpatialFilterGridAware._process_grids_separately
+            ~SpatialFilterGridAware._filter
+            ~SpatialFilterGridAware._get_grids_to_filter
         
         

@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.GridReshaper.\_\_init\_\_
-===========================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: GridReshaper.__init__

@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.SpatialFilterGridAware.\_process\_grids\_separately
-=====================================================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: SpatialFilterGridAware._process_grids_separately
