@@ -20,13 +20,11 @@ class SpatialFilterGridAware(FilterBaseClass, ABC):
         Whether the input is chunked or not.
     allowed_input_type : Literal["chunked", "non_chunked", "both"]
         Type of input this filter accepts.
-    grids_to_process : Union[Literal["all"], int, List[int]], optional
+    grids_to_process : Union[Literal["all"], List[int]]
         Specifies which grids to apply the filter to:
+
         - "all": Process all grids (default)
-        - int: Process only the grid with this index
         - List[int]: Process only the grids with these indices
-        If False, only processed grids will be included in the output.
-        Default is True.
     is_output : bool, optional
         Whether the filter is an output filter.
     name : str, optional
@@ -39,7 +37,7 @@ class SpatialFilterGridAware(FilterBaseClass, ABC):
         self,
         input_is_chunked: bool = None,
         allowed_input_type: Literal["both", "chunked", "not chunked"] = "both",
-        grids_to_process: Union[Literal["all"], int, List[int]] = "all",
+        grids_to_process: Union[Literal["all"], List[int]] = "all",
         is_output: bool = False,
         name: str = None,
         run_checks: bool = True,
@@ -109,12 +107,13 @@ class DifferentialSpatialFilter(SpatialFilterGridAware):
 
     This filter applies various differential spatial filters to EMG data,
     which help improve signal quality by enhancing differences between adjacent electrodes.
-    The filters are defined according to https://doi.org/10.1109/TBME.2003.808830.
+    The filters are defined according to https://doi.org/10.1088/1741-2552/ad3498.
 
     Parameters
     ----------
-    filter_name : str
+    filter_name : Literal["LSD", "TSD", "LDD", "TDD", "NDD", "IB2", "IR", "identity"]
         Name of the filter to be applied. Options include:
+
         - "LSD": Longitudinal Single Differential - computes difference between adjacent electrodes along columns
         - "TSD": Transverse Single Differential - computes difference between adjacent electrodes along rows
         - "LDD": Longitudinal Double Differential - computes double difference along columns
@@ -125,10 +124,10 @@ class DifferentialSpatialFilter(SpatialFilterGridAware):
         - "identity": No filtering, returns the original signal
     input_is_chunked : bool
         Whether the input data is organized in chunks (3D array) or not (2D array).
-    grids_to_process : Union[Literal["all"], int, List[int]], optional
+    grids_to_process : Union[Literal["all"], List[int]]
         Specifies which grids to apply the filter to:
+
         - "all": Process all grids (default)
-        - int: Process only the grid with this index
         - List[int]: Process only the grids with these indices
     is_output : bool, default=False
         Whether the filter is an output filter.
@@ -194,7 +193,9 @@ class DifferentialSpatialFilter(SpatialFilterGridAware):
         name: str | None = None,
         run_checks: bool = True,
         *,
-        filter_name: str,
+        filter_name: Literal[
+            "LSD", "TSD", "LDD", "TDD", "NDD", "IB2", "IR", "identity"
+        ],
         grids_to_process: Union[Literal["all"], int, List[int]] = "all",
     ):
         super().__init__(
@@ -366,11 +367,12 @@ class ApplyFunctionSpatialFilter(SpatialFilterGridAware):
 
     input_is_chunked : bool
         Whether the input data is organized in chunks (3D array) or not (2D array).
-    grids_to_process : Union[Literal["all"], int, List[int]], optional
+    grids_to_process : Union[Literal["all"], List[int]]
         Specifies which grids to apply the filter to:
+
         - "all": Process all grids (default)
-        - int: Process only the grid with this index
         - List[int]: Process only the grids with these indices
+
     is_output : bool, default=False
         Whether the filter is an output filter.
     name : str, optional
@@ -397,7 +399,7 @@ class ApplyFunctionSpatialFilter(SpatialFilterGridAware):
         function: callable,
         strides: tuple[int, int] = (1, 1),
         padding: str = "same",
-        grids_to_process: Union[Literal["all"], int, List[int]] = "all",
+        grids_to_process: Union[Literal["all"], List[int]] = "all",
     ):
         super().__init__(
             input_is_chunked=input_is_chunked,
@@ -542,7 +544,7 @@ class ApplyFunctionSpatialFilter(SpatialFilterGridAware):
             pad_x_before = pad_total_x // 2
             pad_x_after = pad_total_x - pad_x_before
 
-            grid_data_padded = np.pad( # noqa
+            grid_data_padded = np.pad(  # noqa
                 reshaped_grid_data,
                 (((0, 0),) if self.input_is_chunked else ())
                 + ((pad_y_before, pad_y_after), (pad_x_before, pad_x_after), (0, 0)),
