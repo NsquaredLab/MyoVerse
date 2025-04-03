@@ -410,8 +410,6 @@ realtime_filter = SOSFrequencyFilter(
     name="Realtime",
     input_is_chunked=True,  # Now using chunked mode
     forwards_and_backwards=False,  # Must be False for real-time
-    use_continuous_approach=False,  # Must be False for real-time
-    real_time_mode=True,  # Enable real-time streaming mode
 )
 
 # Chunk the data to simulate streaming
