@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-04-03
+
 ### Added
 - RaulNetV17 model for decoding kinematics from EMG data
 - Workflow module for EMG data processing, model training, and result visualization
@@ -21,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored EMG and kinematics data classes to include dimensions when unchunked and streamlined chunk checking logic
 - Enhanced kinematics visualization with interactive features and improved styling
 - Updated zarr version and added mlflow and pyqt5 dependencies
+- Renamed `AveragingSpatialFilter` to `ApplyFunctionSpatialFilter` in documentation (`filters.rst`).
+- Refactored spatial filters (`spatial.py`) simplifying parameters and type hints.
+- Refactored `SOSFrequencyFilter` for easier usability.
+- Enhanced grid layout documentation and validation in `EMGData` class.
+
+### Removed
+- `ElectrodeSelector` and `GridReshaper` filters mentioned in documentation (`filters.rst`).
+- Unnecessary spatial filters.
 
 ## [1.0.0] - 2024-05-20
 
@@ -70,6 +80,7 @@ The following research papers have utilized MyoVerse:
 - IEEE Transactions on Neural Systems and Rehabilitation Engineering (2023): [10.1109/TNSRE.2023.3295060](https://doi.org/10.1109/TNSRE.2023.3295060)
 - 2022 44th Annual International Conference of the IEEE EMBC: [10.1109/EMBC48229.2022.9870937](https://doi.org/10.1109/EMBC48229.2022.9870937)
 
-[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/NsquaredLab/MyoVerse/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/NsquaredLab/MyoVerse/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/NsquaredLab/MyoVerse/releases/tag/v0.1.0 
