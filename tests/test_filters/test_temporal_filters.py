@@ -1,4 +1,5 @@
 import sys  # Add this to ensure print statements are output even when test passes
+import unittest
 
 import numpy as np
 import pytest
@@ -30,7 +31,7 @@ def generate_unchunked_data():
     return np.random.rand(5, 500)
 
 
-class TestTemporalFilters:
+class TestTemporalFilters(unittest.TestCase):
     @pytest.mark.parametrize(
         "window_size,shift", [(50, 1), (100, 10), (200, 25), (500, 50)]
     )
@@ -2131,3 +2132,6 @@ class TestTemporalFilters:
             assert np.any(filtered_fft[idx_10hz] > 0.7 * original_fft[idx_10hz]), (
                 "Power at 10 Hz (base signal) was significantly affected"
             )
+
+if __name__ == '__main__':
+    unittest.main()
