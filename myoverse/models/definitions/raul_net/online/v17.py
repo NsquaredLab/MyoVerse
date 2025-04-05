@@ -73,9 +73,9 @@ class RaulNetV17(L.LightningModule):
 
         # make self.training_means and self.training_stds tensors as parameters
         if self.training_means is not None:
-            self.training_means = torch.nn.Parameter(torch.from_numpy(self.training_means).float(), requires_grad=False)
+            self.training_means = torch.from_numpy(self.training_means).float()
         if self.training_stds is not None:
-            self.training_stds = torch.nn.Parameter(torch.from_numpy(self.training_stds).float(), requires_grad=False)
+            self.training_stds = torch.from_numpy(self.training_stds).float()
 
         self.criterion = nn.L1Loss()
 
@@ -184,6 +184,10 @@ class RaulNetV17(L.LightningModule):
 
     def _reshape_and_normalize(self, inputs):
         x = torch.stack(inputs.split(self.nr_of_electrodes_per_grid, dim=2), dim=2)
+
+        if self.training_means.device != x.device:
+            self.training_means = self.training_means.to(x.device)
+            self.training_stds = self.training_stds.to(x.device)
 
         if self.training_means is not None and self.training_stds is not None:
             return (x - self.training_means) / (
