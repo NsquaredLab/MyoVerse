@@ -1,6 +1,6 @@
 [project]
 name = "MyoVerse"
-version = "1.1.0"
+version = "1.1.1"
 description = ""
 readme = "README.md"
 authors = [
@@ -11,7 +11,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "icecream>=2.1.4",
-    "lightning>=2.5.0.post0",
+    "lightning==2.5.0.post0", # change when they fix the mlflow bug
     "mplcursors>=0.6",
     "networkx>=3.4.2",
     "numba<=0.61.0",
