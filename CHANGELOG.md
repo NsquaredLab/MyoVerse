@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-04-05
+
+### Changed
+- Removed unnecessary string handling in `EMGDataset` class
+- Mean and standard deviation are no longer nn.Parameter objects in `RaulNetV17` model. They should have been regular tensors
+- Fix version of `lightning` to 2.5.0.post0 in `pyproject.toml` to avoid bug with `mlflow` integration
+
 ## [1.1.0] - 2025-04-03
 
 ### Added
