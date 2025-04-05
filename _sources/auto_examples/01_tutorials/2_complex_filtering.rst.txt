@@ -505,7 +505,7 @@ This will remove the intermediate representations (shown in grey) from the datas
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.391 seconds)
+   **Total running time of the script:** (0 minutes 6.672 seconds)
 
 **Estimated memory usage:**  1695 MB
 
