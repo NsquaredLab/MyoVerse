@@ -52,46 +52,6 @@ def _add_to_dataset(group: zarr.Group, data: Optional[np.ndarray], name: str):
     if not isinstance(data, np.ndarray):
         data = np.array(data)
 
-    # Special handling for string data to ensure zarr v2/v3 compatibility
-    if data.dtype.kind == "U":
-        # Check for empty array to avoid max() on empty iterable
-        if data.size == 0:
-            return
-
-        # Convert Unicode strings to bytes for consistent handling in both zarr versions
-        max_length = max(
-            len(s.encode("utf-8")) for s in data.flat if isinstance(s, str)
-        )
-        bytes_data = np.zeros(data.shape, dtype=f"S{max_length}")
-        for idx in np.ndindex(data.shape):
-            if isinstance(data[idx], str):
-                bytes_data[idx] = data[idx].encode("utf-8")
-        data = bytes_data
-
-    # Handle object arrays that might contain strings
-    elif data.dtype.kind == "O":
-        # Check if the array contains strings
-        contains_strings = False
-        for item in data.flat:
-            if isinstance(item, str):
-                contains_strings = True
-                break
-
-        if contains_strings:
-            # Check for empty array to avoid max() on empty iterable
-            if data.size == 0:
-                return
-
-            # Find the maximum string length
-            max_length = max(
-                len(s.encode("utf-8")) for s in data.flat if isinstance(s, str)
-            )
-            bytes_data = np.zeros(data.shape, dtype=f"S{max_length}")
-            for idx in np.ndindex(data.shape):
-                if isinstance(data[idx], str):
-                    bytes_data[idx] = data[idx].encode("utf-8")
-            data = bytes_data
-
     try:
         if name in group:
             # Don't append empty data
@@ -277,7 +237,7 @@ class EMGDataset:
         # Initialize Rich console for all debug levels
         self.console = Console()
 
-        self.__tasks_string_length = 0
+        self._tasks_string_length = 0
 
     def __add_data_to_dataset(
         self, data: _Data, groups: list[zarr.Group]
@@ -496,7 +456,7 @@ class EMGDataset:
         validation_group = dataset.create_group("validation")
 
         # Set the task string length for labels
-        self.__tasks_string_length = len(max(self.tasks_to_use, key=len))
+        self._tasks_string_length = len(max(self.tasks_to_use, key=len))
 
         # Process each task
         if self.debug_level > 0:
@@ -889,7 +849,7 @@ class EMGDataset:
             # Use consistent unicode string array approach since conversion
             # happens in _add_to_dataset as needed
             label_array = np.array(
-                [task] * size, dtype=f"<U{self.__tasks_string_length}"
+                [task] * size, dtype=f"<U{self._tasks_string_length}"
             ).reshape(-1, 1)
 
             _add_to_dataset(
