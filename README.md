@@ -23,25 +23,22 @@ Whether you're predicting movement from muscle activity, analyzing forces during
 
 ## Installation
 
-### For Users (Using MyoVerse in your project)
+MyoVerse automatically installs with the correct PyTorch version for your platform.
 
-1.  **Install MyoVerse:** You can install the package from PyPI or directly from GitHub:
-    ```bash
-    # From PyPI
-    pip install MyoVerse
-    
-    # OR from GitHub (replace `main` with a specific tag/branch if needed)
-    pip install git+https://github.com/NsquaredLab/MyoVerse.git
-    ```
+### Basic installation:
 
-2.  **Install PyTorch with GPU:** After installing MyoVerse, ensure you have the correct PyTorch version with GPU support:
-    *   **For Windows:** You need to install PyTorch with CUDA support separately:
-        ```bash
-        pip install torch>=2.6.0+cu124 torchvision>=0.21.0+cu124 --index-url https://download.pytorch.org/whl/cu124 --upgrade
-        ```
-    *   **For Linux:** The standard PyTorch installation (without CUDA index URL) should work fine.
+```bash
+# Install from PyPI
+pip install myoverse
+```
 
-### For Developers (Contributing to MyoVerse)
+This will automatically:
+- On Linux: Install PyTorch and TorchVision from PyPI (with CUDA support)
+- On Windows: Install PyTorch and TorchVision with CUDA 12.4 support
+
+## Development
+
+For development, install the dev dependencies:
 
 1.  **Clone the Repository:**
     ```bash
@@ -49,17 +46,15 @@ Whether you're predicting movement from muscle activity, analyzing forces during
     cd MyoVerse
     ```
 2.  **Install uv:** If you don't have it yet, install `uv`. Follow the instructions on the [uv GitHub page](https://github.com/astral-sh/uv).
-3.  **Set up Virtual Environment & Install Dependencies:** Use `uv` to create and sync your virtual environment with the project's dependencies.
+3.  **Set up Virtual Environment & Install Dependencies:** Simply run:
     ```bash
     uv sync --group dev
     ```
-4.  **Install PyTorch with GPU:** After syncing other dependencies, install PyTorch.
-    *   **For Windows:** Visit the [PyTorch installation guide](https://pytorch.org/get-started/locally/) and select the appropriate options (Stable, Windows, Pip, Python, your CUDA version). Use `uv` to run the install command, for example:
-        ```bash
-        # Example for CUDA 12.6 - Get the correct command from PyTorch website!
-        uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126 --upgrade
-        ```
-    *   **For Linux:** Pytorch GPU is already installed by MyoVerse.
+
+> [!NOTE]
+> The project is configured to automatically install:
+> - On Linux: Standard PyTorch with CUDA from PyPI
+> - On Windows: PyTorch with CUDA 12.4 support from the PyTorch custom index
 
 ## What is what?
 This project uses the following structure:
