@@ -505,9 +505,9 @@ This will remove the intermediate representations (shown in grey) from the datas
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 6.308 seconds)
+   **Total running time of the script:** (0 minutes 5.947 seconds)
 
-**Estimated memory usage:**  1697 MB
+**Estimated memory usage:**  1695 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_2_complex_filtering.py:

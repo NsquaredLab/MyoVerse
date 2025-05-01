@@ -839,7 +839,7 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 46.722 seconds)
+   **Total running time of the script:** (0 minutes 46.281 seconds)
 
 **Estimated memory usage:**  1950 MB
 
