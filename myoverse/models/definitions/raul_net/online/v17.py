@@ -106,20 +106,20 @@ class RaulNetV17(L.LightningModule):
                 kernel_size=(
                     self.nr_of_electrode_grids,
                     (
-                            int(np.floor(self.nr_of_electrodes_per_grid / 2))
-                            + (0 if self.nr_of_electrodes_per_grid % 2 == 0 else 1)
+                        int(np.floor(self.nr_of_electrodes_per_grid / 2))
+                        + (0 if self.nr_of_electrodes_per_grid % 2 == 0 else 1)
                     ),
                     18,
                 ),
                 dilation=(1, 2, 1),
                 padding=(
                     (
-                            int(np.floor(self.nr_of_electrode_grids / 2))
-                            + (0 if self.nr_of_electrode_grids % 2 == 0 else 1)
+                        int(np.floor(self.nr_of_electrode_grids / 2))
+                        + (0 if self.nr_of_electrode_grids % 2 == 0 else 1)
                     ),
                     (
-                            int(np.floor(self.nr_of_electrodes_per_grid / 4))
-                            + (0 if self.nr_of_electrodes_per_grid % 4 == 0 else 1)
+                        int(np.floor(self.nr_of_electrodes_per_grid / 4))
+                        + (0 if self.nr_of_electrodes_per_grid % 4 == 0 else 1)
                     ),
                     0,
                 ),
@@ -133,8 +133,8 @@ class RaulNetV17(L.LightningModule):
                 kernel_size=(
                     self.nr_of_electrode_grids,
                     (
-                            int(np.floor(self.nr_of_electrodes_per_grid / 7))
-                            + (0 if self.nr_of_electrodes_per_grid % 7 == 0 else 1)
+                        int(np.floor(self.nr_of_electrodes_per_grid / 7))
+                        + (0 if self.nr_of_electrodes_per_grid % 7 == 0 else 1)
                     ),
                     1,
                 ),
@@ -171,9 +171,7 @@ class RaulNetV17(L.LightningModule):
 
         self.mlp = mlp
 
-        model = nn.Sequential(
-            self.cnn_encoder, self.mlp
-        )
+        model = nn.Sequential(self.cnn_encoder, self.mlp)
 
         self.model = torch.jit.script(model)
 
@@ -185,14 +183,12 @@ class RaulNetV17(L.LightningModule):
     def _reshape_and_normalize(self, inputs):
         x = torch.stack(inputs.split(self.nr_of_electrodes_per_grid, dim=2), dim=2)
 
-        if self.training_means.device != x.device:
-            self.training_means = self.training_means.to(x.device)
-            self.training_stds = self.training_stds.to(x.device)
-
         if self.training_means is not None and self.training_stds is not None:
-            return (x - self.training_means) / (
-                self.training_stds + 1e-15
-            )
+            if self.training_means.device != x.device:
+                self.training_means = self.training_means.to(x.device)
+                self.training_stds = self.training_stds.to(x.device)
+
+            return (x - self.training_means) / (self.training_stds + 1e-15)
 
         return (x - x.mean(dim=(3, 4), keepdim=True)) / (
             x.std(dim=(3, 4), keepdim=True, unbiased=True) + 1e-15
