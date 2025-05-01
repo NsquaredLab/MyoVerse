@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2025-05-01
+
+### Changed
+- Updated README logo URL to use raw GitHub link for better cross-platform compatibility
+- Revised Lightning to version 2.5.0.post0
+- Removed PyQt5 and related packages from development dependencies
+- Streamlined dependency list while maintaining compatibility
+
 ## [1.1.1] - 2025-04-05
 
 ### Changed
