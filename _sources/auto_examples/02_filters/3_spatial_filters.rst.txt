@@ -470,7 +470,7 @@ Here we use it to compute the mean across a 2x2 kernel with a stride of 2 in bot
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.669 seconds)
+   **Total running time of the script:** (0 minutes 3.952 seconds)
 
 **Estimated memory usage:**  622 MB
 
