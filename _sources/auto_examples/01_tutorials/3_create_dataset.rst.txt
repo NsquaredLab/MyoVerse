@@ -839,9 +839,9 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 45.851 seconds)
+   **Total running time of the script:** (0 minutes 46.291 seconds)
 
-**Estimated memory usage:**  2004 MB
+**Estimated memory usage:**  2003 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_3_create_dataset.py:
