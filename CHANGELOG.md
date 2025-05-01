@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 2025-05-01
+
+### Added
+- Package `__version__` attribute in `myoverse/__init__.py` that dynamically reads from pyproject.toml 
+- Version number included in logging timestamp prefix
+
+### Changed
+- PyPI compatible dependency specifications for PyTorch with separate configurations for Linux and Windows
+- Updated installation instructions in README for clarity on platform-specific PyTorch installations
+- Enhanced GitHub links in project.urls section
+
 ## [1.1.2] - 2025-05-01
 
 ### Changed
