@@ -824,8 +824,8 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
     │       └── raw: (4080, 320, 192)
     ├── Testing
     │   └── EMG Representations
-    │       ├── SOSFrequencyFilter: (100, 320, 192)
-    │       └── raw: (100, 320, 192)
+    │       ├── raw: (100, 320, 192)
+    │       └── SOSFrequencyFilter: (100, 320, 192)
     └── Validation
         └── EMG Representations
             ├── SOSFrequencyFilter: (24, 320, 192)
@@ -839,9 +839,9 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 45.883 seconds)
+   **Total running time of the script:** (2 minutes 5.994 seconds)
 
-**Estimated memory usage:**  2003 MB
+**Estimated memory usage:**  1932 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_3_create_dataset.py:

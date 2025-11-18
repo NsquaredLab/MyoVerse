@@ -640,7 +640,7 @@ or (n_chunks, 9, n_samples).</p>
 <p>There is no way to check if you actually have it in (n_chunks, n_samples) or (n_chunks, 9, n_samples) format.
 Please make sure to provide the correct shape of the data.</p>
 </p></li>
-<li><p><strong>sampling_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The sampling frequency of the kinematics data.</p></li>
+<li><p><strong>sampling_frequency</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – The sampling frequency of the kinematics data.</p></li>
 </ul>
 </dd>
 </dl>
@@ -664,7 +664,7 @@ wrist pronation/supination, wrist deviation, and the flexion of all 5 fingers.</
 <dd><p>The sampling frequency of the kinematics data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -676,7 +676,7 @@ wrist pronation/supination, wrist deviation, and the flexion of all 5 fingers.</
 the values are the processed kinematics data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)">str</a>, np.ndarray]</p>
+<dd class="field-odd"><p>Dict[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, np.ndarray]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -722,15 +722,15 @@ the values are the processed kinematics data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>representation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The representation to plot.
+<li><p><strong>representation</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The representation to plot.
 The representation should be a 2D tensor with shape (9, n_samples)
 or a 3D tensor with shape (n_chunks, 9, n_samples).</p></li>
-<li><p><strong>nr_of_fingers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The number of fingers to plot. Default is 5.</p></li>
-<li><p><strong>visualize_wrist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to visualize wrist movements. Default is True.</p></li>
+<li><p><strong>nr_of_fingers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – The number of fingers to plot. Default is 5.</p></li>
+<li><p><strong>visualize_wrist</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to visualize wrist movements. Default is True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.13)"><strong>KeyError</strong></a> – If the representation does not exist.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#KeyError" title="(in Python v3.14)"><strong>KeyError</strong></a> – If the representation does not exist.</p>
 </dd>
 </dl>
 </dd></dl>

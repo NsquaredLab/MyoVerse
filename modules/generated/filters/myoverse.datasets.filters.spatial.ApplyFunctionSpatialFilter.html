@@ -633,9 +633,9 @@ kernel and the function will be applied over the grid using the kernel.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – The kernel size to use for the convolution. Must be a tuple of two integers.</p></li>
-<li><p><strong>strides</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>]</em>) – The strides to use for the convolution. Must be a tuple of two integers.</p></li>
-<li><p><strong>padding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The padding to use for the convolution. Must be one of “same” or “valid”.</p></li>
+<li><p><strong>kernel_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – The kernel size to use for the convolution. Must be a tuple of two integers.</p></li>
+<li><p><strong>strides</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>]</em>) – The strides to use for the convolution. Must be a tuple of two integers.</p></li>
+<li><p><strong>padding</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – The padding to use for the convolution. Must be one of “same” or “valid”.</p></li>
 <li><p><strong>function</strong> (<em>callable</em>) – <p>The function to apply over the grid. If input_is_chunked is True, the function must take and return a 4D array otherwise it must take and return a 3D array.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -646,16 +646,16 @@ kernel and the function will be applied over the grid using the kernel.</p>
 <p>The function should only modify the y and x dimensions of the input array.</p>
 </div>
 </p></li>
-<li><p><strong>input_is_chunked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether the input data is organized in chunks (3D array) or not (2D array).</p></li>
+<li><p><strong>input_is_chunked</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether the input data is organized in chunks (3D array) or not (2D array).</p></li>
 <li><p><strong>grids_to_process</strong> (<em>Union</em><em>[</em><em>Literal</em><em>[</em><em>&quot;all&quot;</em><em>]</em><em>, </em><em>List</em><em>[</em><em>int</em><em>]</em><em>]</em>) – <p>Specifies which grids to apply the filter to:</p>
 <ul>
 <li><p>”all”: Process all grids (default)</p></li>
 <li><p>List[int]: Process only the grids with these indices</p></li>
 </ul>
 </p></li>
-<li><p><strong>is_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=False</em>) – Whether the filter is an output filter.</p></li>
-<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Custom name for the filter. If None, the class name will be used.</p></li>
-<li><p><strong>run_checks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to run validation checks when filtering.</p></li>
+<li><p><strong>is_output</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>default=False</em>) – Whether the filter is an output filter.</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Custom name for the filter. If None, the class name will be used.</p></li>
+<li><p><strong>run_checks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>default=True</em>) – Whether to run validation checks when filtering.</p></li>
 </ul>
 </dd>
 </dl>
