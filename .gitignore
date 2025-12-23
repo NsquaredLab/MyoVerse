@@ -326,3 +326,4 @@ _debug_test
 /examples/data/dataset.zarr/
 /examples/data/
 /docs/source/modules/generated/
+**/version_*
