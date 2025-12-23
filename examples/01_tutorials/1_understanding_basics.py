@@ -5,6 +5,8 @@ Package basics
 This example is a brief introduction to the basic functionalities of the package.
 """
 
+# %%
+
 import os
 import pickle as pkl
 import matplotlib.pyplot as plt
@@ -13,7 +15,7 @@ from myoverse.datatypes import EMGData
 from scipy.signal import butter
 from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
-# %%
+
 # Loading data
 # ------------
 # First we load the EMG example data and convert it to a MyoVerse Data object.
