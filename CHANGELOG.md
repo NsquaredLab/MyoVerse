@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.5] - 2025-12-23
+
+### Changed
+- Fixed numba dependency specification from `<=0.61.0` to `>=0.61.0` for improved compatibility
+- Updated documentation structure with enhanced README in docs/source
+- Updated dependency lock file (uv.lock) to reflect current dependencies
+
+### Added
+- .gitignore entry for version_* files to prevent tracking temporary version files
+
 ## [1.1.4] - 2025-05-01
 
 ### Added
@@ -114,7 +124,8 @@ The following research papers have utilized MyoVerse:
 - IEEE Transactions on Neural Systems and Rehabilitation Engineering (2023): [10.1109/TNSRE.2023.3295060](https://doi.org/10.1109/TNSRE.2023.3295060)
 - 2022 44th Annual International Conference of the IEEE EMBC: [10.1109/EMBC48229.2022.9870937](https://doi.org/10.1109/EMBC48229.2022.9870937)
 
-[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.4...HEAD
+[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.5...HEAD
+[1.1.5]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.1...v1.1.2
