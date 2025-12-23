@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.6] - 2025-12-23
+
+### Added
+- GitHub Actions workflow for automated PyPI publishing using trusted publishing
+
+### Changed
+- Fixed numcodecs dependency specification to `>=0.13.0,<0.16` to avoid `cbuffer_sizes` import errors
+- Renamed `__add_data_to_dataset` to `_add_data_to_dataset` in EMGDataset to fix Sphinx documentation generation
+
+### Fixed
+- Resolved Sphinx autosummary import error caused by Python name mangling of double-underscore methods
+
 ## [1.1.5] - 2025-12-23
 
 ### Changed
@@ -124,7 +136,8 @@ The following research papers have utilized MyoVerse:
 - IEEE Transactions on Neural Systems and Rehabilitation Engineering (2023): [10.1109/TNSRE.2023.3295060](https://doi.org/10.1109/TNSRE.2023.3295060)
 - 2022 44th Annual International Conference of the IEEE EMBC: [10.1109/EMBC48229.2022.9870937](https://doi.org/10.1109/EMBC48229.2022.9870937)
 
-[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.5...HEAD
+[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.6...HEAD
+[1.1.6]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.2...v1.1.3

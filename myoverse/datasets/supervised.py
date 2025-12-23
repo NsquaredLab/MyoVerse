@@ -239,7 +239,7 @@ class EMGDataset:
 
         self._tasks_string_length = 0
 
-    def __add_data_to_dataset(
+    def _add_data_to_dataset(
         self, data: _Data, groups: list[zarr.Group]
     ) -> Tuple[list[int], list[int], list[int]]:
         """
@@ -809,7 +809,7 @@ class EMGDataset:
                 training_sizes,
                 testing_sizes,
                 validation_sizes,
-            ) = self.__add_data_to_dataset(
+            ) = self._add_data_to_dataset(
                 chunked_data_from_task,
                 [
                     (

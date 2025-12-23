@@ -1,6 +1,6 @@
 [project]
 name = "MyoVerse"
-version = "1.1.5"
+version = "1.1.6"
 description = "AI toolkit for myocontrol research, processing EMG signals, kinematics, and kinetics using PyTorch."
 readme = "README.md"
 authors = [
@@ -22,7 +22,7 @@ dependencies = [
     "toml>=0.10.2",
     "tqdm>=4.67.1",
     "zarr==2.18.4",
-    "numcodecs!=0.16",
+    "numcodecs>=0.13.0,<0.16",
     "torch>=2.6.0",
     "torchvision>=0.21.0",
 ]
@@ -68,7 +68,11 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["myoverse"]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["myoverse*"]
 
 [tool.setuptools.package-data]
 myoverse = ["py.typed"]
