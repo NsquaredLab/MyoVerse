@@ -23,7 +23,7 @@ Package basics
 
 This example is a brief introduction to the basic functionalities of the package.
 
-.. GENERATED FROM PYTHON SOURCE LINES 7-16
+.. GENERATED FROM PYTHON SOURCE LINES 9-34
 
 .. code-block:: Python
 
@@ -37,24 +37,11 @@ This example is a brief introduction to the basic functionalities of the package
     from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 
 
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 17-22
-
-Loading data
-------------
-First we load the EMG example data and convert it to a MyoVerse Data object.
-The Data object is the primary component of the package, designed to store data and apply filters.
-The only required parameter is the sampling frequency of the data and the data itself.
-
-.. GENERATED FROM PYTHON SOURCE LINES 22-32
-
-.. code-block:: Python
-
+    # Loading data
+    # ------------
+    # First we load the EMG example data and convert it to a MyoVerse Data object.
+    # The Data object is the primary component of the package, designed to store data and apply filters.
+    # The only required parameter is the sampling frequency of the data and the data itself.
 
     # Get the path to the data file
     data_path = os.path.join("..", "data", "emg.pkl")
@@ -83,14 +70,14 @@ The only required parameter is the sampling frequency of the data and the data i
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-37
+.. GENERATED FROM PYTHON SOURCE LINES 35-39
 
 Looking at one specific task for simplicity
 -------------------------------------------
 The example data contains EMG from two different tasks labeled as "1" and "2".
 In the following we will only look at task 1 to explain the filtering functionalities.
 
-.. GENERATED FROM PYTHON SOURCE LINES 37-42
+.. GENERATED FROM PYTHON SOURCE LINES 39-44
 
 .. code-block:: Python
 
@@ -118,7 +105,7 @@ In the following we will only look at task 1 to explain the filtering functional
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 43-54
+.. GENERATED FROM PYTHON SOURCE LINES 45-56
 
 Understanding the saving format
 -------------------------------
@@ -132,7 +119,7 @@ The attribute **is_chunked** is a dictionary that stores if the data of a partic
 
 The attribute **output_representations** is a dictionary that stores the representation that will be outputted by the dataset pipeline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 54-57
+.. GENERATED FROM PYTHON SOURCE LINES 56-59
 
 .. code-block:: Python
 
@@ -154,13 +141,13 @@ The attribute **output_representations** is a dictionary that stores the represe
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-61
+.. GENERATED FROM PYTHON SOURCE LINES 60-63
 
 Plotting the raw data
 ---------------------
 We can plot the raw data using matplotlib.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-88
+.. GENERATED FROM PYTHON SOURCE LINES 63-90
 
 .. code-block:: Python
 
@@ -203,7 +190,7 @@ We can plot the raw data using matplotlib.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-96
+.. GENERATED FROM PYTHON SOURCE LINES 91-98
 
 Attributes of the EMGData object
 --------------------------------
@@ -213,7 +200,7 @@ Any Data object, of which EMGData is inheriting from, possesses a processed_repr
 
 At the beginning this attribute only contains the raw data with the key "Input".
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-99
+.. GENERATED FROM PYTHON SOURCE LINES 98-101
 
 .. code-block:: Python
 
@@ -235,14 +222,14 @@ At the beginning this attribute only contains the raw data with the key "Input".
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 100-104
+.. GENERATED FROM PYTHON SOURCE LINES 102-106
 
 Applying a filter
 -----------------
 The EMGData object has a method called **apply_filter** that applies a filter to the data.
 For example, we can apply a 4th order 20 Hz lowpass filter to the data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 104-115
+.. GENERATED FROM PYTHON SOURCE LINES 106-117
 
 .. code-block:: Python
 
@@ -264,7 +251,7 @@ For example, we can apply a 4th order 20 Hz lowpass filter to the data.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-122
+.. GENERATED FROM PYTHON SOURCE LINES 118-124
 
 Creating the filter
 -------------------
@@ -273,7 +260,7 @@ This must be set explicitly as some filters can only be used on either chunked o
 Since we want to have the result of the filter as an output representation, we set the parameter **is_output** to True.
 Further having the user specify this parameter forces them to think about the data they are working with.
 
-.. GENERATED FROM PYTHON SOURCE LINES 122-131
+.. GENERATED FROM PYTHON SOURCE LINES 124-133
 
 .. code-block:: Python
 
@@ -304,13 +291,13 @@ Further having the user specify this parameter forces them to think about the da
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 132-135
+.. GENERATED FROM PYTHON SOURCE LINES 134-137
 
 Applying the filter
 -------------------
 To apply the filter we call the apply_filter method on the EMGData object.
 
-.. GENERATED FROM PYTHON SOURCE LINES 135-140
+.. GENERATED FROM PYTHON SOURCE LINES 137-142
 
 .. code-block:: Python
 
@@ -335,7 +322,7 @@ To apply the filter we call the apply_filter method on the EMGData object.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 141-147
+.. GENERATED FROM PYTHON SOURCE LINES 143-149
 
 Accessing the filtered data
 ---------------------------
@@ -344,7 +331,7 @@ In our example the key is "Lowpass".
 
 In case you do not want to index using the filter sequence name, you can retrieve the last processed data by indexing with "Last".
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-158
+.. GENERATED FROM PYTHON SOURCE LINES 149-160
 
 .. code-block:: Python
 
@@ -383,13 +370,13 @@ In case you do not want to index using the filter sequence name, you can retriev
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-162
+.. GENERATED FROM PYTHON SOURCE LINES 161-164
 
 Visualizing the difference between raw and filtered data
 -------------------------------------------------------
 Let's plot both the raw and filtered data to see the effect of the lowpass filter
 
-.. GENERATED FROM PYTHON SOURCE LINES 162-190
+.. GENERATED FROM PYTHON SOURCE LINES 164-192
 
 .. code-block:: Python
 
@@ -436,9 +423,9 @@ Let's plot both the raw and filtered data to see the effect of the lowpass filte
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 7.131 seconds)
+   **Total running time of the script:** (0 minutes 7.050 seconds)
 
-**Estimated memory usage:**  1093 MB
+**Estimated memory usage:**  1169 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_1_understanding_basics.py:

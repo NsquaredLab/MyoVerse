@@ -1,0 +1,6 @@
+myoverse.datasets.supervised.EMGDataset.\_add\_data\_to\_dataset
+================================================================
+
+.. currentmodule:: myoverse.datasets.supervised
+
+.. automethod:: EMGDataset._add_data_to_dataset

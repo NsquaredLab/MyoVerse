@@ -24,7 +24,7 @@ Tutorials
   .. image:: /auto_examples/01_tutorials/images/thumb/sphx_glr_1_understanding_basics_thumb.png
     :alt:
 
-  :ref:`sphx_glr_auto_examples_01_tutorials_1_understanding_basics.py`
+  :doc:`/auto_examples/01_tutorials/1_understanding_basics`
 
 .. raw:: html
 
@@ -41,7 +41,7 @@ Tutorials
   .. image:: /auto_examples/01_tutorials/images/thumb/sphx_glr_2_complex_filtering_thumb.png
     :alt:
 
-  :ref:`sphx_glr_auto_examples_01_tutorials_2_complex_filtering.py`
+  :doc:`/auto_examples/01_tutorials/2_complex_filtering`
 
 .. raw:: html
 
@@ -58,7 +58,7 @@ Tutorials
   .. image:: /auto_examples/01_tutorials/images/thumb/sphx_glr_3_create_dataset_thumb.png
     :alt:
 
-  :ref:`sphx_glr_auto_examples_01_tutorials_3_create_dataset.py`
+  :doc:`/auto_examples/01_tutorials/3_create_dataset`
 
 .. raw:: html
 
@@ -75,7 +75,7 @@ Tutorials
   .. image:: /auto_examples/01_tutorials/images/thumb/sphx_glr_4_train_model_thumb.png
     :alt:
 
-  :ref:`sphx_glr_auto_examples_01_tutorials_4_train_model.py`
+  :doc:`/auto_examples/01_tutorials/4_train_model`
 
 .. raw:: html
 

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Package basics &#8212; MyoVerse 1.1.4 Documentation</title>
+    <title>Package basics &#8212; MyoVerse 1.1.6 Documentation</title>
   
   
   
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=00f267c6"></script>
+    <script src="../../_static/documentation_options.js?v=937269b5"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/01_tutorials/1_understanding_basics';</script>
@@ -53,7 +53,7 @@
     <link rel="prev" title="Tutorials" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.1.4" />
+  <meta name="docsearch:version" content="1.1.6" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.4 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.4 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.6 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.6 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.1.4
+          Version 1.1.6
       </button>
       
       
@@ -417,14 +417,15 @@ to download the full example code.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGData</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
-</pre></div>
-</div>
-<section id="loading-data">
-<h2>Loading data<a class="headerlink" href="#loading-data" title="Link to this heading">#</a></h2>
-<p>First we load the EMG example data and convert it to a MyoVerse Data object.
-The Data object is the primary component of the package, designed to store data and apply filters.
-The only required parameter is the sampling frequency of the data and the data itself.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get the path to the data file</span>
+
+
+<span class="c1"># Loading data</span>
+<span class="c1"># ------------</span>
+<span class="c1"># First we load the EMG example data and convert it to a MyoVerse Data object.</span>
+<span class="c1"># The Data object is the primary component of the package, designed to store data and apply filters.</span>
+<span class="c1"># The only required parameter is the sampling frequency of the data and the data itself.</span>
+
+<span class="c1"># Get the path to the data file</span>
 <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data_path</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/os.path.html#os.path.join" title="os.path.join" class="sphx-glr-backref-module-os-path sphx-glr-backref-type-py-function"><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span></a><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;emg.pkl&quot;</span><span class="p">)</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">data_path</span></a><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -442,7 +443,6 @@ Sampling frequency: 2044 Hz
 (0) Input (320, 20440)}
 </pre></div>
 </div>
-</section>
 <section id="looking-at-one-specific-task-for-simplicity">
 <h2>Looking at one specific task for simplicity<a class="headerlink" href="#looking-at-one-specific-task-for-simplicity" title="Link to this heading">#</a></h2>
 <p>The example data contains EMG from two different tasks labeled as “1” and “2”.
@@ -644,8 +644,8 @@ Lowpass and Last point to the same data: True
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_1_understanding_basics_002.png" srcset="../../_images/sphx_glr_1_understanding_basics_002.png" alt="Raw EMG - Channel 1, Lowpass Filtered EMG (Cutoff: 20 Hz) - Channel 1" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.131 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  1093 MB</p>
+<img src="../../_images/sphx_glr_1_understanding_basics_002.png" srcset="../../_images/sphx_glr_1_understanding_basics_002.png" alt="Raw EMG - Channel 1, Lowpass Filtered EMG (Cutoff: 20 Hz) - Channel 1" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 7.050 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  1169 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-tutorials-1-understanding-basics-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/537e7a6daba49d0b1bd9d60cdc90f61d/1_understanding_basics.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">1_understanding_basics.ipynb</span></code></a></p>
@@ -684,7 +684,6 @@ Lowpass and Last point to the same data: True
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-data">Loading data</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#looking-at-one-specific-task-for-simplicity">Looking at one specific task for simplicity</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-the-saving-format">Understanding the saving format</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plotting-the-raw-data">Plotting the raw data</a></li>

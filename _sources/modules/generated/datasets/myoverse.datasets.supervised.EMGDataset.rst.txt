@@ -13,8 +13,8 @@
    .. autosummary::
       :toctree: EMGDataset
        
-            ~EMGDataset.__add_data_to_dataset
             ~EMGDataset.__init__
+            ~EMGDataset._add_data_to_dataset
             ~EMGDataset._append_augmented_batch
             ~EMGDataset._apply_augmentation_pipeline
             ~EMGDataset._apply_augmentations
