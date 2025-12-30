@@ -22,9 +22,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.widgets import Slider
 
-from myoverse.datasets.filters._template import FilterBaseClass
-
-
 class DeletedRepresentation(NamedTuple):
     """Class to hold metadata about deleted representations.
 
@@ -48,7 +45,7 @@ class DeletedRepresentation(NamedTuple):
 
 Representation = TypedDict(
     "Representation",
-    {"data": np.ndarray, "filter_sequence": List[FilterBaseClass]},
+    {"data": np.ndarray},
 )
 
 InputRepresentationName: Final[str] = "Input"
@@ -95,7 +92,7 @@ def create_grid_layout(
     >>> import numpy as np
     >>> from myoverse.datatypes import create_grid_layout
     >>>
-    >>> # Create a 4×4 grid with row-wise numbering (0-15)
+    >>> # Create a 4*4 grid with row-wise numbering (0-15)
     >>> grid1 = create_grid_layout(4, 4, fill_pattern='row')
     >>> print(grid1)
     [[ 0  1  2  3]
@@ -103,7 +100,7 @@ def create_grid_layout(
      [ 8  9 10 11]
      [12 13 14 15]]
     >>>
-    >>> # Create a 4×4 grid with column-wise numbering (0-15)
+    >>> # Create a 4*4 grid with column-wise numbering (0-15)
     >>> grid2 = create_grid_layout(4, 4, fill_pattern='column')
     >>> print(grid2)
     [[ 0  4  8 12]
@@ -111,7 +108,7 @@ def create_grid_layout(
      [ 2  6 10 14]
      [ 3  7 11 15]]
     >>>
-    >>> # Create a 3×3 grid with only 8 electrodes (missing bottom-right)
+    >>> # Create a 3*3 grid with only 8 electrodes (missing bottom-right)
     >>> grid3 = create_grid_layout(3, 3, 8, 'row',
     ...                           missing_indices=[(2, 2)])
     >>> print(grid3)
@@ -137,7 +134,7 @@ def create_grid_layout(
     elif n_electrodes > max_electrodes:
         raise ValueError(
             f"Number of electrodes ({n_electrodes}) exceeds available positions "
-            f"({max_electrodes} = {rows}×{cols} - {len(missing_positions)} missing)"
+            f"({max_electrodes} = {rows}*{cols} - {len(missing_positions)} missing)"
         )
 
     # Fill the grid based on the pattern
@@ -166,8 +163,7 @@ class _Data:
     """Base class for all data types.
 
     This class provides common functionality for handling different types of data,
-    including maintaining original and processed representations, tracking filters
-    applied, and managing data flow.
+    including maintaining original and processed representations.
 
     Parameters
     ----------
@@ -184,12 +180,10 @@ class _Data:
         The last processing step applied to the data.
     _processed_representations : networkx.DiGraph
         The graph of the processed representations.
-    _filters_used : Dict[str, FilterBaseClass]
-        Dictionary of all filters used in the data. The keys are the names of the filters and the values are the filters themselves.
     _data : Dict[str, Union[np.ndarray, DeletedRepresentation]]
         Dictionary of all data. The keys are the names of the representations and the values are
         either numpy arrays or DeletedRepresentation objects (for representations that have been
-        deleted to save memory but can be regenerated when needed).
+        deleted to save memory).
 
     Raises
     ------
@@ -201,8 +195,7 @@ class _Data:
     Memory Management:
         When representations are deleted with delete_data(), they are replaced with
         DeletedRepresentation objects that store essential metadata (shape, dtype)
-        but don't consume memory for the actual data. These representations can be
-        automatically recomputed when accessed. The chunking status is determined from
+        but don't consume memory for the actual data. The chunking status is determined from
         the shape when needed.
 
     Examples
@@ -238,7 +231,6 @@ class _Data:
         self._data: Dict[str, Union[np.ndarray, DeletedRepresentation]] = {
             InputRepresentationName: raw_data,
         }
-        self._filters_used: Dict[str, FilterBaseClass] = {}
 
         self._processed_representations: networkx.DiGraph = networkx.DiGraph()
         self._processed_representations.add_node(InputRepresentationName)
@@ -802,389 +794,6 @@ class _Data:
         plt.tight_layout(pad=2.0)  # Increased padding
         plt.show()
 
-    def apply_filter(
-        self,
-        filter: FilterBaseClass,
-        representations_to_filter: list[str] | None = None,
-        keep_representation_to_filter: bool = True,
-    ) -> str:
-        """Applies a filter to the data.
-
-        Parameters
-        ----------
-        filter : callable
-            The filter to apply.
-        representations_to_filter : list[str], optional
-            A list of representations to filter. The filter is responsible for handling
-            the appropriate number of inputs or raising an error if incompatible.
-            If None, creates an empty list.
-        keep_representation_to_filter : bool
-            Whether to keep the representation(s) to filter or not.
-            If the representation to filter is "Input", this parameter is ignored.
-
-        Returns
-        -------
-        str
-            The name of the representation after applying the filter.
-
-        Raises
-        ------
-        ValueError
-            If representations_to_filter is a string instead of a list
-        TypeError
-            If a filter returns a dictionary (no longer supported)
-        """
-        representation_name = filter.name
-
-        # Ensure representations_to_filter is a list, not a string
-        if isinstance(representations_to_filter, str):
-            raise ValueError(
-                f"representations_to_filter must be a list, not a string. "
-                f"Use ['{representations_to_filter}'] instead of '{representations_to_filter}'."
-            )
-
-        # If representations_to_filter is None, create an empty list
-        if representations_to_filter is None:
-            representations_to_filter = []
-
-        # Check if the list is empty
-        if len(representations_to_filter) == 0:
-            # For all filters, check if the list is empty
-            raise ValueError(
-                f"The filter {filter.name} requires an input representation. "
-                f"Please provide at least one representation to filter."
-            )
-
-        # Replace LastRepresentationName with the actual last processing step
-        representations_to_filter = [
-            self._last_processing_step if rep == LastRepresentationName else rep
-            for rep in representations_to_filter
-        ]
-
-        # Add edges to the graph for all input representations
-        for rep in representations_to_filter:
-            if rep not in self._processed_representations:
-                self._processed_representations.add_node(rep)
-
-            # Add filter node and create edges from inputs to filter
-            if representation_name not in self._processed_representations:
-                self._processed_representations.add_node(representation_name)
-            # Add edge from the representation to filter to the new representation if it doesn't exist yet
-            if not self._processed_representations.has_edge(rep, representation_name):
-                self._processed_representations.add_edge(rep, representation_name)
-
-        # Get the data for each representation
-        input_arrays = [self[rep] for rep in representations_to_filter]
-
-        # Automatically extract all data object parameters to pass to the filter
-        data_params = {}
-        # Use inspect to get all instance attributes
-        for attr_name, attr_value in inspect.getmembers(self):
-            # Skip private attributes, methods, and callables
-            if (
-                not attr_name.startswith("_")
-                and not callable(attr_value)
-                and not isinstance(attr_value, property)
-            ):
-                data_params[attr_name] = attr_value
-
-        # Check if a standard filter is receiving multiple inputs inappropriately
-        if len(input_arrays) > 1:
-            raise ValueError(
-                f"You're trying to pass multiple representations ({', '.join(representations_to_filter)}) to a "
-                f"standard filter that only accepts a single input."
-            )
-
-        # If there's only one input, pass it directly; otherwise pass the list
-        # This maintains backward compatibility with existing filters
-        if len(input_arrays) == 1:
-            filtered_data = filter(input_arrays[0], **data_params)
-        else:
-            filtered_data = filter(input_arrays, **data_params)
-
-        # Store the filtered data
-        self._data[representation_name] = filtered_data
-
-        # Check if the filter is going to be an output
-        # If so, add an edge from the representation to add to the output node
-        if filter.is_output:
-            self._processed_representations.add_edge(
-                representation_name, OutputRepresentationName
-            )
-
-        # Save the used filter
-        self._filters_used[representation_name] = filter
-
-        # Set the last processing step
-        self._last_processing_step = representation_name
-
-        # Remove the representations to filter if needed
-        if keep_representation_to_filter is False:
-            for rep in representations_to_filter:
-                if (
-                    rep != InputRepresentationName
-                ):  # Never delete the raw representation
-                    self.delete_data(rep)
-
-        return representation_name
-
-    def apply_filter_sequence(
-        self,
-        filter_sequence: List[FilterBaseClass],
-        representations_to_filter: List[str] | None = None,
-        keep_individual_filter_steps: bool = True,
-        keep_representation_to_filter: bool = True,
-    ) -> str:
-        """Applies a sequence of filters to the data sequentially.
-
-        Parameters
-        ----------
-        filter_sequence : list[FilterBaseClass]
-            The sequence of filters to apply.
-        representations_to_filter : List[str], optional
-            A list of representations to filter for the first filter in the sequence.
-            Each filter is responsible for validating and handling its inputs appropriately.
-            For subsequent filters in the sequence, the output of the previous filter is used.
-        keep_individual_filter_steps : bool
-            Whether to keep the results of each filter or not.
-        keep_representation_to_filter : bool
-            Whether to keep the representation(s) to filter or not.
-            If the representation to filter is "Input", this parameter is ignored.
-
-        Returns
-        -------
-        str
-            The name of the last representation after applying all filters.
-
-        Raises
-        ------
-        ValueError
-            If filter_sequence is empty.
-            If representations_to_filter is empty.
-            If representations_to_filter is a string instead of a list.
-        """
-        if len(filter_sequence) == 0:
-            raise ValueError("filter_sequence cannot be empty.")
-
-        # Ensure representations_to_filter is a list, not a string
-        if isinstance(representations_to_filter, str):
-            raise ValueError(
-                f"representations_to_filter must be a list, not a string. "
-                f"Use ['{representations_to_filter}'] instead of '{representations_to_filter}'."
-            )
-
-        # If representations_to_filter is None, create an empty list
-        if representations_to_filter is None:
-            representations_to_filter = []
-
-        # Replace LastRepresentationName with the actual last processing step
-        representations_to_filter = [
-            self._last_processing_step if rep == LastRepresentationName else rep
-            for rep in representations_to_filter
-        ]
-
-        # Apply the first filter with the provided representations
-        result = self.apply_filter(
-            filter=filter_sequence[0],
-            representations_to_filter=representations_to_filter,
-            keep_representation_to_filter=True,  # We'll handle this at the end
-        )
-
-        # Collect intermediate results for potential cleanup later
-        intermediate_results = [result]
-        what_to_filter = [result]
-
-        # Apply subsequent filters in sequence
-        for i, f in enumerate(filter_sequence[1:], 1):
-            # Apply the next filter using the previous result
-            result = self.apply_filter(
-                filter=f,
-                representations_to_filter=what_to_filter,
-                keep_representation_to_filter=True,  # Always keep intermediate results until the end
-            )
-
-            # Update what to filter for the next iteration
-            intermediate_results.append(result)
-            what_to_filter = [result]
-
-        # Remove intermediate filter steps if needed, keeping the final result
-        if not keep_individual_filter_steps:
-            # Delete all intermediates except the final result
-            for rep in intermediate_results[:-1]:  # Skip the last result
-                self.delete_data(rep)
-
-        # Remove the representation to filter if needed
-        if not keep_representation_to_filter:
-            for rep in representations_to_filter:
-                if (
-                    rep != InputRepresentationName
-                ):  # Never delete the input representation
-                    self.delete_data(rep)
-
-        return result
-
-    def apply_filter_pipeline(
-        self,
-        filter_pipeline: List[List[FilterBaseClass]],
-        representations_to_filter: List[List[str]],
-        keep_individual_filter_steps: bool = True,
-        keep_representation_to_filter: bool = True,
-    ) -> List[str]:
-        """Applies a pipeline of filters to the data.
-
-        Parameters
-        ----------
-        filter_pipeline : list[list[FilterBaseClass]]
-            The pipeline of filters to apply. Each inner list represents a branch of filters.
-        representations_to_filter : list[list[str]]
-            A list of input representations for each branch. Each element corresponds to
-            a branch in the filter_pipeline and must be:
-            - A list with a single string for standard branches that take one input
-            - A list with multiple strings for branches starting with a multi-input filter
-            - An empty list is not allowed unless the filter explicitly accepts no input
-
-            .. note :: The length of the representations_to_filter should be the same as
-                      the length of the amount of branches in the filter_pipeline.
-        keep_individual_filter_steps : bool
-            Whether to keep the results of each filter or not.
-        keep_representation_to_filter : bool
-            Whether to keep the representation(s) to filter or not.
-            If the representation to filter is "Input", this parameter is ignored.
-
-        Returns
-        -------
-        List[str]
-            A list containing the names of the final representations from all branches.
-
-        Raises
-        ------
-        ValueError
-            If the number of filter branches and representations to filter is different.
-            If a standard filter is provided with multiple representations.
-            If no representations are provided for a filter that requires input.
-            If any representations_to_filter element is a string instead of a list.
-
-        Notes
-        -----
-        Each branch in the pipeline is processed sequentially using apply_filter_sequence.
-
-        Examples
-        --------
-        >>> # Example of a pipeline with multiple processing branches
-        >>> from myoverse.datatypes import EMGData
-        >>> from myoverse.datasets.filters.generic import ApplyFunctionFilter
-        >>> import numpy as np
-        >>>
-        >>> # Create sample data
-        >>> data = EMGData(np.random.rand(10, 8), sampling_frequency=1000)
-        >>>
-        >>> # Define filter branches that perform different operations on the same input
-        >>> branch1 = [ApplyFunctionFilter(function=np.abs, name="absolute_values")]
-        >>> branch2 = [ApplyFunctionFilter(function=lambda x: x**2, name="squared_values")]
-        >>>
-        >>> # Apply pipeline with two branches
-        >>> data.apply_filter_pipeline(
-        >>>     filter_pipeline=[branch1, branch2],
-        >>>     representations_to_filter=[
-        >>>         ["input_data"],  # Process branch1 on input_data
-        >>>         ["input_data"],  # Process branch2 on input_data
-        >>>     ],
-        >>> )
-        >>>
-        >>> # The results are now available as separate representations
-        >>> abs_values = data["absolute_values"]
-        >>> squared_values = data["squared_values"]
-        """
-        if len(filter_pipeline) == 0:
-            return []
-
-        if len(filter_pipeline) != len(representations_to_filter):
-            raise ValueError(
-                f"The number of filter branches ({len(filter_pipeline)}) and "
-                f"representations to filter ({len(representations_to_filter)}) must be the same."
-            )
-
-        # Ensure all elements in representations_to_filter are lists, not strings
-        for branch_idx, branch_inputs in enumerate(representations_to_filter):
-            if isinstance(branch_inputs, str):
-                raise ValueError(
-                    f"Element {branch_idx} of representations_to_filter is a string ('{branch_inputs}'), "
-                    f"but must be a list. Use ['{branch_inputs}'] instead."
-                )
-            if branch_inputs is None:
-                raise ValueError(
-                    f"Element {branch_idx} of representations_to_filter is None, "
-                    f"but must be a list. Use an empty list [] for filters that do not require input."
-                )
-
-            # Replace LastRepresentationName with the actual last processing step in each branch input
-            representations_to_filter[branch_idx] = [
-                self._last_processing_step if rep == LastRepresentationName else rep
-                for rep in branch_inputs
-            ]
-
-        # Collect intermediates to delete after all branches are processed
-        intermediates_to_delete = []
-        all_results = []
-
-        # Process each branch without deleting intermediates
-        for branch_idx, (filter_sequence, branch_inputs) in enumerate(
-            zip(filter_pipeline, representations_to_filter)
-        ):
-            try:
-                # Apply filter sequence and get results
-                branch_result = self.apply_filter_sequence(
-                    filter_sequence=filter_sequence,
-                    representations_to_filter=branch_inputs,
-                    keep_individual_filter_steps=True,  # Always keep during processing
-                    keep_representation_to_filter=keep_representation_to_filter,
-                )
-
-                # Track the branch result
-                all_results.append(branch_result)
-
-                # Track intermediates that might need to be deleted
-                if not keep_individual_filter_steps:
-                    # For each filter in the sequence (except the last),
-                    # add its name to intermediates to delete
-                    for f in filter_sequence[:-1]:
-                        if hasattr(f, "name") and f.name:
-                            intermediates_to_delete.append(f.name)
-
-            except ValueError as e:
-                # Enhance error message with branch information
-                raise ValueError(
-                    f"Error in branch {branch_idx + 1}/{len(filter_pipeline)}: {str(e)}"
-                ) from e
-
-        # After all branches are processed, delete collected intermediates if needed
-        if not keep_individual_filter_steps:
-            # First, identify all final outputs from the pipeline
-            final_outputs = set(all_results)
-
-            # For each representation in the data
-            for rep_name in list(self._data.keys()):
-                # Skip input and final outputs
-                if rep_name == InputRepresentationName or rep_name in final_outputs:
-                    continue
-
-                # Check if this is an intermediate from any branch
-                is_intermediate = False
-                for base_name in intermediates_to_delete:
-                    # Either exact match or prefix match for multi-output filters
-                    if rep_name == base_name or rep_name.startswith(f"{base_name}_"):
-                        is_intermediate = True
-                        break
-
-                if is_intermediate:
-                    try:
-                        self.delete_data(rep_name)
-                    except KeyError:
-                        # If already deleted or doesn't exist, just continue
-                        pass
-
-        return all_results
-
     def get_representation_history(self, representation: str) -> List[str]:
         """Returns the history of a representation.
 
@@ -1216,50 +825,31 @@ class _Data:
         lines.append(f"Sampling frequency: {self.sampling_frequency} Hz")
         lines.append(f"(0) Input {input_shape}")
 
-        if len(self._processed_representations.nodes) >= 3:
-            # Add an empty line for spacing between input and filters
+        # Show other representations if they exist
+        other_reps = [k for k in self._data.keys() if k != InputRepresentationName]
+        if other_reps:
             lines.append("")
-            lines.append("Filter(s):")
+            lines.append("Representations:")
 
-            # Create mapping of representation to index only if needed
-            if self._filters_used:
-                representation_indices = {
-                    key: index for index, key in enumerate(self._filters_used.keys())
-                }
+            # Precompute output predecessors for faster lookup
+            output_predecessors = set(
+                self._processed_representations.predecessors(OutputRepresentationName)
+            )
 
-                # Precompute output predecessors for faster lookup
-                output_predecessors = set(
-                    self._processed_representations.predecessors(
-                        OutputRepresentationName
-                    )
+            for idx, rep_name in enumerate(other_reps, 1):
+                rep_data = self._data[rep_name]
+                is_output = rep_name in output_predecessors
+                shape_str = (
+                    rep_data.shape
+                    if not isinstance(rep_data, str)
+                    else rep_data
                 )
 
-                for filter_index, (filter_name, filter_representation) in enumerate(
-                    self._data.items()
-                ):
-                    if filter_name == InputRepresentationName:
-                        continue
-
-                    # Get history and format it more efficiently
-                    history = self.get_representation_history(filter_name)
-                    history_str = " -> ".join(
-                        str(representation_indices[rep] + 1) for rep in history[1:]
-                    )
-
-                    # Build filter representation string
-                    is_output = filter_name in output_predecessors
-                    shape_str = (
-                        filter_representation.shape
-                        if not isinstance(filter_representation, str)
-                        else filter_representation
-                    )
-
-                    filter_str = f"({filter_index} | {history_str}) "
-                    if is_output:
-                        filter_str += "(Output) "
-                    filter_str += f"{filter_name} {shape_str}"
-
-                    lines.append(filter_str)
+                rep_str = f"({idx}) "
+                if is_output:
+                    rep_str += "(Output) "
+                rep_str += f"{rep_name} {shape_str}"
+                lines.append(rep_str)
 
         # Join all parts with newlines
         return "\n".join(lines)
@@ -1282,29 +872,23 @@ class _Data:
         if key == LastRepresentationName:
             return self[self._last_processing_step]
 
-        if key not in self._processed_representations:
+        if key not in self._data:
             raise KeyError(f'The representation "{key}" does not exist.')
 
         data_to_return = self._data[key]
 
         if isinstance(data_to_return, DeletedRepresentation):
-            print(f'Recomputing representation "{key}"')
-
-            history = self.get_representation_history(key)
-            self.apply_filter_sequence(
-                filter_sequence=[
-                    self._filters_used[filter_name] for filter_name in history[1:]
-                ],
-                representations_to_filter=[history[0]],
+            raise RuntimeError(
+                f'The representation "{key}" was deleted and cannot be automatically '
+                f'recomputed. Use the new Transform API for preprocessing.'
             )
 
         # Use view when possible for more efficient memory usage
-        data = self._data[key]
-        return data.view() if data.flags.writeable else data.copy()
+        return data_to_return.view() if data_to_return.flags.writeable else data_to_return.copy()
 
     def __setitem__(self, key: str, value: np.ndarray) -> None:
         raise RuntimeError(
-            "This method is not supported. Run apply_filter or apply_filters instead."
+            "Direct assignment is not supported. Use the Transform API for preprocessing."
         )
 
     def delete_data(self, representation_to_delete: str):
@@ -1355,7 +939,6 @@ class _Data:
                 f'The representation "{representation_to_delete}" does not exist.'
             )
 
-        self._filters_used.pop(representation_to_delete, None)
         self._processed_representations.remove_node(representation_to_delete)
 
     def delete(self, representation_to_delete: str):
@@ -1393,7 +976,6 @@ class _Data:
                         "_data",
                         "_processed_representations",
                         "_last_processing_step",
-                        "_filters_used",
                     ]
                 )
                 and not inspect.ismethod(value)
@@ -1406,9 +988,6 @@ class _Data:
                 elif name == "_processed_representations":
                     # Use the graph's copy method
                     setattr(new_instance, name, value.copy())
-                elif name == "_filters_used":
-                    # Deep copy the filters used
-                    setattr(new_instance, name, copy.deepcopy(value))
                 else:
                     # Shallow copy for other attributes
                     setattr(new_instance, name, copy.copy(value))
@@ -1522,7 +1101,7 @@ class EMGData(_Data):
     >>> emg = EMGData(emg_data, sampling_freq)
     >>>
     >>> # Create an EMGData object with grid layouts
-    >>> # Define a 4×4 electrode grid with row-wise numbering
+    >>> # Define a 4*4 electrode grid with row-wise numbering
     >>> grid = create_grid_layout(4, 4, fill_pattern='row')
     >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
 
@@ -1542,15 +1121,15 @@ class EMGData(_Data):
     >>> sampling_freq = 2048  # Hz
     >>>
     >>> # Create layouts for three different electrode grids
-    >>> # First grid: 5×5 array with sequential numbering (0-24)
+    >>> # First grid: 5*5 array with sequential numbering (0-24)
     >>> grid1 = create_grid_layout(5, 5, fill_pattern='row')
     >>>
-    >>> # Second grid: 6×6 array with column-wise numbering
+    >>> # Second grid: 6*6 array with column-wise numbering
     >>> grid2 = create_grid_layout(6, 6, fill_pattern='column')
     >>> # Shift indices to start after the first grid (add 25)
     >>> grid2[grid2 >= 0] += 25
     >>>
-    >>> # Third grid: Irregular 3×4 array
+    >>> # Third grid: Irregular 3*4 array
     >>> grid3 = create_grid_layout(3, 4, fill_pattern='row')
     >>> grid3[grid3 >= 0] += 50
     >>>
@@ -1567,7 +1146,7 @@ class EMGData(_Data):
     >>> # Access individual grid dimensions
     >>> grid_dimensions = emg._get_grid_dimensions()
     >>> for i, (rows, cols, electrodes) in enumerate(grid_dimensions):
-    ...     print(f"Grid {i+1}: {rows}×{cols} with {electrodes} electrodes")
+    ...     print(f"Grid {i+1}: {rows}*{cols} with {electrodes} electrodes")
     """
 
     def __init__(
@@ -1663,7 +1242,7 @@ class EMGData(_Data):
         >>> # Create sample EMG data (64 channels, 1000 samples)
         >>> emg_data = np.random.randn(64, 1000)
         >>>
-        >>> # Create EMGData with two 4×8 grids (32 electrodes each)
+        >>> # Create EMGData with two 4*8 grids (32 electrodes each)
         >>> grid1 = create_grid_layout(4, 8, 32, fill_pattern='row')
         >>> grid2 = create_grid_layout(4, 8, 32, fill_pattern='row')
         >>>
@@ -1735,7 +1314,7 @@ class EMGData(_Data):
             grid_title = f"Grid {grid_idx + 1}"
             if self.grid_layouts is not None and use_grid_layouts:
                 rows, cols, _ = grid_dimensions[grid_idx]
-                grid_title += f" ({rows}×{cols})"
+                grid_title += f" ({rows}*{cols})"
             ax.set_title(grid_title)
 
             offset = electrode_offsets[grid_idx]
@@ -1856,7 +1435,7 @@ class EMGData(_Data):
         >>> # Create sample EMG data (64 channels, 1000 samples)
         >>> emg_data = np.random.randn(64, 1000)
         >>>
-        >>> # Create an 8×8 grid with some missing electrodes
+        >>> # Create an 8*8 grid with some missing electrodes
         >>> grid = create_grid_layout(8, 8, 64, fill_pattern='row',
         ...                          missing_indices=[(7, 7), (0, 0)])
         >>>
@@ -1899,7 +1478,7 @@ class EMGData(_Data):
 
         # Set default title if not provided
         if title is None:
-            title = f"Grid {grid_idx + 1} layout ({rows}×{cols}) with {n_electrodes} electrodes"
+            title = f"Grid {grid_idx + 1} layout ({rows}*{cols}) with {n_electrodes} electrodes"
 
         # Create a masked array for plotting
         masked_grid = np.ma.masked_less(grid, 0)

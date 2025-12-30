@@ -1,253 +1,304 @@
 """
-Complex filtering
-=================
+Complex Filtering Pipelines
+===========================
 
-This example shows how to apply a complex filter sequence to the data.
+This example shows how to build complex filter pipelines with multiple
+representations using the dimension-aware transform system.
 """
 
 # %%
-# Loading data and selection one task for simplicity
-# --------------------------------------------------
-# Just as in the previous example we load the EMG example data and convert it to a MyoVerse Data object.
-# Afterward, we select one task to work with.
+# Loading Data
+# ------------
+# Load EMG data and wrap as a named tensor.
+
 import pickle as pkl
-
-import numpy as np
-
-from myoverse.datatypes import EMGData
-
-emg_data = {}
-with open("../data/emg.pkl", "rb") as f:
-    for k, v in pkl.load(f).items():
-        emg_data[k] = EMGData(v, sampling_frequency=2048)
-
-print(emg_data)
-
-task_one_data = emg_data.copy()["1"]
-
-print(task_one_data)
-
-# %%
-# Applying a basic filter sequence
-# --------------------------------
-# A common filter sequence used by us in our deep learning papers is to first apply a bandstop between 47.5 and 52.5 Hz
-# to remove the powerline noise.
-#
-# Then we copied this filtered data and applied a lowpass filter at 20 Hz to remove high-frequency noise.
-# The deep learning models were thus trained with 2 representations of the data, one with the powerline noise removed and one with the high-frequency and powerline noise removed.
-#
-# We can achieve this by applying two filters to the data using the apply_filters method.
-#
-# .. note:: Please run this code on your local machine as the plots are interactive and information can be seen by hovering over the nodes.
-from scipy.signal import butter
-
-from myoverse.datasets.filters.temporal import SOSFrequencyFilter, RMSFilter
-
-# Define the filters
-bandstop_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2048),
-    is_output=True,
-    name="Bandstop 50",
-    input_is_chunked=False,
-)
-lowpass_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=butter(4, 20, "lowpass", output="sos", fs=2048),
-    is_output=True,
-    name="Lowpass 20",
-    input_is_chunked=False,
-)
-
-# Apply the filters
-task_one_data.apply_filter_sequence(
-    filter_sequence=[bandstop_filter, lowpass_filter],
-    representations_to_filter=["Input"],
-)
-
-print()
-print(task_one_data)
-
-task_one_data.plot_graph()
-
-
-# %%
-# Applying a complex filter sequence
-# ----------------------------------
-# In this example we will apply a more complex filter sequence to the data.
-#
-# The filter shall apply the following steps:
-#
-# 1. Chunk the data into 100 ms windows.
-#
-# 2. Apply a bandstop filter between 47.5 and 52.5 Hz to remove powerline noise.
-#
-# 3. Copy the filtered data and apply a lowpass filter at 20 Hz to remove high-frequency noise.
-# 4. Compute the root mean square of the data from step 3.
-#
-# 5. The other copy of step 2 should be used to calculate the root mean square directly.
-#
-# The computation graph for this filter sequence is shown below:
-#
-# 1 -> 2 -> 3 -> 4
-#      L --------> 5
-#
-# We can achieve this by applying five filters to the data using the **apply_filter_sequence** method and setting the is_output
-# flag to True for the filters that should be kept in the dataset object.
-from myoverse.datasets.filters.generic import ChunkizeDataFilter
-from myoverse.datasets.filters.temporal import SOSFrequencyFilter
-
-# reset the data
-task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2048)
-
-# Define the filters
-bandstop_filter = butter(4, [47.5, 52.5], "bandstop", output="sos", fs=2048)
-lowpass_filter = butter(4, 20, "lowpass", output="sos", fs=2048)
-
-# %%
-# Apply the filters for steps 1 and 2
-# -----------------------------------
-CHUNK_SIZE = int(100 / 1000 * 2048)
-CHUNK_SHIFT = 64
-
-task_one_data.apply_filter_sequence(
-    filter_sequence=[
-        ChunkizeDataFilter(
-            chunk_size=CHUNK_SIZE,
-            chunk_shift=CHUNK_SHIFT,
-            name="Windowed",
-            input_is_chunked=False,
-        ),
-        SOSFrequencyFilter(
-            sos_filter_coefficients=bandstop_filter,
-            name="Bandstop 50",
-            input_is_chunked=True,
-        ),
-    ],
-    representations_to_filter=["Input"],
-)
-
-print(task_one_data)
-
-task_one_data.plot_graph()
-
-# %%
-# Apply the filters for step 3 and 4
-# ----------------------------------
-task_one_data.apply_filter_sequence(
-    filter_sequence=[
-        SOSFrequencyFilter(
-            sos_filter_coefficients=lowpass_filter,
-            name="Lowpass 20",
-            input_is_chunked=True,
-        ),
-        RMSFilter(
-            is_output=True,
-            name="RMS on Lowpass 20",
-            input_is_chunked=True,
-            window_size=CHUNK_SIZE,
-        ),
-    ],
-    representations_to_filter=["Bandstop 50"],
-)
-
-print(task_one_data)
-
-task_one_data.plot_graph()
-
-# %%
-# Apply the filters for step 5
-# -----------------------------
-task_one_data.apply_filter(
-    RMSFilter(
-        is_output=True,
-        name="RMS on Bandstop 50",
-        input_is_chunked=True,
-        window_size=CHUNK_SIZE,
-    ),
-    representations_to_filter=["Bandstop 50"],
-)
-
-print(task_one_data)
-
-task_one_data.plot_graph()
-
-# %%
-# Displaying the output
-# ---------------------
+from pathlib import Path
 
 import matplotlib.pyplot as plt
+import torch
+import myoverse
 
-plt.rcParams.update({"font.size": 14})
+SCRIPT_DIR = Path(__file__).parent.resolve()
+DATA_DIR = SCRIPT_DIR.parent / "data"
 
-filter_sequences = {0: "1->2->3->4", 1: "1->2->5"}
+with open(DATA_DIR / "emg.pkl", "rb") as f:
+    emg_data = pkl.load(f)
 
-# make 2 subplots
-fig, axs = plt.subplots(2, sharex=True, sharey=True)
+SAMPLING_FREQ = 2048
+emg = myoverse.emg_tensor(emg_data["1"], fs=SAMPLING_FREQ)
 
-for i, (key, value) in enumerate(task_one_data.output_representations.items()):
-    for channel in range(value.shape[-2]):
-        axs[i].plot(value[:, channel, 0], color="black", alpha=0.01)
+print(f"EMG data loaded: {emg.names} {emg.shape}")
 
-    axs[i].set_title(f"Filter sequence: {filter_sequences[i]}")
-    axs[i].set_ylabel("Amplitude (a. u.)")
+plt.style.use("fivethirtyeight")
 
-plt.xlabel("Samples (a. u.)")
+# %%
+# Simple Pipeline: Highpass + Lowpass
+# -----------------------------------
+# A common preprocessing sequence:
+# 1. Highpass filter (20 Hz) to remove DC and movement artifacts
+# 2. Lowpass filter (450 Hz) to remove high frequency noise
+
+from myoverse.transforms import Compose, Highpass, Lowpass
+
+# Preprocessing pipeline using Compose
+preprocess = Compose([
+    Highpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    Lowpass(cutoff=450, fs=SAMPLING_FREQ, dim="time"),
+])
+
+filtered = preprocess(emg)
+print(f"Preprocessed: {filtered.names} {filtered.shape}")
+
+# %%
+# Multi-Representation with Stack
+# -------------------------------
+# Often we want multiple representations of the same signal.
+# Stack applies multiple transforms and combines them along a new dimension.
+
+from myoverse.transforms import Identity, Stack
+
+# Create two representations:
+# - "raw": Just the preprocessed signal
+# - "envelope": Lowpass filtered version (smooth envelope)
+
+dual_repr = Stack({
+    "raw": Identity(),
+    "envelope": Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+}, dim="representation")
+
+# Apply to preprocessed data
+stacked = dual_repr(filtered)
+print(f"Stack output: {stacked.names} {stacked.shape}")
+
+# %%
+# Complete Pipeline: Preprocess + Stack
+# -------------------------------------
+# Combine everything into one pipeline.
+
+complete_pipeline = Compose([
+    # Preprocessing
+    Highpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    Lowpass(cutoff=450, fs=SAMPLING_FREQ, dim="time"),
+    # Multi-representation
+    Stack({
+        "raw": Identity(),
+        "envelope": Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    }, dim="representation"),
+])
+
+output = complete_pipeline(emg)
+print(f"\nComplete pipeline:")
+print(f"\tInput:  {emg.names} {emg.shape}")
+print(f"\tOutput: {output.names} {output.shape}")
+
+# %%
+# Visualizing the Pipeline Output
+# -------------------------------
+
+channel = 0
+samples = 5000
+
+plt.figure(figsize=(12, 8))
+
+plt.subplot(2, 1, 1)
+plt.plot(output[0, channel, :samples].rename(None).numpy())
+plt.title("Raw (Bandpass Filtered)")
+plt.ylabel("Amplitude")
+
+plt.subplot(2, 1, 2)
+plt.plot(output[1, channel, :samples].rename(None).numpy())
+plt.title("Envelope (Additional Lowpass)")
+plt.xlabel("Samples")
+plt.ylabel("Amplitude")
 
 plt.tight_layout()
 plt.show()
 
 # %%
-# Easier way of applying the filter pipeline
-# ------------------------------------------
-# This can be achieved in a more concise way by using the **apply_filter_pipeline** method.
+# Complex Stacking: Multiple Feature Representations
+# --------------------------------------------------
+# Create multiple feature representations from the same input.
+
+from myoverse.transforms import Rectify
+
+# Stack with nested Compose for complex branches
+feature_stack = Stack({
+    "raw": Identity(),
+    "envelope": Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    "rectified": Compose([
+        Rectify(),
+        Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    ]),
+}, dim="representation")
+
+# Apply to preprocessed data
+stacked_features = feature_stack(filtered)
+print(f"Stacked features: {stacked_features.names} {stacked_features.shape}")
+
+# %%
+# Visualizing Multiple Features
+# -----------------------------
+
+plt.figure(figsize=(12, 10))
+
+names = ["raw", "envelope", "rectified"]
+for i, name in enumerate(names):
+    plt.subplot(3, 1, i + 1)
+    plt.plot(stacked_features[i, channel, :samples].rename(None).numpy())
+    plt.title(f"{name.capitalize()} Representation")
+    plt.ylabel("Amplitude")
+    if i == 2:
+        plt.xlabel("Samples")
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# Pipeline with RMS Feature Extraction
+# ------------------------------------
+# Extract RMS features from multiple representations.
+
+from myoverse.transforms import RMS
+
+rms_pipeline = Compose([
+    # Preprocess
+    Highpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    # Multi-representation
+    Stack({
+        "bandpass": Identity(),
+        "lowpass": Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    }, dim="representation"),
+    # Apply RMS to both representations
+    RMS(window_size=100, dim="time"),
+])
+
+rms_output = rms_pipeline(emg)
+print(f"RMS pipeline output: {rms_output.names} {rms_output.shape}")
+
+# %%
+# Visualizing RMS Features
+# ------------------------
+
+# Adjust samples for RMS output (reduced time dimension)
+rms_samples = min(samples // 100, rms_output.shape[-1])
+
+plt.figure(figsize=(12, 8))
+
+plt.subplot(2, 1, 1)
+plt.plot(rms_output[0, channel, :rms_samples].rename(None).numpy(), linewidth=2)
+plt.title("RMS of Bandpass Filtered Signal")
+plt.ylabel("RMS Amplitude")
+
+plt.subplot(2, 1, 2)
+plt.plot(rms_output[1, channel, :rms_samples].rename(None).numpy(), linewidth=2)
+plt.title("RMS of Lowpass Filtered Signal")
+plt.xlabel("Windows")
+plt.ylabel("RMS Amplitude")
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# All Channels Visualization
+# --------------------------
+# Plot all channels to see the overall signal structure.
+
+n_channels = min(64, rms_output.shape[1])
+
+plt.figure(figsize=(12, 8))
+
+plt.subplot(2, 1, 1)
+for ch in range(n_channels):
+    plt.plot(
+        rms_output[0, ch].rename(None).numpy(),
+        color="black",
+        alpha=0.05,
+    )
+plt.title("RMS Features - All Channels (Bandpass)")
+plt.ylabel("Amplitude")
+
+plt.subplot(2, 1, 2)
+for ch in range(n_channels):
+    plt.plot(
+        rms_output[1, ch].rename(None).numpy(),
+        color="black",
+        alpha=0.05,
+    )
+plt.title("RMS Features - All Channels (Lowpass)")
+plt.xlabel("Windows")
+plt.ylabel("Amplitude")
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# Complete Feature Extraction Pipeline
+# ------------------------------------
+# A full pipeline with preprocessing, feature extraction, and normalization.
+
+from myoverse.transforms import ZScore
+
+full_pipeline = Compose([
+    Highpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    Lowpass(cutoff=450, fs=SAMPLING_FREQ, dim="time"),
+    Rectify(),
+    RMS(window_size=100, dim="time"),
+    ZScore(dim="time"),
+])
+
+final_output = full_pipeline(emg)
+print(f"Full pipeline output: {final_output.names} {final_output.shape}")
+
+# Verify normalization
+final_data = final_output.rename(None)
+print(f"Mean: {float(final_data.mean()):.6f}, Std: {float(final_data.std()):.6f}")
+
+# %%
+# GPU Acceleration
+# ----------------
+# All pipelines work on GPU for faster processing.
+
+if torch.cuda.is_available():
+    emg_gpu = emg.cuda()
+    print(f"\nEMG on GPU: {emg_gpu.device}")
+
+    # Apply complete pipeline on GPU
+    output_gpu = complete_pipeline(emg_gpu)
+    print(f"Output on GPU: {output_gpu.device}")
+else:
+    print("\nCUDA not available - using CPU")
+
+# %%
+# Summary
+# -------
+# Complex pipelines are built by combining:
 #
-# To reduce memory usage, we can set the **keep_individual_filter_steps** flag to False.
-# This will remove the intermediate representations (shown in grey) from the dataset object.
+# 1. **Compose** - Chain transforms sequentially (from torchvision)
+# 2. **Stack** - Create multiple representations along a new dimension
+# 3. **Identity** - Pass-through (useful in Stack for "raw" representation)
 #
-# .. note:: If new filters rely on the intermediate representations, they will be recalculated which can be computationally expensive.
-task_one_data = EMGData(emg_data["1"].input_data, sampling_frequency=2048)
-
-print(task_one_data)
-
-# Apply the filters
-task_one_data.apply_filter_pipeline(
-    filter_pipeline=[
-        [
-            ChunkizeDataFilter(
-                chunk_size=CHUNK_SIZE,
-                chunk_shift=CHUNK_SHIFT,
-                name="Windowed",
-                input_is_chunked=False,
-            ),
-            SOSFrequencyFilter(
-                sos_filter_coefficients=bandstop_filter,
-                name="Bandstop 50",
-                input_is_chunked=True,
-            ),
-            SOSFrequencyFilter(
-                sos_filter_coefficients=lowpass_filter,
-                name="Lowpass 20",
-                input_is_chunked=True,
-            ),
-            RMSFilter(
-                is_output=True,
-                name="RMS on Lowpass 20",
-                input_is_chunked=True,
-                window_size=CHUNK_SIZE,
-            ),
-        ],
-        [
-            RMSFilter(
-                is_output=True,
-                name="RMS on Bandstop 50",
-                input_is_chunked=True,
-                window_size=CHUNK_SIZE,
-            ),
-        ],
-    ],
-    representations_to_filter=[["Input"], ["Bandstop 50"]],
-    keep_individual_filter_steps=False,
-)
-
-print(task_one_data)
-
-task_one_data.plot_graph()
+# Key patterns:
+#
+# ```python
+# # Sequential processing
+# Compose([Transform1(), Transform2(), Transform3()])
+#
+# # Multi-representation (one input -> stacked output)
+# Stack({
+#     "name1": Transform1(),
+#     "name2": Transform2(),
+# }, dim="representation")
+#
+# # Complete pattern
+# Compose([
+#     Preprocess(),
+#     Stack({
+#         "raw": Identity(),
+#         "filtered": FilterTransform(),
+#     }, dim="representation"),
+#     PostProcess(),  # Applied to all representations
+# ])
+# ```
+#
+# All transforms are dimension-aware - specify `dim="time"` to be explicit
+# about which dimension is being processed.

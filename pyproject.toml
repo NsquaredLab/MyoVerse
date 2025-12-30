@@ -21,10 +21,13 @@ dependencies = [
     "statsmodels>=0.14.4",
     "toml>=0.10.2",
     "tqdm>=4.67.1",
-    "zarr==2.18.4",
-    "numcodecs>=0.13.0,<0.16",
+    "xarray>=2024.10.0",  # Named dimensions for multi-modal data
+    "xrscipy>=0.4.0",  # scipy functions for xarray (dimension-aware signal processing)
+    "zarr>=3.0.0",  # Zarr 3 with new API (ZarrIO abstraction handles compatibility)
+    "zarrs>=0.2.0",  # Rust-based codec pipeline for faster I/O
     "torch>=2.6.0",
     "torchvision>=0.21.0",
+    "torchaudio>=2.6.0",  # IIR biquad filters for temporal transforms
 ]
 
 [tool.uv.sources]
@@ -32,6 +35,9 @@ torch = [
   { index = "torch-gpu", marker = "sys_platform != 'linux'" },
 ]
 torchvision = [
+  { index = "torch-gpu", marker = "sys_platform != 'linux'" },
+]
+torchaudio = [
   { index = "torch-gpu", marker = "sys_platform != 'linux'" },
 ]
 

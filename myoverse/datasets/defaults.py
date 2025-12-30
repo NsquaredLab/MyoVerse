@@ -1,296 +1,151 @@
-from pathlib import Path
-from typing import Sequence, Optional
+"""Default transform configurations for common papers/benchmarks.
 
-import numpy as np
-from scipy.signal import butter
+These provide pre-configured transform pipelines matching published work.
+No custom dataset classes - just composable transforms.
 
-from myoverse.datasets.filters.emg_augmentations import (
+Example
+-------
+>>> from myoverse.datasets import DatasetCreator, Modality
+>>> from myoverse.datasets.defaults import embc_kinematics_transform
+>>>
+>>> creator = DatasetCreator(
+...     modalities={
+...         "emg": Modality(path="emg.pkl", dims=("channel", "time")),
+...         "kinematics": Modality(
+...             path="kinematics.pkl",
+...             dims=("dof", "time"),
+...             transform=embc_kinematics_transform(),
+...         ),
+...     },
+...     ...
+... )
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from myoverse.transforms import (
+    Compose,
+    Flatten,
     GaussianNoise,
-    MagnitudeWarping,
-    WaveletDecomposition,
+    Identity,
+    Index,
+    Lowpass,
+    MagnitudeWarp,
+    Mean,
+    Stack,
 )
-from myoverse.datasets.filters.generic import (
-    ApplyFunctionFilter,
-    IndexDataFilter,
-    IdentityFilter,
-)
-from myoverse.datasets.filters.temporal import RMSFilter, SOSFrequencyFilter
-from myoverse.datasets.supervised import EMGDataset
 
 
-class EMBCDataset:
-    """Official dataset maker for the EMBC paper [1].
+# =============================================================================
+# EMBC 2022 Paper Configuration
+# =============================================================================
 
-    Parameters
-    ----------
-    emg_data_path : Path
-        The path to the pickle file containing the EMG data.
-        This should be a dictionary with the keys as the tasks in tasks_to_use and the values as the EMG data.
-        The EMG data should be of shape (320, samples).
-    ground_truth_data_path : Path
-        The path to the pickle file containing the ground truth data.
-        This should be a dictionary with the keys as the tasks in tasks_to_use and the values as the ground truth data.
-        The ground truth data should be of shape (21, 3, samples).
-    save_path : Path
-        The path to save the dataset to. This should be a zarr file.
-    emg_data : dict[str, np.ndarray], optional
-        Optional dictionary containing EMG data if not loading from a file.
-    ground_truth_data : dict[str, np.ndarray], optional
-        Optional dictionary containing ground truth data if not loading from a file.
-    tasks_to_use : Sequence[str], optional
-        The tasks to use.
-    debug_level : int, optional
-        Debug level (0-2). Default is 0 (no debugging).
-    silence_zarr_warnings : bool, optional
-        Whether to silence all Zarr-related warnings. Default is False.
 
-    Methods
-    -------
-    create_dataset()
-        Creates the dataset.
+@dataclass
+class EMBCConfig:
+    """Configuration matching EMBC 2022 paper [1].
 
     References
     ----------
-    [1] Sîmpetru, R.C., Osswald, M., Braun, D.I., Souza de Oliveira, D., Cakici, A.L., Del Vecchio, A., 2022.
-    Accurate Continuous Prediction of 14 Degrees of Freedom of the Hand from Myoelectrical Signals through
-    Convolutive Deep Learning, in: Proceedings of the 2022 44th Annual International Conference of
-    the IEEE Engineering in Medicine & Biology Society (EMBC) pp. 702–706. https://doi.org/10/gq2f47
+    [1] Simpetru, R.C., et al., 2022. Accurate Continuous Prediction of
+        14 Degrees of Freedom of the Hand from Myoelectrical Signals
+        through Convolutive Deep Learning. EMBC 2022, pp. 702-706.
     """
 
-    def __init__(
-        self,
-        emg_data_path: Path,
-        ground_truth_data_path: Path,
-        save_path: Path,
-        emg_data: dict[str, np.ndarray] = {},
-        ground_truth_data: dict[str, np.ndarray] = {},
-        tasks_to_use: Sequence[str] = ("Change Me",),
-        debug_level: int = 0,
-        silence_zarr_warnings: bool = False,
-    ):
-        self.emg_data_path = emg_data_path
-        self.emg_data = emg_data
-        self.ground_truth_data_path = ground_truth_data_path
-        self.ground_truth_data = ground_truth_data
-        self.tasks_to_use = tasks_to_use
-        self.save_path = save_path
-        self.debug_level = debug_level
-        self.silence_zarr_warnings = silence_zarr_warnings
-
-    def create_dataset(self):
-        # EMBC default settings
-        dataset = EMGDataset(
-            emg_data_path=self.emg_data_path,
-            emg_data=self.emg_data,
-            ground_truth_data_path=self.ground_truth_data_path,
-            ground_truth_data=self.ground_truth_data,
-            ground_truth_data_type="kinematics",
-            sampling_frequency=2048.0,
-            tasks_to_use=self.tasks_to_use,
-            save_path=self.save_path,
-            chunk_size=192,
-            chunk_shift=64,
-            testing_split_ratio=0.2,
-            validation_split_ratio=0.2,
-            debug_level=self.debug_level,
-            silence_zarr_warnings=self.silence_zarr_warnings,
-            # EMBC-specific filter pipelines and augmentations
-            emg_filter_pipeline_after_chunking=[
-                [
-                    IdentityFilter(is_output=True, name="raw", input_is_chunked=True),
-                    SOSFrequencyFilter(
-                        sos_filter_coefficients=butter(
-                            4, 20, "lowpass", output="sos", fs=2048
-                        ),
-                        is_output=True,
-                        input_is_chunked=True,
-                    ),
-                ]
-            ],
-            emg_representations_to_filter_after_chunking=[["Last"]],
-            ground_truth_filter_pipeline_before_chunking=[
-                [
-                    ApplyFunctionFilter(
-                        function=np.reshape,
-                        name="Reshape",
-                        newshape=(63, -1),
-                        input_is_chunked=False,
-                    ),
-                    IndexDataFilter(indices=(slice(3, 63),), input_is_chunked=False),
-                ]
-            ],
-            ground_truth_representations_to_filter_before_chunking=[["Input"]],
-            ground_truth_filter_pipeline_after_chunking=[
-                [
-                    ApplyFunctionFilter(
-                        function=np.mean,
-                        name="Mean",
-                        axis=-1,
-                        is_output=True,
-                        input_is_chunked=True,
-                    )
-                ]
-            ],
-            ground_truth_representations_to_filter_after_chunking=[["Last"]],
-            augmentation_pipelines=[
-                [GaussianNoise(is_output=True, input_is_chunked=False)],
-                [
-                    MagnitudeWarping(
-                        is_output=True, nr_of_grids=5, input_is_chunked=False
-                    )
-                ],
-                [
-                    WaveletDecomposition(
-                        level=3, is_output=True, nr_of_grids=5, input_is_chunked=False
-                    )
-                ],
-            ],
-            amount_of_chunks_to_augment_at_once=500,
-        ).create_dataset()
+    sampling_frequency: float = 2048.0
+    window_size: int = 192
+    lowpass_cutoff: float = 20.0
+    lowpass_order: int = 4
+    n_electrode_grids: int = 5
+    test_ratio: float = 0.2
+    val_ratio: float = 0.2
 
 
-class CastelliniDataset:
-    """Dataset maker made after the Castellini paper [1].
-    This is not the official dataset maker used but our own version made after the paper.
+def embc_kinematics_transform() -> Compose:
+    """Pre-storage transform for kinematics (EMBC paper).
+
+    Converts (21, 3, time) -> (60, time) by:
+    1. Flattening joints*xyz -> (63, time)
+    2. Removing wrist (first 3 values) -> (60, time)
+
+    Returns
+    -------
+    Compose
+        Transform to set as Modality.transform for kinematics.
+    """
+    return Compose([
+        Flatten(start_dim=0, end_dim=1),  # (21, 3, time) -> (63, time)
+        Index(slice(3, None), dim="channel"),  # Remove wrist -> (60, time)
+    ])
+
+
+def embc_train_transform(
+    config: EMBCConfig | None = None,
+    augmentation: str = "noise",
+) -> Compose:
+    """Training-time transform for EMG (EMBC paper).
 
     Parameters
     ----------
-    emg_data_path : Path
-        The path to the pickle file containing the EMG data.
-        This should be a dictionary with the keys as the tasks in tasks_to_use and the values as the EMG data.
-        The EMG data should be of shape (320, samples).
-    ground_truth_data_path : Path
-        The path to the pickle file containing the ground truth data.
-        This should be a dictionary with the keys as the tasks in tasks_to_use and the values as the ground truth data.
-        The ground truth data should be of shape (21, 3, samples).
-    save_path : Path
-        The path to save the dataset to. This should be a zarr file.
-    emg_data : dict[str, np.ndarray], optional
-        Optional dictionary containing EMG data if not loading from a file.
-    ground_truth_data : dict[str, np.ndarray], optional
-        Optional dictionary containing ground truth data if not loading from a file.
-    tasks_to_use : Sequence[str], optional
-        The tasks to use.
-    debug_level : int, optional
-        Debug level (0-2). Default is 0 (no debugging).
-    silence_zarr_warnings : bool, optional
-        Whether to silence all Zarr-related warnings. Default is False.
+    config : EMBCConfig | None
+        Configuration (uses defaults if None).
+    augmentation : str
+        Augmentation: "noise", "warp", or "none".
 
-    Methods
+    Returns
     -------
-    create_dataset()
-        Creates the dataset.
-
-    References
-    ----------
-    [1] Nowak, M., Vujaklija, I., Sturma, A., Castellini, C., Farina, D., 2023.
-    Simultaneous and Proportional Real-Time Myocontrol of Up to Three Degrees of Freedom of the Wrist and Hand.
-    IEEE Transactions on Biomedical Engineering 70, 459–469. https://doi.org/10/grc7qf
+    Compose
+        Transform pipeline producing (representation, channel, time) - stacked representations.
     """
+    cfg = config or EMBCConfig()
 
-    def __init__(
-        self,
-        emg_data_path: Path,
-        ground_truth_data_path: Path,
-        save_path: Path,
-        emg_data: dict[str, np.ndarray] = {},
-        ground_truth_data: dict[str, np.ndarray] = {},
-        tasks_to_use: Sequence[str] = ("Change Me",),
-        debug_level: int = 0,
-        silence_zarr_warnings: bool = False,
-    ):
-        self.emg_data_path = emg_data_path
-        self.emg_data = emg_data
-        self.ground_truth_data_path = ground_truth_data_path
-        self.ground_truth_data = ground_truth_data
-        self.save_path = save_path
-        self.tasks_to_use = tasks_to_use
-        self.debug_level = debug_level
-        self.silence_zarr_warnings = silence_zarr_warnings
+    transforms = [
+        # Stack into (representation, channel, time)
+        Stack({
+            "raw": Identity(),
+            "filtered": Lowpass(cfg.lowpass_cutoff, fs=cfg.sampling_frequency, dim="time"),
+        }, dim="representation"),
+    ]
 
-    def create_dataset(self):
-        dataset = EMGDataset(
-            emg_data_path=self.emg_data_path,
-            emg_data=self.emg_data,
-            ground_truth_data_path=self.ground_truth_data_path,
-            ground_truth_data=self.ground_truth_data,
-            ground_truth_data_type="kinematics",
-            sampling_frequency=2048,
-            tasks_to_use=self.tasks_to_use,
-            save_path=self.save_path,
-            debug_level=self.debug_level,
-            silence_zarr_warnings=self.silence_zarr_warnings,
-            # Castellini-specific filter pipelines
-            emg_filter_pipeline_before_chunking=[
-                [
-                    SOSFrequencyFilter(
-                        sos_filter_coefficients=butter(
-                            5,
-                            (20, 500),
-                            "bandpass",
-                            output="sos",
-                            fs=2048,
-                        ),
-                        name="Bandpass 20-500 Hz",
-                        input_is_chunked=False,
-                    ),
-                    SOSFrequencyFilter(
-                        sos_filter_coefficients=butter(
-                            5, (45, 55), "bandstop", output="sos", fs=2048
-                        ),
-                        name="Bandstop 45-55 Hz",
-                        input_is_chunked=False,
-                    ),
-                    RMSFilter(
-                        window_size=204,
-                        shift=20,
-                        name=f"RMS {204 / 2048 * 1000} ms",
-                        input_is_chunked=False,
-                    ),
-                ]
-            ],
-            emg_representations_to_filter_before_chunking=[["Input"]],
-            ground_truth_filter_pipeline_before_chunking=[
-                [
-                    ApplyFunctionFilter(
-                        function=np.reshape,
-                        newshape=(63, -1),
-                        name="Reshape",
-                        input_is_chunked=False,
-                    ),
-                    IndexDataFilter(
-                        indices=(slice(3, 63),),
-                        name="Indexing (Remove Wrist)",
-                        input_is_chunked=False,
-                    ),
-                ]
-            ],
-            ground_truth_representations_to_filter_before_chunking=[["Input"]],
-            ground_truth_filter_pipeline_after_chunking=[
-                [
-                    ApplyFunctionFilter(
-                        function=np.mean,
-                        axis=-1,
-                        is_output=True,
-                        name="Mean",
-                        input_is_chunked=True,
-                    )
-                ]
-            ],
-            ground_truth_representations_to_filter_after_chunking=[["Last"]],
-            augmentation_pipelines=[
-                [GaussianNoise(is_output=True, input_is_chunked=False)],
-                [
-                    MagnitudeWarping(
-                        is_output=True, input_is_chunked=False, nr_of_grids=5
-                    )
-                ],
-                [
-                    WaveletDecomposition(
-                        level=3, is_output=True, input_is_chunked=False, nr_of_grids=5
-                    )
-                ],
-            ],
-            amount_of_chunks_to_augment_at_once=500,
-        )
-        dataset.create_dataset()
+    if augmentation == "noise":
+        transforms.append(GaussianNoise(std=0.1))
+    elif augmentation == "warp":
+        transforms.append(MagnitudeWarp(sigma=0.35, n_knots=6, dim="time"))
+
+    return Compose(transforms)
+
+
+def embc_eval_transform(config: EMBCConfig | None = None) -> Compose:
+    """Evaluation-time transform for EMG (EMBC paper, no augmentation).
+
+    Parameters
+    ----------
+    config : EMBCConfig | None
+        Configuration (uses defaults if None).
+
+    Returns
+    -------
+    Compose
+        Transform pipeline producing (representation, channel, time) - stacked representations.
+    """
+    cfg = config or EMBCConfig()
+
+    return Compose([
+        Stack({
+            "raw": Identity(),
+            "filtered": Lowpass(cfg.lowpass_cutoff, fs=cfg.sampling_frequency, dim="time"),
+        }, dim="representation"),
+    ])
+
+
+def embc_target_transform() -> Compose:
+    """Target transform: average kinematics over window.
+
+    Returns
+    -------
+    Compose
+        Transform that averages over time: (60, time) -> (60,).
+    """
+    return Compose([Mean(dim="time")])
