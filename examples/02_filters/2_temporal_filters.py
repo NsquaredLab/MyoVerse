@@ -365,14 +365,18 @@ class MedianFilter(Transform):
         pad_before = pad_total // 2
         pad_after = pad_total - pad_before
 
-        # Build padding (reversed order for F.pad)
-        ndim = result.ndim
-        pad = [0] * (2 * ndim)
-        idx = ndim - 1 - dim_idx
-        pad[2 * idx] = pad_before
-        pad[2 * idx + 1] = pad_after
+        # Move target dim to last position for padding
+        result = result.movedim(dim_idx, -1)
+        original_shape = result.shape
 
-        result = torch.nn.functional.pad(result, pad, mode='replicate')
+        # F.pad with mode='replicate' requires 3D+ input
+        # Reshape to 3D: (batch, 1, time)
+        result = result.reshape(-1, 1, result.shape[-1])
+        result = torch.nn.functional.pad(result, (pad_before, pad_after), mode='replicate')
+
+        # Restore original shape and move dim back
+        result = result.reshape(*original_shape[:-1], -1)
+        result = result.movedim(-1, dim_idx)
 
         if names[0] is not None:
             result = result.rename(*names)
