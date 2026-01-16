@@ -36,6 +36,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 from rich.table import Table
+from rich.tree import Tree
 
 from myoverse.datasets.modality import Modality
 from myoverse.datasets.utils.splitter import DataSplitter
@@ -180,8 +181,6 @@ class DatasetCreator:
         )
         self.console.print()
 
-        from rich.tree import Tree
-
         tree = Tree("Dataset Structure")
 
         for mod_name, modality in self.modalities.items():
@@ -308,7 +307,6 @@ class DatasetCreator:
 
         for mod_name in self.modalities:
             table.add_column(mod_name)
-        table.add_column("Size")
 
         store = zarr.open(str(self.save_path), mode="r")
 
@@ -319,11 +317,6 @@ class DatasetCreator:
             split_group = store[split]
             if len(split_group) == 0:
                 continue
-
-            split_path = self.save_path / split
-            split_size = sum(
-                f.stat().st_size for f in split_path.rglob("*") if f.is_file()
-            )
 
             row = [split]
 
@@ -336,7 +329,6 @@ class DatasetCreator:
                     shapes.append(f"{task}: {shape}")
                 row.append("\n".join(shapes) if shapes else "N/A")
 
-            row.append(f"{split_size / 1024 / 1024:.2f} MB")
             table.add_row(*row)
 
         self.console.print(table)
