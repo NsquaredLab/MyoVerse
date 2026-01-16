@@ -1,12 +1,19 @@
-""""""
+"""RaulNetV17 model for EMG-to-kinematics decoding."""
 
-from typing import Any, Dict, Optional, Tuple, Union
+from __future__ import annotations
+
+from typing import Any
 
 import lightning as L
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
+
+
+def _ceil_div(n: int, d: int) -> int:
+    """Compute ceiling division: ceil(n/d)."""
+    return (n + d - 1) // d
 
 
 class RaulNetV17(L.LightningModule):
@@ -20,9 +27,9 @@ class RaulNetV17(L.LightningModule):
         The number of input channels.
     nr_of_outputs : int
         The number of outputs.
-    cnn_encoder_channels : Tuple[int, int, int]
+    cnn_encoder_channels : tuple[int, int, int]
         Tuple containing 3 integers defining the cnn encoder channels.
-    mlp_encoder_channels : Tuple[int, int]
+    mlp_encoder_channels : tuple[int, int]
         Tuple containing 2 integers defining the mlp encoder channels.
     event_search_kernel_length : int
         Integer that sets the length of the kernels searching for action potentials.
@@ -40,17 +47,17 @@ class RaulNetV17(L.LightningModule):
         nr_of_input_channels: int,
         input_length__samples: int,
         nr_of_outputs: int,
-        cnn_encoder_channels: Tuple[int, int, int],
-        mlp_encoder_channels: Tuple[int, int],
+        cnn_encoder_channels: tuple[int, int, int],
+        mlp_encoder_channels: tuple[int, int],
         event_search_kernel_length: int,
         event_search_kernel_stride: int,
         nr_of_electrode_grids: int = 3,
         nr_of_electrodes_per_grid: int = 36,
         inference_only: bool = False,
-        training_means: Optional[np.ndarray] = None,
-        training_stds: Optional[np.ndarray] = None,
+        training_means: np.ndarray | None = None,
+        training_stds: np.ndarray | None = None,
     ):
-        super(RaulNetV17, self).__init__()
+        super().__init__()
         self.save_hyperparameters()
 
         self.learning_rate = learning_rate
@@ -105,22 +112,13 @@ class RaulNetV17(L.LightningModule):
                 self.cnn_encoder_channels[1],
                 kernel_size=(
                     self.nr_of_electrode_grids,
-                    (
-                        int(np.floor(self.nr_of_electrodes_per_grid / 2))
-                        + (0 if self.nr_of_electrodes_per_grid % 2 == 0 else 1)
-                    ),
+                    _ceil_div(self.nr_of_electrodes_per_grid, 2),
                     18,
                 ),
                 dilation=(1, 2, 1),
                 padding=(
-                    (
-                        int(np.floor(self.nr_of_electrode_grids / 2))
-                        + (0 if self.nr_of_electrode_grids % 2 == 0 else 1)
-                    ),
-                    (
-                        int(np.floor(self.nr_of_electrodes_per_grid / 4))
-                        + (0 if self.nr_of_electrodes_per_grid % 4 == 0 else 1)
-                    ),
+                    _ceil_div(self.nr_of_electrode_grids, 2),
+                    _ceil_div(self.nr_of_electrodes_per_grid, 4),
                     0,
                 ),
                 padding_mode="circular",
@@ -132,10 +130,7 @@ class RaulNetV17(L.LightningModule):
                 self.cnn_encoder_channels[2],
                 kernel_size=(
                     self.nr_of_electrode_grids,
-                    (
-                        int(np.floor(self.nr_of_electrodes_per_grid / 7))
-                        + (0 if self.nr_of_electrodes_per_grid % 7 == 0 else 1)
-                    ),
+                    _ceil_div(self.nr_of_electrodes_per_grid, 7),
                     1,
                 ),
             ),
@@ -175,12 +170,11 @@ class RaulNetV17(L.LightningModule):
 
         self.model = torch.jit.script(model)
 
-    def forward(self, inputs) -> Union[tuple[torch.Tensor, torch.Tensor], torch.Tensor]:
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
         x = self._reshape_and_normalize(inputs)
-
         return self.model(x)
 
-    def _reshape_and_normalize(self, inputs):
+    def _reshape_and_normalize(self, inputs: torch.Tensor) -> torch.Tensor:
         x = torch.stack(inputs.split(self.nr_of_electrodes_per_grid, dim=2), dim=2)
 
         if self.training_means is not None and self.training_stds is not None:
@@ -203,8 +197,6 @@ class RaulNetV17(L.LightningModule):
             fused=True,
         )
 
-        # optimizer = torch.compile(optimizer, mode="max-autotune")
-
         onecycle_scheduler = {
             "scheduler": optim.lr_scheduler.OneCycleLR(
                 optimizer,
@@ -223,8 +215,8 @@ class RaulNetV17(L.LightningModule):
         return [optimizer], [onecycle_scheduler]
 
     def training_step(
-        self, train_batch, batch_idx: int
-    ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
+        self, train_batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> dict[str, Any] | None:
         inputs, ground_truths = train_batch
         ground_truths = ground_truths.flatten(start_dim=1)
 
@@ -250,8 +242,8 @@ class RaulNetV17(L.LightningModule):
         return scores_dict
 
     def validation_step(
-        self, batch, batch_idx
-    ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
+        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> dict[str, Any]:
         inputs, ground_truths = batch
         ground_truths = ground_truths.flatten(start_dim=1)
 
@@ -274,8 +266,8 @@ class RaulNetV17(L.LightningModule):
         return scores_dict
 
     def test_step(
-        self, batch, batch_idx
-    ) -> Optional[Union[torch.Tensor, Dict[str, Any]]]:
+        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> dict[str, Any]:
         inputs, ground_truths = batch
         ground_truths = ground_truths.flatten(start_dim=1)
 

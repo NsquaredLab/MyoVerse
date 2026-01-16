@@ -1,3 +1,5 @@
+"""Tests for model API and naming conventions."""
+
 import importlib
 
 import pytest
@@ -6,26 +8,43 @@ from pathlib import Path
 
 class TestModelAPI:
     def test_model_names_raul_net(self):
-        # get a list of all model names
-        model_data = [
-            (p.parent.name, p.name.replace(".py", ""))
-            for p in Path("../../myoverse/models/definitions/raul_net").rglob("*.py")
-            if "__init__" not in p.name
+        """Test that RaulNet models follow naming convention."""
+        # Get list of all model files in the new structure
+        model_dir = Path(__file__).parent.parent.parent / "myoverse" / "models" / "raul_net"
+        model_files = [
+            p.stem for p in model_dir.glob("*.py")
+            if not p.name.startswith("_") and p.name != "__init__.py"
         ]
-        model_data = sorted(model_data, key=lambda x: x[1])
 
-        # check if the model names are correct
-        for model_type, model_name in model_data:
+        # Check if the model names are correct
+        for model_name in sorted(model_files):
             try:
                 imported_module = importlib.import_module(
-                    f"myoverse.models.definitions.raul_net.{model_type}.{model_name}"
+                    f"myoverse.models.raul_net.{model_name}"
                 )
 
-                assert hasattr(
-                    imported_module, f"RaulNetV{model_name.split('_')[0][1:]}"
+                # Extract version number from filename (e.g., "v16" -> "16")
+                version = model_name.lstrip("v")
+                expected_class = f"RaulNetV{version.upper()}" if not version[0].isdigit() else f"RaulNetV{version}"
+
+                assert hasattr(imported_module, f"RaulNetV{version.split('_')[0]}"), (
+                    f"Module {model_name} should have class RaulNetV{version.split('_')[0]}"
                 )
 
             except ModuleNotFoundError:
-                pytest.fail(
-                    f"Could not import myoverse.models.definitions.raul_net.{model_type}.{model_name}"
-                )
+                pytest.fail(f"Could not import myoverse.models.raul_net.{model_name}")
+
+    def test_models_exported_from_package(self):
+        """Test that main models are exported from myoverse.models."""
+        from myoverse.models import RaulNetV16, RaulNetV17
+
+        assert RaulNetV16 is not None
+        assert RaulNetV17 is not None
+
+    def test_components_exported_from_package(self):
+        """Test that components are exported from myoverse.models."""
+        from myoverse.models import EuclideanDistance, SMU, PSerf
+
+        assert EuclideanDistance is not None
+        assert SMU is not None
+        assert PSerf is not None

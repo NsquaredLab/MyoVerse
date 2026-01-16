@@ -1,71 +1,74 @@
-Definitions
-===========
+Models
+======
 
-Online Capable Models
----------------------
-Online capable models are models that can be used in real-time applications.
+RaulNet Models
+--------------
+
+RaulNet is a family of CNN-based models for decoding hand kinematics from
+high-density EMG signals.
+
+V17 (Latest)
+^^^^^^^^^^^^
+
+The V17 model is the latest version with lazy configuration and TorchScript support.
+
+.. currentmodule:: myoverse.models.raul_net.v17
+.. autosummary::
+    :toctree: generated/models
+    :template: class.rst
+
+    RaulNetV17
 
 V16
-^^^^
-The V16 model is the latest model that is capable of online learning.
+^^^
 
-.. currentmodule:: myoverse.models.definitions.raul_net.online.v16
+The V16 model was used in the MyoGestic paper (Simpetru et al., 2024).
+
+.. currentmodule:: myoverse.models.raul_net.v16
 .. autosummary::
     :toctree: generated/models
     :template: class.rst
 
     RaulNetV16
 
-.. currentmodule:: myoverse.models.definitions.raul_net.online.v16_classification
+
+Components
+----------
+
+Activation Functions
+^^^^^^^^^^^^^^^^^^^^
+
+Custom learnable activation functions for neural networks.
+
+.. currentmodule:: myoverse.models.components.activation_functions
 .. autosummary::
     :toctree: generated/models
     :template: class.rst
 
-    RaulNetV16
+    PSerf
+    SAU
+    SMU
 
-V9
-^^
-The V9 model is the first model that is capable of online learning.
+Loss Functions
+^^^^^^^^^^^^^^
 
-.. note:: This model is deprecated and should not be used in new projects.
+Custom loss functions for kinematics prediction.
 
-.. currentmodule:: myoverse.models.definitions.raul_net.online.v9_5_grids
+.. currentmodule:: myoverse.models.components.losses
 .. autosummary::
     :toctree: generated/models
     :template: class.rst
 
-    RaulNetV9
+    EuclideanDistance
 
-Offline Models
---------------
-Offline models are models that are trained on a dataset and are not capable of online learning.
+Utilities
+^^^^^^^^^
 
-V4
-^^
-The V4 model is the latest model that is capable of offline learning.
+Utility modules for model building.
 
-.. note:: This model is deprecated and should not be used in new projects.
-
-.. currentmodule:: myoverse.models.definitions.raul_net.offline.v4
+.. currentmodule:: myoverse.models.components.utils
 .. autosummary::
     :toctree: generated/models
     :template: class.rst
 
-    RaulNetV4
-
-V1
-^^
-The V1 model is the first model that is capable of offline learning.
-
-.. note:: This model is deprecated and should not be used in new projects.
-
-.. currentmodule:: myoverse.models.definitions.raul_net.offline.v1
-.. autosummary::
-    :toctree: generated/models
-    :template: class.rst
-
-    RaulNetV1
-
-
-
-
+    WeightedSum

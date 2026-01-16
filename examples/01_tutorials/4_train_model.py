@@ -162,7 +162,7 @@ print("=" * 60)
 print("STEP 5: Model Setup")
 print("=" * 60)
 
-from myoverse.models.definitions.raul_net.online.v16 import RaulNetV16
+from myoverse.models import RaulNetV16
 
 # Get actual channel count from data
 n_channels = emg_batch.shape[2]

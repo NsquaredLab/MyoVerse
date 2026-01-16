@@ -19,7 +19,7 @@ from myoverse.datasets.filters.temporal import SOSFrequencyFilter
 from myoverse.datasets.loader import EMGDatasetLoader
 from myoverse.datasets.supervised import EMGDataset
 from myoverse.datatypes import _Data, KinematicsData
-from myoverse.models.definitions.raul_net.online.v16 import RaulNetV16
+from myoverse.models import RaulNetV16
 from myoverse.utils.visualization import plot_predicted_and_ground_truth_kinematics
 
 
@@ -172,7 +172,7 @@ class Workflow:
 
         logger._mlflow_client.log_artifact(logger._run_id, __file__)
         logger._mlflow_client.log_artifact(
-            logger._run_id, myoverse.models.definitions.raul_net.online.v16.__file__
+            logger._run_id, myoverse.models.raul_net.v16.__file__
         )
 
     def visualize_results(self):
