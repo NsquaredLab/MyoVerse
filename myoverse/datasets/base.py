@@ -18,7 +18,7 @@ Example
 >>>
 >>> # Load all modalities from zarr
 >>> ds = WindowedDataset(
-...     "data.zarr",
+...     "data.zip",
 ...     split="training",
 ...     modalities=["emg", "kinematics"],
 ...     window_size=200,
@@ -39,6 +39,7 @@ import numpy as np
 import torch
 import zarr
 from torch.utils.data import Dataset
+from zarr.storage import ZipStore
 
 # Suppress named tensor experimental warning
 warnings.filterwarnings("ignore", category=UserWarning, message=".*Named tensors.*")
@@ -92,12 +93,12 @@ class WindowedDataset(Dataset):
     Examples
     --------
     >>> # Return numpy arrays
-    >>> ds = WindowedDataset("data.zarr", modalities=["emg"], device=None)
+    >>> ds = WindowedDataset("data.zip", modalities=["emg"], device=None)
     >>> data = ds[0]
     >>> type(data["emg"])  # numpy.ndarray
     >>>
     >>> # Return tensors on GPU with named dimensions
-    >>> ds = WindowedDataset("data.zarr", modalities=["emg"], device="cuda")
+    >>> ds = WindowedDataset("data.zip", modalities=["emg"], device="cuda")
     >>> data["emg"].device  # cuda:0
     >>> data["emg"].names   # ('channel', 'time')
     """
@@ -141,10 +142,16 @@ class WindowedDataset(Dataset):
         )
         self._gds_to_cpu = self._use_gds and (self.device is None or self.device.type == "cpu")
 
-        # Open zarr store (with GDS if available)
-        if self._use_gds:
+        # Detect if path is a zip file
+        self._is_zip = self.zarr_path.suffix.lower() == ".zip"
+
+        # Open zarr store (with GDS if available and not a zip file)
+        if self._use_gds and not self._is_zip:
             zarr.config.enable_gpu()
             self._store = zarr.open(GDSStore(str(self.zarr_path)), mode="r")
+        elif self._is_zip:
+            self._zip_store = ZipStore(self.zarr_path, mode="r")
+            self._store = zarr.open(self._zip_store, mode="r")
         else:
             self._store = zarr.open(str(self.zarr_path), mode="r")
 
@@ -257,7 +264,13 @@ class WindowedDataset(Dataset):
             if self._ram_cache is not None:
                 return
 
-            self._store = zarr.open(str(self.zarr_path), mode="r")
+            # Reopen store based on file type
+            if self._is_zip:
+                self._zip_store = ZipStore(self.zarr_path, mode="r")
+                self._store = zarr.open(self._zip_store, mode="r")
+            else:
+                self._store = zarr.open(str(self.zarr_path), mode="r")
+
             self._split_group = self._store[self.split]
             self._use_gds = False
             self._gds_to_cpu = False

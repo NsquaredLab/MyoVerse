@@ -1,7 +1,8 @@
 """Dataset creation with zarr storage.
 
 This module provides DatasetCreator for creating zarr datasets from
-multi-modal time series data.
+multi-modal time series data. Output is stored as a single .zip file
+for fast I/O on all platforms (especially Windows).
 
 Example
 -------
@@ -13,14 +14,13 @@ Example
 ...         "kinematics": Modality(path="kin.pkl", dims=("joint", "time")),
 ...     },
 ...     sampling_frequency=2048.0,
-...     save_path="dataset.zarr",
+...     save_path="dataset.zip",
 ... )
 >>> creator.create()
 """
 
 from __future__ import annotations
 
-import shutil
 from pathlib import Path
 from typing import Sequence
 
@@ -37,6 +37,7 @@ from rich.progress import (
 )
 from rich.table import Table
 from rich.tree import Tree
+from zarr.storage import ZipStore
 
 from myoverse.datasets.modality import Modality
 from myoverse.datasets.utils.splitter import DataSplitter
@@ -57,7 +58,7 @@ class DatasetCreator:
     tasks_to_use : Sequence[str]
         Task keys to include (empty = all).
     save_path : Path | str
-        Output Zarr path.
+        Output path for the zarr zip file (e.g., "dataset.zip").
     test_ratio : float
         Ratio for test split (0.0-1.0).
     val_ratio : float
@@ -77,13 +78,13 @@ class DatasetCreator:
     ...         "kinematics": Modality(path="kin.pkl", dims=("joint", "time")),
     ...     },
     ...     sampling_frequency=2048.0,
-    ...     save_path=Path("dataset.zarr"),
+    ...     save_path="dataset.zip",
     ... )
     >>> creator.create()
     >>>
     >>> # Load directly to GPU tensors
     >>> from myoverse.datasets import DataModule
-    >>> dm = DataModule("dataset.zarr", device="cuda")
+    >>> dm = DataModule("dataset.zip", device="cuda")
     """
 
     def __init__(
@@ -91,7 +92,7 @@ class DatasetCreator:
         modalities: dict[str, Modality],
         sampling_frequency: float = 2048.0,
         tasks_to_use: Sequence[str] = (),
-        save_path: Path | str = Path("dataset.zarr"),
+        save_path: Path | str = Path("dataset.zip"),
         test_ratio: float = 0.2,
         val_ratio: float = 0.2,
         time_chunk_size: int = 256,
@@ -126,10 +127,15 @@ class DatasetCreator:
 
         # Clear existing dataset
         if self.save_path.exists():
-            shutil.rmtree(self.save_path)
+            if self.save_path.is_dir():
+                import shutil
+                shutil.rmtree(self.save_path)
+            else:
+                self.save_path.unlink()
 
-        # Create zarr store
-        store = zarr.open(str(self.save_path), mode="w")
+        # Create zarr store using ZipStore for fast I/O
+        zip_store = ZipStore(self.save_path, mode="w")
+        store = zarr.open(zip_store, mode="w")
 
         # Store metadata
         store.attrs["sampling_frequency"] = self.sampling_frequency
@@ -146,6 +152,9 @@ class DatasetCreator:
 
         # Process tasks
         self._process_all_tasks(store)
+
+        # Close the ZipStore to finalize the zip file
+        zip_store.close()
 
         self._print_summary()
 
@@ -214,11 +223,8 @@ class DatasetCreator:
                 total=len(self.tasks_to_use),
             )
 
-            for task_idx, task in enumerate(self.tasks_to_use):
-                progress.update(
-                    task_progress,
-                    description=f"Processing task {task} ({task_idx + 1}/{len(self.tasks_to_use)})",
-                )
+            for task in self.tasks_to_use:
+                progress.update(task_progress, description=f"Processing task {task}")
                 self._process_task(task, store)
                 progress.advance(task_progress)
 
@@ -257,6 +263,23 @@ class DatasetCreator:
             if val is not None:
                 self._store_array(store["validation"], array_name, val)
 
+
+    def _extract_center(
+        self, data: np.ndarray, ratio: float
+    ) -> tuple[np.ndarray, np.ndarray]:
+        """Extract center portion of data along last axis.
+
+        Returns (edges, center) where edges are the concatenated start/end portions.
+        """
+        n_samples = data.shape[-1]
+        half_amount = int(n_samples * ratio / 2)
+        middle = n_samples // 2
+        start, end = middle - half_amount, middle + half_amount
+
+        center = data[..., start:end]
+        edges = np.concatenate([data[..., :start], data[..., end:]], axis=-1)
+        return edges, center
+
     def _split_continuous(
         self, data: np.ndarray
     ) -> tuple[np.ndarray, np.ndarray | None, np.ndarray | None]:
@@ -264,28 +287,10 @@ class DatasetCreator:
         if self.splitter.test_ratio == 0:
             return data, None, None
 
-        n_samples = data.shape[-1]
-        test_amount = int(n_samples * self.splitter.test_ratio / 2)
-        middle = n_samples // 2
-
-        test_start = middle - test_amount
-        test_end = middle + test_amount
-        testing = data[..., test_start:test_end]
-        training = np.concatenate(
-            [data[..., :test_start], data[..., test_end:]], axis=-1
-        )
+        training, testing = self._extract_center(data, self.splitter.test_ratio)
 
         if self.splitter.val_ratio > 0:
-            val_samples = testing.shape[-1]
-            val_amount = int(val_samples * self.splitter.val_ratio / 2)
-            val_middle = val_samples // 2
-            val_start = val_middle - val_amount
-            val_end = val_middle + val_amount
-
-            validation = testing[..., val_start:val_end]
-            testing = np.concatenate(
-                [testing[..., :val_start], testing[..., val_end:]], axis=-1
-            )
+            testing, validation = self._extract_center(testing, self.splitter.val_ratio)
         else:
             validation = None
 
@@ -298,9 +303,8 @@ class DatasetCreator:
 
         self._print_header("DATASET CREATION COMPLETED")
 
-        total_size = sum(
-            f.stat().st_size for f in self.save_path.rglob("*") if f.is_file()
-        )
+        # Get file size directly from zip file
+        total_size = self.save_path.stat().st_size
 
         table = Table(title="Dataset Summary", box=None)
         table.add_column("Split")
@@ -308,7 +312,9 @@ class DatasetCreator:
         for mod_name in self.modalities:
             table.add_column(mod_name)
 
-        store = zarr.open(str(self.save_path), mode="r")
+        # Open the zip store for reading
+        zip_store = ZipStore(self.save_path, mode="r")
+        store = zarr.open(zip_store, mode="r")
 
         for split in ["training", "validation", "testing"]:
             if split not in store:
@@ -319,17 +325,16 @@ class DatasetCreator:
                 continue
 
             row = [split]
-
             for mod_name in self.modalities:
-                arrays = [k for k in split_group.keys() if k.startswith(f"{mod_name}_")]
-                shapes = []
-                for arr_name in sorted(arrays):
-                    task = arr_name.split("_", 1)[1]
-                    shape = split_group[arr_name].shape
-                    shapes.append(f"{task}: {shape}")
+                arrays = sorted(k for k in split_group.keys() if k.startswith(f"{mod_name}_"))
+                shapes = [
+                    f"{arr.split('_', 1)[1]}: {split_group[arr].shape}"
+                    for arr in arrays
+                ]
                 row.append("\n".join(shapes) if shapes else "N/A")
-
             table.add_row(*row)
+
+        zip_store.close()
 
         self.console.print(table)
         self.console.print(f"\nTotal size: {total_size / 1024 / 1024:.2f} MB")
