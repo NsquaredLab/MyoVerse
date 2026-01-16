@@ -328,3 +328,4 @@ _debug_test
 /docs/source/modules/generated/
 **/version_*
 /data/*
+sandbox/checkpoints
