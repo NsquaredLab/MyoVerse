@@ -1,28 +1,35 @@
 """Dataset utilities for MyoVerse.
 
-Direct tensor loading from zarr with GPU support.
+Architecture
+------------
+This module uses a layered architecture for flexibility:
 
-Classes
--------
-DatasetCreator : Create datasets with any combination of modalities
-DataModule : Lightning DataModule with input/target selection at training time
-ContinuousDataset : On-the-fly windowing from continuous data
-Modality : Configuration for a data modality
+**Base Layer (Infrastructure)**
+    WindowedDataset : Handles zarr I/O, windowing, caching, device management.
+    Returns all modalities as a dict.
 
-Features
---------
-- Any number of modalities (EMG, EEG, kinematics, forces, etc.)
-- Named tensor dimensions per modality
-- Direct loading to GPU via device parameter
-- Input/target selection at training time (not storage time)
-- Chunked zarr storage for parallel window loading
+**Paradigm Layer (Learning Paradigms)**
+    SupervisedDataset : Supervised learning (inputs → targets).
+    Returns (inputs_dict, targets_dict) tuple.
+
+    Future: ContrastiveDataset, MaskedDataset, etc.
+
+**Integration Layer**
+    DataModule : Lightning DataModule for training integration.
+
+**Storage Layer**
+    DatasetCreator : Creates zarr datasets from multi-modal data.
+    Modality : Configuration for a data modality.
+
+**Presets**
+    Pre-configured transforms for published papers (EMBC 2022, etc.).
 
 Example
 -------
 >>> from myoverse.datasets import DatasetCreator, DataModule, Modality
->>> from myoverse.transforms import Compose, ZScore
+>>> from myoverse.datasets.presets import embc_train_transform
 >>>
->>> # Create dataset with multiple modalities
+>>> # Create dataset
 >>> creator = DatasetCreator(
 ...     modalities={
 ...         "emg": Modality(path="emg.pkl", dims=("channel", "time")),
@@ -33,63 +40,63 @@ Example
 ... )
 >>> creator.create()
 >>>
->>> # Load directly to GPU with named tensors
+>>> # Load for training
 >>> dm = DataModule(
 ...     "data.zarr",
 ...     inputs=["emg"],
 ...     targets=["kinematics"],
 ...     window_size=200,
 ...     n_windows_per_epoch=10000,
-...     device="cuda",  # Direct GPU loading
+...     train_transform=embc_train_transform(),
+...     device="cuda",
 ... )
->>>
+>>> dm.setup("fit")
 >>> inputs, targets = next(iter(dm.train_dataloader()))
->>> inputs.names   # ('batch', 'channel', 'time')
->>> inputs.device  # cuda:0
 """
 
-from myoverse.datasets.loader_v2 import (
-    DataModule,
-    ContinuousDataset,
-    # Backwards compat
-    EMGDataModule,
-    EMGContinuousDataset,
-)
-from myoverse.datasets.supervised_v2 import (
-    DatasetCreator,
-    Modality,
-    # Backwards compat
-    EMGDatasetCreator,
-)
-from myoverse.datasets.utils import (
-    DataSplitter,
-    DatasetFormatter,
-)
-from myoverse.datasets.defaults import (
+# Base infrastructure
+from myoverse.datasets.base import WindowedDataset
+
+# Paradigms
+from myoverse.datasets.paradigms import SupervisedDataset
+
+# Integration
+from myoverse.datasets.datamodule import DataModule, collate_supervised
+
+# Storage
+from myoverse.datasets.creator import DatasetCreator
+from myoverse.datasets.modality import Modality
+
+# Utilities
+from myoverse.datasets.utils import DataSplitter, DatasetFormatter
+
+# Presets (convenience re-exports)
+from myoverse.datasets.presets import (
     EMBCConfig,
-    embc_kinematics_transform,
-    embc_train_transform,
     embc_eval_transform,
+    embc_kinematics_transform,
     embc_target_transform,
+    embc_train_transform,
 )
 
 __all__ = [
-    # New API
-    "DatasetCreator",
+    # Base
+    "WindowedDataset",
+    # Paradigms
+    "SupervisedDataset",
+    # Integration
     "DataModule",
-    "ContinuousDataset",
+    "collate_supervised",
+    # Storage
+    "DatasetCreator",
     "Modality",
-    # Defaults / presets (transforms, not classes)
+    # Utilities
+    "DataSplitter",
+    "DatasetFormatter",
+    # Presets
     "EMBCConfig",
     "embc_kinematics_transform",
     "embc_train_transform",
     "embc_eval_transform",
     "embc_target_transform",
-    # Backwards compat
-    "EMGDatasetCreator",
-    "EMGDataModule",
-    "EMGContinuousDataset",
-    # Utilities
-    "DataSplitter",
-    "DatasetFormatter",
 ]

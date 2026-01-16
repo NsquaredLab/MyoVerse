@@ -1,19 +1,30 @@
-"""Dataset creation with zarr storage for direct tensor loading.
+"""Dataset creation with zarr storage.
 
-Stores continuous multi-modal data in zarr format that can be loaded
-directly to GPU tensors with named dimensions.
+This module provides DatasetCreator for creating zarr datasets from
+multi-modal time series data.
+
+Example
+-------
+>>> from myoverse.datasets import DatasetCreator, Modality
+>>>
+>>> creator = DatasetCreator(
+...     modalities={
+...         "emg": Modality(path="emg.pkl", dims=("channel", "time")),
+...         "kinematics": Modality(path="kin.pkl", dims=("joint", "time")),
+...     },
+...     sampling_frequency=2048.0,
+...     save_path="dataset.zarr",
+... )
+>>> creator.create()
 """
 
 from __future__ import annotations
 
-import pickle
 import shutil
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Sequence
 
 import numpy as np
-import torch
 import zarr
 from rich.console import Console
 from rich.progress import (
@@ -26,81 +37,8 @@ from rich.progress import (
 )
 from rich.table import Table
 
+from myoverse.datasets.modality import Modality
 from myoverse.datasets.utils.splitter import DataSplitter
-
-
-@dataclass
-class Modality:
-    """Configuration for a data modality.
-
-    Parameters
-    ----------
-    data : np.ndarray | dict[str, np.ndarray] | None
-        Data array or dict of arrays per task.
-    path : Path | str | None
-        Path to pickle file containing data.
-    dims : tuple[str, ...]
-        Dimension names (last must be 'time').
-    attrs : dict
-        Optional attributes to store with the data.
-    transform : callable | None
-        Transform to apply after loading (receives tensor, returns tensor).
-
-    Examples
-    --------
-    >>> emg = Modality(
-    ...     path="emg.pkl",
-    ...     dims=("channel", "time"),
-    ... )
-    >>> # With preprocessing transform
-    >>> from myoverse.transforms import Compose, Flatten, Index
-    >>> kinematics = Modality(
-    ...     path="kinematics.pkl",
-    ...     dims=("dof", "time"),
-    ...     transform=Compose([
-    ...         Flatten(0, 1),  # (21, 3, time) -> (63, time)
-    ...         Index(slice(3, None), dim="channel"),  # Remove wrist -> (60, time)
-    ...     ]),
-    ... )
-    """
-
-    data: np.ndarray | dict[str, np.ndarray] | None = None
-    path: Path | str | None = None
-    dims: tuple[str, ...] = ("channel", "time")
-    attrs: dict = field(default_factory=dict)
-    transform: Any = None
-
-    def __post_init__(self):
-        if self.path is not None:
-            self.path = Path(self.path)
-        if self.dims[-1] != "time":
-            raise ValueError(f"Last dimension must be 'time', got {self.dims}")
-        if self.data is None and (self.path is None or not self.path.exists()):
-            raise ValueError("Must provide data or valid path")
-
-    def load(self) -> dict[str, np.ndarray]:
-        """Load data from path or return data dict, applying transform if set."""
-        if self.data is not None:
-            if isinstance(self.data, np.ndarray):
-                data = {"default": self.data}
-            else:
-                data = self.data
-        else:
-            with open(self.path, "rb") as f:
-                data = pickle.load(f)
-
-        # Apply transform (converts to tensor, applies transform, back to numpy)
-        if self.transform is not None:
-            transformed = {}
-            for task, arr in data.items():
-                tensor = torch.from_numpy(arr.astype(np.float32))
-                result = self.transform(tensor)
-                if hasattr(result, 'rename'):
-                    result = result.rename(None)
-                transformed[task] = result.numpy()
-            data = transformed
-
-        return data
 
 
 class DatasetCreator:
@@ -117,15 +55,14 @@ class DatasetCreator:
         Sampling frequency in Hz.
     tasks_to_use : Sequence[str]
         Task keys to include (empty = all).
-    save_path : Path
+    save_path : Path | str
         Output Zarr path.
     test_ratio : float
         Ratio for test split (0.0-1.0).
     val_ratio : float
         Ratio for validation split (0.0-1.0).
     time_chunk_size : int
-        Chunk size along time dimension for zarr storage. Default 256.
-        Set close to your typical window_size for optimal read performance.
+        Chunk size along time dimension for zarr storage.
     debug_level : int
         Debug output level (0=none, 1=text, 2=text+graphs).
 
@@ -289,6 +226,17 @@ class DatasetCreator:
                 self._process_task(task, store)
                 progress.advance(task_progress)
 
+    def _store_array(
+        self, group: zarr.Group, name: str, data: np.ndarray
+    ) -> None:
+        """Store an array with time-chunked layout."""
+        chunks = list(data.shape)
+        chunks[-1] = min(self.time_chunk_size, chunks[-1])
+        arr = group.create_array(
+            name, shape=data.shape, chunks=tuple(chunks), dtype=data.dtype
+        )
+        arr[:] = data
+
     def _process_task(self, task: str, store: zarr.Group) -> None:
         """Process a single task for all modalities."""
         # Find minimum length across all modalities for this task
@@ -305,44 +253,13 @@ class DatasetCreator:
 
             data = self._data[mod_name][task][..., :min_len].astype(np.float32)
             train, test, val = self._split_continuous(data)
-
-            # Store arrays with chunking along time
             array_name = f"{mod_name}_{task}"
 
-            # Training data
-            chunks = list(train.shape)
-            chunks[-1] = min(self.time_chunk_size, chunks[-1])
-            arr = store["training"].create_array(
-                array_name,
-                shape=train.shape,
-                chunks=tuple(chunks),
-                dtype=train.dtype,
-            )
-            arr[:] = train
-
-            # Test data
+            self._store_array(store["training"], array_name, train)
             if test is not None:
-                chunks = list(test.shape)
-                chunks[-1] = min(self.time_chunk_size, chunks[-1])
-                arr = store["testing"].create_array(
-                    array_name,
-                    shape=test.shape,
-                    chunks=tuple(chunks),
-                    dtype=test.dtype,
-                )
-                arr[:] = test
-
-            # Validation data
+                self._store_array(store["testing"], array_name, test)
             if val is not None:
-                chunks = list(val.shape)
-                chunks[-1] = min(self.time_chunk_size, chunks[-1])
-                arr = store["validation"].create_array(
-                    array_name,
-                    shape=val.shape,
-                    chunks=tuple(chunks),
-                    dtype=val.dtype,
-                )
-                arr[:] = val
+                self._store_array(store["validation"], array_name, val)
 
     def _split_continuous(
         self, data: np.ndarray
@@ -432,7 +349,3 @@ class DatasetCreator:
         self.console.rule(
             "[bold green]Dataset Creation Successfully Completed!", style="green"
         )
-
-
-# Backwards compatibility alias
-EMGDatasetCreator = DatasetCreator

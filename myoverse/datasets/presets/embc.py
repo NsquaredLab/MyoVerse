@@ -1,12 +1,15 @@
-"""Default transform configurations for common papers/benchmarks.
+"""EMBC 2022 paper configuration and transforms.
 
-These provide pre-configured transform pipelines matching published work.
-No custom dataset classes - just composable transforms.
+Pre-configured transform pipelines matching the EMBC 2022 paper:
+
+    Simpetru, R.C., et al., 2022. Accurate Continuous Prediction of
+    14 Degrees of Freedom of the Hand from Myoelectrical Signals
+    through Convolutive Deep Learning. EMBC 2022, pp. 702-706.
 
 Example
 -------
 >>> from myoverse.datasets import DatasetCreator, Modality
->>> from myoverse.datasets.defaults import embc_kinematics_transform
+>>> from myoverse.datasets.presets.embc import embc_kinematics_transform
 >>>
 >>> creator = DatasetCreator(
 ...     modalities={
@@ -38,14 +41,9 @@ from myoverse.transforms import (
 )
 
 
-# =============================================================================
-# EMBC 2022 Paper Configuration
-# =============================================================================
-
-
 @dataclass
 class EMBCConfig:
-    """Configuration matching EMBC 2022 paper [1].
+    """Configuration matching EMBC 2022 paper.
 
     References
     ----------
@@ -87,6 +85,8 @@ def embc_train_transform(
 ) -> Compose:
     """Training-time transform for EMG (EMBC paper).
 
+    Creates dual representation by stacking raw and filtered signals.
+
     Parameters
     ----------
     config : EMBCConfig | None
@@ -97,7 +97,7 @@ def embc_train_transform(
     Returns
     -------
     Compose
-        Transform pipeline producing (representation, channel, time) - stacked representations.
+        Transform pipeline producing (representation, channel, time).
     """
     cfg = config or EMBCConfig()
 
@@ -128,7 +128,7 @@ def embc_eval_transform(config: EMBCConfig | None = None) -> Compose:
     Returns
     -------
     Compose
-        Transform pipeline producing (representation, channel, time) - stacked representations.
+        Transform pipeline producing (representation, channel, time).
     """
     cfg = config or EMBCConfig()
 
@@ -140,12 +140,12 @@ def embc_eval_transform(config: EMBCConfig | None = None) -> Compose:
     ])
 
 
-def embc_target_transform() -> Compose:
+def embc_target_transform() -> Mean:
     """Target transform: average kinematics over window.
 
     Returns
     -------
-    Compose
+    Mean
         Transform that averages over time: (60, time) -> (60,).
     """
-    return Compose([Mean(dim="time")])
+    return Mean(dim="time")
