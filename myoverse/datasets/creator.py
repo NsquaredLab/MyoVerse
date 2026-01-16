@@ -151,7 +151,7 @@ class DatasetCreator:
     def _print_header(self, title: str = "STARTING DATASET CREATION") -> None:
         if self.debug_level < 1:
             return
-        self.console.rule(f"[bold blue]{title}", style="blue")
+        self.console.rule(title)
         self.console.print()
 
     def _print_config(self) -> None:
@@ -159,8 +159,8 @@ class DatasetCreator:
             return
 
         table = Table(title="Dataset Configuration", show_header=True)
-        table.add_column("Parameter", style="dim")
-        table.add_column("Value", style="green")
+        table.add_column("Parameter")
+        table.add_column("Value")
 
         table.add_row("Modalities", ", ".join(self.modalities.keys()))
         table.add_row("Sampling frequency (Hz)", str(self.sampling_frequency))
@@ -185,7 +185,7 @@ class DatasetCreator:
         tree = Tree("Dataset Structure")
 
         for mod_name, modality in self.modalities.items():
-            mod_branch = tree.add(f"[bold]{mod_name}[/bold] dims={modality.dims}")
+            mod_branch = tree.add(f"{mod_name} dims={modality.dims}")
             for task in self.tasks_to_use:
                 if task in self._data[mod_name]:
                     shape = self._data[mod_name][task].shape
@@ -204,14 +204,11 @@ class DatasetCreator:
 
         with Progress(
             SpinnerColumn(),
-            TextColumn("[bold blue]{task.description}"),
+            TextColumn("{task.description}"),
             BarColumn(bar_width=40),
             TaskProgressColumn(),
-            TextColumn("\t"),
             TimeRemainingColumn(),
             console=self.console,
-            expand=True,
-            transient=False,
         ) as progress:
             task_progress = progress.add_task(
                 f"Processing {len(self.tasks_to_use)} tasks...",
@@ -307,11 +304,11 @@ class DatasetCreator:
         )
 
         table = Table(title="Dataset Summary", box=None)
-        table.add_column("Split", style="cyan")
+        table.add_column("Split")
 
         for mod_name in self.modalities:
-            table.add_column(mod_name, style="green")
-        table.add_column("Size", style="yellow")
+            table.add_column(mod_name)
+        table.add_column("Size")
 
         store = zarr.open(str(self.save_path), mode="r")
 
@@ -343,9 +340,5 @@ class DatasetCreator:
             table.add_row(*row)
 
         self.console.print(table)
-        self.console.print(
-            f"\n[bold green]Total size: {total_size / 1024 / 1024:.2f} MB[/bold green]"
-        )
-        self.console.rule(
-            "[bold green]Dataset Creation Successfully Completed!", style="green"
-        )
+        self.console.print(f"\nTotal size: {total_size / 1024 / 1024:.2f} MB")
+        self.console.rule("Dataset Creation Successfully Completed!")

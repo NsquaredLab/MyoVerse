@@ -67,7 +67,7 @@ class DatasetFormatter:
         """Print a section header."""
         if not self.should_print():
             return
-        self.console.rule(f"[bold blue]{title}", style="blue double")
+        self.console.rule(title)
         self.console.print()
 
     def print_config(self, config: DatasetConfig) -> None:
@@ -78,12 +78,11 @@ class DatasetFormatter:
         table = Table(
             title="Dataset Configuration",
             show_header=True,
-            header_style="bold magenta",
             box=box.ROUNDED,
             padding=(0, 2),
         )
-        table.add_column("Parameter", style="dim", width=30)
-        table.add_column("Value", style="green")
+        table.add_column("Parameter", width=30)
+        table.add_column("Value")
 
         table.add_row("EMG data path", str(config.emg_data_path))
         table.add_row("Ground truth data path", str(config.ground_truth_data_path))
@@ -105,9 +104,7 @@ class DatasetFormatter:
         """Print information about tasks to process."""
         if not self.should_print():
             return
-        self.console.print(
-            f"[bold cyan]Processing {len(tasks)} tasks:[/bold cyan] {', '.join(tasks)}"
-        )
+        self.console.print(f"Processing {len(tasks)} tasks: {', '.join(tasks)}")
         self.console.print()
 
     def print_data_structure(
@@ -119,15 +116,15 @@ class DatasetFormatter:
         if not self.should_print():
             return
 
-        tree = Tree("[bold yellow]Dataset Structure")
+        tree = Tree("Dataset Structure")
 
-        emg_branch = tree.add("[bold green]EMG Data")
+        emg_branch = tree.add("EMG Data")
         for i, (k, v) in enumerate(list(emg_data.items())[:5]):
             emg_branch.add(f"Task {k}: Shape {v.shape}")
         if len(emg_data) > 5:
             emg_branch.add(f"... {len(emg_data) - 5} more tasks")
 
-        gt_branch = tree.add("[bold green]Ground Truth Data")
+        gt_branch = tree.add("Ground Truth Data")
         for i, (k, v) in enumerate(list(ground_truth_data.items())[:5]):
             gt_branch.add(f"Task {k}: Shape {v.shape}")
         if len(ground_truth_data) > 5:
@@ -136,35 +133,31 @@ class DatasetFormatter:
         self.console.print(tree)
         self.console.print()
 
-    def print_data_panel(self, data: Any, title: str, color: str = "green") -> None:
+    def print_data_panel(self, data: Any, title: str) -> None:
         """Print a data object in a styled panel."""
         if not self.should_print():
             return
 
         panel = Panel.fit(
             str(data),
-            title=f"[bold {color}]{title}[/bold {color}]",
-            border_style=color,
+            title=title,
             box=box.ROUNDED,
             padding=(0, 2),
         )
         self.console.print(panel)
 
-    def print_section(self, title: str, style: str = "magenta") -> None:
+    def print_section(self, title: str) -> None:
         """Print a section label."""
         if not self.should_print():
             return
-        self.console.print(
-            f"[bold white on {style}] {title} [/bold white on {style}]",
-            justify="center",
-        )
+        self.console.rule(title)
         self.console.print()
 
     def print_action(self, action: str) -> None:
         """Print an action being performed."""
         if not self.should_print():
             return
-        self.console.print(f"[bold cyan]{action}[/bold cyan]")
+        self.console.print(action)
 
     def print_split_sizes(
         self,
@@ -179,13 +172,12 @@ class DatasetFormatter:
         table = Table(
             title="Dataset Split Sizes",
             show_header=True,
-            header_style="bold magenta",
             box=box.ROUNDED,
             padding=(0, 2),
             width=40,
         )
-        table.add_column("Split", style="cyan")
-        table.add_column("Sizes", style="green")
+        table.add_column("Split")
+        table.add_column("Sizes")
 
         table.add_row("Training", str(training_sizes))
         table.add_row("Testing", str(testing_sizes))
@@ -208,12 +200,11 @@ class DatasetFormatter:
         table = Table(
             title="Augmentation Configuration",
             show_header=True,
-            header_style="bold magenta",
             box=box.ROUNDED,
             padding=(0, 2),
         )
-        table.add_column("Parameter", style="dim", width=30)
-        table.add_column("Value", style="green")
+        table.add_column("Parameter", width=30)
+        table.add_column("Value")
 
         table.add_row("Total augmentation pipelines", str(num_pipelines))
         table.add_row("Pipelines", "\n".join(pipeline_names))
@@ -231,20 +222,19 @@ class DatasetFormatter:
         # Calculate sizes
         sizes = self._calculate_sizes(dataset)
 
-        self.console.rule("[bold blue]DATASET CREATION COMPLETED", style="blue double")
+        self.console.rule("DATASET CREATION COMPLETED")
         self.console.print()
 
         # Summary table
         table = Table(
             title="Dataset Summary",
             show_header=True,
-            header_style="bold magenta",
             box=box.ROUNDED,
             padding=(0, 2),
             width=60,
         )
-        table.add_column("Metric", style="dim", width=30)
-        table.add_column("Value", style="green")
+        table.add_column("Metric", width=30)
+        table.add_column("Value")
 
         table.add_row(
             "Training samples",
@@ -269,9 +259,7 @@ class DatasetFormatter:
         # Structure tree
         self._print_structure_tree(dataset)
 
-        self.console.rule(
-            "[bold green]Dataset Creation Successfully Completed!", style="green double"
-        )
+        self.console.rule("Dataset Creation Successfully Completed!")
 
     def _calculate_sizes(self, dataset: zarr.Group) -> dict:
         """Calculate dataset sizes in MB."""
@@ -297,14 +285,14 @@ class DatasetFormatter:
 
     def _print_structure_tree(self, dataset: zarr.Group) -> None:
         """Print dataset structure as a tree."""
-        tree = Tree("[bold yellow]Dataset Structure")
+        tree = Tree("Dataset Structure")
 
         for split in ["training", "testing", "validation"]:
             if "emg" in dataset[split]:
                 emg_sizes = {k: dataset[f"{split}/emg"][k].shape for k in dataset[f"{split}/emg"]}
                 if emg_sizes:
-                    split_branch = tree.add(f"[bold cyan]{split.capitalize()}")
-                    emg_branch = split_branch.add("[bold green]EMG Representations")
+                    split_branch = tree.add(split.capitalize())
+                    emg_branch = split_branch.add("EMG Representations")
                     for k, shape in emg_sizes.items():
                         emg_branch.add(f"{k}: {shape}")
 
