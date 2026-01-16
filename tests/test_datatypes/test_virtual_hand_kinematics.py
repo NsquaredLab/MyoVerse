@@ -113,9 +113,8 @@ class TestVirtualHandKinematics(unittest.TestCase):
 
         vhk.__getitem__ = mock_getitem
 
-        # Add the representation to _data and _processed_representations
+        # Add the representation to _data
         vhk._data["WrongDOF"] = wrong_dof_data
-        vhk._processed_representations.add_node("WrongDOF")
 
         # Test that ValueError is raised for data with wrong DOF count
         with self.assertRaises(ValueError):
