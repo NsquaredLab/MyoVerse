@@ -19,14 +19,15 @@ Example
 
 from __future__ import annotations
 
+import time
 import warnings
 from pathlib import Path
 from typing import Callable, Sequence
 
+import lightning as L
 import numpy as np
 import torch
 import zarr
-import lightning as L
 from torch.utils.data import DataLoader, Dataset
 
 # Suppress named tensor experimental warning
@@ -171,7 +172,6 @@ class ContinuousDataset(Dataset):
         # Cache arrays in RAM if requested
         if self.cache_in_ram:
             print(f"Loading {split} split into RAM...")
-            import time
 
             # Optimize: Use concurrent I/O for faster loading
             zarr.config.set({'async.concurrency': 32})

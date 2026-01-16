@@ -1,3 +1,7 @@
+"""Custom activation functions for neural networks."""
+
+from __future__ import annotations
+
 import torch
 from torch import nn
 
@@ -23,7 +27,7 @@ class PSerf(nn.Module):
     def __init__(
         self, gamma: float = 1.0, sigma: float = 1.25, stabilisation_term: float = 1e-12
     ):
-        super(PSerf, self).__init__()
+        super().__init__()
 
         self.gamma = nn.Parameter(torch.tensor(gamma), requires_grad=True)
         self.sigma = nn.Parameter(torch.tensor(sigma), requires_grad=True)
@@ -55,7 +59,7 @@ class SAU(nn.Module):
     """
 
     def __init__(self, alpha=0.15, n=20000):
-        super(SAU, self).__init__()
+        super().__init__()
 
         self.alpha = nn.Parameter(torch.tensor(alpha), requires_grad=True)
         self.n = torch.tensor(n)
@@ -94,7 +98,7 @@ class SMU(nn.Module):
     """
 
     def __init__(self, alpha=0.01, mu=2.5):
-        super(SMU, self).__init__()
+        super().__init__()
 
         self.alpha = nn.Parameter(torch.tensor(alpha), requires_grad=True)
         self.mu = nn.Parameter(torch.tensor(mu), requires_grad=True)
@@ -128,7 +132,7 @@ class SMU_old(nn.Module):
     """
 
     def __init__(self, alpha=0.01, mu=2.5):
-        super(SMU_old, self).__init__()
+        super().__init__()
 
         self.alpha = torch.tensor(alpha)
         self.mu = nn.Parameter(torch.tensor(mu), requires_grad=True)

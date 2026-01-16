@@ -1,8 +1,7 @@
-"""
-MyoVerse - The AI toolkit for myocontrol research
+"""MyoVerse - The AI toolkit for myocontrol research.
 
-MyoVerse is a cutting-edge research companion for unlocking the secrets hidden within 
-biomechanical data. It's specifically designed for exploring the complex interplay 
+MyoVerse is a cutting-edge research companion for unlocking the secrets hidden within
+biomechanical data. It's specifically designed for exploring the complex interplay
 between electromyography (EMG) signals, kinematics (movement), and kinetics (forces).
 
 Leveraging PyTorch and PyTorch Lightning, MyoVerse provides:
@@ -10,17 +9,20 @@ Leveraging PyTorch and PyTorch Lightning, MyoVerse provides:
 - Peer-reviewed AI models and components for analysis and prediction tasks
 - Essential utilities to streamline the research workflow
 
-MyoVerse aims to accelerate research in predicting movement from muscle activity, 
+MyoVerse aims to accelerate research in predicting movement from muscle activity,
 analyzing forces during motion, and developing novel AI approaches for biomechanical challenges.
 
 Note: MyoVerse is built for research and is continuously evolving.
 """
 
-from icecream import install, ic
+from __future__ import annotations
+
 import datetime
 import importlib.metadata
 import os
+
 import toml
+from icecream import ic, install
 
 # Initialize zarr with zarrs codec pipeline (must be done before any zarr imports)
 from myoverse.io import zarr_io as _zarr_io  # noqa: F401
@@ -122,85 +124,5 @@ def emg_xarray(
     return xr.DataArray(data, dims=dims, attrs=all_attrs)
 
 
-def emg_tensor(
-    data,
-    fs=2048.0,
-    grid_layouts=None,
-    device=None,
-    dtype=None,
-):
-    """Create an EMG tensor with named dimensions for GPU-accelerated processing.
-
-    This is the entry point for GPU-accelerated EMG processing with named tensors.
-    Use this instead of emg_xarray() when you need GPU acceleration.
-
-    Parameters
-    ----------
-    data : array-like
-        EMG data. Shape should be (channels, time) or (batch, channels, time).
-    fs : float
-        Sampling frequency in Hz.
-    grid_layouts : list[np.ndarray] | None
-        Grid layouts for spatial transforms.
-    device : str | torch.device | None
-        Device to place tensor on ('cuda', 'cpu', etc.).
-    dtype : torch.dtype | None
-        Data type for the tensor. Default: torch.float32.
-
-    Returns
-    -------
-    torch.Tensor
-        Named tensor on the specified device with dimension names.
-
-    Note
-    ----
-    Metadata (fs, grid_layouts) is stored as tensor attributes.
-
-    Examples
-    --------
-    >>> import myoverse
-    >>> import numpy as np
-    >>>
-    >>> # Create EMG tensor on GPU
-    >>> data = np.random.randn(64, 2048)
-    >>> emg = myoverse.emg_tensor(data, fs=2048, device='cuda')
-    >>> emg.names  # ('channel', 'time')
-    >>> emg.device  # cuda:0
-    >>>
-    >>> # Use with tensor transforms
-    >>> from myoverse.transforms.tensor import Pipeline, ZScore, RMS
-    >>> pipeline = Pipeline([ZScore(), RMS(window_size=200)])
-    >>> processed = pipeline(emg)
-    """
-    import torch
-
-    if dtype is None:
-        dtype = torch.float32
-
-    # Convert to tensor if needed
-    if not isinstance(data, torch.Tensor):
-        data = torch.as_tensor(data, dtype=dtype)
-    else:
-        data = data.to(dtype=dtype)
-
-    # Move to device
-    if device is not None:
-        data = data.to(device=device)
-
-    # Add dimension names
-    if data.ndim == 2:
-        names = ('channel', 'time')
-    elif data.ndim == 3:
-        names = ('batch', 'channel', 'time')
-    else:
-        names = tuple(f'dim_{i}' for i in range(data.ndim))
-
-    data = data.rename(*names)
-
-    # Store metadata as attributes
-    data.fs = fs
-    data.sampling_frequency = fs
-    if grid_layouts is not None:
-        data.grid_layouts = grid_layouts
-
-    return data
+# Re-export emg_tensor from transforms.base to avoid code duplication
+from myoverse.transforms.base import emg_tensor

@@ -1,22 +1,18 @@
+from __future__ import annotations
+
 import copy
 import inspect
 import os
 import pickle
 from abc import abstractmethod
 from typing import (
-    Dict,
-    Optional,
-    TypedDict,
     Any,
-    Union,
-    List,
-    Tuple,
-    NamedTuple,
     Final,
+    NamedTuple,
+    TypedDict,
 )
 
 import mplcursors
-import networkx
 import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
@@ -58,7 +54,7 @@ def create_grid_layout(
     cols: int,
     n_electrodes: int = None,
     fill_pattern: str = "row",
-    missing_indices: List[Tuple[int, int]] = None,
+    missing_indices: list[tuple[int, int]] = None,
 ) -> np.ndarray:
     """Creates a grid layout based on specified parameters.
 
@@ -74,7 +70,7 @@ def create_grid_layout(
     fill_pattern : str, optional
         Pattern to fill the grid. Options are 'row' (row-wise) or 'column' (column-wise).
         Default is 'row'.
-    missing_indices : List[Tuple[int, int]], optional
+    missing_indices : list[tuple[int, int]], optional
         List of (row, col) indices that should be left empty (-1). Default is None.
 
     Returns
@@ -178,9 +174,9 @@ class _Data:
         The sampling frequency of the data.
     _last_processing_step : str
         The last processing step applied to the data.
-    _processed_representations : networkx.DiGraph
+    _processed_representations : nx.DiGraph
         The graph of the processed representations.
-    _data : Dict[str, Union[np.ndarray, DeletedRepresentation]]
+    _data : dict[str, np.ndarray | DeletedRepresentation]
         Dictionary of all data. The keys are the names of the representations and the values are
         either numpy arrays or DeletedRepresentation objects (for representations that have been
         deleted to save memory).
@@ -228,23 +224,23 @@ class _Data:
         if self.sampling_frequency <= 0:
             raise ValueError("The sampling frequency should be greater than 0.")
 
-        self._data: Dict[str, Union[np.ndarray, DeletedRepresentation]] = {
+        self._data: dict[str, np.ndarray | DeletedRepresentation] = {
             InputRepresentationName: raw_data,
         }
 
-        self._processed_representations: networkx.DiGraph = networkx.DiGraph()
+        self._processed_representations: nx.DiGraph = nx.DiGraph()
         self._processed_representations.add_node(InputRepresentationName)
         self._processed_representations.add_node(OutputRepresentationName)
 
         self.__last_processing_step: str = InputRepresentationName
 
     @property
-    def is_chunked(self) -> Dict[str, bool]:
+    def is_chunked(self) -> dict[str, bool]:
         """Returns whether the data is chunked or not.
 
         Returns
         -------
-        Dict[str, bool]
+        dict[str, bool]
             A dictionary where the keys are the representations and the values are whether the data is chunked or not.
         """
         # Create cache if it doesn't exist or if _data might have changed
@@ -257,12 +253,12 @@ class _Data:
 
         return self._chunked_cache
 
-    def _check_if_chunked(self, data: Union[np.ndarray, DeletedRepresentation]) -> bool:
+    def _check_if_chunked(self, data: np.ndarray | DeletedRepresentation) -> bool:
         """Checks if the data is chunked or not.
 
         Parameters
         ----------
-        data : Union[np.ndarray, DeletedRepresentation]
+        data : np.ndarray | DeletedRepresentation
             The data to check.
 
         Returns
@@ -282,16 +278,16 @@ class _Data:
         raise RuntimeError("This property is read-only.")
 
     @property
-    def processed_representations(self) -> Dict[str, np.ndarray]:
+    def processed_representations(self) -> dict[str, np.ndarray]:
         """Returns the processed representations of the data."""
         return self._data
 
     @processed_representations.setter
-    def processed_representations(self, value: Dict[str, Representation]):
+    def processed_representations(self, value: dict[str, Representation]):
         raise RuntimeError("This property is read-only.")
 
     @property
-    def output_representations(self) -> Dict[str, np.ndarray]:
+    def output_representations(self) -> dict[str, np.ndarray]:
         """Returns the output representations of the data."""
         # Convert to set for faster lookups
         output_nodes = set(
@@ -300,7 +296,7 @@ class _Data:
         return {key: value for key, value in self._data.items() if key in output_nodes}
 
     @output_representations.setter
-    def output_representations(self, value: Dict[str, Representation]):
+    def output_representations(self, value: dict[str, Representation]):
         raise RuntimeError("This property is read-only.")
 
     @property
@@ -335,12 +331,12 @@ class _Data:
             "This method should be implemented in the child class."
         )
 
-    def plot_graph(self, title: Optional[str] = None):
+    def plot_graph(self, title: str | None = None):
         """Draws the graph of the processed representations.
 
         Parameters
         ----------
-        title : Optional[str], default=None
+        title : str | None, default=None
             Optional title for the graph. If None, no title will be displayed.
         """
         # Use spectral layout but with enhancements for better flow
@@ -794,7 +790,7 @@ class _Data:
         plt.tight_layout(pad=2.0)  # Increased padding
         plt.show()
 
-    def get_representation_history(self, representation: str) -> List[str]:
+    def get_representation_history(self, representation: str) -> list[str]:
         """Returns the history of a representation.
 
         Parameters
@@ -1025,12 +1021,12 @@ class _Data:
         with open(filename, "rb") as f:
             return pickle.load(f)
 
-    def memory_usage(self) -> Dict[str, Tuple[str, int]]:
+    def memory_usage(self) -> dict[str, tuple[str, int]]:
         """Calculate memory usage of each representation.
 
         Returns
         -------
-        Dict[str, Tuple[str, int]]
+        dict[str, tuple[str, int]]
             Dictionary with representation names as keys and tuples containing
             shape as string and memory usage in bytes as values.
         """
@@ -1061,7 +1057,7 @@ class EMGData(_Data):
 
     sampling_frequency : float
         The sampling frequency of the EMG data.
-    grid_layouts : Optional[List[np.ndarray]], optional
+    grid_layouts : list[np.ndarray] | None, optional
         List of 2D arrays specifying the exact electrode arrangement for each grid.
         Each array element contains the electrode index (0-based).
 
@@ -1075,10 +1071,10 @@ class EMGData(_Data):
         The raw EMG data. The shape of the array should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples).
     sampling_frequency : float
         The sampling frequency of the EMG data.
-    grid_layouts : Optional[List[np.ndarray]]
+    grid_layouts : list[np.ndarray] | None
         List of 2D arrays specifying the exact electrode arrangement for each grid.
         Each array element contains the electrode index (0-based).
-    processed_data : Dict[str, np.ndarray]
+    processed_data : dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied
         to the EMG data and the values are the processed EMG data.
 
@@ -1153,7 +1149,7 @@ class EMGData(_Data):
         self,
         input_data: np.ndarray,
         sampling_frequency: float,
-        grid_layouts: Optional[List[np.ndarray]] = None,
+        grid_layouts: list[np.ndarray] | None = None,
     ):
         if input_data.ndim != 2 and input_data.ndim != 3:
             raise ValueError(
@@ -1210,9 +1206,9 @@ class EMGData(_Data):
     def plot(
         self,
         representation: str,
-        nr_of_grids: Optional[int] = None,
-        nr_of_electrodes_per_grid: Optional[int] = None,
-        scaling_factor: Union[float, List[float]] = 20.0,
+        nr_of_grids: int | None = None,
+        nr_of_electrodes_per_grid: int | None = None,
+        scaling_factor: float | list[float] = 20.0,
         use_grid_layouts: bool = True,
     ):
         """Plots the data for a specific representation.
@@ -1221,13 +1217,13 @@ class EMGData(_Data):
         ----------
         representation : str
             The representation to plot.
-        nr_of_grids : Optional[int], optional
+        nr_of_grids : int | None, optional
             The number of electrode grids to plot. If None and grid_layouts is provided,
             will use the number of grids in grid_layouts. Default is None.
-        nr_of_electrodes_per_grid : Optional[int], optional
+        nr_of_electrodes_per_grid : int | None, optional
             The number of electrodes per grid to plot. If None, will be determined from data shape
             or grid_layouts if available. Default is None.
-        scaling_factor : Union[float, List[float]], optional
+        scaling_factor : float | list[float], optional
             The scaling factor for the data. The default is 20.0.
             If a list is provided, the scaling factor for each grid is used.
         use_grid_layouts : bool, optional
@@ -1357,21 +1353,21 @@ class EMGData(_Data):
         self,
         grid_idx: int = 0,
         show_indices: bool = True,
-        cmap: Optional[plt.cm.ScalarMappable] = None,
-        figsize: Optional[Tuple[float, float]] = None,
-        title: Optional[str] = None,
+        cmap: plt.cm.ScalarMappable | None = None,
+        figsize: tuple[float, float] | None = None,
+        title: str | None = None,
         colorbar: bool = True,
         grid_color: str = "black",
         grid_alpha: float = 0.7,
         text_color: str = "white",
         text_fontsize: int = 10,
         text_fontweight: str = "bold",
-        highlight_electrodes: Optional[List[int]] = None,
+        highlight_electrodes: list[int] | None = None,
         highlight_color: str = "red",
-        save_path: Optional[str] = None,
+        save_path: str | None = None,
         dpi: int = 150,
         return_fig: bool = False,
-        ax: Optional[plt.Axes] = None,
+        ax: plt.Axes | None = None,
         autoshow: bool = True,
     ):
         """Plots the 2D layout of a specific electrode grid with enhanced visualization.
@@ -1382,12 +1378,12 @@ class EMGData(_Data):
             The index of the grid to plot. Default is 0.
         show_indices : bool, optional
             Whether to show the electrode indices in the plot. Default is True.
-        cmap : Optional[plt.cm.ScalarMappable], optional
+        cmap : plt.cm.ScalarMappable | None, optional
             Custom colormap to use for visualization. If None, a default viridis colormap is used.
-        figsize : Optional[Tuple[float, float]], optional
+        figsize : tuple[float, float] | None, optional
             Custom figure size as (width, height) in inches. If None, size is calculated based on grid dimensions.
             Ignored if an existing axes object is provided.
-        title : Optional[str], optional
+        title : str | None, optional
             Custom title for the plot. If None, a default title showing grid dimensions is used.
         colorbar : bool, optional
             Whether to show a colorbar. Default is True.
@@ -1401,17 +1397,17 @@ class EMGData(_Data):
             Font size for electrode indices. Default is 10.
         text_fontweight : str, optional
             Font weight for electrode indices. Default is "bold".
-        highlight_electrodes : Optional[List[int]], optional
+        highlight_electrodes : list[int] | None, optional
             List of electrode indices to highlight. Default is None.
         highlight_color : str, optional
             Color to use for highlighting electrodes. Default is "red".
-        save_path : Optional[str], optional
+        save_path : str | None, optional
             Path to save the figure. If None, figure is not saved. Default is None.
         dpi : int, optional
             DPI for saved figure. Default is 150.
         return_fig : bool, optional
             Whether to return the figure and axes. Default is False.
-        ax : Optional[plt.Axes], optional
+        ax : plt.Axes | None, optional
             Existing axes object to plot on. If None, a new figure and axes will be created.
         autoshow : bool, optional
             Whether to automatically show the figure. Default is True.
@@ -1419,7 +1415,7 @@ class EMGData(_Data):
 
         Returns
         -------
-        Optional[Tuple[plt.Figure, plt.Axes]]
+        tuple[plt.Figure, plt.Axes] | None
             Figure and axes objects if return_fig is True.
 
         Raises
@@ -1620,7 +1616,7 @@ class KinematicsData(_Data):
         The 3 represents the x, y, and z coordinates of the joints.
     sampling_frequency : float
         The sampling frequency of the kinematics data.
-    processed_data : Dict[str, np.ndarray]
+    processed_data : dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied to the kinematics data and
         the values are the processed kinematics data.
 
@@ -1803,7 +1799,7 @@ class VirtualHandKinematics(_Data):
         wrist pronation/supination, wrist deviation, and the flexion of all 5 fingers.
     sampling_frequency : float
         The sampling frequency of the kinematics data.
-    processed_data : Dict[str, np.ndarray]
+    processed_data : dict[str, np.ndarray]
         A dictionary where the keys are the names of filters applied to the kinematics data and
         the values are the processed kinematics data.
 
