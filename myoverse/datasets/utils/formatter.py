@@ -56,7 +56,7 @@ class DatasetFormatter:
     """
 
     def __init__(self, console: Console | None = None, debug_level: int = 0):
-        self.console = console or Console()
+        self.console = console or Console(color_system=None, highlight=False)
         self.debug_level = debug_level
 
     def should_print(self, level: int = 1) -> bool:

@@ -104,7 +104,7 @@ class DatasetCreator:
         self.debug_level = debug_level
 
         self.splitter = DataSplitter(test_ratio=test_ratio, val_ratio=val_ratio)
-        self.console = Console()
+        self.console = Console(color_system=None, highlight=False)
 
         # Load all modality data
         self._data: dict[str, dict[str, np.ndarray]] = {}
