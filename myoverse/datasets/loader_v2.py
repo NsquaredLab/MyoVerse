@@ -19,6 +19,7 @@ Example
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 from typing import Callable, Sequence
 
@@ -27,6 +28,9 @@ import torch
 import zarr
 import lightning as L
 from torch.utils.data import DataLoader, Dataset
+
+# Suppress named tensor experimental warning
+warnings.filterwarnings("ignore", category=UserWarning, message=".*Named tensors.*")
 
 # Try to import kvikio for GPU Direct Storage
 try:
@@ -113,6 +117,7 @@ class ContinuousDataset(Dataset):
         seed: int | None = None,
         device: str | torch.device | None = None,
         dtype: torch.dtype = torch.float32,
+        cache_in_ram: bool = True,
     ):
         self.zarr_path = Path(zarr_path)
         self.split = split
@@ -125,6 +130,7 @@ class ContinuousDataset(Dataset):
         self.seed = seed
         self._rng = np.random.default_rng(seed)
         self.device = torch.device(device) if device else None
+        self.cache_in_ram = cache_in_ram
         self.dtype = dtype
 
         # Validate path
@@ -134,16 +140,20 @@ class ContinuousDataset(Dataset):
         if window_stride is None and n_windows is None:
             raise ValueError("Must specify n_windows when window_stride is None")
 
-        # Use GPU Direct Storage if available, GPU exists, and loading to GPU
+        # Use GPU Direct Storage if available and GPU exists
+        # Skip GDS if caching in RAM - not worth the complexity for one-time load
+        # GDS is only beneficial for repeated disk I/O
         self._use_gds = (
             HAS_KVIKIO
             and torch.cuda.is_available()
-            and self.device is not None
-            and self.device.type == "cuda"
+            and not cache_in_ram  # Don't use GDS if caching - avoids worker issues
         )
+        self._gds_to_cpu = self._use_gds and (self.device is None or self.device.type == "cpu")
 
         # Open zarr store (with GDS if available)
         if self._use_gds:
+            # Enable GPU mode in zarr so slicing returns CuPy arrays
+            zarr.config.enable_gpu()
             self._store = zarr.open(GDSStore(str(self.zarr_path)), mode="r")
         else:
             self._store = zarr.open(str(self.zarr_path), mode="r")
@@ -157,6 +167,38 @@ class ContinuousDataset(Dataset):
         if split not in self._store:
             raise FileNotFoundError(f"Split '{split}' not found in {self.zarr_path}")
         self._split_group = self._store[split]
+
+        # Cache arrays in RAM if requested
+        if self.cache_in_ram:
+            print(f"Loading {split} split into RAM...")
+            import time
+
+            # Optimize: Use concurrent I/O for faster loading
+            zarr.config.set({'async.concurrency': 32})
+
+            start = time.perf_counter()
+            self._ram_cache = {}
+            total_size = 0
+
+            for arr_name in self._split_group.keys():
+                arr = self._split_group[arr_name]
+                # Load to numpy (convert from CuPy if using GDS)
+                if self._use_gds and cp is not None:
+                    data = arr[:]  # CuPy array
+                    self._ram_cache[arr_name] = cp.asnumpy(data)
+                else:
+                    self._ram_cache[arr_name] = np.asarray(arr[:])
+                total_size += self._ram_cache[arr_name].nbytes
+
+            elapsed = time.perf_counter() - start
+            print(f"  Loaded {total_size / (1024**3):.2f} GB in {elapsed:.2f}s ({total_size / (1024**2) / elapsed:.1f} MB/s)")
+
+            # Reset zarr config after loading to avoid issues with workers
+            # Workers will inherit zarr config, and GPU mode causes crashes
+            if self._use_gds:
+                zarr.config.reset()
+        else:
+            self._ram_cache = None
 
         # Validate inputs/targets exist
         all_requested = set(self.inputs + self.targets)
@@ -211,6 +253,66 @@ class ContinuousDataset(Dataset):
             self._random_mode = True
 
         self._setup_recording_ranges()
+
+    def __getstate__(self):
+        """Prepare state for pickling (used by multiprocessing workers)."""
+        state = self.__dict__.copy()
+        # Remove unpickleable zarr/GDS objects - workers will reinitialize if needed
+        state['_store'] = None
+        state['_split_group'] = None
+        # Remove RNG - will be recreated in workers using self.seed
+        state['_rng'] = None
+        return state
+
+    def __setstate__(self, state):
+        """Restore state after unpickling (in worker processes)."""
+        try:
+            self.__dict__.update(state)
+
+            # Recreate RNG in workers using the saved seed
+            self._rng = np.random.default_rng(self.seed)
+
+            # Workers must not use GPU/GDS - reset zarr config to defaults
+            # Skip this if zarr not imported (shouldn't happen, but be safe)
+            try:
+                zarr.config.reset()
+            except Exception:
+                pass  # Ignore zarr config errors
+
+            # If we have RAM cache, we don't need to reinitialize the store
+            if self._ram_cache is not None:
+                # Workers only access RAM cache, no zarr/GDS needed
+                return
+
+            # Otherwise, reinitialize zarr store (but avoid GDS in workers)
+            # Workers should use regular zarr to avoid CUDA/GDS issues
+            self._store = zarr.open(str(self.zarr_path), mode="r")
+            self._split_group = self._store[self.split]
+            # Disable GDS for workers to avoid CUDA issues
+            self._use_gds = False
+            self._gds_to_cpu = False
+        except Exception as e:
+            # Log any errors during unpickling for debugging
+            import sys
+            print(f"ERROR in __setstate__: {e}", file=sys.stderr)
+            raise
+
+    def get_sample_shape(self, modality: str) -> tuple[int, ...]:
+        """Get the shape of a sample for a given modality (without loading data).
+
+        Returns shape without time dimension: (channels,) for emg, (joints, xyz) for kinematics.
+        """
+        # Get list of variables for this modality
+        var_list = self._input_vars.get(modality) or self._target_vars.get(modality)
+        if not var_list:
+            raise ValueError(f"Modality '{modality}' not found in inputs or targets")
+
+        # Get first variable's array to check shape
+        first_var = var_list[0]
+        arr = self._split_group[first_var]
+
+        # Return shape without time dimension (last axis)
+        return arr.shape[:-1]
 
     def _setup_recording_ranges(self) -> None:
         """Setup valid sampling ranges for each recording."""
@@ -295,13 +397,22 @@ class ContinuousDataset(Dataset):
 
         Uses DLPack for zero-copy transfer when using GDS (cupy -> torch).
         """
-        if self._use_gds and cp is not None:
-            # GDS returns cupy array - use DLPack for zero-copy to torch
-            # Ensure contiguous
-            if not data.flags.c_contiguous:
-                data = cp.ascontiguousarray(data)
-            tensor = torch.from_dlpack(data.toDlpack())
-            return tensor.to(dtype=self.dtype)
+        # Check if data is actually a CuPy array (not just if GDS is enabled)
+        if cp is not None and isinstance(data, cp.ndarray):
+            if self._gds_to_cpu:
+                # GDS→GPU→CPU path for workers with GDS
+                # Convert CuPy to numpy (GPU→CPU copy)
+                data = cp.asnumpy(data)
+                tensor = torch.from_numpy(data)
+                return tensor.to(dtype=self.dtype)
+            else:
+                # GDS→GPU path for direct GPU loading
+                # Use DLPack for zero-copy to torch
+                # Ensure contiguous
+                if not data.flags.c_contiguous:
+                    data = cp.ascontiguousarray(data)
+                tensor = torch.from_dlpack(data)
+                return tensor.to(dtype=self.dtype)
         else:
             # Regular path: numpy -> torch
             tensor = torch.from_numpy(np.ascontiguousarray(data))
@@ -329,10 +440,16 @@ class ContinuousDataset(Dataset):
         inputs = {}
         for mod in self.inputs:
             var_name = f"{mod}_{task}"
-            if var_name in self._split_group:
-                arr = self._split_group[var_name]
-                # Slice from zarr
-                data = arr[..., local_pos : local_pos + self.window_size]
+            # Check RAM cache first (avoids CUDA/zarr operations in workers)
+            exists = var_name in self._ram_cache if self._ram_cache else var_name in self._split_group
+            if exists:
+                # Read from RAM cache if available, otherwise from zarr
+                if self._ram_cache is not None:
+                    arr = self._ram_cache[var_name]
+                    data = arr[..., local_pos : local_pos + self.window_size]
+                else:
+                    arr = self._split_group[var_name]
+                    data = arr[..., local_pos : local_pos + self.window_size]
 
                 if self.device is None:
                     # Return numpy array (no transforms)
@@ -351,9 +468,16 @@ class ContinuousDataset(Dataset):
         targets = {}
         for mod in self.targets:
             var_name = f"{mod}_{task}"
-            if var_name in self._split_group:
-                arr = self._split_group[var_name]
-                data = arr[..., local_pos : local_pos + self.window_size]
+            # Check RAM cache first (avoids CUDA/zarr operations in workers)
+            exists = var_name in self._ram_cache if self._ram_cache else var_name in self._split_group
+            if exists:
+                # Read from RAM cache if available, otherwise from zarr
+                if self._ram_cache is not None:
+                    arr = self._ram_cache[var_name]
+                    data = arr[..., local_pos : local_pos + self.window_size]
+                else:
+                    arr = self._split_group[var_name]
+                    data = arr[..., local_pos : local_pos + self.window_size]
 
                 if self.device is None:
                     # Return numpy array (no transforms)
@@ -501,6 +625,7 @@ class DataModule(L.LightningDataModule):
         persistent_workers: bool = True,
         device: str | torch.device | None = None,
         dtype: torch.dtype = torch.float32,
+        cache_in_ram: bool = True,
     ):
         super().__init__()
         self.data_path = Path(data_path)
@@ -519,6 +644,7 @@ class DataModule(L.LightningDataModule):
         self.persistent_workers = persistent_workers and num_workers > 0
         self.device = device
         self.dtype = dtype
+        self.cache_in_ram = cache_in_ram
 
         if not self.data_path.exists():
             raise FileNotFoundError(f"Dataset not found: {self.data_path}")
@@ -544,6 +670,7 @@ class DataModule(L.LightningDataModule):
                 target_transform=self.target_transform,
                 device=self.device,
                 dtype=self.dtype,
+                cache_in_ram=self.cache_in_ram,
             )
             self.val_dataset = ContinuousDataset(
                 self.data_path,
@@ -556,6 +683,7 @@ class DataModule(L.LightningDataModule):
                 target_transform=self.target_transform,
                 device=self.device,
                 dtype=self.dtype,
+                cache_in_ram=self.cache_in_ram,
             )
 
         if stage == "test" or stage is None:
@@ -570,6 +698,7 @@ class DataModule(L.LightningDataModule):
                 target_transform=self.target_transform,
                 device=self.device,
                 dtype=self.dtype,
+                cache_in_ram=self.cache_in_ram,
             )
 
     def train_dataloader(self) -> DataLoader:
