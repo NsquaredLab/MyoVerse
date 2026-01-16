@@ -34,5 +34,4 @@ Representation = TypedDict(
 )
 
 InputRepresentationName: Final[str] = "Input"
-OutputRepresentationName: Final[str] = "Output"
 LastRepresentationName: Final[str] = "Last"

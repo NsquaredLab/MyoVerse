@@ -25,7 +25,6 @@ from myoverse.datatypes.types import (
     DeletedRepresentation,
     InputRepresentationName,
     LastRepresentationName,
-    OutputRepresentationName,
     Representation,
 )
 
@@ -49,7 +48,6 @@ __all__ = [
     "DeletedRepresentation",
     "Representation",
     "InputRepresentationName",
-    "OutputRepresentationName",
     "LastRepresentationName",
     # Base class
     "_Data",
