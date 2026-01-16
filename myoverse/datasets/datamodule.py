@@ -9,7 +9,7 @@ Example
 >>> from myoverse.transforms import Compose, ZScore, RMS
 >>>
 >>> dm = DataModule(
-...     "data.zarr",
+...     "data.zip",
 ...     inputs=["emg"],
 ...     targets=["kinematics"],
 ...     window_size=200,
@@ -130,7 +130,7 @@ class DataModule(L.LightningDataModule):
     Examples
     --------
     >>> dm = DataModule(
-    ...     "data.zarr",
+    ...     "data.zip",
     ...     inputs=["emg"],
     ...     targets=["kinematics"],
     ...     window_size=200,

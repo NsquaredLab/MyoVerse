@@ -36,13 +36,13 @@ Example
 ...         "kinematics": Modality(path="kin.pkl", dims=("joint", "time")),
 ...     },
 ...     sampling_frequency=2048.0,
-...     save_path="data.zarr",
+...     save_path="data.zip",
 ... )
 >>> creator.create()
 >>>
 >>> # Load for training
 >>> dm = DataModule(
-...     "data.zarr",
+...     "data.zip",
 ...     inputs=["emg"],
 ...     targets=["kinematics"],
 ...     window_size=200,

@@ -6,6 +6,7 @@ This example shows the complete training pipeline from raw data to model trainin
 Each step is explained and demonstrated.
 """
 
+# %%
 from pathlib import Path
 
 import torch
@@ -18,7 +19,6 @@ DATA_DIR = SCRIPT_DIR.parent / "data"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using device: {DEVICE}")
 
-# %%
 # Step 1: Create Dataset with Preprocessing
 # ------------------------------------------
 # Use DatasetCreator with Modality transforms for pre-storage processing.

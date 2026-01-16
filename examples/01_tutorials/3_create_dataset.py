@@ -36,7 +36,7 @@ creator = DatasetCreator(
     },
     sampling_frequency=2044.0,
     tasks_to_use=["1", "2"],
-    save_path=DATA_DIR / "dataset.zarr",
+    save_path=DATA_DIR / "dataset.zip",
     test_ratio=0.2,
     val_ratio=0.2,
     debug_level=1,

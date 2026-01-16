@@ -10,7 +10,7 @@ Example
 >>> from myoverse.transforms import Compose, ZScore, RMS
 >>>
 >>> ds = SupervisedDataset(
-...     "data.zarr",
+...     "data.zip",
 ...     split="training",
 ...     inputs=["emg"],
 ...     targets=["kinematics"],
@@ -73,7 +73,7 @@ class SupervisedDataset(WindowedDataset):
     --------
     >>> # Supervised learning: EMG → kinematics
     >>> ds = SupervisedDataset(
-    ...     "data.zarr",
+    ...     "data.zip",
     ...     inputs=["emg"],
     ...     targets=["kinematics"],
     ...     window_size=200,
