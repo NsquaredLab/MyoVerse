@@ -25,6 +25,7 @@ class EuclideanDistance(nn.Module):
     >>> pred = torch.randn(32, 60)  # batch_size=32, 20 joints * 3 dims
     >>> target = torch.randn(32, 60)
     >>> loss = loss_fn(pred, target)
+
     """
 
     def __init__(self, n_joints: int = 20, n_dims: int = 3):
@@ -32,7 +33,9 @@ class EuclideanDistance(nn.Module):
         self.n_joints = n_joints
         self.n_dims = n_dims
 
-    def forward(self, prediction: torch.Tensor, ground_truth: torch.Tensor) -> torch.Tensor:
+    def forward(
+        self, prediction: torch.Tensor, ground_truth: torch.Tensor
+    ) -> torch.Tensor:
         """Compute the mean Euclidean distance loss.
 
         Parameters
@@ -46,12 +49,15 @@ class EuclideanDistance(nn.Module):
         -------
         torch.Tensor
             Scalar loss value.
+
         """
         pred_reshaped = prediction.reshape(-1, self.n_joints, self.n_dims)
         gt_reshaped = ground_truth.reshape(-1, self.n_joints, self.n_dims)
 
         # Compute per-joint Euclidean distances and average
-        distances = torch.sqrt(torch.sum(torch.square(pred_reshaped - gt_reshaped), dim=-1))
+        distances = torch.sqrt(
+            torch.sum(torch.square(pred_reshaped - gt_reshaped), dim=-1)
+        )
         return distances.mean()
 
 

@@ -4,7 +4,7 @@ This module provides DatasetCreator for creating zarr datasets from
 multi-modal time series data. Output is stored as a single .zip file
 for fast I/O on all platforms (especially Windows).
 
-Example
+Example:
 -------
 >>> from myoverse.datasets import DatasetCreator, Modality
 >>>
@@ -17,12 +17,13 @@ Example
 ...     save_path="dataset.zip",
 ... )
 >>> creator.create()
+
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 import numpy as np
 import zarr
@@ -85,6 +86,7 @@ class DatasetCreator:
     >>> # Load directly to GPU tensors
     >>> from myoverse.datasets import DataModule
     >>> dm = DataModule("dataset.zip", device="cuda")
+
     """
 
     def __init__(
@@ -129,6 +131,7 @@ class DatasetCreator:
         if self.save_path.exists():
             if self.save_path.is_dir():
                 import shutil
+
                 shutil.rmtree(self.save_path)
             else:
                 self.save_path.unlink()
@@ -186,7 +189,7 @@ class DatasetCreator:
             return
 
         self.console.print(
-            f"Processing {len(self.tasks_to_use)} tasks: {', '.join(self.tasks_to_use)}"
+            f"Processing {len(self.tasks_to_use)} tasks: {', '.join(self.tasks_to_use)}",
         )
         self.console.print()
 
@@ -229,13 +232,19 @@ class DatasetCreator:
                 progress.advance(task_progress)
 
     def _store_array(
-        self, group: zarr.Group, name: str, data: np.ndarray
+        self,
+        group: zarr.Group,
+        name: str,
+        data: np.ndarray,
     ) -> None:
         """Store an array with time-chunked layout."""
         chunks = list(data.shape)
         chunks[-1] = min(self.time_chunk_size, chunks[-1])
         arr = group.create_array(
-            name, shape=data.shape, chunks=tuple(chunks), dtype=data.dtype
+            name,
+            shape=data.shape,
+            chunks=tuple(chunks),
+            dtype=data.dtype,
         )
         arr[:] = data
 
@@ -263,9 +272,10 @@ class DatasetCreator:
             if val is not None:
                 self._store_array(store["validation"], array_name, val)
 
-
     def _extract_center(
-        self, data: np.ndarray, ratio: float
+        self,
+        data: np.ndarray,
+        ratio: float,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Extract center portion of data along last axis.
 
@@ -281,7 +291,8 @@ class DatasetCreator:
         return edges, center
 
     def _split_continuous(
-        self, data: np.ndarray
+        self,
+        data: np.ndarray,
     ) -> tuple[np.ndarray, np.ndarray | None, np.ndarray | None]:
         """Split continuous data along time axis (last dimension)."""
         if self.splitter.test_ratio == 0:
@@ -326,7 +337,9 @@ class DatasetCreator:
 
             row = [split]
             for mod_name in self.modalities:
-                arrays = sorted(k for k in split_group.keys() if k.startswith(f"{mod_name}_"))
+                arrays = sorted(
+                    k for k in split_group.keys() if k.startswith(f"{mod_name}_")
+                )
                 shapes = [
                     f"{arr.split('_', 1)[1]}: {split_group[arr].shape}"
                     for arr in arrays

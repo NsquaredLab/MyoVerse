@@ -12,7 +12,7 @@ The WindowedDataset class returns all modalities as a dict, without
 making assumptions about the learning paradigm (supervised, contrastive, etc.).
 Paradigm-specific datasets should subclass WindowedDataset.
 
-Example
+Example:
 -------
 >>> from myoverse.datasets.base import WindowedDataset
 >>>
@@ -26,14 +26,15 @@ Example
 ...     device="cuda",
 ... )
 >>> data = ds[0]  # dict[str, Tensor] with 'emg' and 'kinematics'
+
 """
 
 from __future__ import annotations
 
 import time
 import warnings
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 import numpy as np
 import torch
@@ -48,6 +49,7 @@ warnings.filterwarnings("ignore", category=UserWarning, message=".*Named tensors
 try:
     import cupy as cp
     from kvikio.zarr import GDSStore
+
     HAS_KVIKIO = True
 except ImportError:
     HAS_KVIKIO = False
@@ -101,6 +103,7 @@ class WindowedDataset(Dataset):
     >>> ds = WindowedDataset("data.zip", modalities=["emg"], device="cuda")
     >>> data["emg"].device  # cuda:0
     >>> data["emg"].names   # ('channel', 'time')
+
     """
 
     def __init__(
@@ -135,12 +138,10 @@ class WindowedDataset(Dataset):
 
         # Use GPU Direct Storage if available and GPU exists
         # Skip GDS if caching in RAM - not worth the complexity for one-time load
-        self._use_gds = (
-            HAS_KVIKIO
-            and torch.cuda.is_available()
-            and not cache_in_ram
+        self._use_gds = HAS_KVIKIO and torch.cuda.is_available() and not cache_in_ram
+        self._gds_to_cpu = self._use_gds and (
+            self.device is None or self.device.type == "cpu"
         )
-        self._gds_to_cpu = self._use_gds and (self.device is None or self.device.type == "cpu")
 
         # Detect if path is a zip file
         self._is_zip = self.zarr_path.suffix.lower() == ".zip"
@@ -175,13 +176,13 @@ class WindowedDataset(Dataset):
             if missing:
                 raise ValueError(
                     f"Requested modalities {missing} not in dataset. "
-                    f"Available: {self._available_modalities}"
+                    f"Available: {self._available_modalities}",
                 )
 
         # Cache arrays in RAM if requested
         if self.cache_in_ram:
             print(f"Loading {split} split into RAM...")
-            zarr.config.set({'async.concurrency': 32})
+            zarr.config.set({"async.concurrency": 32})
 
             start = time.perf_counter()
             self._ram_cache = {}
@@ -197,7 +198,9 @@ class WindowedDataset(Dataset):
                 total_size += self._ram_cache[arr_name].nbytes
 
             elapsed = time.perf_counter() - start
-            print(f"  Loaded {total_size / (1024**3):.2f} GB in {elapsed:.2f}s ({total_size / (1024**2) / elapsed:.1f} MB/s)")
+            print(
+                f"  Loaded {total_size / (1024**3):.2f} GB in {elapsed:.2f}s ({total_size / (1024**2) / elapsed:.1f} MB/s)"
+            )
 
             if self._use_gds:
                 zarr.config.reset()
@@ -245,9 +248,9 @@ class WindowedDataset(Dataset):
     def __getstate__(self):
         """Prepare state for pickling (used by multiprocessing workers)."""
         state = self.__dict__.copy()
-        state['_store'] = None
-        state['_split_group'] = None
-        state['_rng'] = None
+        state["_store"] = None
+        state["_split_group"] = None
+        state["_rng"] = None
         return state
 
     def __setstate__(self, state):
@@ -276,6 +279,7 @@ class WindowedDataset(Dataset):
             self._gds_to_cpu = False
         except Exception as e:
             import sys
+
             print(f"ERROR in __setstate__: {e}", file=sys.stderr)
             raise
 
@@ -291,6 +295,7 @@ class WindowedDataset(Dataset):
         -------
         tuple[int, ...]
             Shape without time dimension.
+
         """
         var_list = self._modality_vars.get(modality)
         if not var_list:
@@ -314,7 +319,7 @@ class WindowedDataset(Dataset):
 
         if not self._valid_ranges:
             raise ValueError(
-                f"No recordings long enough for window_size={self.window_size}"
+                f"No recordings long enough for window_size={self.window_size}",
             )
 
         self._total_valid = sum(end - start + 1 for _, start, end in self._valid_ranges)
@@ -342,7 +347,7 @@ class WindowedDataset(Dataset):
 
         raise RuntimeError(
             f"Failed to map random position {pos} to valid range "
-            f"(total_valid={self._total_valid}, n_ranges={len(self._valid_ranges)})"
+            f"(total_valid={self._total_valid}, n_ranges={len(self._valid_ranges)})",
         )
 
     def _get_deterministic_position(self, idx: int) -> tuple[int, int]:
@@ -350,7 +355,8 @@ class WindowedDataset(Dataset):
         cumsum = 0
         for rec_idx, length in enumerate(self._recording_lengths):
             valid_positions = max(
-                0, (length - self.window_size) // self.window_stride + 1
+                0,
+                (length - self.window_size) // self.window_stride + 1,
             )
             if idx < cumsum + valid_positions:
                 local_idx = idx - cumsum
@@ -395,7 +401,9 @@ class WindowedDataset(Dataset):
 
         return tensor.to(dtype=self.dtype)
 
-    def _load_window(self, var_name: str, local_pos: int, modality: str) -> torch.Tensor | np.ndarray:
+    def _load_window(
+        self, var_name: str, local_pos: int, modality: str
+    ) -> torch.Tensor | np.ndarray:
         """Load a window for a variable and convert to tensor.
 
         Parameters
@@ -411,6 +419,7 @@ class WindowedDataset(Dataset):
         -------
         torch.Tensor | np.ndarray
             Window data as tensor (if device set) or numpy array.
+
         """
         if self._ram_cache is not None:
             arr = self._ram_cache[var_name]
@@ -422,18 +431,17 @@ class WindowedDataset(Dataset):
         if end_pos > arr.shape[-1]:
             raise ValueError(
                 f"Window [{local_pos}:{end_pos}] exceeds recording length {arr.shape[-1]} "
-                f"for variable {var_name}"
+                f"for variable {var_name}",
             )
 
-        data = arr[..., local_pos : end_pos]
+        data = arr[..., local_pos:end_pos]
 
         if self.device is None:
             return np.ascontiguousarray(data)
-        else:
-            tensor = self._to_tensor(data)
-            names = self._get_dim_names(modality)
-            tensor = tensor.rename(*names)
-            return tensor
+        tensor = self._to_tensor(data)
+        names = self._get_dim_names(modality)
+        tensor = tensor.rename(*names)
+        return tensor
 
     def __len__(self) -> int:
         return self._n_windows
@@ -450,6 +458,7 @@ class WindowedDataset(Dataset):
         -------
         dict[str, torch.Tensor | np.ndarray]
             Dict mapping modality names to data windows.
+
         """
         # Get window position
         if self._random_mode:

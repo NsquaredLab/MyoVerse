@@ -15,6 +15,7 @@ class WeightedSum(nn.Module):
     ----------
     alpha : float, optional
         Initial weight for the first input. Default is 0.5.
+
     """
 
     def __init__(self, alpha: float = 0.5):
@@ -37,6 +38,7 @@ class CircularPad(nn.Module):
            through Convolutive Deep Learning, in: 2022 44th Annual International Conference of the IEEE
            Engineering in Medicine & Biology Society (EMBC), pp. 702-706.
            https://doi.org/10.1109/EMBC48229.2022.9870937
+
     """
 
     def __init__(self):

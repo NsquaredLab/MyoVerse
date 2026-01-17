@@ -20,8 +20,8 @@ from myoverse.datasets.presets.embc import (
 
 __all__ = [
     "EMBCConfig",
-    "embc_kinematics_transform",
-    "embc_train_transform",
     "embc_eval_transform",
+    "embc_kinematics_transform",
     "embc_target_transform",
+    "embc_train_transform",
 ]

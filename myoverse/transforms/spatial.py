@@ -3,7 +3,7 @@
 Spatial filters operate on electrode grids using 2D convolutions.
 All transforms work with named tensors on any device.
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms import NDD, LSD, Pipeline
@@ -14,6 +14,7 @@ Example
 >>> # Apply spatial filter
 >>> ndd = NDD(grids="all")
 >>> filtered = ndd(emg)
+
 """
 
 from __future__ import annotations
@@ -22,38 +23,48 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from myoverse.transforms.base import TensorTransform, get_dim_index
-
+from myoverse.transforms.base import TensorTransform
 
 # Standard spatial filter kernels
 SPATIAL_KERNELS = {
     # Normal Double Differential (Laplacian)
-    "NDD": torch.tensor([
-        [0, -1, 0],
-        [-1, 4, -1],
-        [0, -1, 0],
-    ], dtype=torch.float32) / 4,
-
+    "NDD": torch.tensor(
+        [
+            [0, -1, 0],
+            [-1, 4, -1],
+            [0, -1, 0],
+        ],
+        dtype=torch.float32,
+    )
+    / 4,
     # Longitudinal Single Differential (vertical)
-    "LSD": torch.tensor([
-        [0, -1, 0],
-        [0, 1, 0],
-        [0, 0, 0],
-    ], dtype=torch.float32),
-
+    "LSD": torch.tensor(
+        [
+            [0, -1, 0],
+            [0, 1, 0],
+            [0, 0, 0],
+        ],
+        dtype=torch.float32,
+    ),
     # Transverse Single Differential (horizontal)
-    "TSD": torch.tensor([
-        [0, 0, 0],
-        [-1, 1, 0],
-        [0, 0, 0],
-    ], dtype=torch.float32),
-
+    "TSD": torch.tensor(
+        [
+            [0, 0, 0],
+            [-1, 1, 0],
+            [0, 0, 0],
+        ],
+        dtype=torch.float32,
+    ),
     # Inverse Binomial 2nd order
-    "IB2": torch.tensor([
-        [1, -2, 1],
-        [-2, 4, -2],
-        [1, -2, 1],
-    ], dtype=torch.float32) / 4,
+    "IB2": torch.tensor(
+        [
+            [1, -2, 1],
+            [-2, 4, -2],
+            [1, -2, 1],
+        ],
+        dtype=torch.float32,
+    )
+    / 4,
 }
 
 
@@ -74,6 +85,7 @@ def _channels_to_grid(
     -------
     torch.Tensor
         Data with shape (..., rows, cols, time). Gaps filled with 0.
+
     """
     rows, cols = grid_layout.shape
     time_dim = data.shape[-1]
@@ -81,8 +93,12 @@ def _channels_to_grid(
 
     # Create output tensor
     out = torch.zeros(
-        *batch_shape, rows, cols, time_dim,
-        dtype=data.dtype, device=data.device
+        *batch_shape,
+        rows,
+        cols,
+        time_dim,
+        dtype=data.dtype,
+        device=data.device,
     )
 
     # Fill in valid electrodes using relative indexing
@@ -113,6 +129,7 @@ def _grid_to_channels(
     -------
     torch.Tensor
         Data with shape (..., n_channels, time).
+
     """
     rows, cols = grid_layout.shape
     time_dim = data.shape[-1]
@@ -123,8 +140,11 @@ def _grid_to_channels(
 
     # Create output
     out = torch.zeros(
-        *batch_shape, n_channels, time_dim,
-        dtype=data.dtype, device=data.device
+        *batch_shape,
+        n_channels,
+        time_dim,
+        dtype=data.dtype,
+        device=data.device,
     )
 
     # Extract valid electrodes
@@ -160,6 +180,7 @@ class SpatialFilter(TensorTransform):
     >>> emg = myoverse.emg_tensor(data, grid_layouts=[grid1, grid2])
     >>> ndd = SpatialFilter("NDD", grids="all")
     >>> filtered = ndd(emg)
+
     """
 
     def __init__(
@@ -175,7 +196,7 @@ class SpatialFilter(TensorTransform):
             if kernel not in SPATIAL_KERNELS:
                 raise ValueError(
                     f"Unknown kernel '{kernel}'. "
-                    f"Available: {list(SPATIAL_KERNELS.keys())}"
+                    f"Available: {list(SPATIAL_KERNELS.keys())}",
                 )
             self.kernel = SPATIAL_KERNELS[kernel]
             self.kernel_name = kernel
@@ -187,12 +208,12 @@ class SpatialFilter(TensorTransform):
 
     def _apply(self, x: torch.Tensor) -> torch.Tensor:
         # Get grid layouts from tensor attributes
-        if not hasattr(x, 'grid_layouts'):
+        if not hasattr(x, "grid_layouts"):
             raise ValueError(
                 "Tensor missing 'grid_layouts' attribute. "
                 "Create with myoverse.emg_tensor(data, grid_layouts=[...]):\n\n"
                 "\timport myoverse\n"
-                "\temg = myoverse.emg_tensor(data, grid_layouts=[grid1, grid2])\n"
+                "\temg = myoverse.emg_tensor(data, grid_layouts=[grid1, grid2])\n",
             )
 
         grid_layouts = x.grid_layouts
@@ -217,7 +238,7 @@ class SpatialFilter(TensorTransform):
             n_channels = np.sum(grid_layout >= 0)
 
             # Extract this grid's channels
-            grid_data = x[..., channel_offset:channel_offset + n_channels, :]
+            grid_data = x[..., channel_offset : channel_offset + n_channels, :]
 
             if grid_idx in grid_indices:
                 # Reshape to grid
@@ -278,6 +299,7 @@ class NDD(SpatialFilter):
     ----------
     grids : str | list[int]
         Which grids to filter. "all" or list of indices.
+
     """
 
     def __init__(self, grids: str | list[int] = "all", **kwargs):
@@ -293,6 +315,7 @@ class LSD(SpatialFilter):
     ----------
     grids : str | list[int]
         Which grids to filter. "all" or list of indices.
+
     """
 
     def __init__(self, grids: str | list[int] = "all", **kwargs):
@@ -308,6 +331,7 @@ class TSD(SpatialFilter):
     ----------
     grids : str | list[int]
         Which grids to filter. "all" or list of indices.
+
     """
 
     def __init__(self, grids: str | list[int] = "all", **kwargs):
@@ -323,6 +347,7 @@ class IB2(SpatialFilter):
     ----------
     grids : str | list[int]
         Which grids to filter. "all" or list of indices.
+
     """
 
     def __init__(self, grids: str | list[int] = "all", **kwargs):

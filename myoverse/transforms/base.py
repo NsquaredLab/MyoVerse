@@ -10,7 +10,7 @@ Design:
 - Works with named tensors (experimental PyTorch feature)
 - Composable with torchvision.transforms.Compose
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms.tensor import RMS, ZScore, Pipeline
@@ -24,6 +24,7 @@ Example
 ...     RMS(window_size=200, dim='time'),
 ... ])
 >>> y = pipeline(x.cuda())  # Runs on GPU
+
 """
 
 from __future__ import annotations
@@ -61,19 +62,20 @@ def named_tensor(
     >>> x = named_tensor(x, ('channel', 'time'))
     >>> x.mean('time').shape
     torch.Size([64])
+
     """
     if names is None:
         # Default naming convention
         if data.ndim == 1:
-            names = ('time',)
+            names = ("time",)
         elif data.ndim == 2:
-            names = ('channel', 'time')
+            names = ("channel", "time")
         elif data.ndim == 3:
-            names = ('batch', 'channel', 'time')
+            names = ("batch", "channel", "time")
         elif data.ndim == 4:
-            names = ('batch', 'representation', 'channel', 'time')
+            names = ("batch", "representation", "channel", "time")
         else:
-            names = tuple(f'dim_{i}' for i in range(data.ndim))
+            names = tuple(f"dim_{i}" for i in range(data.ndim))
 
     return data.rename(*names)
 
@@ -122,6 +124,7 @@ def emg_tensor(
     >>> emg = emg_tensor(data, fs=2048, device='cuda')
     >>> emg.names  # ('channel', 'time')
     >>> emg.fs  # 2048.0
+
     """
     # Convert to tensor if needed
     if not isinstance(data, torch.Tensor):
@@ -135,11 +138,11 @@ def emg_tensor(
 
     # Add dimension names
     if data.ndim == 2:
-        names = ('channel', 'time')
+        names = ("channel", "time")
     elif data.ndim == 3:
-        names = ('batch', 'channel', 'time')
+        names = ("batch", "channel", "time")
     else:
-        names = tuple(f'dim_{i}' for i in range(data.ndim))
+        names = tuple(f"dim_{i}" for i in range(data.ndim))
 
     data = data.rename(*names)
 
@@ -173,9 +176,10 @@ class TensorTransform(ABC):
     >>> transform = MyTransform(dim='time')
     >>> x = torch.randn(64, 2048, names=('channel', 'time'))
     >>> y = transform(x)
+
     """
 
-    def __init__(self, dim: str = 'time', *, name: str | None = None):
+    def __init__(self, dim: str = "time", *, name: str | None = None):
         self.dim = dim
         self._name = name
 
@@ -188,8 +192,9 @@ class TensorTransform(ABC):
     def params(self) -> dict[str, Any]:
         """Get transform parameters for debugging/serialization."""
         return {
-            k: v for k, v in self.__dict__.items()
-            if not k.startswith('_') and not callable(v)
+            k: v
+            for k, v in self.__dict__.items()
+            if not k.startswith("_") and not callable(v)
         }
 
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
@@ -204,6 +209,7 @@ class TensorTransform(ABC):
         -------
         torch.Tensor
             Transformed tensor.
+
         """
         # Validate input
         if not isinstance(x, torch.Tensor):
@@ -212,17 +218,17 @@ class TensorTransform(ABC):
         # Check if dimension exists (if tensor has names)
         if x.names[0] is not None and self.dim not in x.names:
             raise ValueError(
-                f"Dimension '{self.dim}' not found in tensor with names {x.names}"
+                f"Dimension '{self.dim}' not found in tensor with names {x.names}",
             )
 
         try:
             result = self._apply(x)
 
             # Preserve metadata
-            if hasattr(x, 'fs'):
+            if hasattr(x, "fs"):
                 result.fs = x.fs
                 result.sampling_frequency = x.fs
-            if hasattr(x, 'grid_layouts'):
+            if hasattr(x, "grid_layouts"):
                 result.grid_layouts = x.grid_layouts
 
             logger.debug(f"{self.name}: {x.shape} -> {result.shape}")
@@ -288,10 +294,11 @@ def get_dim_index(x: torch.Tensor, dim: str) -> int:
     -------
     int
         Axis index.
+
     """
     if x.names[0] is None:
         # Unnamed tensor - use convention
-        dim_map = {'batch': 0, 'representation': 1, 'channel': -2, 'time': -1}
+        dim_map = {"batch": 0, "representation": 1, "channel": -2, "time": -1}
         return dim_map.get(dim, -1)
 
     try:
@@ -312,5 +319,6 @@ def align_tensors(*tensors: torch.Tensor) -> tuple[torch.Tensor, ...]:
     -------
     tuple[torch.Tensor, ...]
         Aligned tensors.
+
     """
     return torch.align_tensors(*tensors)

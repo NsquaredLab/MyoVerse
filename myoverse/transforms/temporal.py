@@ -8,7 +8,7 @@ Filter implementations:
 - Notch: Uses FFT-based filtering for sharp, precise narrow-band removal
   (ideal for powerline interference at 50/60 Hz).
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms import RMS, Bandpass, ZScore, Compose
@@ -23,15 +23,12 @@ Example
 ...     ZScore(dim='time'),
 ... ])
 >>> processed = pipeline(emg)  # All on GPU
+
 """
 
 from __future__ import annotations
 
-import math
-from typing import Literal
-
 import torch
-import torch.nn.functional as F
 import torchaudio.functional as AF
 
 from myoverse.transforms.base import TensorTransform, get_dim_index
@@ -56,13 +53,14 @@ class RMS(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> rms = RMS(window_size=200, dim='time')
     >>> y = rms(x)  # Shape: (64, 10)
+
     """
 
     def __init__(
         self,
         window_size: int,
         stride: int | None = None,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -81,7 +79,7 @@ class RMS(TensorTransform):
         x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
 
         # Compute RMS: sqrt(mean(x^2))
-        rms = torch.sqrt(torch.mean(x_unfolded ** 2, dim=-1))
+        rms = torch.sqrt(torch.mean(x_unfolded**2, dim=-1))
 
         # Restore names (time dimension now represents windows)
         if names[0] is not None:
@@ -101,13 +99,14 @@ class MAV(TensorTransform):
         Stride between windows.
     dim : str
         Dimension to compute MAV over.
+
     """
 
     def __init__(
         self,
         window_size: int,
         stride: int | None = None,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -141,13 +140,14 @@ class VAR(TensorTransform):
         Stride between windows.
     dim : str
         Dimension to compute variance over.
+
     """
 
     def __init__(
         self,
         window_size: int,
         stride: int | None = None,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -177,6 +177,7 @@ class Rectify(TensorTransform):
     ----------
     dim : str
         Dimension name (not used, but kept for API consistency).
+
     """
 
     def _apply(self, x: torch.Tensor) -> torch.Tensor:
@@ -209,6 +210,7 @@ class Bandpass(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> bp = Bandpass(20, 450, fs=2048, dim='time')
     >>> y = bp(x)
+
     """
 
     def __init__(
@@ -218,7 +220,7 @@ class Bandpass(TensorTransform):
         fs: float,
         order: int = 4,
         Q: float = 0.707,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -274,6 +276,7 @@ class Highpass(TensorTransform):
         Quality factor. Default 0.707 for Butterworth response.
     dim : str
         Dimension to filter over.
+
     """
 
     def __init__(
@@ -282,7 +285,7 @@ class Highpass(TensorTransform):
         fs: float,
         order: int = 4,
         Q: float = 0.707,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -333,6 +336,7 @@ class Lowpass(TensorTransform):
         Quality factor. Default 0.707 for Butterworth response.
     dim : str
         Dimension to filter over.
+
     """
 
     def __init__(
@@ -341,7 +345,7 @@ class Lowpass(TensorTransform):
         fs: float,
         order: int = 4,
         Q: float = 0.707,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -391,6 +395,7 @@ class Notch(TensorTransform):
         Sampling frequency in Hz.
     dim : str
         Dimension to filter over.
+
     """
 
     def __init__(
@@ -398,7 +403,7 @@ class Notch(TensorTransform):
         freq: float,
         width: float = 2.0,
         fs: float = 2048.0,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -445,13 +450,14 @@ class ZeroCrossings(TensorTransform):
         Stride between windows.
     dim : str
         Dimension to analyze.
+
     """
 
     def __init__(
         self,
         window_size: int,
         stride: int | None = None,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -486,13 +492,14 @@ class SlopeSignChanges(TensorTransform):
         Stride between windows.
     dim : str
         Dimension to analyze.
+
     """
 
     def __init__(
         self,
         window_size: int,
         stride: int | None = None,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -532,13 +539,14 @@ class WaveformLength(TensorTransform):
         Stride between windows.
     dim : str
         Dimension to analyze.
+
     """
 
     def __init__(
         self,
         window_size: int,
         stride: int | None = None,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -570,9 +578,10 @@ class Diff(TensorTransform):
         Number of times to differentiate.
     dim : str
         Dimension to differentiate over.
+
     """
 
-    def __init__(self, n: int = 1, dim: str = 'time', **kwargs):
+    def __init__(self, n: int = 1, dim: str = "time", **kwargs):
         super().__init__(dim=dim, **kwargs)
         self.n = n
 

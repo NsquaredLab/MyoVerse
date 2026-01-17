@@ -2,7 +2,7 @@
 
 All transforms work with named tensors and run on any device.
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms.tensor import ZScore, MinMax, InstanceNorm
@@ -12,6 +12,7 @@ Example
 >>> # Z-score normalize per sample
 >>> zscore = ZScore(dim='time')
 >>> y = zscore(x)  # mean=0, std=1 along time axis
+
 """
 
 from __future__ import annotations
@@ -38,11 +39,12 @@ class ZScore(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> zscore = ZScore(dim='time')
     >>> y = zscore(x)  # Normalized to mean=0, std=1 per channel
+
     """
 
     def __init__(
         self,
-        dim: str = 'time',
+        dim: str = "time",
         eps: float = 1e-8,
         keepdim: bool = True,
         **kwargs,
@@ -85,11 +87,12 @@ class MinMax(TensorTransform):
     >>> x = torch.randn(64, 2048, names=('channel', 'time'))
     >>> minmax = MinMax(dim='time')
     >>> y = minmax(x)  # Values in [0, 1]
+
     """
 
     def __init__(
         self,
-        dim: str = 'time',
+        dim: str = "time",
         eps: float = 1e-8,
         range: tuple[float, float] = (0.0, 1.0),
         **kwargs,
@@ -138,12 +141,13 @@ class Normalize(TensorTransform):
     >>> x = torch.randn(64, 2048, names=('channel', 'time'))
     >>> norm = Normalize(p=2, dim='channel')
     >>> y = norm(x)  # L2 normalized along channels
+
     """
 
     def __init__(
         self,
         p: float = 2.0,
-        dim: str = 'channel',
+        dim: str = "channel",
         eps: float = 1e-8,
         **kwargs,
     ):
@@ -182,10 +186,11 @@ class InstanceNorm(TensorTransform):
     >>> x = torch.randn(32, 64, 200, names=('batch', 'channel', 'time'))
     >>> inorm = InstanceNorm()
     >>> y = inorm(x)  # Each sample normalized independently
+
     """
 
     def __init__(self, eps: float = 1e-5, **kwargs):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         self.eps = eps
 
     def _apply(self, x: torch.Tensor) -> torch.Tensor:
@@ -225,6 +230,7 @@ class LayerNorm(TensorTransform):
     >>> x = torch.randn(32, 64, 200, names=('batch', 'channel', 'time'))
     >>> lnorm = LayerNorm(normalized_shape=(64, 200))
     >>> y = lnorm(x)  # Normalized over channel and time
+
     """
 
     def __init__(
@@ -233,7 +239,7 @@ class LayerNorm(TensorTransform):
         eps: float = 1e-5,
         **kwargs,
     ):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         if isinstance(normalized_shape, int):
             normalized_shape = (normalized_shape,)
         self.normalized_shape = normalized_shape
@@ -244,7 +250,9 @@ class LayerNorm(TensorTransform):
         x = x.rename(None)
 
         result = torch.nn.functional.layer_norm(
-            x, self.normalized_shape, eps=self.eps
+            x,
+            self.normalized_shape,
+            eps=self.eps,
         )
 
         if names[0] is not None:
@@ -269,10 +277,11 @@ class BatchNorm(TensorTransform):
     >>> x = torch.randn(32, 64, 200, names=('batch', 'channel', 'time'))
     >>> bnorm = BatchNorm()
     >>> y = bnorm(x)  # Normalized over batch dimension
+
     """
 
     def __init__(self, eps: float = 1e-5, **kwargs):
-        super().__init__(dim='batch', **kwargs)
+        super().__init__(dim="batch", **kwargs)
         self.eps = eps
 
     def _apply(self, x: torch.Tensor) -> torch.Tensor:
@@ -316,6 +325,7 @@ class ClampRange(TensorTransform):
     >>> x = torch.randn(64, 2048, names=('channel', 'time'))
     >>> clamp = ClampRange(min_val=-3, max_val=3)
     >>> y = clamp(x)  # Values clamped to [-3, 3]
+
     """
 
     def __init__(
@@ -324,7 +334,7 @@ class ClampRange(TensorTransform):
         max_val: float | None = None,
         **kwargs,
     ):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         self.min_val = min_val
         self.max_val = max_val
 
@@ -363,6 +373,7 @@ class Standardize(TensorTransform):
     >>> # Apply to test data
     >>> standardize = Standardize(mean=train_mean, std=train_std)
     >>> test_normalized = standardize(test_data)
+
     """
 
     def __init__(
@@ -372,7 +383,7 @@ class Standardize(TensorTransform):
         eps: float = 1e-8,
         **kwargs,
     ):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         self.mean = mean
         self.std = std
         self.eps = eps

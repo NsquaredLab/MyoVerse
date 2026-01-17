@@ -7,13 +7,12 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import zarr
 from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from rich.tree import Tree
-
-import zarr
 
 
 @dataclass
@@ -53,6 +52,7 @@ class DatasetFormatter:
     >>> formatter.print_header()
     >>> formatter.print_config(config)
     >>> formatter.print_summary(dataset)
+
     """
 
     def __init__(self, console: Console | None = None, debug_level: int = 0):
@@ -238,15 +238,27 @@ class DatasetFormatter:
 
         table.add_row(
             "Training samples",
-            str(dataset["training/label"].shape[0] if "label" in dataset["training"] else 0),
+            str(
+                dataset["training/label"].shape[0]
+                if "label" in dataset["training"]
+                else 0
+            ),
         )
         table.add_row(
             "Testing samples",
-            str(dataset["testing/label"].shape[0] if "label" in dataset["testing"] else 0),
+            str(
+                dataset["testing/label"].shape[0]
+                if "label" in dataset["testing"]
+                else 0
+            ),
         )
         table.add_row(
             "Validation samples",
-            str(dataset["validation/label"].shape[0] if "label" in dataset["validation"] else 0),
+            str(
+                dataset["validation/label"].shape[0]
+                if "label" in dataset["validation"]
+                else 0
+            ),
         )
         table.add_row("Total dataset size", f"{sizes['total']:.2f} MB")
 
@@ -289,7 +301,9 @@ class DatasetFormatter:
 
         for split in ["training", "testing", "validation"]:
             if "emg" in dataset[split]:
-                emg_sizes = {k: dataset[f"{split}/emg"][k].shape for k in dataset[f"{split}/emg"]}
+                emg_sizes = {
+                    k: dataset[f"{split}/emg"][k].shape for k in dataset[f"{split}/emg"]
+                }
                 if emg_sizes:
                     split_branch = tree.add(split.capitalize())
                     emg_branch = split_branch.add("EMG Representations")

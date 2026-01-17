@@ -7,8 +7,7 @@ from typing import Any
 import lightning as L
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from torch import nn, optim
 
 
 def _ceil_div(n: int, d: int) -> int:
@@ -39,6 +38,7 @@ class RaulNetV17(L.LightningModule):
         The means of the training data. The shape is (1, nr_of_input_channels, 1, 1, 1).
     training_stds : Optional[np.ndarray]
         The standard deviations of the training data. The shape is (1, nr_of_input_channels, 1, 1, 1).
+
     """
 
     def __init__(
@@ -151,8 +151,8 @@ class RaulNetV17(L.LightningModule):
                             self.nr_of_electrode_grids,
                             self.nr_of_electrodes_per_grid,
                             self.input_length__samples,
-                        )
-                    )
+                        ),
+                    ),
                 )
                 .detach()
                 .shape[1],
@@ -215,7 +215,9 @@ class RaulNetV17(L.LightningModule):
         return [optimizer], [onecycle_scheduler]
 
     def training_step(
-        self, train_batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self,
+        train_batch: tuple[torch.Tensor, torch.Tensor],
+        batch_idx: int,
     ) -> dict[str, Any] | None:
         inputs, ground_truths = train_batch
         ground_truths = ground_truths.flatten(start_dim=1)
@@ -228,7 +230,11 @@ class RaulNetV17(L.LightningModule):
             return None
 
         self.log_dict(
-            scores_dict, prog_bar=True, logger=False, on_epoch=True, sync_dist=True
+            scores_dict,
+            prog_bar=True,
+            logger=False,
+            on_epoch=True,
+            sync_dist=True,
         )
         self.log_dict(
             {f"train/{k}": v for k, v in scores_dict.items()},
@@ -242,7 +248,9 @@ class RaulNetV17(L.LightningModule):
         return scores_dict
 
     def validation_step(
-        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self,
+        batch: tuple[torch.Tensor, torch.Tensor],
+        batch_idx: int,
     ) -> dict[str, Any]:
         inputs, ground_truths = batch
         ground_truths = ground_truths.flatten(start_dim=1)
@@ -251,7 +259,11 @@ class RaulNetV17(L.LightningModule):
         scores_dict = {"val_loss": self.criterion(prediction, ground_truths)}
 
         self.log_dict(
-            scores_dict, prog_bar=True, logger=False, on_epoch=True, sync_dist=True
+            scores_dict,
+            prog_bar=True,
+            logger=False,
+            on_epoch=True,
+            sync_dist=True,
         )
 
         self.log_dict(
@@ -266,7 +278,9 @@ class RaulNetV17(L.LightningModule):
         return scores_dict
 
     def test_step(
-        self, batch: tuple[torch.Tensor, torch.Tensor], batch_idx: int
+        self,
+        batch: tuple[torch.Tensor, torch.Tensor],
+        batch_idx: int,
     ) -> dict[str, Any]:
         inputs, ground_truths = batch
         ground_truths = ground_truths.flatten(start_dim=1)
@@ -275,7 +289,11 @@ class RaulNetV17(L.LightningModule):
         scores_dict = {"loss": self.criterion(prediction, ground_truths)}
 
         self.log_dict(
-            scores_dict, prog_bar=True, logger=False, on_epoch=True, sync_dist=True
+            scores_dict,
+            prog_bar=True,
+            logger=False,
+            on_epoch=True,
+            sync_dist=True,
         )
         self.log_dict(
             {f"test/{k}": v for k, v in scores_dict.items()},

@@ -6,7 +6,7 @@ Pre-configured transform pipelines matching the EMBC 2022 paper:
     14 Degrees of Freedom of the Hand from Myoelectrical Signals
     through Convolutive Deep Learning. EMBC 2022, pp. 702-706.
 
-Example
+Example:
 -------
 >>> from myoverse.datasets import DatasetCreator, Modality
 >>> from myoverse.datasets.presets.embc import embc_kinematics_transform
@@ -22,6 +22,7 @@ Example
 ...     },
 ...     ...
 ... )
+
 """
 
 from __future__ import annotations
@@ -50,6 +51,7 @@ class EMBCConfig:
     [1] Simpetru, R.C., et al., 2022. Accurate Continuous Prediction of
         14 Degrees of Freedom of the Hand from Myoelectrical Signals
         through Convolutive Deep Learning. EMBC 2022, pp. 702-706.
+
     """
 
     sampling_frequency: float = 2048.0
@@ -72,11 +74,14 @@ def embc_kinematics_transform() -> Compose:
     -------
     Compose
         Transform to set as Modality.transform for kinematics.
+
     """
-    return Compose([
-        Flatten(start_dim=0, end_dim=1),  # (21, 3, time) -> (63, time)
-        Index(slice(3, None), dim="channel"),  # Remove wrist -> (60, time)
-    ])
+    return Compose(
+        [
+            Flatten(start_dim=0, end_dim=1),  # (21, 3, time) -> (63, time)
+            Index(slice(3, None), dim="channel"),  # Remove wrist -> (60, time)
+        ]
+    )
 
 
 def embc_train_transform(
@@ -98,15 +103,21 @@ def embc_train_transform(
     -------
     Compose
         Transform pipeline producing (representation, channel, time).
+
     """
     cfg = config or EMBCConfig()
 
     transforms = [
         # Stack into (representation, channel, time)
-        Stack({
-            "raw": Identity(),
-            "filtered": Lowpass(cfg.lowpass_cutoff, fs=cfg.sampling_frequency, dim="time"),
-        }, dim="representation"),
+        Stack(
+            {
+                "raw": Identity(),
+                "filtered": Lowpass(
+                    cfg.lowpass_cutoff, fs=cfg.sampling_frequency, dim="time"
+                ),
+            },
+            dim="representation",
+        ),
     ]
 
     if augmentation == "noise":
@@ -129,15 +140,23 @@ def embc_eval_transform(config: EMBCConfig | None = None) -> Compose:
     -------
     Compose
         Transform pipeline producing (representation, channel, time).
+
     """
     cfg = config or EMBCConfig()
 
-    return Compose([
-        Stack({
-            "raw": Identity(),
-            "filtered": Lowpass(cfg.lowpass_cutoff, fs=cfg.sampling_frequency, dim="time"),
-        }, dim="representation"),
-    ])
+    return Compose(
+        [
+            Stack(
+                {
+                    "raw": Identity(),
+                    "filtered": Lowpass(
+                        cfg.lowpass_cutoff, fs=cfg.sampling_frequency, dim="time"
+                    ),
+                },
+                dim="representation",
+            ),
+        ]
+    )
 
 
 def embc_target_transform() -> Mean:
@@ -147,5 +166,6 @@ def embc_target_transform() -> Mean:
     -------
     Mean
         Transform that averages over time: (60, time) -> (60,).
+
     """
     return Mean(dim="time")

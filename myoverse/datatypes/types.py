@@ -18,6 +18,7 @@ class DeletedRepresentation(NamedTuple):
         The shape of the deleted array
     dtype : np.dtype
         The data type of the deleted array
+
     """
 
     shape: tuple
@@ -28,10 +29,9 @@ class DeletedRepresentation(NamedTuple):
         return str(self.shape)
 
 
-Representation = TypedDict(
-    "Representation",
-    {"data": np.ndarray},
-)
+class Representation(TypedDict):
+    data: np.ndarray
+
 
 InputRepresentationName: Final[str] = "Input"
 LastRepresentationName: Final[str] = "Last"

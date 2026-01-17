@@ -53,20 +53,26 @@ class KinematicsData(_Data):
     >>> raw_data = kinematics.input_data
     >>> print(f"Data shape: {raw_data.shape}")
     Data shape: (16, 3, 1000)
+
     """
 
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
         if input_data.ndim not in (3, 4):
             raise ValueError(
                 "The shape of the raw kinematics data should be (n_joints, 3, n_samples) "
-                "or (n_chunks, n_joints, 3, n_samples)."
+                "or (n_chunks, n_joints, 3, n_samples).",
             )
         super().__init__(
-            input_data, sampling_frequency, nr_of_dimensions_when_unchunked=4
+            input_data,
+            sampling_frequency,
+            nr_of_dimensions_when_unchunked=4,
         )
 
     def plot(
-        self, representation: str, nr_of_fingers: int, wrist_included: bool = True
+        self,
+        representation: str,
+        nr_of_fingers: int,
+        wrist_included: bool = True,
     ):
         """Plots the data.
 
@@ -101,6 +107,7 @@ class KinematicsData(_Data):
         >>>
         >>> # Plot without wrist
         >>> kinematics.plot('Input', nr_of_fingers=5, wrist_included=False)
+
         """
         if representation not in self._data:
             raise KeyError(f'The representation "{representation}" does not exist.')
@@ -109,7 +116,8 @@ class KinematicsData(_Data):
 
         if not wrist_included:
             kinematics = np.concatenate(
-                [np.zeros((1, 3, kinematics.shape[2])), kinematics], axis=0
+                [np.zeros((1, 3, kinematics.shape[2])), kinematics],
+                axis=0,
             )
 
         fig = plt.figure()
@@ -122,7 +130,7 @@ class KinematicsData(_Data):
                     kinematics[:, 0].max() - kinematics[:, 0].min(),
                     kinematics[:, 1].max() - kinematics[:, 1].min(),
                     kinematics[:, 2].max() - kinematics[:, 2].min(),
-                ]
+                ],
             ).max()
             / 2.0
         )
@@ -158,7 +166,7 @@ class KinematicsData(_Data):
                         0,
                     ].T,
                     color="blue",
-                )
+                ),
             )
 
         samp = plt.axes([0.25, 0.02, 0.65, 0.03])
@@ -181,7 +189,7 @@ class KinematicsData(_Data):
                     kinematics_new_sample[
                         [0] + list(reversed(range(1 + finger * 4, 5 + finger * 4))),
                         :,
-                    ].T
+                    ].T,
                 )
 
             fig.canvas.draw_idle()

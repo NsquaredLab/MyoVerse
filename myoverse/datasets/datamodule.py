@@ -3,7 +3,7 @@
 This module provides the DataModule class that integrates datasets
 with PyTorch Lightning's training loop.
 
-Example
+Example:
 -------
 >>> from myoverse.datasets import DataModule
 >>> from myoverse.transforms import Compose, ZScore, RMS
@@ -19,12 +19,13 @@ Example
 ... )
 >>> dm.setup("fit")
 >>> train_loader = dm.train_dataloader()
+
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Callable, Sequence
 
 import lightning as L
 import numpy as np
@@ -48,14 +49,18 @@ def _stack_modalities(
             result[key] = np.stack(items)
         else:
             # Strip named tensor names - models don't support them
-            items_unnamed = [t.rename(None) if t.names[0] is not None else t for t in items]
+            items_unnamed = [
+                t.rename(None) if t.names[0] is not None else t for t in items
+            ]
             result[key] = torch.stack(items_unnamed)
     return result
 
 
 def collate_supervised(
     batch: list[tuple[dict, dict]],
-) -> tuple[dict[str, torch.Tensor] | torch.Tensor, dict[str, torch.Tensor] | torch.Tensor]:
+) -> tuple[
+    dict[str, torch.Tensor] | torch.Tensor, dict[str, torch.Tensor] | torch.Tensor
+]:
     """Collate function for supervised datasets.
 
     Handles both numpy arrays and tensors.
@@ -70,6 +75,7 @@ def collate_supervised(
     -------
     tuple
         Batched (inputs, targets). If single modality, returns tensor directly.
+
     """
     inputs_list = [b[0] for b in batch]
     targets_list = [b[1] for b in batch]
@@ -142,6 +148,7 @@ class DataModule(L.LightningDataModule):
     ...     # inputs: Tensor of shape (batch, channels, time)
     ...     # targets: Tensor of shape (batch, joints)
     ...     pass
+
     """
 
     def __init__(

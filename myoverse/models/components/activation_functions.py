@@ -22,10 +22,14 @@ class PSerf(nn.Module):
     ----------
     Biswas, K., Kumar, S., Banerjee, S., Pandey, A.K., 2021.
     ErfAct and PSerf: Non-monotonic smooth trainable Activation Functions. arXiv:2109.04386 [cs].
+
     """
 
     def __init__(
-        self, gamma: float = 1.0, sigma: float = 1.25, stabilisation_term: float = 1e-12
+        self,
+        gamma: float = 1.0,
+        sigma: float = 1.25,
+        stabilisation_term: float = 1e-12,
     ):
         super().__init__()
 
@@ -70,9 +74,7 @@ class SAU(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         n_squared = self.n * self.n
         return (
-            self.sqrt_2_over_pi
-            * torch.exp(-(n_squared * x * x) / 2)
-            / (2 * self.n)
+            self.sqrt_2_over_pi * torch.exp(-(n_squared * x * x) / 2) / (2 * self.n)
             + (1 + self.alpha) / 2 * x
             + (1 - self.alpha) / 2 * x * torch.erf(self.n * x / self.sqrt_2)
         )
@@ -96,6 +98,7 @@ class SMU(nn.Module):
     Notes
     -----
     This version also make alpha trainable.
+
     """
 
     def __init__(self, alpha: float = 0.01, mu: float = 2.5):

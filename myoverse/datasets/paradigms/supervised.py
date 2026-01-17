@@ -4,7 +4,7 @@ This module provides SupervisedDataset, which extends WindowedDataset
 to implement the supervised learning paradigm where inputs are mapped
 to targets (e.g., EMG signals → kinematics).
 
-Example
+Example:
 -------
 >>> from myoverse.datasets import SupervisedDataset
 >>> from myoverse.transforms import Compose, ZScore, RMS
@@ -21,12 +21,13 @@ Example
 >>> inputs, targets = ds[0]
 >>> inputs["emg"].shape  # (channels, time)
 >>> targets["kinematics"].shape  # (joints,)
+
 """
 
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Callable, Sequence
 
 import numpy as np
 import torch
@@ -82,6 +83,7 @@ class SupervisedDataset(WindowedDataset):
     ... )
     >>> inputs, targets = ds[0]
     >>> inputs["emg"].device  # cuda:0
+
     """
 
     def __init__(
@@ -122,8 +124,11 @@ class SupervisedDataset(WindowedDataset):
         self.target_transform = target_transform
 
     def __getitem__(
-        self, idx: int
-    ) -> tuple[dict[str, torch.Tensor | np.ndarray], dict[str, torch.Tensor | np.ndarray]]:
+        self,
+        idx: int,
+    ) -> tuple[
+        dict[str, torch.Tensor | np.ndarray], dict[str, torch.Tensor | np.ndarray]
+    ]:
         """Load windows and split into inputs/targets.
 
         Parameters
@@ -135,6 +140,7 @@ class SupervisedDataset(WindowedDataset):
         -------
         tuple[dict, dict]
             (inputs, targets) where each is a dict mapping modality names to data.
+
         """
         # Get all modalities from base class
         all_data = super().__getitem__(idx)

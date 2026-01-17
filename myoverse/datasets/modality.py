@@ -3,7 +3,7 @@
 This module provides the Modality dataclass for configuring data sources
 when creating datasets with DatasetCreator.
 
-Example
+Example:
 -------
 >>> from myoverse.datasets import Modality
 >>> from myoverse.transforms import Compose, Flatten, Index
@@ -22,6 +22,7 @@ Example
 ...         Index(slice(3, None), dim="channel"),  # Remove wrist
 ...     ]),
 ... )
+
 """
 
 from __future__ import annotations
@@ -71,6 +72,7 @@ class Modality:
     ...         Index(slice(3, None), dim="channel"),  # Remove wrist -> (60, time)
     ...     ]),
     ... )
+
     """
 
     data: np.ndarray | dict[str, np.ndarray] | None = None
@@ -94,6 +96,7 @@ class Modality:
         -------
         dict[str, np.ndarray]
             Dict mapping task names to data arrays.
+
         """
         if self.data is not None:
             if isinstance(self.data, np.ndarray):

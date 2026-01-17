@@ -3,7 +3,7 @@
 All augmentations work with named tensors and run on GPU.
 They are stochastic and respect torch.random state.
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms.tensor import GaussianNoise, MagnitudeWarp, TimeWarp
@@ -16,11 +16,10 @@ Example
 ...     MagnitudeWarp(sigma=0.2),
 ... ])
 >>> y = augment(x)  # Augmented on GPU
+
 """
 
 from __future__ import annotations
-
-import math
 
 import torch
 import torch.nn.functional as F
@@ -43,6 +42,7 @@ class GaussianNoise(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> noise = GaussianNoise(std=0.1)
     >>> y = noise(x)
+
     """
 
     def __init__(self, std: float = 0.1, p: float = 1.0, **kwargs):
@@ -87,6 +87,7 @@ class MagnitudeWarp(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> warp = MagnitudeWarp(sigma=0.2, n_knots=4)
     >>> y = warp(x)
+
     """
 
     def __init__(
@@ -94,7 +95,7 @@ class MagnitudeWarp(TensorTransform):
         sigma: float = 0.2,
         n_knots: int = 4,
         p: float = 1.0,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -114,13 +115,15 @@ class MagnitudeWarp(TensorTransform):
 
         # Generate smooth warping curve
         # Create random knots
-        knots = torch.randn(self.n_knots, device=x.device, dtype=x.dtype) * self.sigma + 1.0
+        knots = (
+            torch.randn(self.n_knots, device=x.device, dtype=x.dtype) * self.sigma + 1.0
+        )
 
         # Interpolate to full length
         warp = F.interpolate(
             knots.view(1, 1, -1),
             size=n_samples,
-            mode='linear',
+            mode="linear",
             align_corners=True,
         ).squeeze()
 
@@ -158,6 +161,7 @@ class TimeWarp(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> warp = TimeWarp(sigma=0.2, n_knots=4)
     >>> y = warp(x)
+
     """
 
     def __init__(
@@ -165,7 +169,7 @@ class TimeWarp(TensorTransform):
         sigma: float = 0.2,
         n_knots: int = 4,
         p: float = 1.0,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -191,7 +195,9 @@ class TimeWarp(TensorTransform):
         distortions = distortions.cumsum(0) * self.sigma
 
         # Interpolate to get warped indices
-        orig_indices = torch.linspace(0, n_samples - 1, self.n_knots + 2, device=x.device)
+        orig_indices = torch.linspace(
+            0, n_samples - 1, self.n_knots + 2, device=x.device
+        )
         warped_indices = orig_indices + distortions * (n_samples / self.n_knots)
         warped_indices = torch.clamp(warped_indices, 0, n_samples - 1)
 
@@ -199,7 +205,7 @@ class TimeWarp(TensorTransform):
         warp_func = F.interpolate(
             warped_indices.view(1, 1, -1),
             size=n_samples,
-            mode='linear',
+            mode="linear",
             align_corners=True,
         ).squeeze()
 
@@ -226,8 +232,8 @@ class TimeWarp(TensorTransform):
         warped = F.grid_sample(
             x_flat,
             grid,
-            mode='bilinear',
-            padding_mode='border',
+            mode="bilinear",
+            padding_mode="border",
             align_corners=True,
         )
 
@@ -261,6 +267,7 @@ class Dropout(TensorTransform):
     >>> dropout = Dropout(p=0.1)
     >>> # Channel dropout (drop entire channels)
     >>> channel_dropout = Dropout(p=0.1, dim='channel')
+
     """
 
     def __init__(self, p: float = 0.1, dim: str | None = None, **kwargs):
@@ -297,7 +304,7 @@ class Dropout(TensorTransform):
     @property
     def training_mode(self) -> bool:
         """Check if in training mode (dropout only during training)."""
-        return getattr(self, '_training', True)
+        return getattr(self, "_training", True)
 
     def train(self):
         """Set to training mode."""
@@ -323,10 +330,11 @@ class ChannelShuffle(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> shuffle = ChannelShuffle(p=0.5)
     >>> y = shuffle(x)
+
     """
 
     def __init__(self, p: float = 0.5, **kwargs):
-        super().__init__(dim='channel', **kwargs)
+        super().__init__(dim="channel", **kwargs)
         self.p = p
 
     def _apply(self, x: torch.Tensor) -> torch.Tensor:
@@ -367,16 +375,17 @@ class TimeShift(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> shift = TimeShift(max_shift=100, p=0.5)
     >>> y = shift(x)
+
     """
 
     def __init__(
         self,
-        max_shift: int | float = 100,
+        max_shift: float = 100,
         p: float = 0.5,
-        fill: str = 'zero',
+        fill: str = "zero",
         **kwargs,
     ):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         self.max_shift = max_shift
         self.p = p
         self.fill = fill
@@ -408,7 +417,7 @@ class TimeShift(TensorTransform):
         result = torch.roll(x, shifts=shift, dims=dim_idx)
 
         # Handle fill mode
-        if self.fill == 'zero':
+        if self.fill == "zero":
             # Zero out the wrapped region
             if shift > 0:
                 idx = [slice(None)] * x.ndim
@@ -418,7 +427,7 @@ class TimeShift(TensorTransform):
                 idx = [slice(None)] * x.ndim
                 idx[dim_idx] = slice(shift, None)
                 result[tuple(idx)] = 0
-        elif self.fill == 'edge':
+        elif self.fill == "edge":
             # Use edge values for the wrapped region
             if shift > 0:
                 idx = [slice(None)] * x.ndim
@@ -455,6 +464,7 @@ class Scale(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> scale = Scale(scale_range=(0.8, 1.2))
     >>> y = scale(x)
+
     """
 
     def __init__(
@@ -474,7 +484,9 @@ class Scale(TensorTransform):
         names = x.names
         x = x.rename(None)
 
-        scale = torch.empty(1, device=x.device, dtype=x.dtype).uniform_(*self.scale_range)
+        scale = torch.empty(1, device=x.device, dtype=x.dtype).uniform_(
+            *self.scale_range
+        )
         result = x * scale
 
         if names[0] is not None:
@@ -502,14 +514,15 @@ class Cutout(TensorTransform):
     >>> x = torch.randn(64, 2048, device='cuda', names=('channel', 'time'))
     >>> cutout = Cutout(n_holes=3, length=50)
     >>> y = cutout(x)
+
     """
 
     def __init__(
         self,
         n_holes: int = 1,
-        length: int | float = 50,
+        length: float = 50,
         p: float = 0.5,
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)

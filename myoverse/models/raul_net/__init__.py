@@ -7,6 +7,7 @@ References
 ----------
 .. [1] Sîmpetru et al. (2024) MyoGestic: EMG interfacing framework for decoding
        multiple spared degrees of freedom of the hand in individuals with neural lesions.
+
 """
 
 from myoverse.models.raul_net.v16 import RaulNetV16

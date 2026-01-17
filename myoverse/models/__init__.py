@@ -3,7 +3,7 @@
 This module provides model architectures for EMG signal processing and
 kinematics prediction.
 
-Example
+Example:
 -------
 >>> from myoverse.models import RaulNetV17
 >>> model = RaulNetV17(
@@ -16,19 +16,19 @@ Example
 ...     event_search_kernel_length=31,
 ...     event_search_kernel_stride=8,
 ... )
+
 """
 
 # RaulNet model family
-from myoverse.models.raul_net import RaulNetV16, RaulNetV17
-
 # Components
 from myoverse.models.components import (
-    EuclideanDistance,
-    PSerf,
     SAU,
     SMU,
+    EuclideanDistance,
+    PSerf,
     WeightedSum,
 )
+from myoverse.models.raul_net import RaulNetV16, RaulNetV17
 
 __all__ = [
     # Models

@@ -1,5 +1,5 @@
 """I/O utilities for MyoVerse."""
 
-from myoverse.io.zarr_io import ZarrIO, ZarrDataset
+from myoverse.io.zarr_io import ZarrDataset, ZarrIO
 
-__all__ = ["ZarrIO", "ZarrDataset"]
+__all__ = ["ZarrDataset", "ZarrIO"]

@@ -24,7 +24,7 @@ This module uses a layered architecture for flexibility:
 **Presets**
     Pre-configured transforms for published papers (EMBC 2022, etc.).
 
-Example
+Example:
 -------
 >>> from myoverse.datasets import DatasetCreator, DataModule, Modality
 >>> from myoverse.datasets.presets import embc_train_transform
@@ -52,23 +52,21 @@ Example
 ... )
 >>> dm.setup("fit")
 >>> inputs, targets = next(iter(dm.train_dataloader()))
+
 """
 
 # Base infrastructure
 from myoverse.datasets.base import WindowedDataset
 
-# Paradigms
-from myoverse.datasets.paradigms import SupervisedDataset
+# Storage
+from myoverse.datasets.creator import DatasetCreator
 
 # Integration
 from myoverse.datasets.datamodule import DataModule, collate_supervised
-
-# Storage
-from myoverse.datasets.creator import DatasetCreator
 from myoverse.datasets.modality import Modality
 
-# Utilities
-from myoverse.datasets.utils import DataSplitter, DatasetFormatter
+# Paradigms
+from myoverse.datasets.paradigms import SupervisedDataset
 
 # Presets (convenience re-exports)
 from myoverse.datasets.presets import (
@@ -78,6 +76,9 @@ from myoverse.datasets.presets import (
     embc_target_transform,
     embc_train_transform,
 )
+
+# Utilities
+from myoverse.datasets.utils import DatasetFormatter, DataSplitter
 
 __all__ = [
     # Base

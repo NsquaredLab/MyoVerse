@@ -11,8 +11,9 @@ Migration guide: https://zarr.readthedocs.io/en/latest/user-guide/v3_migration/
 from __future__ import annotations
 
 import warnings
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 import numpy as np
 import zarr
@@ -20,6 +21,7 @@ import zarr
 # Configure zarr to use the Rust-based zarrs codec pipeline for faster I/O
 try:
     import zarrs  # noqa: F401 - import needed to register the codec pipeline
+
     zarr.config.set({"codec_pipeline.path": "zarrs.ZarrsCodecPipeline"})
     ZARRS_AVAILABLE = True
 except ImportError:
@@ -59,6 +61,7 @@ class ZarrIO:
     >>> zio.create_group("training")
     >>> zio.add_array("training", "emg", data)
     >>> zio.close()
+
     """
 
     def __init__(
@@ -102,13 +105,12 @@ class ZarrIO:
                 mode=self.mode,
                 zarr_format=self.zarr_format,
             )
-        else:
-            # Zarr 2.x API
-            return zarr.open(
-                str(self.path),
-                mode=self.mode,
-                zarr_version=self.zarr_format,
-            )
+        # Zarr 2.x API
+        return zarr.open(
+            str(self.path),
+            mode=self.mode,
+            zarr_version=self.zarr_format,
+        )
 
     @property
     def root(self) -> zarr.Group:
@@ -127,6 +129,7 @@ class ZarrIO:
         -------
         zarr.Group
             The created group.
+
         """
         if name in self._root:
             return self._root[name]
@@ -149,6 +152,7 @@ class ZarrIO:
         ------
         KeyError
             If the group does not exist.
+
         """
         if name not in self._root:
             raise KeyError(f"Group '{name}' not found in Zarr store")
@@ -166,6 +170,7 @@ class ZarrIO:
         -------
         bool
             True if the group exists, False otherwise.
+
         """
         return name in self._root
 
@@ -181,14 +186,16 @@ class ZarrIO:
         -------
         list[str]
             List of subgroup names.
+
         """
         target = group if group is not None else self._root
         if ZARR_VERSION >= 3:
             # Zarr 3: Use members() and filter by Group type
-            return [name for name, item in target.members() if isinstance(item, zarr.Group)]
-        else:
-            # Zarr 2: Use group_keys()
-            return list(target.group_keys())
+            return [
+                name for name, item in target.members() if isinstance(item, zarr.Group)
+            ]
+        # Zarr 2: Use group_keys()
+        return list(target.group_keys())
 
     def array_keys(self, group: zarr.Group | None = None) -> list[str]:
         """Get the keys of arrays in a group.
@@ -202,14 +209,16 @@ class ZarrIO:
         -------
         list[str]
             List of array names.
+
         """
         target = group if group is not None else self._root
         if ZARR_VERSION >= 3:
             # Zarr 3: Use members() and filter by Array type
-            return [name for name, item in target.members() if isinstance(item, zarr.Array)]
-        else:
-            # Zarr 2: Use array_keys()
-            return list(target.array_keys())
+            return [
+                name for name, item in target.members() if isinstance(item, zarr.Array)
+            ]
+        # Zarr 2: Use array_keys()
+        return list(target.array_keys())
 
     def add_array(
         self,
@@ -233,6 +242,7 @@ class ZarrIO:
             Data to add.
         chunks : tuple[int, ...] | None
             Chunk shape. If None, uses (1, *data.shape[1:]).
+
         """
         if data is None or (isinstance(data, np.ndarray) and data.size == 0):
             return
@@ -310,7 +320,7 @@ class ZarrIO:
                 arr.resize(*new_shape)
 
         # Insert the new data
-        arr[current_shape[0]:] = data
+        arr[current_shape[0] :] = data
 
     def get_array(self, path: str) -> zarr.Array:
         """Get an array by path (e.g., 'training/emg/raw').
@@ -324,6 +334,7 @@ class ZarrIO:
         -------
         zarr.Array
             The requested array.
+
         """
         return self._root[path]
 
@@ -338,9 +349,8 @@ class ZarrIO:
     def close(self) -> None:
         """Close the Zarr store (no-op for directory stores)."""
         # Directory stores don't need explicit closing
-        pass
 
-    def __enter__(self) -> "ZarrIO":
+    def __enter__(self) -> ZarrIO:
         return self
 
     def __exit__(self, *args) -> None:
@@ -365,6 +375,7 @@ class ZarrDataset:
     >>> dataset = ZarrDataset("data.zarr", split="training")
     >>> for emg, target in dataset:
     ...     process(emg, target)
+
     """
 
     def __init__(self, path: Path | str, split: str = "training"):
@@ -422,20 +433,20 @@ class ZarrDataset:
     def __len__(self) -> int:
         return self._length
 
-    def __getitem__(self, idx: int) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
+    def __getitem__(
+        self, idx: int
+    ) -> tuple[dict[str, np.ndarray], dict[str, np.ndarray]]:
         """Get a single sample by index.
 
         Returns
         -------
         tuple[dict, dict]
             (emg_data, target_data) dictionaries keyed by representation name.
+
         """
         split_group = self._zio.get_group(self.split)
 
-        emg_data = {
-            key: split_group["emg"][key][idx]
-            for key in self._emg_keys
-        }
+        emg_data = {key: split_group["emg"][key][idx] for key in self._emg_keys}
 
         target_data = {}
         if self._target_group:
@@ -463,6 +474,7 @@ class ZarrDataset:
         -------
         zarr.Array
             The EMG array.
+
         """
         if key is None:
             key = self._emg_keys[0]
@@ -480,6 +492,7 @@ class ZarrDataset:
         -------
         zarr.Array | None
             The target array, or None if no targets exist.
+
         """
         if not self._target_group or not self._target_keys:
             return None

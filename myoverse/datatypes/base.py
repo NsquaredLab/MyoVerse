@@ -70,6 +70,7 @@ class _Data:
     >>> # Access attributes from the base _Data class
     >>> print(f"Sampling frequency: {emg.sampling_frequency} Hz")
     >>> print(f"Is input data chunked: {emg.is_chunked['Input']}")
+
     """
 
     def __init__(
@@ -99,10 +100,11 @@ class _Data:
         -------
         dict[str, bool]
             A dictionary where the keys are the representations and the values are whether the data is chunked or not.
+
         """
         # Create cache if it doesn't exist or if _data might have changed
         if not hasattr(self, "_chunked_cache") or len(self._chunked_cache) != len(
-            self._data
+            self._data,
         ):
             self._chunked_cache = {
                 key: self._check_if_chunked(value) for key, value in self._data.items()
@@ -122,6 +124,7 @@ class _Data:
         -------
         bool
             Whether the data is chunked or not.
+
         """
         return len(data.shape) == self.nr_of_dimensions_when_unchunked
 
@@ -151,6 +154,7 @@ class _Data:
         -------
         str
             The last processing step applied to the data.
+
         """
         if self.__last_processing_step is None:
             raise ValueError("No processing steps have been applied.")
@@ -165,6 +169,7 @@ class _Data:
         ----------
         value : str
             The last processing step applied to the data.
+
         """
         self.__last_processing_step = value
 
@@ -172,7 +177,7 @@ class _Data:
     def plot(self, *_: Any, **__: Any):
         """Plots the data."""
         raise NotImplementedError(
-            "This method should be implemented in the child class."
+            "This method should be implemented in the child class.",
         )
 
     def __repr__(self) -> str:
@@ -225,15 +230,19 @@ class _Data:
         if isinstance(data_to_return, DeletedRepresentation):
             raise RuntimeError(
                 f'The representation "{key}" was deleted and cannot be automatically '
-                f'recomputed. Use the new Transform API for preprocessing.'
+                f"recomputed. Use the new Transform API for preprocessing.",
             )
 
         # Use view when possible for more efficient memory usage
-        return data_to_return.view() if data_to_return.flags.writeable else data_to_return.copy()
+        return (
+            data_to_return.view()
+            if data_to_return.flags.writeable
+            else data_to_return.copy()
+        )
 
     def __setitem__(self, key: str, value: np.ndarray) -> None:
         raise RuntimeError(
-            "Direct assignment is not supported. Use the Transform API for preprocessing."
+            "Direct assignment is not supported. Use the Transform API for preprocessing.",
         )
 
     def delete_data(self, representation_to_delete: str):
@@ -247,6 +256,7 @@ class _Data:
         ----------
         representation_to_delete : str
             The representation to delete the data from.
+
         """
         if representation_to_delete == InputRepresentationName:
             return
@@ -256,26 +266,29 @@ class _Data:
 
         if representation_to_delete not in self._data:
             raise KeyError(
-                f'The representation "{representation_to_delete}" does not exist.'
+                f'The representation "{representation_to_delete}" does not exist.',
             )
 
         data = self._data[representation_to_delete]
         if isinstance(data, np.ndarray):
             self._data[representation_to_delete] = DeletedRepresentation(
-                shape=data.shape, dtype=data.dtype
+                shape=data.shape,
+                dtype=data.dtype,
             )
 
-    def __copy__(self) -> "_Data":
+    def __copy__(self) -> _Data:
         """Create a shallow copy of the instance.
 
         Returns
         -------
         _Data
             A shallow copy of the instance.
+
         """
         # Create a new instance with the basic initialization
         new_instance = self.__class__(
-            self._data[InputRepresentationName].copy(), self.sampling_frequency
+            self._data[InputRepresentationName].copy(),
+            self.sampling_frequency,
         )
 
         # Deep copy the data dictionary to preserve all representations
@@ -286,8 +299,13 @@ class _Data:
 
         # Copy any additional instance attributes from subclasses
         # (excluding private attributes, methods, and already-copied attributes)
-        skip_attrs = {"_data", "_Data__last_processing_step", "sampling_frequency",
-                      "nr_of_dimensions_when_unchunked", "_chunked_cache"}
+        skip_attrs = {
+            "_data",
+            "_Data__last_processing_step",
+            "sampling_frequency",
+            "nr_of_dimensions_when_unchunked",
+            "_chunked_cache",
+        }
         for name, value in vars(self).items():
             if name not in skip_attrs:
                 setattr(new_instance, name, copy.copy(value))
@@ -301,6 +319,7 @@ class _Data:
         ----------
         filename : str
             The name of the file to save the data to.
+
         """
         # Make sure directory exists
         os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
@@ -309,7 +328,7 @@ class _Data:
             pickle.dump(self, f)
 
     @classmethod
-    def load(cls, filename: str) -> "_Data":
+    def load(cls, filename: str) -> _Data:
         """Load data from a file.
 
         Parameters
@@ -321,6 +340,7 @@ class _Data:
         -------
         _Data
             The loaded data.
+
         """
         with open(filename, "rb") as f:
             return pickle.load(f)
@@ -333,6 +353,7 @@ class _Data:
         dict[str, tuple[str, int]]
             Dictionary with representation names as keys and tuples containing
             shape as string and memory usage in bytes as values.
+
         """
         memory_usage = {}
         for key, value in self._data.items():

@@ -3,7 +3,7 @@
 GPU-accelerated transforms using PyTorch named tensors.
 Works on both CPU and GPU - tensors provide dimension awareness everywhere.
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms import Pipeline, ZScore, RMS, Bandpass
@@ -22,87 +22,92 @@ Example
 >>> # Or on GPU
 >>> x_gpu = x.cuda()
 >>> y_gpu = pipeline(x_gpu)
+
 """
 
 # Re-export torchvision's Compose
 from torchvision.transforms import Compose
 
+# Augmentations
+from myoverse.transforms.augment import (
+    ChannelShuffle,
+    Cutout,
+    Dropout,
+    GaussianNoise,
+    MagnitudeWarp,
+    Scale,
+    TimeShift,
+    TimeWarp,
+)
+
 # Base classes and utilities
 from myoverse.transforms.base import (
     TensorTransform as Transform,
+)
+from myoverse.transforms.base import (
     TensorTransformError as TransformError,
-    named_tensor,
+)
+from myoverse.transforms.base import (
+    align_tensors,
     emg_tensor,
     get_dim_index,
-    align_tensors,
-)
-
-# Temporal / signal processing
-from myoverse.transforms.temporal import (
-    RMS,
-    MAV,
-    VAR,
-    Rectify,
-    Bandpass,
-    Highpass,
-    Lowpass,
-    Notch,
-    ZeroCrossings,
-    SlopeSignChanges,
-    WaveformLength,
-    Diff,
-)
-
-# Normalization
-from myoverse.transforms.normalize import (
-    ZScore,
-    MinMax,
-    Normalize,
-    InstanceNorm,
-    LayerNorm,
-    BatchNorm,
-    ClampRange,
-    Standardize,
+    named_tensor,
 )
 
 # Generic array operations
 from myoverse.transforms.generic import (
-    Reshape,
-    Index,
-    Flatten,
-    Squeeze,
-    Unsqueeze,
-    Transpose,
-    Mean,
-    Sum,
-    Stack,
     Concat,
-    Lambda,
+    Flatten,
     Identity,
-    Repeat,
+    Index,
+    Lambda,
+    Mean,
     Pad,
+    Repeat,
+    Reshape,
+    Squeeze,
+    Stack,
+    Sum,
+    Transpose,
+    Unsqueeze,
 )
 
-# Augmentations
-from myoverse.transforms.augment import (
-    GaussianNoise,
-    MagnitudeWarp,
-    TimeWarp,
-    Dropout,
-    ChannelShuffle,
-    TimeShift,
-    Scale,
-    Cutout,
+# Normalization
+from myoverse.transforms.normalize import (
+    BatchNorm,
+    ClampRange,
+    InstanceNorm,
+    LayerNorm,
+    MinMax,
+    Normalize,
+    Standardize,
+    ZScore,
 )
 
 # Spatial / grid-aware
 from myoverse.transforms.spatial import (
-    SpatialFilter,
-    NDD,
-    LSD,
-    TSD,
     IB2,
+    LSD,
+    NDD,
     SPATIAL_KERNELS,
+    TSD,
+    SpatialFilter,
+)
+
+# Temporal / signal processing
+from myoverse.transforms.temporal import (
+    MAV,
+    RMS,
+    VAR,
+    Bandpass,
+    Diff,
+    Highpass,
+    Lowpass,
+    Notch,
+    Rectify,
+    SlopeSignChanges,
+    WaveformLength,
+    ZeroCrossings,
 )
 
 __all__ = [

@@ -22,6 +22,7 @@ class SplitResult:
         Testing data (None if no test split).
     validation : np.ndarray | None
         Validation data (None if no validation split).
+
     """
 
     training: np.ndarray
@@ -58,6 +59,7 @@ class DataSplitter:
     >>> result = splitter.split(data)
     >>> print(result.sizes)
     (800, 100, 100)
+
     """
 
     def __init__(self, test_ratio: float = 0.2, val_ratio: float = 0.2):
@@ -68,12 +70,14 @@ class DataSplitter:
     def _validate_ratios(self) -> None:
         """Validate split ratios."""
         if not 0.0 <= self.test_ratio <= 1.0:
-            raise ValueError(f"test_ratio must be between 0 and 1, got {self.test_ratio}")
+            raise ValueError(
+                f"test_ratio must be between 0 and 1, got {self.test_ratio}"
+            )
         if not 0.0 <= self.val_ratio <= 1.0:
             raise ValueError(f"val_ratio must be between 0 and 1, got {self.val_ratio}")
         if self.test_ratio + self.val_ratio > 1.0:
             raise ValueError(
-                f"test_ratio + val_ratio must be <= 1.0, got {self.test_ratio + self.val_ratio}"
+                f"test_ratio + val_ratio must be <= 1.0, got {self.test_ratio + self.val_ratio}",
             )
 
     def split(self, data: np.ndarray) -> SplitResult:
@@ -92,6 +96,7 @@ class DataSplitter:
         -------
         SplitResult
             Named tuple with training, testing, and validation arrays.
+
         """
         if self.test_ratio == 0:
             return SplitResult(training=data, testing=None, validation=None)
@@ -108,7 +113,9 @@ class DataSplitter:
         return SplitResult(training=training, testing=testing, validation=validation)
 
     def _split_middle(
-        self, data: np.ndarray, ratio: float
+        self,
+        data: np.ndarray,
+        ratio: float,
     ) -> tuple[np.ndarray, np.ndarray]:
         """Split data by extracting a portion from the middle.
 
@@ -123,6 +130,7 @@ class DataSplitter:
         -------
         tuple[np.ndarray, np.ndarray]
             (remaining_data, extracted_middle_data)
+
         """
         n_samples = data.shape[0]
         split_amount = int(n_samples * ratio / 2)
@@ -135,7 +143,8 @@ class DataSplitter:
         return data[mask], data[~mask]
 
     def split_dict(
-        self, data_dict: dict[str, np.ndarray]
+        self,
+        data_dict: dict[str, np.ndarray],
     ) -> dict[str, SplitResult]:
         """Split multiple arrays with the same split indices.
 
@@ -148,5 +157,6 @@ class DataSplitter:
         -------
         dict[str, SplitResult]
             Dictionary mapping keys to their split results.
+
         """
         return {key: self.split(arr) for key, arr in data_dict.items()}

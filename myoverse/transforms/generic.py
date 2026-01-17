@@ -2,18 +2,19 @@
 
 Array manipulation transforms that work with named tensors.
 
-Example
+Example:
 -------
 >>> import torch
 >>> from myoverse.transforms.tensor import Reshape, Index, Flatten
 >>>
 >>> x = torch.randn(64, 2048, names=('channel', 'time'))
 >>> y = Reshape((8, 8, 2048), names=('row', 'col', 'time'))(x)
+
 """
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
 
 import torch
 
@@ -35,6 +36,7 @@ class Reshape(TensorTransform):
     >>> x = torch.randn(64, 2048, names=('channel', 'time'))
     >>> reshape = Reshape((8, 8, 2048), names=('row', 'col', 'time'))
     >>> y = reshape(x)  # Shape: (8, 8, 2048)
+
     """
 
     def __init__(
@@ -43,7 +45,7 @@ class Reshape(TensorTransform):
         names: tuple[str, ...] | None = None,
         **kwargs,
     ):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         self.shape = shape
         self.names = names
 
@@ -73,12 +75,13 @@ class Index(TensorTransform):
     >>> # Select first 10 channels
     >>> index = Index(slice(0, 10), dim='channel')
     >>> y = index(x)  # Shape: (10, 2048)
+
     """
 
     def __init__(
         self,
         indices: int | slice | list[int],
-        dim: str = 'time',
+        dim: str = "time",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -123,6 +126,7 @@ class Flatten(TensorTransform):
     >>> x = torch.randn(8, 8, 2048, names=('row', 'col', 'time'))
     >>> flatten = Flatten(start_dim=0, end_dim=1)
     >>> y = flatten(x)  # Shape: (64, 2048)
+
     """
 
     def __init__(
@@ -131,7 +135,7 @@ class Flatten(TensorTransform):
         end_dim: int = -1,
         **kwargs,
     ):
-        super().__init__(dim='time', **kwargs)
+        super().__init__(dim="time", **kwargs)
         self.start_dim = start_dim
         self.end_dim = end_dim
 
@@ -148,6 +152,7 @@ class Squeeze(TensorTransform):
     ----------
     dim : int | None
         Specific dimension to squeeze, or None for all.
+
     """
 
     def __init__(self, dim: int | None = None, **kwargs):
@@ -170,6 +175,7 @@ class Unsqueeze(TensorTransform):
         Position to insert new dimension.
     name : str | None
         Name for the new dimension.
+
     """
 
     def __init__(self, dim: int, name: str | None = None, **kwargs):
@@ -203,6 +209,7 @@ class Transpose(TensorTransform):
     >>> x = torch.randn(64, 2048, names=('channel', 'time'))
     >>> transpose = Transpose(('time', 'channel'))
     >>> y = transpose(x)  # Shape: (2048, 64)
+
     """
 
     def __init__(self, dims: tuple, **kwargs):
@@ -239,9 +246,10 @@ class Mean(TensorTransform):
         Dimension to reduce.
     keepdim : bool
         Whether to keep the reduced dimension.
+
     """
 
-    def __init__(self, dim: str = 'time', keepdim: bool = False, **kwargs):
+    def __init__(self, dim: str = "time", keepdim: bool = False, **kwargs):
         super().__init__(dim=dim, **kwargs)
         self.keepdim = keepdim
 
@@ -272,9 +280,10 @@ class Sum(TensorTransform):
         Dimension to reduce.
     keepdim : bool
         Whether to keep the reduced dimension.
+
     """
 
-    def __init__(self, dim: str = 'time', keepdim: bool = False, **kwargs):
+    def __init__(self, dim: str = "time", keepdim: bool = False, **kwargs):
         super().__init__(dim=dim, **kwargs)
         self.keepdim = keepdim
 
@@ -316,12 +325,13 @@ class Stack(TensorTransform):
     ...     'mav': MAV(window_size=200),
     ... }, dim='feature')
     >>> y = stack(x)  # Shape: (2, channel, time_windows)
+
     """
 
     def __init__(
         self,
         transforms: dict[str, Callable],
-        dim: str = 'representation',
+        dim: str = "representation",
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -343,7 +353,9 @@ class Stack(TensorTransform):
         if first_names is not None and first_names[0] is not None:
             names = (self.stack_dim,) + tuple(first_names)
         else:
-            names = (self.stack_dim,) + tuple(f'dim_{i}' for i in range(results[0].ndim))
+            names = (self.stack_dim,) + tuple(
+                f"dim_{i}" for i in range(results[0].ndim)
+            )
 
         return stacked.rename(*names)
 
@@ -366,12 +378,13 @@ class Concat(TensorTransform):
     ...     'mav': MAV(window_size=200),
     ... }, dim='channel')
     >>> y = concat(x)  # Concatenated along channel dimension
+
     """
 
     def __init__(
         self,
         transforms: dict[str, Callable],
-        dim: str = 'channel',
+        dim: str = "channel",
         **kwargs,
     ):
         super().__init__(dim=dim, **kwargs)
@@ -412,6 +425,7 @@ class Lambda(TensorTransform):
     --------
     >>> transform = Lambda(lambda x: x ** 2)
     >>> y = transform(x)
+
     """
 
     def __init__(self, func: Callable, **kwargs):
@@ -438,9 +452,10 @@ class Repeat(TensorTransform):
         Number of repetitions.
     dim : str
         Dimension to repeat along.
+
     """
 
-    def __init__(self, repeats: int, dim: str = 'channel', **kwargs):
+    def __init__(self, repeats: int, dim: str = "channel", **kwargs):
         super().__init__(dim=dim, **kwargs)
         self.repeats = repeats
 
@@ -475,13 +490,14 @@ class Pad(TensorTransform):
         Padding mode: 'constant', 'reflect', 'replicate', 'circular'.
     value : float
         Fill value for constant padding.
+
     """
 
     def __init__(
         self,
         padding: tuple[int, int],
-        dim: str = 'time',
-        mode: str = 'constant',
+        dim: str = "time",
+        mode: str = "constant",
         value: float = 0.0,
         **kwargs,
     ):

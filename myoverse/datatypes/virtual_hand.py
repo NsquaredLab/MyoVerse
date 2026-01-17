@@ -55,20 +55,26 @@ class VirtualHandKinematics(_Data):
     References
     ----------
     .. [1] MyoGestic: https://github.com/NsquaredLab/MyoGestic
+
     """
 
     def __init__(self, input_data: np.ndarray, sampling_frequency: float):
         if input_data.ndim not in (2, 3):
             raise ValueError(
                 "The shape of the raw kinematics data should be (9, n_samples) "
-                "or (n_chunks, 9, n_samples)."
+                "or (n_chunks, 9, n_samples).",
             )
         super().__init__(
-            input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3
+            input_data,
+            sampling_frequency,
+            nr_of_dimensions_when_unchunked=3,
         )
 
     def plot(
-        self, representation: str, nr_of_fingers: int = 5, visualize_wrist: bool = True
+        self,
+        representation: str,
+        nr_of_fingers: int = 5,
+        visualize_wrist: bool = True,
     ):
         """Plots the virtual hand kinematics data.
 
@@ -87,6 +93,7 @@ class VirtualHandKinematics(_Data):
         ------
         KeyError
             If the representation does not exist.
+
         """
         if representation not in self._data:
             raise KeyError(f'The representation "{representation}" does not exist.')
