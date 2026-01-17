@@ -329,3 +329,5 @@ _debug_test
 **/version_*
 /data/*
 sandbox/checkpoints
+mlruns/
+mlflow.db
