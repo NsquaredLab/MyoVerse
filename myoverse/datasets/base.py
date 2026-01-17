@@ -31,7 +31,6 @@ Example:
 
 from __future__ import annotations
 
-import time
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
@@ -159,26 +158,9 @@ class WindowedDataset(Dataset):
                     f"Available: {self._available_modalities}",
                 )
 
-        # Cache arrays in RAM if requested
-        if self.cache_in_ram:
-            print(f"Loading {split} split into RAM...")
-            zarr.config.set({"async.concurrency": 32})
-
-            start = time.perf_counter()
-            self._ram_cache = {}
-            total_size = 0
-
-            for arr_name in self._split_group.keys():
-                arr = self._split_group[arr_name]
-                self._ram_cache[arr_name] = np.asarray(arr[:])
-                total_size += self._ram_cache[arr_name].nbytes
-
-            elapsed = time.perf_counter() - start
-            print(
-                f"  Loaded {total_size / (1024**3):.2f} GB in {elapsed:.2f}s ({total_size / (1024**2) / elapsed:.1f} MB/s)"
-            )
-        else:
-            self._ram_cache = None
+        # RAM cache is loaded lazily on first data access
+        self._ram_cache = None
+        self._cache_loaded = False
 
         # Build variable lists for each modality
         self._modality_vars: dict[str, list[str]] = {mod: [] for mod in self.modalities}
@@ -237,10 +219,11 @@ class WindowedDataset(Dataset):
             except Exception:
                 pass
 
-            if self._ram_cache is not None:
+            # If cache already loaded, no need to reopen store
+            if self._ram_cache is not None and self._cache_loaded:
                 return
 
-            # Reopen store
+            # Reopen store for lazy cache loading or direct reads
             self._zip_store = ZipStore(self.zarr_path, mode="r")
             self._store = zarr.open(self._zip_store, mode="r")
             self._split_group = self._store[self.split]
@@ -352,6 +335,19 @@ class WindowedDataset(Dataset):
             return tuple(self._dims_info[modality])
         return self._DEFAULT_DIMS.get(modality, ("channel", "time"))
 
+    def _ensure_cache_loaded(self) -> None:
+        """Load data into RAM cache if caching is enabled and not yet loaded."""
+        if not self.cache_in_ram or self._cache_loaded:
+            return
+
+        zarr.config.set({"async.concurrency": 32})
+        self._ram_cache = {}
+
+        for arr_name in self._split_group.keys():
+            self._ram_cache[arr_name] = np.asarray(self._split_group[arr_name][:])
+
+        self._cache_loaded = True
+
     def _to_tensor(self, data) -> torch.Tensor:
         """Convert data to tensor on target device."""
         tensor = torch.from_numpy(np.ascontiguousarray(data))
@@ -418,6 +414,9 @@ class WindowedDataset(Dataset):
             Dict mapping modality names to data windows.
 
         """
+        # Lazy load cache on first access
+        self._ensure_cache_loaded()
+
         # Get window position
         if self._random_mode:
             rec_idx, local_pos = self._sample_random_position()
