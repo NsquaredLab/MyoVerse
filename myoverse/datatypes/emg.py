@@ -3,9 +3,74 @@
 from __future__ import annotations
 
 import numpy as np
+import xarray as xr
 from matplotlib import pyplot as plt
 
 from myoverse.datatypes.base import _Data
+
+
+def emg_xarray(
+    data,
+    grid_layouts: list[np.ndarray] | None = None,
+    fs: float = 2048.0,
+    dims: tuple[str, ...] = ("channel", "time"),
+    **attrs,
+) -> xr.DataArray:
+    """Create an EMG DataArray with grid layouts and metadata.
+
+    This is the recommended way to create EMG data for use with transforms.
+    Grid layouts are stored in attrs for spatial transforms to use.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        EMG data array.
+    grid_layouts : list[np.ndarray] | None
+        List of 2D arrays mapping grid positions to channel indices.
+        Each array element contains the electrode index (0-based), or -1 for gaps.
+    fs : float
+        Sampling frequency in Hz.
+    dims : tuple[str, ...]
+        Dimension names. Default: ("channel", "time").
+    **attrs
+        Additional attributes to store.
+
+    Returns
+    -------
+    xr.DataArray
+        EMG DataArray with grid_layouts and sampling_frequency in attrs.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from myoverse.datatypes import emg_xarray, create_grid_layout
+    >>>
+    >>> # Create grid layouts
+    >>> grid1 = create_grid_layout(8, 8)  # 64 electrodes
+    >>> grid2 = create_grid_layout(4, 4)  # 16 electrodes
+    >>> grid2[grid2 >= 0] += 64  # Offset indices
+    >>>
+    >>> # Create EMG array with grid info
+    >>> emg = emg_xarray(
+    ...     data,
+    ...     grid_layouts=[grid1, grid2],
+    ...     fs=2048.0,
+    ... )
+    >>>
+    >>> # Use with transforms
+    >>> from myoverse.transforms import NDD, Pipeline, Bandpass
+    >>> pipeline = Pipeline([
+    ...     Bandpass(20, 450, fs=2048, dim="time"),
+    ...     NDD(grids="all"),
+    ... ])
+    >>> filtered = pipeline(emg)
+
+    """
+    all_attrs = {"sampling_frequency": fs, **attrs}
+    if grid_layouts is not None:
+        all_attrs["grid_layouts"] = grid_layouts
+
+    return xr.DataArray(data, dims=dims, attrs=all_attrs)
 
 
 def create_grid_layout(
@@ -70,6 +135,7 @@ def create_grid_layout(
     [[ 0  1  2]
      [ 3  4  5]
      [ 6  7 -1]]
+
     """
     # Initialize grid with -1 (gaps)
     grid = np.full((rows, cols), -1, dtype=int)
@@ -89,7 +155,7 @@ def create_grid_layout(
     elif n_electrodes > max_electrodes:
         raise ValueError(
             f"Number of electrodes ({n_electrodes}) exceeds available positions "
-            f"({max_electrodes} = {rows}*{cols} - {len(missing_positions)} missing)"
+            f"({max_electrodes} = {rows}*{cols} - {len(missing_positions)} missing)",
         )
 
     # Fill the grid based on the pattern
@@ -108,7 +174,7 @@ def create_grid_layout(
                     electrode_idx += 1
     else:
         raise ValueError(
-            f"Invalid fill pattern: {fill_pattern}. Use 'row' or 'column'."
+            f"Invalid fill pattern: {fill_pattern}. Use 'row' or 'column'.",
         )
 
     return grid
@@ -171,6 +237,7 @@ class EMGData(_Data):
     >>> # Define a 4*4 electrode grid with row-wise numbering
     >>> grid = create_grid_layout(4, 4, fill_pattern='row')
     >>> emg_with_grid = EMGData(emg_data, sampling_freq, grid_layouts=[grid])
+
     """
 
     def __init__(
@@ -181,10 +248,12 @@ class EMGData(_Data):
     ):
         if input_data.ndim not in (2, 3):
             raise ValueError(
-                "The shape of the raw EMG data should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples)."
+                "The shape of the raw EMG data should be (n_channels, n_samples) or (n_chunks, n_channels, n_samples).",
             )
         super().__init__(
-            input_data, sampling_frequency, nr_of_dimensions_when_unchunked=3
+            input_data,
+            sampling_frequency,
+            nr_of_dimensions_when_unchunked=3,
         )
 
         self.grid_layouts = None  # Initialize to None first
@@ -202,14 +271,14 @@ class EMGData(_Data):
                 # Check that not all elements are -1
                 if np.all(layout == -1):
                     raise ValueError(
-                        f"Grid layout {i + 1} contains all -1 values, indicating no electrodes!"
+                        f"Grid layout {i + 1} contains all -1 values, indicating no electrodes!",
                     )
 
                 # Check for duplicate electrode indices
                 valid_indices = layout[layout >= 0]
                 if len(np.unique(valid_indices)) != len(valid_indices):
                     raise ValueError(
-                        f"Grid layout {i + 1} contains duplicate electrode indices"
+                        f"Grid layout {i + 1} contains duplicate electrode indices",
                     )
 
             # Store the validated grid layouts
@@ -222,6 +291,7 @@ class EMGData(_Data):
         -------
         list[tuple[int, int, int]]
             List of (rows, cols, electrodes) tuples for each grid, or empty list if no grid layouts are available.
+
         """
         if self.grid_layouts is None:
             return []
@@ -257,6 +327,7 @@ class EMGData(_Data):
         use_grid_layouts : bool, optional
             Whether to use the grid_layouts for plotting. Default is True.
             If False, will use the nr_of_grids and nr_of_electrodes_per_grid parameters.
+
         """
         data = self[representation]
 
@@ -267,7 +338,7 @@ class EMGData(_Data):
             if nr_of_grids is not None and nr_of_grids != len(self.grid_layouts):
                 print(
                     f"Warning: nr_of_grids ({nr_of_grids}) does not match grid_layouts length "
-                    f"({len(self.grid_layouts)}). Using grid_layouts."
+                    f"({len(self.grid_layouts)}). Using grid_layouts.",
                 )
 
             nr_of_grids = len(self.grid_layouts)
@@ -323,12 +394,12 @@ class EMGData(_Data):
                     # Handle chunked data - plot first chunk for visualization
                     ax.plot(
                         data[0, data_idx]
-                        + electrode_idx * data[0].mean() * scaling_factor[grid_idx]
+                        + electrode_idx * data[0].mean() * scaling_factor[grid_idx],
                     )
                 else:
                     ax.plot(
                         data[data_idx]
-                        + electrode_idx * data.mean() * scaling_factor[grid_idx]
+                        + electrode_idx * data.mean() * scaling_factor[grid_idx],
                     )
 
             ax.set_xlabel("Time (samples)")
@@ -423,13 +494,14 @@ class EMGData(_Data):
         ------
         ValueError
             If grid_layouts is not available or the grid_idx is out of range.
+
         """
         if self.grid_layouts is None:
             raise ValueError("Cannot plot grid layout: grid_layouts not provided.")
 
         if grid_idx < 0 or grid_idx >= len(self.grid_layouts):
             raise ValueError(
-                f"Grid index {grid_idx} out of range (0 to {len(self.grid_layouts) - 1})."
+                f"Grid index {grid_idx} out of range (0 to {len(self.grid_layouts) - 1}).",
             )
 
         # Get the grid layout
