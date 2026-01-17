@@ -230,6 +230,12 @@ class DataModule(L.LightningDataModule):
                 cache_in_ram=self.cache_in_ram,
             )
 
+            # Pre-load cache in main process before workers are spawned
+            # (avoids zarr ZipStore concurrency issues in multiprocessing)
+            if self.cache_in_ram and self.num_workers > 0:
+                _ = self.train_dataset[0]
+                _ = self.val_dataset[0]
+
         if stage == "test" or stage is None:
             self.test_dataset = SupervisedDataset(
                 self.data_path,
@@ -244,6 +250,10 @@ class DataModule(L.LightningDataModule):
                 dtype=self.dtype,
                 cache_in_ram=self.cache_in_ram,
             )
+
+            # Pre-load cache in main process before workers are spawned
+            if self.cache_in_ram and self.num_workers > 0:
+                _ = self.test_dataset[0]
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(
