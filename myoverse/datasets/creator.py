@@ -22,6 +22,7 @@ Example:
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -106,6 +107,17 @@ class DatasetCreator:
         self.save_path = Path(save_path)
         self.time_chunk_size = time_chunk_size
         self.debug_level = debug_level
+
+        # Ensure .zip extension (ZipStore is used for fast I/O)
+        if self.save_path.suffix.lower() == ".zarr":
+            new_path = self.save_path.with_suffix(".zip")
+            warnings.warn(
+                f"Directory-based .zarr is no longer supported. "
+                f"Changing save path from '{self.save_path}' to '{new_path}'",
+                UserWarning,
+                stacklevel=2,
+            )
+            self.save_path = new_path
 
         self.splitter = DataSplitter(test_ratio=test_ratio, val_ratio=val_ratio)
         self.console = Console(color_system=None, highlight=False)

@@ -45,17 +45,6 @@ from zarr.storage import ZipStore
 # Suppress named tensor experimental warning
 warnings.filterwarnings("ignore", category=UserWarning, message=".*Named tensors.*")
 
-# Try to import kvikio for GPU Direct Storage
-try:
-    import cupy as cp
-    from kvikio.zarr import GDSStore
-
-    HAS_KVIKIO = True
-except ImportError:
-    HAS_KVIKIO = False
-    GDSStore = None
-    cp = None
-
 
 class WindowedDataset(Dataset):
     """Base dataset that loads windows from zarr for any modality.
@@ -133,28 +122,19 @@ class WindowedDataset(Dataset):
         if not self.zarr_path.exists():
             raise FileNotFoundError(f"Dataset not found: {self.zarr_path}")
 
+        # Reject directory-based .zarr (no longer supported)
+        if self.zarr_path.is_dir() or self.zarr_path.suffix.lower() == ".zarr":
+            raise ValueError(
+                f"Directory-based .zarr is no longer supported: {self.zarr_path}\n"
+                f"Please recreate the dataset using DatasetCreator with a .zip path."
+            )
+
         if window_stride is None and n_windows is None:
             raise ValueError("Must specify n_windows when window_stride is None")
 
-        # Use GPU Direct Storage if available and GPU exists
-        # Skip GDS if caching in RAM - not worth the complexity for one-time load
-        self._use_gds = HAS_KVIKIO and torch.cuda.is_available() and not cache_in_ram
-        self._gds_to_cpu = self._use_gds and (
-            self.device is None or self.device.type == "cpu"
-        )
-
-        # Detect if path is a zip file
-        self._is_zip = self.zarr_path.suffix.lower() == ".zip"
-
-        # Open zarr store (with GDS if available and not a zip file)
-        if self._use_gds and not self._is_zip:
-            zarr.config.enable_gpu()
-            self._store = zarr.open(GDSStore(str(self.zarr_path)), mode="r")
-        elif self._is_zip:
-            self._zip_store = ZipStore(self.zarr_path, mode="r")
-            self._store = zarr.open(self._zip_store, mode="r")
-        else:
-            self._store = zarr.open(str(self.zarr_path), mode="r")
+        # Open zarr store from zip file
+        self._zip_store = ZipStore(self.zarr_path, mode="r")
+        self._store = zarr.open(self._zip_store, mode="r")
 
         # Get metadata
         self._available_modalities = self._store.attrs.get("modalities", [])
@@ -190,20 +170,13 @@ class WindowedDataset(Dataset):
 
             for arr_name in self._split_group.keys():
                 arr = self._split_group[arr_name]
-                if self._use_gds and cp is not None:
-                    data = arr[:]
-                    self._ram_cache[arr_name] = cp.asnumpy(data)
-                else:
-                    self._ram_cache[arr_name] = np.asarray(arr[:])
+                self._ram_cache[arr_name] = np.asarray(arr[:])
                 total_size += self._ram_cache[arr_name].nbytes
 
             elapsed = time.perf_counter() - start
             print(
                 f"  Loaded {total_size / (1024**3):.2f} GB in {elapsed:.2f}s ({total_size / (1024**2) / elapsed:.1f} MB/s)"
             )
-
-            if self._use_gds:
-                zarr.config.reset()
         else:
             self._ram_cache = None
 
@@ -267,16 +240,10 @@ class WindowedDataset(Dataset):
             if self._ram_cache is not None:
                 return
 
-            # Reopen store based on file type
-            if self._is_zip:
-                self._zip_store = ZipStore(self.zarr_path, mode="r")
-                self._store = zarr.open(self._zip_store, mode="r")
-            else:
-                self._store = zarr.open(str(self.zarr_path), mode="r")
-
+            # Reopen store
+            self._zip_store = ZipStore(self.zarr_path, mode="r")
+            self._store = zarr.open(self._zip_store, mode="r")
             self._split_group = self._store[self.split]
-            self._use_gds = False
-            self._gds_to_cpu = False
         except Exception as e:
             import sys
 
@@ -387,18 +354,9 @@ class WindowedDataset(Dataset):
 
     def _to_tensor(self, data) -> torch.Tensor:
         """Convert data to tensor on target device."""
-        if cp is not None and isinstance(data, cp.ndarray):
-            if self._gds_to_cpu:
-                tensor = torch.from_numpy(cp.asnumpy(data))
-            else:
-                if not data.flags.c_contiguous:
-                    data = cp.ascontiguousarray(data)
-                tensor = torch.from_dlpack(data)
-        else:
-            tensor = torch.from_numpy(np.ascontiguousarray(data))
-            if self.device is not None:
-                return tensor.to(device=self.device, dtype=self.dtype)
-
+        tensor = torch.from_numpy(np.ascontiguousarray(data))
+        if self.device is not None:
+            return tensor.to(device=self.device, dtype=self.dtype)
         return tensor.to(dtype=self.dtype)
 
     def _load_window(
