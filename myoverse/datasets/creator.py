@@ -4,6 +4,22 @@ This module provides DatasetCreator for creating zarr datasets from
 multi-modal time series data. Output is stored as a single .zip file
 for fast I/O on all platforms (especially Windows).
 
+Storage structure::
+
+    dataset.zip
+    ├── attrs (metadata: sampling_frequency, modalities, tasks, dims)
+    ├── training/
+    │   ├── emg/
+    │   │   ├── task1  (array)
+    │   │   └── task2  (array)
+    │   └── kinematics/
+    │       ├── task1  (array)
+    │       └── task2  (array)
+    ├── validation/
+    │   └── ...
+    └── testing/
+        └── ...
+
 Example:
 -------
 >>> from myoverse.datasets import DatasetCreator, Modality
@@ -149,21 +165,23 @@ class DatasetCreator:
                 self.save_path.unlink()
 
         # Create zarr store using ZipStore for fast I/O
+        # Suppress zarr 3.x warning about duplicate zarr.json (cosmetic, doesn't affect data)
+        warnings.filterwarnings("ignore", message="Duplicate name", category=UserWarning)
         zip_store = ZipStore(self.save_path, mode="w")
         store = zarr.open(zip_store, mode="w")
 
-        # Store metadata
+        # Store metadata (standard zarr attrs)
         store.attrs["sampling_frequency"] = self.sampling_frequency
         store.attrs["modalities"] = list(self.modalities.keys())
         store.attrs["tasks"] = self.tasks_to_use
+        store.attrs["dims"] = {
+            name: list(mod.dims) for name, mod in self.modalities.items()
+        }
 
-        # Store dimension info for each modality
-        dims_info = {name: list(mod.dims) for name, mod in self.modalities.items()}
-        store.attrs["dims"] = dims_info
-
-        # Create split groups
+        # Create split groups with nested modality subgroups
         for split in ["training", "validation", "testing"]:
-            store.create_group(split)
+            for mod_name in self.modalities:
+                store.create_group(f"{split}/{mod_name}")
 
         # Process tasks
         self._process_all_tasks(store)
@@ -276,13 +294,13 @@ class DatasetCreator:
 
             data = self._data[mod_name][task][..., :min_len].astype(np.float32)
             train, test, val = self._split_continuous(data)
-            array_name = f"{mod_name}_{task}"
 
-            self._store_array(store["training"], array_name, train)
+            # Store in nested structure: split/modality/task
+            self._store_array(store["training"][mod_name], task, train)
             if test is not None:
-                self._store_array(store["testing"], array_name, test)
+                self._store_array(store["testing"][mod_name], task, test)
             if val is not None:
-                self._store_array(store["validation"], array_name, val)
+                self._store_array(store["validation"][mod_name], task, val)
 
     def _extract_center(
         self,
@@ -349,12 +367,13 @@ class DatasetCreator:
 
             row = [split]
             for mod_name in self.modalities:
-                arrays = sorted(
-                    k for k in split_group.keys() if k.startswith(f"{mod_name}_")
-                )
+                if mod_name not in split_group:
+                    row.append("N/A")
+                    continue
+                mod_group = split_group[mod_name]
                 shapes = [
-                    f"{arr.split('_', 1)[1]}: {split_group[arr].shape}"
-                    for arr in arrays
+                    f"{task}: {mod_group[task].shape}"
+                    for task in sorted(mod_group.keys())
                 ]
                 row.append("\n".join(shapes) if shapes else "N/A")
             table.add_row(*row)

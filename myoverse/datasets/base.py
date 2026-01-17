@@ -135,7 +135,7 @@ class WindowedDataset(Dataset):
         self._zip_store = ZipStore(self.zarr_path, mode="r")
         self._store = zarr.open(self._zip_store, mode="r")
 
-        # Get metadata
+        # Get metadata from standard zarr attrs
         self._available_modalities = self._store.attrs.get("modalities", [])
         self._tasks = self._store.attrs.get("tasks", [])
         self._dims_info = self._store.attrs.get("dims", {})
@@ -162,28 +162,31 @@ class WindowedDataset(Dataset):
         self._ram_cache = None
         self._cache_loaded = False
 
-        # Build variable lists for each modality
-        self._modality_vars: dict[str, list[str]] = {mod: [] for mod in self.modalities}
+        # Build task lists for each modality (nested structure: split/modality/task)
+        self._modality_tasks: dict[str, list[str]] = {mod: [] for mod in self.modalities}
 
-        for arr_name in self._split_group.keys():
-            for mod in self.modalities:
-                if arr_name.startswith(f"{mod}_"):
-                    self._modality_vars[mod].append(arr_name)
+        for mod in self.modalities:
+            if mod in self._split_group:
+                mod_group = self._split_group[mod]
+                self._modality_tasks[mod] = sorted(mod_group.keys())
 
-        # Sort for consistent ordering
-        for mod in self._modality_vars:
-            self._modality_vars[mod].sort()
+        # For compatibility, also store full paths
+        self._modality_vars: dict[str, list[str]] = {
+            mod: [f"{mod}/{task}" for task in tasks]
+            for mod, tasks in self._modality_tasks.items()
+        }
 
-        # Get recording lengths from first modality
+        # Get recording lengths from first modality (nested structure)
         first_mod = self.modalities[0]
         self._recording_lengths = []
-        self._recording_vars = []
+        self._recording_tasks = []  # Store task names directly
 
-        for var in self._modality_vars[first_mod]:
-            arr = self._split_group[var]
+        mod_group = self._split_group[first_mod]
+        for task in self._modality_tasks[first_mod]:
+            arr = mod_group[task]
             length = arr.shape[-1]  # Time is last dimension
             self._recording_lengths.append(length)
-            self._recording_vars.append(var)
+            self._recording_tasks.append(task)
 
         self._total_length = sum(self._recording_lengths)
 
@@ -247,12 +250,12 @@ class WindowedDataset(Dataset):
             Shape without time dimension.
 
         """
-        var_list = self._modality_vars.get(modality)
-        if not var_list:
+        task_list = self._modality_tasks.get(modality)
+        if not task_list:
             raise ValueError(f"Modality '{modality}' not found")
 
-        first_var = var_list[0]
-        arr = self._split_group[first_var]
+        first_task = task_list[0]
+        arr = self._split_group[modality][first_task]
         return arr.shape[:-1]
 
     def _setup_recording_ranges(self) -> None:
@@ -318,9 +321,7 @@ class WindowedDataset(Dataset):
 
     def _get_task_for_recording(self, rec_idx: int) -> str:
         """Get the task name for a recording index."""
-        var_name = self._recording_vars[rec_idx]
-        parts = var_name.split("_", 1)
-        return parts[1] if len(parts) > 1 else "default"
+        return self._recording_tasks[rec_idx]
 
     # Default dimension names by modality (fallback when not in metadata)
     _DEFAULT_DIMS: dict[str, tuple[str, ...]] = {
@@ -343,8 +344,14 @@ class WindowedDataset(Dataset):
         zarr.config.set({"async.concurrency": 32})
         self._ram_cache = {}
 
-        for arr_name in self._split_group.keys():
-            self._ram_cache[arr_name] = np.asarray(self._split_group[arr_name][:])
+        # Load nested structure: modality -> task -> array
+        for mod in self.modalities:
+            if mod not in self._split_group:
+                continue
+            mod_group = self._split_group[mod]
+            for task in mod_group.keys():
+                cache_key = f"{mod}/{task}"
+                self._ram_cache[cache_key] = np.asarray(mod_group[task][:])
 
         self._cache_loaded = True
 
@@ -356,14 +363,14 @@ class WindowedDataset(Dataset):
         return tensor.to(dtype=self.dtype)
 
     def _load_window(
-        self, var_name: str, local_pos: int, modality: str
+        self, var_path: str, local_pos: int, modality: str
     ) -> torch.Tensor | np.ndarray:
         """Load a window for a variable and convert to tensor.
 
         Parameters
         ----------
-        var_name : str
-            Variable name in zarr (e.g., "emg_task1").
+        var_path : str
+            Variable path in zarr (e.g., "emg/task1").
         local_pos : int
             Starting position within the recording.
         modality : str
@@ -376,9 +383,11 @@ class WindowedDataset(Dataset):
 
         """
         if self._ram_cache is not None:
-            arr = self._ram_cache[var_name]
+            arr = self._ram_cache[var_path]
         else:
-            arr = self._split_group[var_name]
+            # Navigate nested structure: modality/task
+            mod, task = var_path.split("/", 1)
+            arr = self._split_group[mod][task]
 
         # Validate window fits within recording
         end_pos = local_pos + self.window_size
@@ -425,13 +434,14 @@ class WindowedDataset(Dataset):
 
         task = self._get_task_for_recording(rec_idx)
 
-        # Extract windows for all modalities
+        # Extract windows for all modalities (nested structure: modality/task)
         data = {}
-        cache = self._ram_cache or self._split_group
         for mod in self.modalities:
-            var_name = f"{mod}_{task}"
-            if var_name in cache:
-                data[mod] = self._load_window(var_name, local_pos, mod)
+            cache_key = f"{mod}/{task}"
+            if self._ram_cache is not None and cache_key in self._ram_cache:
+                data[mod] = self._load_window(cache_key, local_pos, mod)
+            elif mod in self._split_group and task in self._split_group[mod]:
+                data[mod] = self._load_window(cache_key, local_pos, mod)
 
         return data
 
