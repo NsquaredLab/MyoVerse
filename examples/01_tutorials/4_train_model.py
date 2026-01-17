@@ -47,7 +47,7 @@ creator = DatasetCreator(
     },
     sampling_frequency=2048.0,
     tasks_to_use=["1", "2"],
-    save_path=DATA_DIR / "tutorial_dataset.zarr",
+    save_path=DATA_DIR / "tutorial_dataset.zip",
     test_ratio=0.2,
     val_ratio=0.2,
     debug_level=1,
@@ -98,7 +98,7 @@ print("STEP 3: DataModule Setup")
 print("=" * 60)
 
 dm = DataModule(
-    data_path=DATA_DIR / "tutorial_dataset.zarr",
+    data_path=DATA_DIR / "tutorial_dataset.zip",
     # Select which modalities are inputs vs targets
     inputs=["emg"],
     targets=["kinematics"],
@@ -219,6 +219,8 @@ print()
 print("=" * 60)
 print("STEP 7: Training (1 epoch, 500 windows)")
 print("=" * 60)
+
+torch.set_float32_matmul_precision("medium")  # For performance on some CPUs
 
 trainer = L.Trainer(
     accelerator="auto",
