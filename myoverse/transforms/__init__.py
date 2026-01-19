@@ -105,6 +105,7 @@ from myoverse.transforms.temporal import (
     Lowpass,
     Notch,
     Rectify,
+    SlidingWindowTransform,
     SlopeSignChanges,
     WaveformLength,
     ZeroCrossings,
@@ -121,6 +122,7 @@ __all__ = [
     "get_dim_index",
     "align_tensors",
     # Temporal / signal processing
+    "SlidingWindowTransform",
     "RMS",
     "MAV",
     "VAR",

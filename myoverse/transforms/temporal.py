@@ -34,7 +34,66 @@ import torchaudio.functional as AF
 from myoverse.transforms.base import TensorTransform, get_dim_index
 
 
-class RMS(TensorTransform):
+class SlidingWindowTransform(TensorTransform):
+    """Base class for sliding window transforms (GPU-accelerated).
+
+    Handles the common pattern of unfold + reduce over sliding windows.
+    Subclasses only need to implement `_compute_window` to define the
+    window-wise computation.
+
+    Parameters
+    ----------
+    window_size : int
+        Window size in samples.
+    stride : int | None
+        Stride between windows. If None, uses window_size (non-overlapping).
+    dim : str
+        Dimension to compute over.
+
+    """
+
+    def __init__(
+        self,
+        window_size: int,
+        stride: int | None = None,
+        dim: str = "time",
+        **kwargs,
+    ):
+        super().__init__(dim=dim, **kwargs)
+        self.window_size = window_size
+        self.stride = stride or window_size
+
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
+        """Compute the window-wise statistic.
+
+        Parameters
+        ----------
+        x_unfolded : torch.Tensor
+            Unfolded tensor with windows in the last dimension.
+            Shape: (..., n_windows, window_size)
+
+        Returns
+        -------
+        torch.Tensor
+            Reduced tensor. Shape: (..., n_windows)
+
+        """
+        raise NotImplementedError("Subclasses must implement _compute_window")
+
+    def _apply(self, x: torch.Tensor) -> torch.Tensor:
+        dim_idx = get_dim_index(x, self.dim)
+        names = x.names
+
+        x_unfolded = x.rename(None).unfold(dim_idx, self.window_size, self.stride)
+        result = self._compute_window(x_unfolded)
+
+        if names[0] is not None:
+            result = result.rename(*names)
+
+        return result
+
+
+class RMS(SlidingWindowTransform):
     """Root Mean Square over sliding windows (GPU-accelerated).
 
     Uses unfold for efficient sliding window computation on GPU.
@@ -56,39 +115,11 @@ class RMS(TensorTransform):
 
     """
 
-    def __init__(
-        self,
-        window_size: int,
-        stride: int | None = None,
-        dim: str = "time",
-        **kwargs,
-    ):
-        super().__init__(dim=dim, **kwargs)
-        self.window_size = window_size
-        self.stride = stride or window_size
-
-    def _apply(self, x: torch.Tensor) -> torch.Tensor:
-        dim_idx = get_dim_index(x, self.dim)
-        names = x.names
-
-        # Remove names for unfold (doesn't support named tensors)
-        x = x.rename(None)
-
-        # Unfold along time dimension: creates windows
-        # Result shape: (..., n_windows, window_size)
-        x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
-
-        # Compute RMS: sqrt(mean(x^2))
-        rms = torch.sqrt(torch.mean(x_unfolded**2, dim=-1))
-
-        # Restore names (time dimension now represents windows)
-        if names[0] is not None:
-            rms = rms.rename(*names)
-
-        return rms
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
+        return torch.sqrt(torch.mean(x_unfolded**2, dim=-1))
 
 
-class MAV(TensorTransform):
+class MAV(SlidingWindowTransform):
     """Mean Absolute Value over sliding windows (GPU-accelerated).
 
     Parameters
@@ -102,34 +133,11 @@ class MAV(TensorTransform):
 
     """
 
-    def __init__(
-        self,
-        window_size: int,
-        stride: int | None = None,
-        dim: str = "time",
-        **kwargs,
-    ):
-        super().__init__(dim=dim, **kwargs)
-        self.window_size = window_size
-        self.stride = stride or window_size
-
-    def _apply(self, x: torch.Tensor) -> torch.Tensor:
-        dim_idx = get_dim_index(x, self.dim)
-        names = x.names
-
-        x = x.rename(None)
-        x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
-
-        # MAV: mean(|x|)
-        mav = torch.mean(torch.abs(x_unfolded), dim=-1)
-
-        if names[0] is not None:
-            mav = mav.rename(*names)
-
-        return mav
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
+        return torch.mean(torch.abs(x_unfolded), dim=-1)
 
 
-class VAR(TensorTransform):
+class VAR(SlidingWindowTransform):
     """Variance over sliding windows (GPU-accelerated).
 
     Parameters
@@ -143,31 +151,8 @@ class VAR(TensorTransform):
 
     """
 
-    def __init__(
-        self,
-        window_size: int,
-        stride: int | None = None,
-        dim: str = "time",
-        **kwargs,
-    ):
-        super().__init__(dim=dim, **kwargs)
-        self.window_size = window_size
-        self.stride = stride or window_size
-
-    def _apply(self, x: torch.Tensor) -> torch.Tensor:
-        dim_idx = get_dim_index(x, self.dim)
-        names = x.names
-
-        x = x.rename(None)
-        x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
-
-        # Variance
-        var = torch.var(x_unfolded, dim=-1)
-
-        if names[0] is not None:
-            var = var.rename(*names)
-
-        return var
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
+        return torch.var(x_unfolded, dim=-1)
 
 
 class Rectify(TensorTransform):
@@ -439,7 +424,7 @@ class Notch(TensorTransform):
         return x_filtered
 
 
-class ZeroCrossings(TensorTransform):
+class ZeroCrossings(SlidingWindowTransform):
     """Count zero crossings in sliding windows (GPU-accelerated).
 
     Parameters
@@ -453,35 +438,12 @@ class ZeroCrossings(TensorTransform):
 
     """
 
-    def __init__(
-        self,
-        window_size: int,
-        stride: int | None = None,
-        dim: str = "time",
-        **kwargs,
-    ):
-        super().__init__(dim=dim, **kwargs)
-        self.window_size = window_size
-        self.stride = stride or window_size
-
-    def _apply(self, x: torch.Tensor) -> torch.Tensor:
-        dim_idx = get_dim_index(x, self.dim)
-        names = x.names
-
-        x = x.rename(None)
-        x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
-
-        # Count sign changes
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
         signs = torch.sign(x_unfolded)
-        zc = torch.sum(torch.abs(torch.diff(signs, dim=-1)) > 0, dim=-1).float()
-
-        if names[0] is not None:
-            zc = zc.rename(*names)
-
-        return zc
+        return torch.sum(torch.abs(torch.diff(signs, dim=-1)) > 0, dim=-1).float()
 
 
-class SlopeSignChanges(TensorTransform):
+class SlopeSignChanges(SlidingWindowTransform):
     """Count slope sign changes in sliding windows (GPU-accelerated).
 
     Parameters
@@ -495,38 +457,13 @@ class SlopeSignChanges(TensorTransform):
 
     """
 
-    def __init__(
-        self,
-        window_size: int,
-        stride: int | None = None,
-        dim: str = "time",
-        **kwargs,
-    ):
-        super().__init__(dim=dim, **kwargs)
-        self.window_size = window_size
-        self.stride = stride or window_size
-
-    def _apply(self, x: torch.Tensor) -> torch.Tensor:
-        dim_idx = get_dim_index(x, self.dim)
-        names = x.names
-
-        x = x.rename(None)
-        x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
-
-        # Compute differences (slope)
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
         slopes = torch.diff(x_unfolded, dim=-1)
-
-        # Count sign changes in slopes
         signs = torch.sign(slopes)
-        ssc = torch.sum(torch.abs(torch.diff(signs, dim=-1)) > 0, dim=-1).float()
-
-        if names[0] is not None:
-            ssc = ssc.rename(*names)
-
-        return ssc
+        return torch.sum(torch.abs(torch.diff(signs, dim=-1)) > 0, dim=-1).float()
 
 
-class WaveformLength(TensorTransform):
+class WaveformLength(SlidingWindowTransform):
     """Waveform length over sliding windows (GPU-accelerated).
 
     Sum of absolute differences between consecutive samples.
@@ -542,31 +479,8 @@ class WaveformLength(TensorTransform):
 
     """
 
-    def __init__(
-        self,
-        window_size: int,
-        stride: int | None = None,
-        dim: str = "time",
-        **kwargs,
-    ):
-        super().__init__(dim=dim, **kwargs)
-        self.window_size = window_size
-        self.stride = stride or window_size
-
-    def _apply(self, x: torch.Tensor) -> torch.Tensor:
-        dim_idx = get_dim_index(x, self.dim)
-        names = x.names
-
-        x = x.rename(None)
-        x_unfolded = x.unfold(dim_idx, self.window_size, self.stride)
-
-        # Waveform length: sum(|x[n] - x[n-1]|)
-        wfl = torch.sum(torch.abs(torch.diff(x_unfolded, dim=-1)), dim=-1)
-
-        if names[0] is not None:
-            wfl = wfl.rename(*names)
-
-        return wfl
+    def _compute_window(self, x_unfolded: torch.Tensor) -> torch.Tensor:
+        return torch.sum(torch.abs(torch.diff(x_unfolded, dim=-1)), dim=-1)
 
 
 class Diff(TensorTransform):
