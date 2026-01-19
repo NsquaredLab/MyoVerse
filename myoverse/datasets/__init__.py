@@ -9,7 +9,7 @@ This module uses a layered architecture for flexibility:
     Returns all modalities as a dict.
 
 **Paradigm Layer (Learning Paradigms)**
-    SupervisedDataset : Supervised learning (inputs → targets).
+    SupervisedDataset : Supervised learning (inputs -> targets).
     Returns (inputs_dict, targets_dict) tuple.
 
     Future: ContrastiveDataset, MaskedDataset, etc.
@@ -55,30 +55,27 @@ Example:
 
 """
 
-# Base infrastructure
-from myoverse.datasets.base import WindowedDataset
+from __future__ import annotations
 
-# Storage
+from typing import TYPE_CHECKING
+
+# Light imports - these don't pull in torch/lightning
 from myoverse.datasets.creator import DatasetCreator
-
-# Integration
-from myoverse.datasets.datamodule import DataModule, collate_supervised
 from myoverse.datasets.modality import Modality
-
-# Paradigms
-from myoverse.datasets.paradigms import SupervisedDataset
-
-# Presets (convenience re-exports)
-from myoverse.datasets.presets import (
-    EMBCConfig,
-    embc_eval_transform,
-    embc_kinematics_transform,
-    embc_target_transform,
-    embc_train_transform,
-)
-
-# Utilities
 from myoverse.datasets.utils import DatasetFormatter, DataSplitter
+
+if TYPE_CHECKING:
+    # For type checkers only - not imported at runtime
+    from myoverse.datasets.base import WindowedDataset
+    from myoverse.datasets.datamodule import DataModule, collate_supervised
+    from myoverse.datasets.paradigms import SupervisedDataset
+    from myoverse.datasets.presets import (
+        EMBCConfig,
+        embc_eval_transform,
+        embc_kinematics_transform,
+        embc_target_transform,
+        embc_train_transform,
+    )
 
 __all__ = [
     # Base
@@ -101,3 +98,35 @@ __all__ = [
     "embc_eval_transform",
     "embc_target_transform",
 ]
+
+# Lazy imports for heavy modules (torch, lightning)
+# These are only loaded when actually accessed
+_LAZY_IMPORTS = {
+    # Base layer (imports torch)
+    "WindowedDataset": ("myoverse.datasets.base", "WindowedDataset"),
+    # Paradigms (imports torch)
+    "SupervisedDataset": ("myoverse.datasets.paradigms", "SupervisedDataset"),
+    # Integration (imports lightning)
+    "DataModule": ("myoverse.datasets.datamodule", "DataModule"),
+    "collate_supervised": ("myoverse.datasets.datamodule", "collate_supervised"),
+    # Presets (imports transforms which may import torch)
+    "EMBCConfig": ("myoverse.datasets.presets", "EMBCConfig"),
+    "embc_train_transform": ("myoverse.datasets.presets", "embc_train_transform"),
+    "embc_eval_transform": ("myoverse.datasets.presets", "embc_eval_transform"),
+    "embc_target_transform": ("myoverse.datasets.presets", "embc_target_transform"),
+    "embc_kinematics_transform": (
+        "myoverse.datasets.presets",
+        "embc_kinematics_transform",
+    ),
+}
+
+
+def __getattr__(name: str):
+    """Lazy import for heavy dependencies."""
+    if name in _LAZY_IMPORTS:
+        module_path, attr_name = _LAZY_IMPORTS[name]
+        import importlib
+
+        module = importlib.import_module(module_path)
+        return getattr(module, attr_name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

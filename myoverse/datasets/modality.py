@@ -30,10 +30,12 @@ from __future__ import annotations
 import pickle
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
-import torch
+
+if TYPE_CHECKING:
+    import torch
 
 
 @dataclass
@@ -109,6 +111,9 @@ class Modality:
 
         # Apply transform (converts to tensor, applies transform, back to numpy)
         if self.transform is not None:
+            # Lazy import torch only when transform is used
+            import torch
+
             transformed = {}
             for task, arr in data.items():
                 tensor = torch.from_numpy(arr.astype(np.float32))
