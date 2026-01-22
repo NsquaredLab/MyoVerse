@@ -331,3 +331,10 @@ _debug_test
 sandbox/checkpoints
 mlruns/
 mlflow.db
+
+# Local AI assistant config
+.claude/
+.serena/
+
+# Development sandbox (not for distribution)
+sandbox/
