@@ -25,7 +25,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nested dataset storage structure (split/modality/task)
 - `ZipStore` for faster dataset I/O on Windows
 - `py.typed` marker for PEP 561 compliance
-- `CLAUDE.md` for Claude Code guidance
 
 ### Changed
 - Lazy import of heavy dependencies in datasets module for faster imports
