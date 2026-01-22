@@ -508,9 +508,9 @@ Benefits of dimension-aware transforms:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 9.716 seconds)
+   **Total running time of the script:** (0 minutes 9.453 seconds)
 
-**Estimated memory usage:**  1548 MB
+**Estimated memory usage:**  1470 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_1_understanding_basics.py:

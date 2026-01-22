@@ -124,9 +124,9 @@ target at training time, not storage time.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.778 seconds)
+   **Total running time of the script:** (0 minutes 0.754 seconds)
 
-**Estimated memory usage:**  759 MB
+**Estimated memory usage:**  626 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_3_create_dataset.py:

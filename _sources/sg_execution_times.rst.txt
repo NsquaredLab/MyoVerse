@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:53.113** total execution time for 7 files **from all galleries**:
+**00:52.049** total execution time for 7 files **from all galleries**:
 
 .. container::
 
@@ -33,23 +33,23 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_auto_examples_01_tutorials_4_train_model.py` (``../../examples/01_tutorials/4_train_model.py``)
-     - 00:14.939
-     - 810.6
+     - 00:14.063
+     - 678.4
    * - :ref:`sphx_glr_auto_examples_02_filters_2_temporal_filters.py` (``../../examples/02_filters/2_temporal_filters.py``)
-     - 00:09.805
-     - 950.7
+     - 00:09.975
+     - 819.8
    * - :ref:`sphx_glr_auto_examples_01_tutorials_1_understanding_basics.py` (``../../examples/01_tutorials/1_understanding_basics.py``)
-     - 00:09.716
-     - 1548.1
+     - 00:09.453
+     - 1470.2
    * - :ref:`sphx_glr_auto_examples_01_tutorials_2_complex_filtering.py` (``../../examples/01_tutorials/2_complex_filtering.py``)
-     - 00:08.473
-     - 974.4
+     - 00:07.980
+     - 818.9
    * - :ref:`sphx_glr_auto_examples_02_filters_3_spatial_filters.py` (``../../examples/02_filters/3_spatial_filters.py``)
-     - 00:06.105
-     - 753.2
+     - 00:06.432
+     - 622.0
    * - :ref:`sphx_glr_auto_examples_02_filters_1_emg_grid_layouts.py` (``../../examples/02_filters/1_emg_grid_layouts.py``)
-     - 00:03.297
-     - 751.2
+     - 00:03.392
+     - 620.5
    * - :ref:`sphx_glr_auto_examples_01_tutorials_3_create_dataset.py` (``../../examples/01_tutorials/3_create_dataset.py``)
-     - 00:00.778
-     - 758.7
+     - 00:00.754
+     - 625.5
