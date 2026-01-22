@@ -335,6 +335,7 @@ mlflow.db
 # Local AI assistant config
 .claude/
 .serena/
+CLAUDE.md
 
 # Development sandbox (not for distribution)
 sandbox/
