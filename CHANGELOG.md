@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-01-22
+
+### Breaking Changes
+- **Transform System**: Complete refactor to PyTorch named tensors for GPU acceleration. Transforms now use `('channel', 'time')` or `('batch', 'channel', 'time')` tensor conventions
+- **Dataset Architecture**: Refactored datasets module with layered architecture (`WindowedDataset`, `DataModule`, `DatasetCreator`)
+- **Models Restructure**: Flattened model hierarchy from 4 levels to 2 (`models/raul_net/v16.py`). Removed deprecated models (V1, V4, V9 variants, classification), removed online/offline distinction
+- **Datatypes Package**: Split `datatypes.py` into organized package structure
+- **Storage Format**: Enforced `.zip` format for datasets, removed GPU Direct Storage support
+
+### Added
+- `SlidingWindowTransform` base class for consistent transform implementations
+- MLflow experiment tracking and visualization (`myoverse/tracking.py`)
+- RAM caching and multiprocessing support in `ContinuousDataset`
+- Lazy dataloader initialization for faster startup
+- Cache pre-loading in main process before spawning workers
+- Nested dataset storage structure (split/modality/task)
+- `ZipStore` for faster dataset I/O on Windows
+- `py.typed` marker for PEP 561 compliance
+- `CLAUDE.md` for Claude Code guidance
+
+### Changed
+- Lazy import of heavy dependencies in datasets module for faster imports
+- Modernized codebase to Python 3.12+ type hints and modern `super()` calls
+- Ran ruff format across entire codebase
+- Removed graph visualization from `_Data` class
+- Removed Rich auto-coloring of numbers and text for cleaner output
+- Moved `emg_xarray` and `emg_tensor` to datatypes module
+
+### Removed
+- Unused `utils` module
+- `tests/workflow.py`
+- icecream dependency
+- Deprecated model variants (V1, V4, V9, classification models)
+- GPU Direct Storage (GDS) support
+
+### Fixed
+- MedianFilter padding
+- Tests updated to match simplified `_Data` API
+
 ## [1.1.6] - 2025-12-23
 
 ### Added
@@ -136,7 +175,8 @@ The following research papers have utilized MyoVerse:
 - IEEE Transactions on Neural Systems and Rehabilitation Engineering (2023): [10.1109/TNSRE.2023.3295060](https://doi.org/10.1109/TNSRE.2023.3295060)
 - 2022 44th Annual International Conference of the IEEE EMBC: [10.1109/EMBC48229.2022.9870937](https://doi.org/10.1109/EMBC48229.2022.9870937)
 
-[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.6...HEAD
+[Unreleased]: https://github.com/NsquaredLab/MyoVerse/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.6...v2.0.0
 [1.1.6]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.5...v1.1.6
 [1.1.5]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.4...v1.1.5
 [1.1.4]: https://github.com/NsquaredLab/MyoVerse/compare/v1.1.3...v1.1.4
