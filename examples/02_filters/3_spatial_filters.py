@@ -29,8 +29,13 @@ plt.rcParams["axes.grid"] = False
 # ----------------
 # Load EMG data and create a tensor with grid layouts.
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-DATA_DIR = SCRIPT_DIR.parent / "data"
+# Get the path to the data file (works in both script and Sphinx-Gallery context)
+try:
+    SCRIPT_DIR = Path(__file__).parent.resolve()
+    DATA_DIR = SCRIPT_DIR.parent / "data"
+except NameError:
+    # Running in Sphinx-Gallery - cwd is project root
+    DATA_DIR = Path.cwd() / "examples" / "data"
 
 with open(DATA_DIR / "emg.pkl", "rb") as f:
     raw_data = pkl.load(f)["1"][:80]  # 80 channels: 64 (8x8) + 16 (4x4)

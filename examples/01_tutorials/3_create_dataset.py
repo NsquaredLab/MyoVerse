@@ -18,9 +18,13 @@ from pathlib import Path
 
 from myoverse.datasets import DatasetCreator, Modality
 
-# Get the directory where this script is located
-SCRIPT_DIR = Path(__file__).parent.resolve()
-DATA_DIR = SCRIPT_DIR.parent / "data"
+# Get the directory where this script is located (works in both script and Sphinx-Gallery context)
+try:
+    SCRIPT_DIR = Path(__file__).parent.resolve()
+    DATA_DIR = SCRIPT_DIR.parent / "data"
+except NameError:
+    # Running in Sphinx-Gallery - cwd is project root
+    DATA_DIR = Path.cwd() / "examples" / "data"
 
 # Create dataset with multiple modalities
 creator = DatasetCreator(
