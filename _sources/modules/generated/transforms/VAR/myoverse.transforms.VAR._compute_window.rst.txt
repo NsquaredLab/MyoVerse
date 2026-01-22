@@ -1,0 +1,6 @@
+myoverse.transforms.VAR.\_compute\_window
+=========================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: VAR._compute_window

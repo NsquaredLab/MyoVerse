@@ -1,6 +1,0 @@
-myoverse.datasets.supervised.EMGDataset.\_\_init\_\_
-====================================================
-
-.. currentmodule:: myoverse.datasets.supervised
-
-.. automethod:: EMGDataset.__init__

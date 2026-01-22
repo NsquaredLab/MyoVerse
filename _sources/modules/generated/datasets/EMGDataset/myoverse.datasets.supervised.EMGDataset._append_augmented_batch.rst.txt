@@ -1,6 +1,0 @@
-myoverse.datasets.supervised.EMGDataset.\_append\_augmented\_batch
-==================================================================
-
-.. currentmodule:: myoverse.datasets.supervised
-
-.. automethod:: EMGDataset._append_augmented_batch

@@ -1,6 +1,0 @@
-myoverse.datatypes.\_Data.delete\_history
-=========================================
-
-.. currentmodule:: myoverse.datatypes
-
-.. automethod:: _Data.delete_history

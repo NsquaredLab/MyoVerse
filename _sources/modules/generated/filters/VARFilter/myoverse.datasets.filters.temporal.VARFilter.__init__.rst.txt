@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.VARFilter.\_\_init\_\_
-=========================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: VARFilter.__init__

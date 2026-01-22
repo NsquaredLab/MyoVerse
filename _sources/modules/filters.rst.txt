@@ -1,75 +1,114 @@
 .. _filters:
 
-Filters
-=======
+Transforms
+==========
 
-Filters are used to preprocess the data before it is used by the model.
-Some filters can only work on chunked data, while others can work on both chunked and unchunked data.
+GPU-accelerated transforms using PyTorch named tensors.
+Works on both CPU and GPU - tensors provide dimension awareness everywhere.
 
-Generic Filters
----------------
-Generic filters e.g. allow the use of custom methods to preprocess the data.
-
-.. currentmodule:: myoverse.datasets.filters.generic
+Base Classes
+------------
+.. currentmodule:: myoverse.transforms
 .. autosummary::
-    :toctree: generated/filters
+    :toctree: generated/transforms
     :template: class.rst
 
-    ApplyFunctionFilter
-    IndexDataFilter
-    ChunkizeDataFilter
-    IdentityFilter
+    Transform
 
-Temporal Filters
-----------------
-Temporal filters can be used to compute most EMG features such as the root mean square or the mean absolute value.
+Temporal / Signal Processing
+----------------------------
+Temporal transforms for EMG feature extraction and signal processing.
 
-.. currentmodule:: myoverse.datasets.filters.temporal
+.. currentmodule:: myoverse.transforms
 .. autosummary::
-    :toctree: generated/filters
+    :toctree: generated/transforms
     :template: class.rst
 
-    SOSFrequencyFilter
-    RectifyFilter
-    WindowedFunctionFilter
-    RMSFilter
-    VARFilter
-    MAVFilter
-    IAVFilter
-    WFLFilter
-    ZCFilter
-    SSCFilter
-    SpectralInterpolationFilter
+    SlidingWindowTransform
+    RMS
+    MAV
+    VAR
+    Rectify
+    Bandpass
+    Highpass
+    Lowpass
+    Notch
+    ZeroCrossings
+    SlopeSignChanges
+    WaveformLength
+    Diff
 
+Normalization
+-------------
+Normalization transforms for data preprocessing.
 
-Spatial Filters
----------------
-Spatial filters can be used to compute spatial features such as the Laplacian.
-
-.. currentmodule:: myoverse.datasets.filters.spatial
+.. currentmodule:: myoverse.transforms
 .. autosummary::
-    :toctree: generated/filters
+    :toctree: generated/transforms
     :template: class.rst
 
-    DifferentialSpatialFilter
-    ApplyFunctionSpatialFilter
+    ZScore
+    MinMax
+    Normalize
+    Standardize
+    InstanceNorm
+    LayerNorm
+    BatchNorm
+    ClampRange
 
+Generic Operations
+------------------
+Generic array operations.
 
-Base Filter Classes
--------------------
-.. important:: If you wish to add a new filter make sure they inherit from the following base classes.
-
-.. currentmodule:: myoverse.datasets.filters.generic
+.. currentmodule:: myoverse.transforms
 .. autosummary::
-    :toctree: generated/filters
+    :toctree: generated/transforms
     :template: class.rst
 
-    FilterBaseClass
+    Reshape
+    Index
+    Flatten
+    Squeeze
+    Unsqueeze
+    Transpose
+    Mean
+    Sum
+    Stack
+    Concat
+    Lambda
+    Identity
+    Repeat
+    Pad
 
-.. currentmodule:: myoverse.datasets.filters.spatial
+Augmentation
+------------
+Data augmentation transforms.
+
+.. currentmodule:: myoverse.transforms
 .. autosummary::
-    :toctree: generated/filters
+    :toctree: generated/transforms
     :template: class.rst
 
-    SpatialFilterGridAware
+    GaussianNoise
+    MagnitudeWarp
+    TimeWarp
+    Dropout
+    ChannelShuffle
+    TimeShift
+    Scale
+    Cutout
 
+Spatial / Grid-Aware
+--------------------
+Spatial transforms for electrode grid processing.
+
+.. currentmodule:: myoverse.transforms
+.. autosummary::
+    :toctree: generated/transforms
+    :template: class.rst
+
+    SpatialFilter
+    NDD
+    LSD
+    TSD
+    IB2

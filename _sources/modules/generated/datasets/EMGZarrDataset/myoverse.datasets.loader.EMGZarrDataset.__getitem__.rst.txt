@@ -1,6 +1,0 @@
-myoverse.datasets.loader.EMGZarrDataset.\_\_getitem\_\_
-=======================================================
-
-.. currentmodule:: myoverse.datasets.loader
-
-.. automethod:: EMGZarrDataset.__getitem__

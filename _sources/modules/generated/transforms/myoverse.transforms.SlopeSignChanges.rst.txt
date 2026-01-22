@@ -1,0 +1,18 @@
+﻿SlopeSignChanges
+====================================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: SlopeSignChanges
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: SlopeSignChanges
+       
+            ~SlopeSignChanges._compute_window
+        
+        

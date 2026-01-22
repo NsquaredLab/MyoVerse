@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Complex filtering &#8212; MyoVerse 1.1.6 Documentation</title>
+    <title>Complex Filtering Pipelines &#8212; MyoVerse 2.0.0 Documentation</title>
   
   
   
@@ -43,17 +43,17 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=937269b5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=51b770b3"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/01_tutorials/2_complex_filtering';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Creating a dataset" href="3_create_dataset.html" />
-    <link rel="prev" title="Package basics" href="1_understanding_basics.html" />
+    <link rel="prev" title="Transform Basics" href="1_understanding_basics.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.1.6" />
+  <meta name="docsearch:version" content="2.0.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.6 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.6 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 2.0.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 2.0.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.1.6
+          Version 2.0.0
       </button>
       
       
@@ -327,15 +327,15 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="1_understanding_basics.html">Package basics</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Complex filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_understanding_basics.html">Transform Basics</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Complex Filtering Pipelines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="3_create_dataset.html">Creating a dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="4_train_model.html">Training a deep learning model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4_train_model.html">Training Pipeline</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../02_filters/index.html">Filters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/1_emg_grid_layouts.html">EMG Grid Layouts: Electrode Arrangements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Temporal Signal Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/3_spatial_filters.html">Applying Spatial Filters to EMG Data</a></li>
 </ul>
 </details></li>
@@ -385,7 +385,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Complex filtering</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Complex Filtering Pipelines</span></li>
   </ul>
 </nav>
 </div>
@@ -407,340 +407,341 @@
 <p><a class="reference internal" href="#sphx-glr-download-auto-examples-01-tutorials-2-complex-filtering-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="complex-filtering">
-<span id="sphx-glr-auto-examples-01-tutorials-2-complex-filtering-py"></span><h1>Complex filtering<a class="headerlink" href="#complex-filtering" title="Link to this heading">#</a></h1>
-<p>This example shows how to apply a complex filter sequence to the data.</p>
-<section id="loading-data-and-selection-one-task-for-simplicity">
-<h2>Loading data and selection one task for simplicity<a class="headerlink" href="#loading-data-and-selection-one-task-for-simplicity" title="Link to this heading">#</a></h2>
-<p>Just as in the previous example we load the EMG example data and convert it to a MyoVerse Data object.
-Afterward, we select one task to work with.</p>
+<section class="sphx-glr-example-title" id="complex-filtering-pipelines">
+<span id="sphx-glr-auto-examples-01-tutorials-2-complex-filtering-py"></span><h1>Complex Filtering Pipelines<a class="headerlink" href="#complex-filtering-pipelines" title="Link to this heading">#</a></h1>
+<p>This example shows how to build complex filter pipelines with multiple
+representations using the dimension-aware transform system.</p>
+<section id="loading-data">
+<h2>Loading Data<a class="headerlink" href="#loading-data" title="Link to this heading">#</a></h2>
+<p>Load EMG data and wrap as a named tensor.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pkl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">myoverse</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGData</span>
+<span class="c1"># Get the path to the data file</span>
+<span class="c1"># Find data directory relative to myoverse package (works in all contexts)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">myoverse</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_pkg_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="n">myoverse</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_pkg_dir</span></a> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.exists" title="pathlib.Path.exists" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">DATA_DIR</span><span class="o">.</span><span class="n">exists</span></a><span class="p">():</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.cwd" title="pathlib.Path.cwd" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span></a><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
 
-<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a> <span class="o">=</span> <span class="p">{}</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;../data/emg.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="k">for</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">v</span></a> <span class="ow">in</span> <a href="https://docs.python.org/3/library/pickle.html#pickle.load" title="pickle.load" class="sphx-glr-backref-module-pickle sphx-glr-backref-type-py-function"><span class="n">pkl</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">k</span></a><span class="p">]</span> <span class="o">=</span> <span class="n">EMGData</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">v</span></a><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;emg.pkl&quot;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pickle.html#pickle.load" title="pickle.load" class="sphx-glr-backref-module-pickle sphx-glr-backref-type-py-function"><span class="n">pkl</span><span class="o">.</span><span class="n">load</span></a><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="p">)</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a> <span class="o">=</span> <span class="mi">2048</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span></a> <span class="o">=</span> <span class="n">myoverse</span><span class="o">.</span><span class="n">emg_tensor</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">],</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">)</span>
 
-<span class="n">task_one_data</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="o">.</span><span class="n">copy</span><span class="p">()[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EMG data loaded: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;fivethirtyeight&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;1&#39;: EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440), &#39;2&#39;: EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)}
---
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
---
-</pre></div>
-</div>
-</section>
-<section id="applying-a-basic-filter-sequence">
-<h2>Applying a basic filter sequence<a class="headerlink" href="#applying-a-basic-filter-sequence" title="Link to this heading">#</a></h2>
-<p>A common filter sequence used by us in our deep learning papers is to first apply a bandstop between 47.5 and 52.5 Hz
-to remove the powerline noise.</p>
-<p>Then we copied this filtered data and applied a lowpass filter at 20 Hz to remove high-frequency noise.
-The deep learning models were thus trained with 2 representations of the data, one with the powerline noise removed and one with the high-frequency and powerline noise removed.</p>
-<p>We can achieve this by applying two filters to the data using the apply_filters method.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Please run this code on your local machine as the plots are interactive and information can be seen by hovering over the nodes.</p>
-</div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOSFrequencyFilter</span><span class="p">,</span> <span class="n">RMSFilter</span>
-
-<span class="c1"># Define the filters</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bandstop_filter</span></a> <span class="o">=</span> <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-    <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="mf">47.5</span><span class="p">,</span> <span class="mf">52.5</span><span class="p">],</span> <span class="s2">&quot;bandstop&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">2048</span><span class="p">),</span>
-    <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Bandstop 50&quot;</span><span class="p">,</span>
-    <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lowpass_filter</span></a> <span class="o">=</span> <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-    <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;lowpass&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">2048</span><span class="p">),</span>
-    <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Lowpass 20&quot;</span><span class="p">,</span>
-    <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Apply the filters</span>
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">apply_filter_sequence</span><span class="p">(</span>
-    <span class="n">filter_sequence</span><span class="o">=</span><span class="p">[</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bandstop_filter</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lowpass_filter</span></a><span class="p">],</span>
-    <span class="n">representations_to_filter</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input&quot;</span><span class="p">],</span>
-<span class="p">)</span>
-
-<span class="nb">print</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
-
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">()</span>
-</pre></div>
-</div>
-<img src="../../_images/sphx_glr_2_complex_filtering_001.png" srcset="../../_images/sphx_glr_2_complex_filtering_001.png" alt="2 complex filtering" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>--
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
-
-Filter(s):
-(1 | 1) (Output) Bandstop 50 (320, 20440)
-(2 | 1 -&gt; 2) (Output) Lowpass 20 (320, 20440)
---
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>EMG data loaded: (&#39;channel&#39;, &#39;time&#39;) torch.Size([320, 20440])
 </pre></div>
 </div>
 </section>
-<section id="applying-a-complex-filter-sequence">
-<h2>Applying a complex filter sequence<a class="headerlink" href="#applying-a-complex-filter-sequence" title="Link to this heading">#</a></h2>
-<p>In this example we will apply a more complex filter sequence to the data.</p>
-<p>The filter shall apply the following steps:</p>
-<ol class="arabic simple">
-<li><p>Chunk the data into 100 ms windows.</p></li>
-<li><p>Apply a bandstop filter between 47.5 and 52.5 Hz to remove powerline noise.</p></li>
-<li><p>Copy the filtered data and apply a lowpass filter at 20 Hz to remove high-frequency noise.</p></li>
-<li><p>Compute the root mean square of the data from step 3.</p></li>
-<li><p>The other copy of step 2 should be used to calculate the root mean square directly.</p></li>
-</ol>
-<p>The computation graph for this filter sequence is shown below:</p>
-<dl class="simple">
-<dt>1 -&gt; 2 -&gt; 3 -&gt; 4</dt><dd><p>L ——–&gt; 5</p>
-</dd>
-</dl>
-<p>We can achieve this by applying five filters to the data using the <strong>apply_filter_sequence</strong> method and setting the is_output
-flag to True for the filters that should be kept in the dataset object.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChunkizeDataFilter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOSFrequencyFilter</span>
+<section id="simple-pipeline-highpass-lowpass">
+<h2>Simple Pipeline: Highpass + Lowpass<a class="headerlink" href="#simple-pipeline-highpass-lowpass" title="Link to this heading">#</a></h2>
+<p>A common preprocessing sequence:
+1. Highpass filter (20 Hz) to remove DC and movement artifacts
+2. Lowpass filter (450 Hz) to remove high frequency noise</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.transforms</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class"><span class="n">Compose</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Highpass</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a>
 
-<span class="c1"># reset the data</span>
-<span class="n">task_one_data</span> <span class="o">=</span> <span class="n">EMGData</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">input_data</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
+<span class="c1"># Preprocessing pipeline using Compose</span>
+<a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">preprocess</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class"><span class="n">Compose</span></a><span class="p">([</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Highpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+<span class="p">])</span>
 
-<span class="c1"># Define the filters</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bandstop_filter</span></a> <span class="o">=</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="mf">47.5</span><span class="p">,</span> <span class="mf">52.5</span><span class="p">],</span> <span class="s2">&quot;bandstop&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lowpass_filter</span></a> <span class="o">=</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;lowpass&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">preprocess</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preprocessed: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Preprocessed: (&#39;channel&#39;, &#39;time&#39;) torch.Size([320, 20440])
 </pre></div>
 </div>
 </section>
-<section id="apply-the-filters-for-steps-1-and-2">
-<h2>Apply the filters for steps 1 and 2<a class="headerlink" href="#apply-the-filters-for-steps-1-and-2" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">100</span> <span class="o">/</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">2048</span><span class="p">)</span>
-<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SHIFT</span></a> <span class="o">=</span> <span class="mi">64</span>
+<section id="multi-representation-with-stack">
+<h2>Multi-Representation with Stack<a class="headerlink" href="#multi-representation-with-stack" title="Link to this heading">#</a></h2>
+<p>Often we want multiple representations of the same signal.
+Stack applies multiple transforms and combines them along a new dimension.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.transforms</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Identity</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Stack</span></a>
 
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">apply_filter_sequence</span><span class="p">(</span>
-    <span class="n">filter_sequence</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">ChunkizeDataFilter</span><span class="p">(</span>
-            <span class="n">chunk_size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a><span class="p">,</span>
-            <span class="n">chunk_shift</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SHIFT</span></a><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Windowed&quot;</span><span class="p">,</span>
-            <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-            <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bandstop_filter</span></a><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Bandstop 50&quot;</span><span class="p">,</span>
-            <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-    <span class="n">representations_to_filter</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Input&quot;</span><span class="p">],</span>
-<span class="p">)</span>
+<span class="c1"># Create two representations:</span>
+<span class="c1"># - &quot;raw&quot;: Just the preprocessed signal</span>
+<span class="c1"># - &quot;envelope&quot;: Lowpass filtered version (smooth envelope)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
+<span class="n">dual_repr</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Stack</span></a><span class="p">({</span>
+    <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Identity</span></a><span class="p">(),</span>
+    <span class="s2">&quot;envelope&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+<span class="p">},</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;representation&quot;</span><span class="p">)</span>
 
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">()</span>
+<span class="c1"># Apply to preprocessed data</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked</span></a> <span class="o">=</span> <span class="n">dual_repr</span><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stack output: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_2_complex_filtering_002.png" srcset="../../_images/sphx_glr_2_complex_filtering_002.png" alt="2 complex filtering" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>--
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
-
-Filter(s):
-(1 | 1) Windowed (317, 320, 204)
-(2 | 1 -&gt; 2) Bandstop 50 (317, 320, 204)
---
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Stack output: (&#39;representation&#39;, &#39;channel&#39;, &#39;time&#39;) torch.Size([2, 320, 20440])
 </pre></div>
 </div>
 </section>
-<section id="apply-the-filters-for-step-3-and-4">
-<h2>Apply the filters for step 3 and 4<a class="headerlink" href="#apply-the-filters-for-step-3-and-4" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">task_one_data</span><span class="o">.</span><span class="n">apply_filter_sequence</span><span class="p">(</span>
-    <span class="n">filter_sequence</span><span class="o">=</span><span class="p">[</span>
-        <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-            <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lowpass_filter</span></a><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Lowpass 20&quot;</span><span class="p">,</span>
-            <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">),</span>
-        <span class="n">RMSFilter</span><span class="p">(</span>
-            <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RMS on Lowpass 20&quot;</span><span class="p">,</span>
-            <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="n">window_size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a><span class="p">,</span>
-        <span class="p">),</span>
-    <span class="p">],</span>
-    <span class="n">representations_to_filter</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bandstop 50&quot;</span><span class="p">],</span>
-<span class="p">)</span>
+<section id="complete-pipeline-preprocess-stack">
+<h2>Complete Pipeline: Preprocess + Stack<a class="headerlink" href="#complete-pipeline-preprocess-stack" title="Link to this heading">#</a></h2>
+<p>Combine everything into one pipeline.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">complete_pipeline</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class"><span class="n">Compose</span></a><span class="p">([</span>
+    <span class="c1"># Preprocessing</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Highpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <span class="c1"># Multi-representation</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Stack</span></a><span class="p">({</span>
+        <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Identity</span></a><span class="p">(),</span>
+        <span class="s2">&quot;envelope&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <span class="p">},</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;representation&quot;</span><span class="p">),</span>
+<span class="p">])</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
-
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">()</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">complete_pipeline</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Complete pipeline:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Input:  </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">Output: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_2_complex_filtering_003.png" srcset="../../_images/sphx_glr_2_complex_filtering_003.png" alt="2 complex filtering" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>--
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
-
-Filter(s):
-(1 | 1) Windowed (317, 320, 204)
-(2 | 1 -&gt; 2) Bandstop 50 (317, 320, 204)
-(3 | 1 -&gt; 2 -&gt; 3) Lowpass 20 (317, 320, 204)
-(4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) RMS on Lowpass 20 (317, 320, 1)
---
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Complete pipeline:
+        Input:  (&#39;channel&#39;, &#39;time&#39;) torch.Size([320, 20440])
+        Output: (&#39;representation&#39;, &#39;channel&#39;, &#39;time&#39;) torch.Size([2, 320, 20440])
 </pre></div>
 </div>
 </section>
-<section id="apply-the-filters-for-step-5">
-<h2>Apply the filters for step 5<a class="headerlink" href="#apply-the-filters-for-step-5" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">task_one_data</span><span class="o">.</span><span class="n">apply_filter</span><span class="p">(</span>
-    <span class="n">RMSFilter</span><span class="p">(</span>
-        <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RMS on Bandstop 50&quot;</span><span class="p">,</span>
-        <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">window_size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="n">representations_to_filter</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Bandstop 50&quot;</span><span class="p">],</span>
-<span class="p">)</span>
+<section id="visualizing-the-pipeline-output">
+<h2>Visualizing the Pipeline Output<a class="headerlink" href="#visualizing-the-pipeline-output" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a> <span class="o">=</span> <span class="mi">0</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">samples</span></a> <span class="o">=</span> <span class="mi">5000</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
 
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">()</span>
-</pre></div>
-</div>
-<img src="../../_images/sphx_glr_2_complex_filtering_004.png" srcset="../../_images/sphx_glr_2_complex_filtering_004.png" alt="2 complex filtering" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>--
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span></a><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a><span class="p">,</span> <span class="p">:</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">samples</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;Raw (Bandpass Filtered)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
 
-Filter(s):
-(1 | 1) Windowed (317, 320, 204)
-(2 | 1 -&gt; 2) Bandstop 50 (317, 320, 204)
-(3 | 1 -&gt; 2 -&gt; 3) Lowpass 20 (317, 320, 204)
-(4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) RMS on Lowpass 20 (317, 320, 1)
-(5 | 1 -&gt; 2 -&gt; 5) (Output) RMS on Bandstop 50 (317, 320, 1)
---
-</pre></div>
-</div>
-</section>
-<section id="displaying-the-output">
-<h2>Displaying the output<a class="headerlink" href="#displaying-the-output" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
-<a href="https://docs.python.org/3/library/stdtypes.html#dict.update" title="builtins.dict.update" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-method"><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span></a><span class="p">({</span><span class="s2">&quot;font.size&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">})</span>
-
-<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filter_sequences</span></a> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;1-&gt;2-&gt;3-&gt;4&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;1-&gt;2-&gt;5&quot;</span><span class="p">}</span>
-
-<span class="c1"># make 2 subplots</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">,</span> <span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">key</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">value</span></a><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">task_one_data</span><span class="o">.</span><span class="n">output_representations</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-    <span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">value</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]):</span>
-        <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">value</span></a><span class="p">[:,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filter sequence: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filter_sequences</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude (a. u.)&quot;</span><span class="p">)</span>
-
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="s2">&quot;Samples (a. u.)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span></a><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a><span class="p">,</span> <span class="p">:</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">samples</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;Envelope (Additional Lowpass)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="s2">&quot;Samples&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
 
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout" title="matplotlib.pyplot.tight_layout" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_2_complex_filtering_005.png" srcset="../../_images/sphx_glr_2_complex_filtering_005.png" alt="Filter sequence: 1->2->3->4, Filter sequence: 1->2->5" class = "sphx-glr-single-img"/></section>
-<section id="easier-way-of-applying-the-filter-pipeline">
-<h2>Easier way of applying the filter pipeline<a class="headerlink" href="#easier-way-of-applying-the-filter-pipeline" title="Link to this heading">#</a></h2>
-<p>This can be achieved in a more concise way by using the <strong>apply_filter_pipeline</strong> method.</p>
-<p>To reduce memory usage, we can set the <strong>keep_individual_filter_steps</strong> flag to False.
-This will remove the intermediate representations (shown in grey) from the dataset object.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>If new filters rely on the intermediate representations, they will be recalculated which can be computationally expensive.</p>
-</div>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">task_one_data</span> <span class="o">=</span> <span class="n">EMGData</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_data</span></a><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">input_data</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="mi">2048</span><span class="p">)</span>
+<img src="../../_images/sphx_glr_2_complex_filtering_001.png" srcset="../../_images/sphx_glr_2_complex_filtering_001.png" alt="Raw (Bandpass Filtered), Envelope (Additional Lowpass)" class = "sphx-glr-single-img"/></section>
+<section id="complex-stacking-multiple-feature-representations">
+<h2>Complex Stacking: Multiple Feature Representations<a class="headerlink" href="#complex-stacking-multiple-feature-representations" title="Link to this heading">#</a></h2>
+<p>Create multiple feature representations from the same input.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.transforms</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Rectify</span></a>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
+<span class="c1"># Stack with nested Compose for complex branches</span>
+<span class="n">feature_stack</span> <span class="o">=</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Stack</span></a><span class="p">({</span>
+    <span class="s2">&quot;raw&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Identity</span></a><span class="p">(),</span>
+    <span class="s2">&quot;envelope&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;rectified&quot;</span><span class="p">:</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class"><span class="n">Compose</span></a><span class="p">([</span>
+        <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Rectify</span></a><span class="p">(),</span>
+        <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <span class="p">]),</span>
+<span class="p">},</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;representation&quot;</span><span class="p">)</span>
 
-<span class="c1"># Apply the filters</span>
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">apply_filter_pipeline</span><span class="p">(</span>
-    <span class="n">filter_pipeline</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">[</span>
-            <span class="n">ChunkizeDataFilter</span><span class="p">(</span>
-                <span class="n">chunk_size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a><span class="p">,</span>
-                <span class="n">chunk_shift</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SHIFT</span></a><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Windowed&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-                <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">bandstop_filter</span></a><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Bandstop 50&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-                <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lowpass_filter</span></a><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Lowpass 20&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">RMSFilter</span><span class="p">(</span>
-                <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RMS on Lowpass 20&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">window_size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="n">RMSFilter</span><span class="p">(</span>
-                <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;RMS on Bandstop 50&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">window_size</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">CHUNK_SIZE</span></a><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">],</span>
-    <span class="p">],</span>
-    <span class="n">representations_to_filter</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;Input&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s2">&quot;Bandstop 50&quot;</span><span class="p">]],</span>
-    <span class="n">keep_individual_filter_steps</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="n">task_one_data</span><span class="p">)</span>
-
-<span class="n">task_one_data</span><span class="o">.</span><span class="n">plot_graph</span><span class="p">()</span>
+<span class="c1"># Apply to preprocessed data</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked_features</span></a> <span class="o">=</span> <span class="n">feature_stack</span><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">filtered</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stacked features: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked_features</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked_features</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_2_complex_filtering_006.png" srcset="../../_images/sphx_glr_2_complex_filtering_006.png" alt="2 complex filtering" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>--
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
---
---
-EMGData
-Sampling frequency: 2048 Hz
-(0) Input (320, 20440)
-
-Filter(s):
-(1 | 1) Windowed (317, 320, 204)
-(2 | 1 -&gt; 2) Bandstop 50 (317, 320, 204)
-(3 | 1 -&gt; 2 -&gt; 3) Lowpass 20 (317, 320, 204)
-(4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) RMS on Lowpass 20 (317, 320, 1)
-(5 | 1 -&gt; 2 -&gt; 5) (Output) RMS on Bandstop 50 (317, 320, 1)
---
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Stacked features: (&#39;representation&#39;, &#39;channel&#39;, &#39;time&#39;) torch.Size([3, 320, 20440])
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 6.473 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  1826 MB</p>
+</section>
+<section id="visualizing-multiple-features">
+<h2>Visualizing Multiple Features<a class="headerlink" href="#visualizing-multiple-features" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">names</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="s2">&quot;envelope&quot;</span><span class="p">,</span> <span class="s2">&quot;rectified&quot;</span><span class="p">]</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">name</span></a> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">names</span></a><span class="p">):</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">stacked_features</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a><span class="p">,</span> <span class="p">:</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">samples</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">name</span></a><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> Representation&quot;</span><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="s2">&quot;Samples&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout" title="matplotlib.pyplot.tight_layout" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_2_complex_filtering_002.png" srcset="../../_images/sphx_glr_2_complex_filtering_002.png" alt="Raw Representation, Envelope Representation, Rectified Representation" class = "sphx-glr-single-img"/></section>
+<section id="pipeline-with-rms-feature-extraction">
+<h2>Pipeline with RMS Feature Extraction<a class="headerlink" href="#pipeline-with-rms-feature-extraction" title="Link to this heading">#</a></h2>
+<p>Extract RMS features from multiple representations.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.transforms</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">RMS</span></a>
+
+<a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_pipeline</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class"><span class="n">Compose</span></a><span class="p">([</span>
+    <span class="c1"># Preprocess</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Highpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <span class="c1"># Multi-representation</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Stack</span></a><span class="p">({</span>
+        <span class="s2">&quot;bandpass&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Identity</span></a><span class="p">(),</span>
+        <span class="s2">&quot;lowpass&quot;</span><span class="p">:</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <span class="p">},</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;representation&quot;</span><span class="p">),</span>
+    <span class="c1"># Apply RMS to both representations</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">RMS</span></a><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_pipeline</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;RMS pipeline output: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>RMS pipeline output: (&#39;representation&#39;, &#39;channel&#39;, &#39;time&#39;) torch.Size([2, 320, 204])
+</pre></div>
+</div>
+</section>
+<section id="visualizing-rms-features">
+<h2>Visualizing RMS Features<a class="headerlink" href="#visualizing-rms-features" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Adjust samples for RMS output (reduced time dimension)</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_samples</span></a> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">samples</span></a> <span class="o">//</span> <span class="mi">100</span><span class="p">,</span> <a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span></a><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a><span class="p">,</span> <span class="p">:</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_samples</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;RMS of Bandpass Filtered Signal&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;RMS Amplitude&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span></a><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channel</span></a><span class="p">,</span> <span class="p">:</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_samples</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;RMS of Lowpass Filtered Signal&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="s2">&quot;Windows&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;RMS Amplitude&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout" title="matplotlib.pyplot.tight_layout" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_2_complex_filtering_003.png" srcset="../../_images/sphx_glr_2_complex_filtering_003.png" alt="RMS of Bandpass Filtered Signal, RMS of Lowpass Filtered Signal" class = "sphx-glr-single-img"/></section>
+<section id="all-channels-visualization">
+<h2>All Channels Visualization<a class="headerlink" href="#all-channels-visualization" title="Link to this heading">#</a></h2>
+<p>Plot all channels to see the overall signal structure.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="matplotlib.pyplot.figure" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ch</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a><span class="p">):</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
+        <a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span></a><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ch</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;RMS Features - All Channels (Bandpass)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplot.html#matplotlib.pyplot.subplot" title="matplotlib.pyplot.subplot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span></a><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ch</span></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a><span class="p">):</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="matplotlib.pyplot.plot" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span>
+        <a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rms_output</span></a><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ch</span></a><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.title.html#matplotlib.pyplot.title" title="matplotlib.pyplot.title" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">title</span></a><span class="p">(</span><span class="s2">&quot;RMS Features - All Channels (Lowpass)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.xlabel.html#matplotlib.pyplot.xlabel" title="matplotlib.pyplot.xlabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span></a><span class="p">(</span><span class="s2">&quot;Windows&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.ylabel.html#matplotlib.pyplot.ylabel" title="matplotlib.pyplot.ylabel" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span></a><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.tight_layout.html#matplotlib.pyplot.tight_layout" title="matplotlib.pyplot.tight_layout" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_2_complex_filtering_004.png" srcset="../../_images/sphx_glr_2_complex_filtering_004.png" alt="RMS Features - All Channels (Bandpass), RMS Features - All Channels (Lowpass)" class = "sphx-glr-single-img"/></section>
+<section id="complete-feature-extraction-pipeline">
+<h2>Complete Feature Extraction Pipeline<a class="headerlink" href="#complete-feature-extraction-pipeline" title="Link to this heading">#</a></h2>
+<p>A full pipeline with preprocessing, feature extraction, and normalization.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.transforms</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">ZScore</span></a>
+
+<a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">full_pipeline</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class"><span class="n">Compose</span></a><span class="p">([</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Highpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Lowpass</span></a><span class="p">(</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">SAMPLING_FREQ</span></a><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">Rectify</span></a><span class="p">(),</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">RMS</span></a><span class="p">(</span><span class="n">window_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+    <a href="https://docs.python.org/3/library/abc.html#abc.ABC" title="abc.ABC" class="sphx-glr-backref-module-abc sphx-glr-backref-type-py-class"><span class="n">ZScore</span></a><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">final_output</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">full_pipeline</span></a><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Full pipeline output: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">final_output</span><span class="o">.</span><span class="n">names</span></a><span class="si">}</span><span class="s2"> </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">final_output</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verify normalization</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">final_data</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/docs/stable/named_tensor.html#torch.Tensor.rename" title="torch.Tensor.rename" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-method"><span class="n">final_output</span><span class="o">.</span><span class="n">rename</span></a><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">final_data</span></a><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, Std: </span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">final_data</span></a><span class="o">.</span><span class="n">std</span><span class="p">())</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Full pipeline output: (&#39;channel&#39;, &#39;time&#39;) torch.Size([320, 204])
+Mean: -0.000000, Std: 0.997553
+</pre></div>
+</div>
+</section>
+<section id="gpu-acceleration">
+<h2>GPU Acceleration<a class="headerlink" href="#gpu-acceleration" title="Link to this heading">#</a></h2>
+<p>All pipelines work on GPU for faster processing.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.cuda.is_available.html#torch.cuda.is_available" title="torch.cuda.is_available" class="sphx-glr-backref-module-torch-cuda sphx-glr-backref-type-py-function"><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span></a><span class="p">():</span>
+    <span class="n">emg_gpu</span> <span class="o">=</span> <a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg</span></a><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">EMG on GPU: </span><span class="si">{</span><span class="n">emg_gpu</span><span class="o">.</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Apply complete pipeline on GPU</span>
+    <span class="n">output_gpu</span> <span class="o">=</span> <a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">complete_pipeline</span></a><span class="p">(</span><span class="n">emg_gpu</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output on GPU: </span><span class="si">{</span><span class="n">output_gpu</span><span class="o">.</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">CUDA not available - using CPU&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>CUDA not available - using CPU
+</pre></div>
+</div>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<p>Complex pipelines are built by combining:</p>
+<ol class="arabic simple">
+<li><p><strong>Compose</strong> - Chain transforms sequentially (from torchvision)</p></li>
+<li><p><strong>Stack</strong> - Create multiple representations along a new dimension</p></li>
+<li><p><strong>Identity</strong> - Pass-through (useful in Stack for “raw” representation)</p></li>
+</ol>
+<p>Key patterns:</p>
+<p><a href="#id1"><span class="problematic" id="id2">``</span></a><a href="#id3"><span class="problematic" id="id4">`</span></a>python
+# Sequential processing
+Compose([Transform1(), Transform2(), Transform3()])</p>
+<p># Multi-representation (one input -&gt; stacked output)
+Stack({</p>
+<blockquote>
+<div><p>“name1”: Transform1(),
+“name2”: Transform2(),</p>
+</div></blockquote>
+<p>}, dim=”representation”)</p>
+<p># Complete pattern
+Compose([</p>
+<blockquote>
+<div><p>Preprocess(),
+Stack({</p>
+<blockquote>
+<div><p>“raw”: Identity(),
+“filtered”: FilterTransform(),</p>
+</div></blockquote>
+<p>}, dim=”representation”),
+PostProcess(),  # Applied to all representations</p>
+</div></blockquote>
+<section id="id5">
+<h3>])<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<p>All transforms are dimension-aware - specify <cite>dim=”time”</cite> to be explicit
+about which dimension is being processed.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 8.473 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  974 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-tutorials-2-complex-filtering-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/632eb12a71d3f92289ec045a8f98b131/2_complex_filtering.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">2_complex_filtering.ipynb</span></code></a></p>
@@ -753,6 +754,7 @@ Filter(s):
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
 </section>
 </section>
 
@@ -779,14 +781,22 @@ Filter(s):
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-data-and-selection-one-task-for-simplicity">Loading data and selection one task for simplicity</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-a-basic-filter-sequence">Applying a basic filter sequence</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#applying-a-complex-filter-sequence">Applying a complex filter sequence</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#apply-the-filters-for-steps-1-and-2">Apply the filters for steps 1 and 2</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#apply-the-filters-for-step-3-and-4">Apply the filters for step 3 and 4</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#apply-the-filters-for-step-5">Apply the filters for step 5</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#displaying-the-output">Displaying the output</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#easier-way-of-applying-the-filter-pipeline">Easier way of applying the filter pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-data">Loading Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simple-pipeline-highpass-lowpass">Simple Pipeline: Highpass + Lowpass</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-representation-with-stack">Multi-Representation with Stack</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-pipeline-preprocess-stack">Complete Pipeline: Preprocess + Stack</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualizing-the-pipeline-output">Visualizing the Pipeline Output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complex-stacking-multiple-feature-representations">Complex Stacking: Multiple Feature Representations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualizing-multiple-features">Visualizing Multiple Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-with-rms-feature-extraction">Pipeline with RMS Feature Extraction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualizing-rms-features">Visualizing RMS Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#all-channels-visualization">All Channels Visualization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-feature-extraction-pipeline">Complete Feature Extraction Pipeline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gpu-acceleration">GPU Acceleration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">])</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -824,7 +834,7 @@ Filter(s):
 
   <p class="copyright">
     
-      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      © Copyright 2023 - 2026, n-squared lab, FAU Erlangen-Nürnberg, Germany.
       <br/>
     
   </p>
@@ -833,7 +843,7 @@ Filter(s):
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

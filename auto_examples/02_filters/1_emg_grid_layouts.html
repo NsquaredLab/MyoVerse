@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>EMG Grid Layouts: Electrode Arrangements &#8212; MyoVerse 1.1.6 Documentation</title>
+    <title>EMG Grid Layouts: Electrode Arrangements &#8212; MyoVerse 2.0.0 Documentation</title>
   
   
   
@@ -43,17 +43,17 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=937269b5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=51b770b3"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/02_filters/1_emg_grid_layouts';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Working with Temporal Filters" href="2_temporal_filters.html" />
+    <link rel="next" title="Temporal Signal Processing" href="2_temporal_filters.html" />
     <link rel="prev" title="Filters" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.1.6" />
+  <meta name="docsearch:version" content="2.0.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.6 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.6 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 2.0.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 2.0.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.1.6
+          Version 2.0.0
       </button>
       
       
@@ -327,15 +327,15 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="../01_tutorials/index.html">Tutorials</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="../01_tutorials/1_understanding_basics.html">Package basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../01_tutorials/2_complex_filtering.html">Complex filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_tutorials/1_understanding_basics.html">Transform Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_tutorials/2_complex_filtering.html">Complex Filtering Pipelines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../01_tutorials/3_create_dataset.html">Creating a dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../01_tutorials/4_train_model.html">Training a deep learning model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../01_tutorials/4_train_model.html">Training Pipeline</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Filters</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">EMG Grid Layouts: Electrode Arrangements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_temporal_filters.html">Temporal Signal Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="3_spatial_filters.html">Applying Spatial Filters to EMG Data</a></li>
 </ul>
 </details></li>
@@ -424,32 +424,35 @@ and visualization, making it valuable for analyzing complex multichannel EMG rec
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGData</span><span class="p">,</span> <span class="n">create_grid_layout</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;fivethirtyeight&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/matplotlib_configuration_api.html#matplotlib.RcParams" title="matplotlib.RcParams" class="sphx-glr-backref-module-matplotlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span></a><span class="p">[</span><span class="s2">&quot;axes.grid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 </pre></div>
 </div>
 <section id="creating-basic-grid-layouts">
 <h2>Creating basic grid layouts<a class="headerlink" href="#creating-basic-grid-layouts" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">create_grid_layout</span></code> function helps create grid layouts with different patterns and configurations.
 Let’s create some examples to understand the options:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a 4×4 grid with row-wise numbering (0-15)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a 4*4 grid with row-wise numbering (0-15)</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">grid_row</span></a> <span class="o">=</span> <span class="n">create_grid_layout</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">fill_pattern</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4×4 grid with row-wise numbering:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4*4 grid with row-wise numbering:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">grid_row</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 
-<span class="c1"># Create a 4×4 grid with column-wise numbering (0-15)</span>
+<span class="c1"># Create a 4*4 grid with column-wise numbering (0-15)</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">grid_col</span></a> <span class="o">=</span> <span class="n">create_grid_layout</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">fill_pattern</span><span class="o">=</span><span class="s2">&quot;column&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4×4 grid with column-wise numbering:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;4*4 grid with column-wise numbering:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">grid_col</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>4×4 grid with row-wise numbering:
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>4*4 grid with row-wise numbering:
 [[ 0  1  2  3]
  [ 4  5  6  7]
  [ 8  9 10 11]
  [12 13 14 15]]
 
-4×4 grid with column-wise numbering:
+4*4 grid with column-wise numbering:
 [[ 0  4  8 12]
  [ 1  5  9 13]
  [ 2  6 10 14]
@@ -479,6 +482,8 @@ We’ll use our enhanced <cite>plot_grid_layout</cite> method to create professi
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Row-wise Numbering&quot;</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">grid_alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax1</span></a><span class="p">,</span>
     <span class="n">autoshow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Don&#39;t show yet - wait until both grids are plotted</span>
 <span class="p">)</span>
@@ -489,6 +494,8 @@ We’ll use our enhanced <cite>plot_grid_layout</cite> method to create professi
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Column-wise Numbering&quot;</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">grid_alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax2</span></a><span class="p">,</span>
     <span class="n">autoshow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Don&#39;t show yet</span>
 <span class="p">)</span>
@@ -503,13 +510,13 @@ We’ll use our enhanced <cite>plot_grid_layout</cite> method to create professi
 <h2>Working with missing electrodes<a class="headerlink" href="#working-with-missing-electrodes" title="Link to this heading">#</a></h2>
 <p>In real-world scenarios, electrode grids may have missing or non-functional electrodes.
 The <code class="docutils literal notranslate"><span class="pre">grid_layouts</span></code> parameter allows you to specify these gaps using -1 values.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a 5×5 grid with some missing electrodes</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a 5*5 grid with some missing electrodes</span>
 <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">missing_indices</span></a> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)]</span>  <span class="c1"># Positions where electrodes are missing</span>
 <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">grid_with_gaps</span></a> <span class="o">=</span> <span class="n">create_grid_layout</span><span class="p">(</span>
     <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">fill_pattern</span><span class="o">=</span><span class="s2">&quot;row&quot;</span><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">missing_indices</span></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">missing_indices</span></a>
 <span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;5×5 grid with missing electrodes:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;5*5 grid with missing electrodes:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">grid_with_gaps</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">()</span>
 
@@ -520,14 +527,16 @@ The <code class="docutils literal notranslate"><span class="pre">grid_layouts</s
 <span class="c1"># Visualize the grid with gaps using the enhanced method</span>
 <span class="n">emg_with_gaps</span><span class="o">.</span><span class="n">plot_grid_layout</span><span class="p">(</span>
     <span class="mi">0</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;5×5 Grid with Missing Electrodes&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;5*5 Grid with Missing Electrodes&quot;</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
     <span class="n">text_fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_1_emg_grid_layouts_002.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_002.png" alt="5×5 Grid with Missing Electrodes" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>5×5 grid with missing electrodes:
+<img src="../../_images/sphx_glr_1_emg_grid_layouts_002.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_002.png" alt="5*5 Grid with Missing Electrodes" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>5*5 grid with missing electrodes:
 [[-1  0  1  2  3]
  [ 4  5  6  7  8]
  [ 9 10 -1 11 12]
@@ -584,27 +593,33 @@ as long as they correctly map to the corresponding channels in your EMG data.</p
 <span class="c1"># Plot all three grids on the same figure</span>
 <span class="n">emg_multi</span><span class="o">.</span><span class="n">plot_grid_layout</span><span class="p">(</span>
     <span class="mi">0</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grid 1: 4×4 Row-wise (0-15)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grid 1: 4*4 Row-wise (0-15)&quot;</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">highlight_electrodes</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">highlights1</span></a><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
     <span class="n">autoshow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">emg_multi</span><span class="o">.</span><span class="n">plot_grid_layout</span><span class="p">(</span>
     <span class="mi">1</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grid 2: 4×4 Column-wise (16-31)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grid 2: 4*4 Column-wise (16-31)&quot;</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">highlight_electrodes</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">highlights2</span></a><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
     <span class="n">autoshow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">emg_multi</span><span class="o">.</span><span class="n">plot_grid_layout</span><span class="p">(</span>
     <span class="mi">2</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grid 3: 3×3 Row-wise (32-40)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Grid 3: 3*3 Row-wise (32-40)&quot;</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">highlight_electrodes</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">highlights3</span></a><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
     <span class="n">ax</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
     <span class="n">autoshow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
@@ -614,7 +629,7 @@ as long as they correctly map to the corresponding channels in your EMG data.</p
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_1_emg_grid_layouts_003.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_003.png" alt="Multiple Electrode Grids, Grid 1: 4×4 Row-wise (0-15), Grid 2: 4×4 Column-wise (16-31), Grid 3: 3×3 Row-wise (32-40)" class = "sphx-glr-single-img"/><p>Let’s also demonstrate what happens when validation fails:</p>
+<img src="../../_images/sphx_glr_1_emg_grid_layouts_003.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_003.png" alt="Multiple Electrode Grids, Grid 1: 4*4 Row-wise (0-15), Grid 2: 4*4 Column-wise (16-31), Grid 3: 3*3 Row-wise (32-40)" class = "sphx-glr-single-img"/><p>Let’s also demonstrate what happens when validation fails:</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Demonstrating validation with incorrect number of channels:&quot;</span><span class="p">)</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Create EMG data with the wrong number of channels (40 instead of 41)</span>
@@ -678,14 +693,15 @@ grid layout for a circular electrode array.</p>
     <span class="n">text_fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
     <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">grid_alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;yellow&quot;</span><span class="p">,</span>
+    <span class="n">text_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html#matplotlib.colors.LinearSegmentedColormap" title="matplotlib.colors.LinearSegmentedColormap" class="sphx-glr-backref-module-matplotlib-colors sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">rainbow</span></a><span class="p">,</span>
     <span class="n">highlight_electrodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>  <span class="c1"># Highlight a couple of electrodes</span>
     <span class="n">highlight_color</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_1_emg_grid_layouts_004.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_004.png" alt="Circular Electrode Arrangement" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.010 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  700 MB</p>
+<img src="../../_images/sphx_glr_1_emg_grid_layouts_004.png" srcset="../../_images/sphx_glr_1_emg_grid_layouts_004.png" alt="Circular Electrode Arrangement" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 3.297 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  751 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-02-filters-1-emg-grid-layouts-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/383fe03461b61967cc2ccbc5376e9e0f/1_emg_grid_layouts.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">1_emg_grid_layouts.ipynb</span></code></a></p>
@@ -766,7 +782,7 @@ grid layout for a circular electrode array.</p>
 
   <p class="copyright">
     
-      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      © Copyright 2023 - 2026, n-squared lab, FAU Erlangen-Nürnberg, Germany.
       <br/>
     
   </p>
@@ -775,7 +791,7 @@ grid layout for a circular electrode array.</p>
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

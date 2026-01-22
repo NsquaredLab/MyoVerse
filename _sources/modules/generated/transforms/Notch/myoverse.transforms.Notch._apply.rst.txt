@@ -1,0 +1,6 @@
+myoverse.transforms.Notch.\_apply
+=================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: Notch._apply

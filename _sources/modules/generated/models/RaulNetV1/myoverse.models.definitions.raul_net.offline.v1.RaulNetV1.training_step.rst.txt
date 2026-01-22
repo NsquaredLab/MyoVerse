@@ -1,6 +1,0 @@
-myoverse.models.definitions.raul\_net.offline.v1.RaulNetV1.training\_step
-=========================================================================
-
-.. currentmodule:: myoverse.models.definitions.raul_net.offline.v1
-
-.. automethod:: RaulNetV1.training_step

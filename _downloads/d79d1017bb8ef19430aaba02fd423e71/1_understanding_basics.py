@@ -1,191 +1,254 @@
 """
-Package basics
-==============
+Transform Basics
+================
 
-This example is a brief introduction to the basic functionalities of the package.
+This example introduces the transform system - the core building block for
+data processing in MyoVerse. Transforms use PyTorch named tensors for
+dimension-aware operations that run on both CPU and GPU.
 """
 
 # %%
+# Loading Data
+# ------------
+# We load EMG data from a pickle file and wrap it as a named tensor.
 
-import os
 import pickle as pkl
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
-from myoverse.datatypes import EMGData
-from scipy.signal import butter
-from myoverse.datasets.filters.temporal import SOSFrequencyFilter
-
-
-# Loading data
-# ------------
-# First we load the EMG example data and convert it to a MyoVerse Data object.
-# The Data object is the primary component of the package, designed to store data and apply filters.
-# The only required parameter is the sampling frequency of the data and the data itself.
+import torch
+import myoverse
 
 # Get the path to the data file
-data_path = os.path.join("..", "data", "emg.pkl")
+# Find data directory relative to myoverse package (works in all contexts)
+import myoverse
+_pkg_dir = Path(myoverse.__file__).parent.parent
+DATA_DIR = _pkg_dir / "examples" / "data"
+if not DATA_DIR.exists():
+    # Fallback for editable installs or different layouts
+    DATA_DIR = Path.cwd() / "examples" / "data"
 
-with open(data_path, "rb") as f:
-    emg_data = {k: EMGData(v, sampling_frequency=2044) for k, v in pkl.load(f).items()}
+with open(DATA_DIR / "emg.pkl", "rb") as f:
+    emg_data = pkl.load(f)
 
 print("EMG data loaded successfully:")
-print(emg_data)
+print(f"Tasks available: {list(emg_data.keys())}")
+for task, data in emg_data.items():
+    print(f"\tTask '{task}': shape {data.shape}")
 
 # %%
-# Looking at one specific task for simplicity
-# -------------------------------------------
-# The example data contains EMG from two different tasks labeled as "1" and "2".
-# In the following we will only look at task 1 to explain the filtering functionalities.
-task_one_data = emg_data["1"]
+# Creating Named Tensors
+# ----------------------
+# Named tensors have dimension names, making operations explicit.
+# No more guessing which axis is which!
 
-print("\nTask 1 data details:")
-print(task_one_data)
+SAMPLING_FREQ = 2044
 
-# %%
-# Understanding the saving format
-# -------------------------------
-# The EMGData object has an **input_data** attribute that stores the raw data.
-#
-# The raw data is also added to the **processed_representations** attribute with the key "Input".
-# The processed_representations attribute is a dictionary where all filtering sequences are stored.
-# At the beginning this dictionary contains only the raw data.
-#
-# The attribute **is_chunked** is a dictionary that stores if the data of a particular representation is chunked or not.
-#
-# The attribute **output_representations** is a dictionary that stores the representation that will be outputted by the dataset pipeline.
-print("\nRaw input data shape:")
-print(task_one_data.input_data.shape)
+# Create named tensor with myoverse
+emg = myoverse.emg_tensor(emg_data["1"], fs=SAMPLING_FREQ)
+
+print(f"\nNamed Tensor:")
+print(f"\tDimension names: {emg.names}")
+print(f"\tShape: {emg.shape}")
+print(f"\tDevice: {emg.device}")
 
 # %%
-# Plotting the raw data
-# ---------------------
-# We can plot the raw data using matplotlib.
+# Plotting Raw Data
+# -----------------
+# Visualize all channels of the raw EMG signal.
 
-# Create a figure with better dimensions for visualization
+plt.style.use("fivethirtyeight")
 plt.figure(figsize=(12, 6))
 
-# Get the raw EMG data
-raw_emg = task_one_data.input_data
+n_channels = emg.shape[0]
+for channel in range(n_channels):
+    plt.plot(emg[channel].rename(None).numpy(), color="black", alpha=0.1)
 
-# Set plt font size for better readability
-plt.rcParams.update({"font.size": 14})
-
-for channel in range(raw_emg.shape[0]):
-    plt.plot(raw_emg[channel], color="black", alpha=0.1)
-
-plt.title("Raw EMG data")
-plt.ylabel("Amplitude (a. u.)")
+plt.title("Raw EMG Data")
+plt.ylabel("Amplitude (a.u.)")
+n_samples = emg.shape[1]
 plt.xticks(
-    np.arange(0, raw_emg.shape[-1] + 1, 2044).astype(int),
-    np.arange(0, raw_emg.shape[-1] / 2044 + 1, 1).astype(int),
+    np.arange(0, n_samples + 1, SAMPLING_FREQ).astype(int),
+    np.arange(0, n_samples / SAMPLING_FREQ + 1, 1).astype(int),
 )
 plt.xlabel("Time (s)")
-
-# Add a grid for better readability
-plt.grid(True, linestyle="--", alpha=0.7)
-
 plt.tight_layout()
 plt.show()
 
 # %%
-# Attributes of the EMGData object
-# --------------------------------
-# Any Data object, of which EMGData is inheriting from, possesses a processed_representations attribute where filtered data will be stored.
-#
-# .. note :: We refer to a filtered data as a representation.
-#
-# At the beginning this attribute only contains the raw data with the key "Input".
-print("\nInitial processed representations:")
-print(task_one_data.processed_representations.keys())
+# Dimension-Aware Transforms
+# --------------------------
+# Transforms explicitly specify which dimension they operate on.
+# No more axis=-1 guessing!
+
+from myoverse.transforms import Lowpass, Compose
+
+# Create a lowpass filter - explicitly operates on "time" dimension
+lowpass = Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time")
+print(f"\nTransform: {lowpass}")
+
+# Apply it - dimension names are preserved!
+filtered_emg = lowpass(emg)
+print(f"Input names:  {emg.names}")
+print(f"Output names: {filtered_emg.names}")
+print(f"Dimensions are preserved!")
 
 # %%
-# Applying a filter
-# -----------------
-# The EMGData object has a method called **apply_filter** that applies a filter to the data.
-# For example, we can apply a 4th order 20 Hz lowpass filter to the data.
+# Compose: Chaining Transforms
+# ----------------------------
+# Compose lets you chain multiple transforms together.
 
-# Define the filter parameters
-FILTER_ORDER = 4
-CUTOFF_FREQ = 20  # Hz
-SAMPLING_FREQ = 2044  # Hz
+from myoverse.transforms import Highpass, Rectify
 
-# Create the filter coefficients using a Butterworth filter design
-sos_filter_coefficients = butter(
-    FILTER_ORDER, CUTOFF_FREQ, "lowpass", output="sos", fs=SAMPLING_FREQ
-)
+# Each transform specifies its operating dimension
+feature_pipeline = Compose([
+    Highpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    Rectify(),
+])
 
-# %%
-# Creating the filter
-# -------------------
-# Each filter has a parameter **input_is_chunked** that specifies if the input data is chunked or not.
-# This must be set explicitly as some filters can only be used on either chunked or non-chunked data.
-# Since we want to have the result of the filter as an output representation, we set the parameter **is_output** to True.
-# Further having the user specify this parameter forces them to think about the data they are working with.
-lowpass_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=sos_filter_coefficients,
-    is_output=True,
-    name="Lowpass",
-    input_is_chunked=False,
-)
-print("\nFilter configuration:")
-print(lowpass_filter)
+print(f"\nCompose: {feature_pipeline}")
+
+features = feature_pipeline(emg)
+print(f"Output names: {features.names}")
 
 # %%
-# Applying the filter
-# -------------------
-# To apply the filter we call the apply_filter method on the EMGData object.
-task_one_data.apply_filter(lowpass_filter, representations_to_filter=["Input"])
-print("\nFilter applied successfully!")
-print("Available processed representations:")
-print(task_one_data.processed_representations.keys())
-
-# %%
-# Accessing the filtered data
-# ---------------------------
-# The filtered data is saved in the **output_representations** and the **processed_representations** attributes of the EMGData object.
-# In our example the key is "Lowpass".
-#
-# In case you do not want to index using the filter sequence name, you can retrieve the last processed data by indexing with "Last".
-
-print("\nFiltered data details:")
-print(task_one_data)
-
-# Verify that both methods of accessing the filtered data return the same result
-identical = np.allclose(
-    task_one_data.output_representations["Lowpass"],
-    task_one_data["Last"],
-)
-print(f"\nLowpass and Last point to the same data: {identical}")
-
-# %%
-# Visualizing the difference between raw and filtered data
-# -------------------------------------------------------
-# Let's plot both the raw and filtered data to see the effect of the lowpass filter
+# Comparing Raw vs Filtered
+# -------------------------
+# Let's visualize the effect of the lowpass filter on one channel.
 
 plt.figure(figsize=(12, 8))
+channel = 0
 
-# For visualization clarity, let's plot only one channel
-channel_to_plot = 0
-filtered_emg = task_one_data["Lowpass"]
-
-# Plot raw EMG for the selected channel
+# Raw EMG
 plt.subplot(2, 1, 1)
-plt.plot(raw_emg[channel_to_plot], color="blue", label="Raw EMG")
-plt.title(f"Raw EMG - Channel {channel_to_plot + 1}")
+plt.plot(emg[channel].rename(None).numpy(), label="Raw EMG")
+plt.title(f"Raw EMG - Channel {channel + 1}")
 plt.ylabel("Amplitude (a.u.)")
-plt.grid(True, linestyle="--", alpha=0.7)
 plt.legend()
 
-# Plot filtered EMG for the selected channel
+# Filtered EMG
 plt.subplot(2, 1, 2)
-plt.plot(filtered_emg[channel_to_plot], color="red", label="Lowpass Filtered EMG")
-plt.title(
-    f"Lowpass Filtered EMG (Cutoff: {CUTOFF_FREQ} Hz) - Channel {channel_to_plot + 1}"
-)
+plt.plot(filtered_emg[channel].rename(None).numpy(), label="Lowpass Filtered (20 Hz)")
+plt.title(f"Lowpass Filtered EMG - Channel {channel + 1}")
 plt.ylabel("Amplitude (a.u.)")
-plt.xlabel("Time (s)")
-plt.grid(True, linestyle="--", alpha=0.7)
+plt.xlabel("Samples")
 plt.legend()
 
 plt.tight_layout()
 plt.show()
+
+# %%
+# Multi-Representation with Stack
+# -------------------------------
+# Stack applies multiple transforms and combines results along a new dimension.
+
+from myoverse.transforms import Stack, Identity
+
+# Create raw + filtered representations
+multi_repr = Stack({
+    "raw": Identity(),
+    "filtered": Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+}, dim="representation")
+
+# Apply - returns stacked tensor with new dimension!
+stacked = multi_repr(emg)
+print(f"\nStack output:")
+print(f"\tNames: {stacked.names}")
+print(f"\tShape: {stacked.shape}")
+print("\t(representation=2, channel, time)")
+
+# %%
+# Complete Pipeline: Stack in Compose
+# -----------------------------------
+# Combine Stack in a Compose for a clean workflow.
+
+dual_representation = Compose([
+    Stack({
+        "raw": Identity(),
+        "filtered": Lowpass(cutoff=20, fs=SAMPLING_FREQ, dim="time"),
+    }, dim="representation"),
+])
+
+output = dual_representation(emg)
+print(f"\nDual representation pipeline:")
+print(f"\tInput:  {emg.names} {emg.shape}")
+print(f"\tOutput: {output.names} {output.shape}")
+
+# %%
+# Visualizing Dual Representation
+# -------------------------------
+# Plot both representations for one channel.
+
+plt.figure(figsize=(12, 8))
+channel = 0
+
+plt.subplot(2, 1, 1)
+plt.plot(output[0, channel].rename(None).numpy(), label="Raw")
+plt.title(f"Raw Representation - Channel {channel + 1}")
+plt.ylabel("Amplitude (a.u.)")
+plt.legend()
+
+plt.subplot(2, 1, 2)
+plt.plot(output[1, channel].rename(None).numpy(), label="Filtered (20 Hz)")
+plt.title(f"Filtered Representation - Channel {channel + 1}")
+plt.ylabel("Amplitude (a.u.)")
+plt.xlabel("Samples")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# Other Useful Transforms
+# -----------------------
+# MyoVerse includes many transforms for signal processing.
+
+from myoverse.transforms import Index, Mean, ZScore
+
+# Index: select specific elements by dimension name
+select_channels = Index(indices=slice(0, 64), dim="channel")
+subset = select_channels(emg)
+print(f"\nIndex (first 64 channels): {emg.names}{tuple(emg.shape)} -> {subset.names}{tuple(subset.shape)}")
+
+# Mean: average over a dimension
+mean = Mean(dim="time")
+averaged = mean(emg)
+print(f"Mean over time: {emg.names}{tuple(emg.shape)} -> {averaged.names}{tuple(averaged.shape)}")
+
+# ZScore: normalize over a dimension
+zscore = ZScore(dim="time")
+normalized = zscore(emg)
+norm_data = normalized.rename(None)
+print(f"ZScore: mean={float(norm_data.mean()):.6f}, std={float(norm_data.std()):.6f}")
+
+# %%
+# GPU Acceleration
+# ----------------
+# Move to GPU for faster processing.
+
+if torch.cuda.is_available():
+    emg_gpu = emg.cuda()
+    print(f"\nEMG on GPU: {emg_gpu.device}")
+
+    # All transforms work on GPU
+    filtered_gpu = lowpass(emg_gpu)
+    print(f"Filtered on GPU: {filtered_gpu.device}")
+else:
+    print("\nCUDA not available - using CPU")
+
+# %%
+# Summary
+# -------
+# Key concepts:
+#
+# 1. **Named Tensors** - Dimension names via `myoverse.emg_tensor()`
+# 2. **Transforms** - Dimension-aware: `Lowpass(cutoff=20, fs=2048, dim="time")`
+# 3. **Compose** - Chain transforms together (from torchvision)
+# 4. **Stack** - Create multiple representations along new dimension
+#
+# Benefits of dimension-aware transforms:
+# - Self-documenting: `dim="time"` vs `axis=-1`
+# - Safe: won't accidentally filter along wrong axis
+# - Composable: dimensions are preserved through pipelines
+# - Fast: runs on CPU or GPU

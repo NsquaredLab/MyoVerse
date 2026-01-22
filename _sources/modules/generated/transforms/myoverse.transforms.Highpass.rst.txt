@@ -1,0 +1,19 @@
+﻿Highpass
+============================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Highpass
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Highpass
+       
+            ~Highpass.__init__
+            ~Highpass._apply
+        
+        

@@ -1,0 +1,19 @@
+﻿EuclideanDistance
+===================================================
+
+.. currentmodule:: myoverse.models.components.losses
+
+.. autoclass:: EuclideanDistance
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: EuclideanDistance
+       
+            ~EuclideanDistance.__init__
+            ~EuclideanDistance.forward
+        
+        

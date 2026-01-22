@@ -1,0 +1,6 @@
+myoverse.transforms.Diff.\_apply
+================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: Diff._apply

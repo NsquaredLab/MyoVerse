@@ -1,0 +1,19 @@
+﻿SMU
+===================================================
+
+.. currentmodule:: myoverse.models.components.activation_functions
+
+.. autoclass:: SMU
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: SMU
+       
+            ~SMU.__init__
+            ~SMU.forward
+        
+        

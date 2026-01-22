@@ -22,6 +22,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from myoverse.datatypes import EMGData, create_grid_layout
 
+plt.style.use("fivethirtyeight")
+plt.rcParams["axes.grid"] = False
+
 # %%
 # Creating basic grid layouts
 # ==========================
@@ -29,15 +32,15 @@ from myoverse.datatypes import EMGData, create_grid_layout
 # The ``create_grid_layout`` function helps create grid layouts with different patterns and configurations.
 # Let's create some examples to understand the options:
 
-# Create a 4×4 grid with row-wise numbering (0-15)
+# Create a 4*4 grid with row-wise numbering (0-15)
 grid_row = create_grid_layout(4, 4, fill_pattern="row")
-print("4×4 grid with row-wise numbering:")
+print("4*4 grid with row-wise numbering:")
 print(grid_row)
 print()
 
-# Create a 4×4 grid with column-wise numbering (0-15)
+# Create a 4*4 grid with column-wise numbering (0-15)
 grid_col = create_grid_layout(4, 4, fill_pattern="column")
-print("4×4 grid with column-wise numbering:")
+print("4*4 grid with column-wise numbering:")
 print(grid_col)
 print()
 
@@ -66,6 +69,8 @@ emg_row.plot_grid_layout(
     title="Row-wise Numbering",
     colorbar=False,
     grid_alpha=0.7,
+    text_color="black",
+    cmap=plt.cm.rainbow,
     ax=ax1,
     autoshow=False,  # Don't show yet - wait until both grids are plotted
 )
@@ -76,6 +81,8 @@ emg_col.plot_grid_layout(
     title="Column-wise Numbering",
     colorbar=False,
     grid_alpha=0.7,
+    text_color="black",
+    cmap=plt.cm.rainbow,
     ax=ax2,
     autoshow=False,  # Don't show yet
 )
@@ -91,13 +98,13 @@ plt.show()
 # In real-world scenarios, electrode grids may have missing or non-functional electrodes.
 # The ``grid_layouts`` parameter allows you to specify these gaps using -1 values.
 
-# Create a 5×5 grid with some missing electrodes
+# Create a 5*5 grid with some missing electrodes
 missing_indices = [(0, 0), (2, 2), (4, 4)]  # Positions where electrodes are missing
 grid_with_gaps = create_grid_layout(
     5, 5, fill_pattern="row", missing_indices=missing_indices
 )
 
-print("5×5 grid with missing electrodes:")
+print("5*5 grid with missing electrodes:")
 print(grid_with_gaps)
 print()
 
@@ -108,10 +115,12 @@ emg_with_gaps = EMGData(emg_data_22ch, sampling_freq, grid_layouts=[grid_with_ga
 # Visualize the grid with gaps using the enhanced method
 emg_with_gaps.plot_grid_layout(
     0,
-    title="5×5 Grid with Missing Electrodes",
+    title="5*5 Grid with Missing Electrodes",
     colorbar=True,
     figsize=(8, 8),
     text_fontsize=12,
+    text_color="black",
+    cmap=plt.cm.rainbow,
 )
 
 # %%
@@ -166,27 +175,33 @@ highlights3 = [35]  # Highlight electrode 35 in third grid
 # Plot all three grids on the same figure
 emg_multi.plot_grid_layout(
     0,
-    title="Grid 1: 4×4 Row-wise (0-15)",
+    title="Grid 1: 4*4 Row-wise (0-15)",
     colorbar=False,
     highlight_electrodes=highlights1,
+    text_color="black",
+    cmap=plt.cm.rainbow,
     ax=axes[0],
     autoshow=False,
 )
 
 emg_multi.plot_grid_layout(
     1,
-    title="Grid 2: 4×4 Column-wise (16-31)",
+    title="Grid 2: 4*4 Column-wise (16-31)",
     colorbar=False,
     highlight_electrodes=highlights2,
+    text_color="black",
+    cmap=plt.cm.rainbow,
     ax=axes[1],
     autoshow=False,
 )
 
 emg_multi.plot_grid_layout(
     2,
-    title="Grid 3: 3×3 Row-wise (32-40)",
+    title="Grid 3: 3*3 Row-wise (32-40)",
     colorbar=False,
     highlight_electrodes=highlights3,
+    text_color="black",
+    cmap=plt.cm.rainbow,
     ax=axes[2],
     autoshow=False,
 )
@@ -257,7 +272,8 @@ emg_circular.plot_grid_layout(
     text_fontsize=12,
     colorbar=True,
     grid_alpha=0.5,
-    text_color="yellow",
+    text_color="black",
+    cmap=plt.cm.rainbow,
     highlight_electrodes=[0, 4],  # Highlight a couple of electrodes
     highlight_color="cyan",
 )

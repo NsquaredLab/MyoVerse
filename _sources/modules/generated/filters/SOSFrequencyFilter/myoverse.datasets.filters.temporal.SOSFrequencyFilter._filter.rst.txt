@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.SOSFrequencyFilter.\_filter
-==============================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: SOSFrequencyFilter._filter

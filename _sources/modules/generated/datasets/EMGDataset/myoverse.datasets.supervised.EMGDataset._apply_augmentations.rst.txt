@@ -1,6 +1,0 @@
-myoverse.datasets.supervised.EMGDataset.\_apply\_augmentations
-==============================================================
-
-.. currentmodule:: myoverse.datasets.supervised
-
-.. automethod:: EMGDataset._apply_augmentations

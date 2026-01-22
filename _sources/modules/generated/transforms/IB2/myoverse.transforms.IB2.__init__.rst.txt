@@ -1,0 +1,6 @@
+myoverse.transforms.IB2.\_\_init\_\_
+====================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: IB2.__init__

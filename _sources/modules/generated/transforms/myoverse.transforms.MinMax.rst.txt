@@ -1,0 +1,19 @@
+﻿MinMax
+==========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: MinMax
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: MinMax
+       
+            ~MinMax.__init__
+            ~MinMax._apply
+        
+        

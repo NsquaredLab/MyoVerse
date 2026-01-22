@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.RMSFilter.\_\_init\_\_
-=========================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: RMSFilter.__init__

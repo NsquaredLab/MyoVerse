@@ -1,6 +1,0 @@
-myoverse.datasets.supervised.EMGDataset.\_process\_task
-=======================================================
-
-.. currentmodule:: myoverse.datasets.supervised
-
-.. automethod:: EMGDataset._process_task

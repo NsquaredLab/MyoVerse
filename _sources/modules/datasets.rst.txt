@@ -1,31 +1,75 @@
 Datasets
 ========
 
-Supervised Dataset
--------------------
-.. currentmodule:: myoverse.datasets.supervised
+The datasets module provides a layered architecture for data handling:
+
+- **Base Layer**: WindowedDataset handles zarr I/O, windowing, caching
+- **Paradigm Layer**: SupervisedDataset for supervised learning
+- **Integration Layer**: DataModule for Lightning integration
+- **Storage Layer**: DatasetCreator and Modality for creating datasets
+
+Storage
+-------
+.. currentmodule:: myoverse.datasets
 .. autosummary::
     :toctree: generated/datasets
     :template: class.rst
 
-    EMGDataset
+    DatasetCreator
+    Modality
 
-Default Supervised Datasets
----------------------------
-.. currentmodule:: myoverse.datasets.defaults
+Base Dataset
+------------
+.. currentmodule:: myoverse.datasets.base
 .. autosummary::
     :toctree: generated/datasets
     :template: class.rst
 
-    EMBCDataset
+    WindowedDataset
 
-Loader
-------
-This module provides a loader that can be used with pytorch lightning to load the datasets during training.
-
-.. currentmodule:: myoverse.datasets.loader
+Paradigms
+---------
+.. currentmodule:: myoverse.datasets.paradigms
 .. autosummary::
     :toctree: generated/datasets
     :template: class.rst
 
-    EMGZarrDataset
+    SupervisedDataset
+
+Integration
+-----------
+.. currentmodule:: myoverse.datasets.datamodule
+.. autosummary::
+    :toctree: generated/datasets
+    :template: class.rst
+
+    DataModule
+
+Utilities
+---------
+.. currentmodule:: myoverse.datasets.utils
+.. autosummary::
+    :toctree: generated/datasets
+    :template: class.rst
+
+    DataSplitter
+    DatasetFormatter
+
+Presets
+-------
+Pre-configured transforms for published papers.
+
+.. currentmodule:: myoverse.datasets.presets
+.. autosummary::
+    :toctree: generated/datasets
+    :template: class.rst
+
+    EMBCConfig
+
+.. autosummary::
+    :toctree: generated/datasets
+
+    embc_train_transform
+    embc_eval_transform
+    embc_target_transform
+    embc_kinematics_transform

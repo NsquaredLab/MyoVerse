@@ -18,92 +18,67 @@
 .. _sphx_glr_auto_examples_01_tutorials_4_train_model.py:
 
 
-Training a deep learning model
-===========================
+Training Pipeline
+=================
 
-This example shows how to train a deep learning model using the dataset created in the previous example.
+This example shows the complete training pipeline from raw data to model training.
+Each step is explained and demonstrated.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-18
-
-Loading the dataset
--------------------
-To load the dataset we need to use the EMGDatasetLoader class.
-
-Two parameters are required:
-
-- data_path: Path to the dataset file.
-
-- dataloader_parameters: Parameters for the DataLoader.
-
-.. GENERATED FROM PYTHON SOURCE LINES 18-37
+.. GENERATED FROM PYTHON SOURCE LINES 10-61
 
 .. code-block:: Python
 
     from pathlib import Path
 
-    from myoverse.datasets.loader import EMGDatasetLoader
-    from myoverse.datatypes import _Data
+    import torch
 
+    # Get the path to the data file
+    # Find data directory relative to myoverse package (works in all contexts)
+    import myoverse
+    _pkg_dir = Path(myoverse.__file__).parent.parent
+    DATA_DIR = _pkg_dir / "examples" / "data"
+    if not DATA_DIR.exists():
+        DATA_DIR = Path.cwd() / "examples" / "data"
 
-    # Create a class to handle the target data that doesn't enforce a specific shape
-    class CustomDataClass(_Data):
-        def __init__(self, raw_data, sampling_frequency=None):
-            # Initialize parent class with raw data
-            super().__init__(raw_data.reshape(1, 60), sampling_frequency, nr_of_dimensions_when_unchunked=2)
+    # Determine device
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+    print(f"Using device: {DEVICE}")
 
-    # Let's use the built-in IdentityFilter which just passes data through
-    loader = EMGDatasetLoader(
-        Path(r"../data/dataset.zarr").resolve(),
-        dataloader_params={"batch_size": 16, "drop_last": True},
-        target_data_class=CustomDataClass,
+    # Step 1: Create Dataset with Preprocessing
+    # ------------------------------------------
+    # Use DatasetCreator with Modality transforms for pre-storage processing.
+    # Here we use the EMBC paper configuration as an example.
+
+    from myoverse.datasets import DatasetCreator, Modality, embc_kinematics_transform
+
+    print("=" * 60)
+    print("STEP 1: Dataset Creation")
+    print("=" * 60)
+
+    creator = DatasetCreator(
+        modalities={
+            # EMG: raw continuous data (320 channels from 5 electrode grids)
+            "emg": Modality(
+                path=DATA_DIR / "emg.pkl",
+                dims=("channel", "time"),
+            ),
+            # Kinematics: apply transform to flatten and remove wrist
+            # (21, 3, time) -> (60, time)
+            "kinematics": Modality(
+                path=DATA_DIR / "kinematics.pkl",
+                dims=("dof", "time"),
+                transform=embc_kinematics_transform(),
+            ),
+        },
+        sampling_frequency=2048.0,
+        tasks_to_use=["1", "2"],
+        save_path=DATA_DIR / "tutorial_dataset.zip",
+        test_ratio=0.2,
+        val_ratio=0.2,
+        debug_level=1,
     )
+    creator.create()
 
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 38-40
-
-Training the model
-------------------
-
-.. GENERATED FROM PYTHON SOURCE LINES 40-70
-
-.. code-block:: Python
-
-    from myoverse.models.definitions.raul_net.online.v16 import RaulNetV16
-    import lightning as L
-
-    # Create the model
-    model = RaulNetV16(
-        learning_rate=1e-4,
-        nr_of_input_channels=2,
-        input_length__samples=192,
-        nr_of_outputs=60,
-        nr_of_electrode_grids=5,
-        nr_of_electrodes_per_grid=64,
-        # Multiply following by 4, 8, 16 to have a useful network
-        cnn_encoder_channels=(4, 1, 1),
-        mlp_encoder_channels=(8, 8),
-        event_search_kernel_length=31,
-        event_search_kernel_stride=8,
-    )
-
-    trainer = L.Trainer(
-        accelerator="auto",
-        devices=1,
-        precision="16-mixed",
-        max_epochs=1,
-        log_every_n_steps=50,
-        logger=None,
-        enable_checkpointing=False,
-        deterministic=False,
-    )
-
-    trainer.fit(model, datamodule=loader)
 
 
 
@@ -112,15 +87,448 @@ Training the model
 
  .. code-block:: none
 
-    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/accelerator_connector.py:513: You passed `Trainer(accelerator='cpu', precision='16-mixed')` but AMP with fp16 is not supported on CPU. Using `precision='bf16-mixed'` instead.
-    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:425: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Sanity Checking: |          | 0/? [00:00<?, ?it/s]/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:425: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-    Sanity Checking:   0%|          | 0/1 [00:00<?, ?it/s]    Sanity Checking DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]    Sanity Checking DataLoader 0: 100%|██████████| 1/1 [00:00<00:00,  1.68it/s]                                                                               Training: |          | 0/? [00:00<?, ?it/s]    Training:   0%|          | 0/55 [00:00<?, ?it/s]    Epoch 0:   0%|          | 0/55 [00:00<?, ?it/s]     Epoch 0:   2%|▏         | 1/55 [00:01<01:13,  0.73it/s]    Epoch 0:   2%|▏         | 1/55 [00:01<01:13,  0.73it/s, v_num=0, loss_step=54.10]    Epoch 0:   4%|▎         | 2/55 [00:02<01:10,  0.75it/s, v_num=0, loss_step=54.10]    Epoch 0:   4%|▎         | 2/55 [00:02<01:10,  0.75it/s, v_num=0, loss_step=54.60]    Epoch 0:   5%|▌         | 3/55 [00:04<01:09,  0.75it/s, v_num=0, loss_step=54.60]    Epoch 0:   5%|▌         | 3/55 [00:04<01:09,  0.75it/s, v_num=0, loss_step=54.40]    Epoch 0:   7%|▋         | 4/55 [00:05<01:09,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:   7%|▋         | 4/55 [00:05<01:09,  0.74it/s, v_num=0, loss_step=54.90]    Epoch 0:   9%|▉         | 5/55 [00:06<01:07,  0.74it/s, v_num=0, loss_step=54.90]    Epoch 0:   9%|▉         | 5/55 [00:06<01:07,  0.74it/s, v_num=0, loss_step=53.90]    Epoch 0:  11%|█         | 6/55 [00:08<01:06,  0.74it/s, v_num=0, loss_step=53.90]    Epoch 0:  11%|█         | 6/55 [00:08<01:06,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:  13%|█▎        | 7/55 [00:09<01:05,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:  13%|█▎        | 7/55 [00:09<01:05,  0.74it/s, v_num=0, loss_step=53.70]    Epoch 0:  15%|█▍        | 8/55 [00:10<01:03,  0.74it/s, v_num=0, loss_step=53.70]    Epoch 0:  15%|█▍        | 8/55 [00:10<01:03,  0.74it/s, v_num=0, loss_step=55.10]    Epoch 0:  16%|█▋        | 9/55 [00:12<01:02,  0.74it/s, v_num=0, loss_step=55.10]    Epoch 0:  16%|█▋        | 9/55 [00:12<01:02,  0.74it/s, v_num=0, loss_step=54.20]    Epoch 0:  18%|█▊        | 10/55 [00:13<01:00,  0.74it/s, v_num=0, loss_step=54.20]    Epoch 0:  18%|█▊        | 10/55 [00:13<01:00,  0.74it/s, v_num=0, loss_step=54.10]    Epoch 0:  20%|██        | 11/55 [00:14<00:59,  0.74it/s, v_num=0, loss_step=54.10]    Epoch 0:  20%|██        | 11/55 [00:14<00:59,  0.74it/s, v_num=0, loss_step=54.20]    Epoch 0:  22%|██▏       | 12/55 [00:16<00:58,  0.74it/s, v_num=0, loss_step=54.20]    Epoch 0:  22%|██▏       | 12/55 [00:16<00:58,  0.74it/s, v_num=0, loss_step=54.60]    Epoch 0:  24%|██▎       | 13/55 [00:17<00:56,  0.74it/s, v_num=0, loss_step=54.60]    Epoch 0:  24%|██▎       | 13/55 [00:17<00:56,  0.74it/s, v_num=0, loss_step=53.90]    Epoch 0:  25%|██▌       | 14/55 [00:18<00:55,  0.74it/s, v_num=0, loss_step=53.90]    Epoch 0:  25%|██▌       | 14/55 [00:18<00:55,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:  27%|██▋       | 15/55 [00:20<00:53,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:  27%|██▋       | 15/55 [00:20<00:53,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:  29%|██▉       | 16/55 [00:21<00:52,  0.74it/s, v_num=0, loss_step=54.40]    Epoch 0:  29%|██▉       | 16/55 [00:21<00:52,  0.74it/s, v_num=0, loss_step=55.10]    Epoch 0:  31%|███       | 17/55 [00:22<00:51,  0.74it/s, v_num=0, loss_step=55.10]    Epoch 0:  31%|███       | 17/55 [00:22<00:51,  0.74it/s, v_num=0, loss_step=53.30]    Epoch 0:  33%|███▎      | 18/55 [00:24<00:49,  0.74it/s, v_num=0, loss_step=53.30]    Epoch 0:  33%|███▎      | 18/55 [00:24<00:49,  0.74it/s, v_num=0, loss_step=54.00]    Epoch 0:  35%|███▍      | 19/55 [00:25<00:48,  0.74it/s, v_num=0, loss_step=54.00]    Epoch 0:  35%|███▍      | 19/55 [00:25<00:48,  0.74it/s, v_num=0, loss_step=53.20]    Epoch 0:  36%|███▋      | 20/55 [00:26<00:47,  0.74it/s, v_num=0, loss_step=53.20]    Epoch 0:  36%|███▋      | 20/55 [00:26<00:47,  0.74it/s, v_num=0, loss_step=53.70]    Epoch 0:  38%|███▊      | 21/55 [00:28<00:45,  0.74it/s, v_num=0, loss_step=53.70]    Epoch 0:  38%|███▊      | 21/55 [00:28<00:45,  0.74it/s, v_num=0, loss_step=52.50]    Epoch 0:  40%|████      | 22/55 [00:29<00:44,  0.74it/s, v_num=0, loss_step=52.50]    Epoch 0:  40%|████      | 22/55 [00:29<00:44,  0.74it/s, v_num=0, loss_step=53.00]    Epoch 0:  42%|████▏     | 23/55 [00:30<00:43,  0.74it/s, v_num=0, loss_step=53.00]    Epoch 0:  42%|████▏     | 23/55 [00:30<00:43,  0.74it/s, v_num=0, loss_step=52.10]    Epoch 0:  44%|████▎     | 24/55 [00:32<00:41,  0.74it/s, v_num=0, loss_step=52.10]    Epoch 0:  44%|████▎     | 24/55 [00:32<00:41,  0.74it/s, v_num=0, loss_step=52.60]    Epoch 0:  45%|████▌     | 25/55 [00:33<00:40,  0.74it/s, v_num=0, loss_step=52.60]    Epoch 0:  45%|████▌     | 25/55 [00:33<00:40,  0.74it/s, v_num=0, loss_step=52.30]    Epoch 0:  47%|████▋     | 26/55 [00:34<00:38,  0.74it/s, v_num=0, loss_step=52.30]    Epoch 0:  47%|████▋     | 26/55 [00:34<00:38,  0.74it/s, v_num=0, loss_step=52.00]    Epoch 0:  49%|████▉     | 27/55 [00:36<00:37,  0.74it/s, v_num=0, loss_step=52.00]    Epoch 0:  49%|████▉     | 27/55 [00:36<00:37,  0.74it/s, v_num=0, loss_step=52.10]    Epoch 0:  51%|█████     | 28/55 [00:37<00:36,  0.74it/s, v_num=0, loss_step=52.10]    Epoch 0:  51%|█████     | 28/55 [00:37<00:36,  0.74it/s, v_num=0, loss_step=51.50]    Epoch 0:  53%|█████▎    | 29/55 [00:38<00:34,  0.74it/s, v_num=0, loss_step=51.50]    Epoch 0:  53%|█████▎    | 29/55 [00:38<00:34,  0.74it/s, v_num=0, loss_step=51.30]    Epoch 0:  55%|█████▍    | 30/55 [00:40<00:33,  0.74it/s, v_num=0, loss_step=51.30]    Epoch 0:  55%|█████▍    | 30/55 [00:40<00:33,  0.74it/s, v_num=0, loss_step=51.00]    Epoch 0:  56%|█████▋    | 31/55 [00:41<00:32,  0.74it/s, v_num=0, loss_step=51.00]    Epoch 0:  56%|█████▋    | 31/55 [00:41<00:32,  0.74it/s, v_num=0, loss_step=50.10]    Epoch 0:  58%|█████▊    | 32/55 [00:42<00:30,  0.74it/s, v_num=0, loss_step=50.10]    Epoch 0:  58%|█████▊    | 32/55 [00:42<00:30,  0.74it/s, v_num=0, loss_step=49.70]    Epoch 0:  60%|██████    | 33/55 [00:44<00:29,  0.75it/s, v_num=0, loss_step=49.70]    Epoch 0:  60%|██████    | 33/55 [00:44<00:29,  0.75it/s, v_num=0, loss_step=49.50]    Epoch 0:  62%|██████▏   | 34/55 [00:45<00:28,  0.75it/s, v_num=0, loss_step=49.50]    Epoch 0:  62%|██████▏   | 34/55 [00:45<00:28,  0.75it/s, v_num=0, loss_step=50.10]    Epoch 0:  64%|██████▎   | 35/55 [00:46<00:26,  0.75it/s, v_num=0, loss_step=50.10]    Epoch 0:  64%|██████▎   | 35/55 [00:46<00:26,  0.75it/s, v_num=0, loss_step=48.10]    Epoch 0:  65%|██████▌   | 36/55 [00:48<00:25,  0.75it/s, v_num=0, loss_step=48.10]    Epoch 0:  65%|██████▌   | 36/55 [00:48<00:25,  0.75it/s, v_num=0, loss_step=48.60]    Epoch 0:  67%|██████▋   | 37/55 [00:49<00:24,  0.75it/s, v_num=0, loss_step=48.60]    Epoch 0:  67%|██████▋   | 37/55 [00:49<00:24,  0.75it/s, v_num=0, loss_step=47.70]    Epoch 0:  69%|██████▉   | 38/55 [00:50<00:22,  0.75it/s, v_num=0, loss_step=47.70]    Epoch 0:  69%|██████▉   | 38/55 [00:50<00:22,  0.75it/s, v_num=0, loss_step=47.50]    Epoch 0:  71%|███████   | 39/55 [00:52<00:21,  0.75it/s, v_num=0, loss_step=47.50]    Epoch 0:  71%|███████   | 39/55 [00:52<00:21,  0.75it/s, v_num=0, loss_step=47.90]    Epoch 0:  73%|███████▎  | 40/55 [00:53<00:20,  0.75it/s, v_num=0, loss_step=47.90]    Epoch 0:  73%|███████▎  | 40/55 [00:53<00:20,  0.75it/s, v_num=0, loss_step=46.50]    Epoch 0:  75%|███████▍  | 41/55 [00:54<00:18,  0.75it/s, v_num=0, loss_step=46.50]    Epoch 0:  75%|███████▍  | 41/55 [00:54<00:18,  0.75it/s, v_num=0, loss_step=46.90]    Epoch 0:  76%|███████▋  | 42/55 [00:56<00:17,  0.75it/s, v_num=0, loss_step=46.90]    Epoch 0:  76%|███████▋  | 42/55 [00:56<00:17,  0.75it/s, v_num=0, loss_step=46.30]    Epoch 0:  78%|███████▊  | 43/55 [00:57<00:16,  0.75it/s, v_num=0, loss_step=46.30]    Epoch 0:  78%|███████▊  | 43/55 [00:57<00:16,  0.75it/s, v_num=0, loss_step=46.60]    Epoch 0:  80%|████████  | 44/55 [00:58<00:14,  0.75it/s, v_num=0, loss_step=46.60]    Epoch 0:  80%|████████  | 44/55 [00:58<00:14,  0.75it/s, v_num=0, loss_step=46.40]    Epoch 0:  82%|████████▏ | 45/55 [01:00<00:13,  0.75it/s, v_num=0, loss_step=46.40]    Epoch 0:  82%|████████▏ | 45/55 [01:00<00:13,  0.75it/s, v_num=0, loss_step=46.10]    Epoch 0:  84%|████████▎ | 46/55 [01:01<00:12,  0.75it/s, v_num=0, loss_step=46.10]    Epoch 0:  84%|████████▎ | 46/55 [01:01<00:12,  0.75it/s, v_num=0, loss_step=45.80]    Epoch 0:  85%|████████▌ | 47/55 [01:02<00:10,  0.75it/s, v_num=0, loss_step=45.80]    Epoch 0:  85%|████████▌ | 47/55 [01:02<00:10,  0.75it/s, v_num=0, loss_step=44.40]    Epoch 0:  87%|████████▋ | 48/55 [01:04<00:09,  0.75it/s, v_num=0, loss_step=44.40]    Epoch 0:  87%|████████▋ | 48/55 [01:04<00:09,  0.75it/s, v_num=0, loss_step=46.80]    Epoch 0:  89%|████████▉ | 49/55 [01:05<00:08,  0.75it/s, v_num=0, loss_step=46.80]    Epoch 0:  89%|████████▉ | 49/55 [01:05<00:08,  0.75it/s, v_num=0, loss_step=46.10]    Epoch 0:  91%|█████████ | 50/55 [01:07<00:06,  0.75it/s, v_num=0, loss_step=46.10]    Epoch 0:  91%|█████████ | 50/55 [01:07<00:06,  0.75it/s, v_num=0, loss_step=46.40]    Epoch 0:  93%|█████████▎| 51/55 [01:08<00:05,  0.75it/s, v_num=0, loss_step=46.40]    Epoch 0:  93%|█████████▎| 51/55 [01:08<00:05,  0.75it/s, v_num=0, loss_step=45.30]    Epoch 0:  95%|█████████▍| 52/55 [01:09<00:04,  0.75it/s, v_num=0, loss_step=45.30]    Epoch 0:  95%|█████████▍| 52/55 [01:09<00:04,  0.75it/s, v_num=0, loss_step=45.80]    Epoch 0:  96%|█████████▋| 53/55 [01:11<00:02,  0.75it/s, v_num=0, loss_step=45.80]    Epoch 0:  96%|█████████▋| 53/55 [01:11<00:02,  0.75it/s, v_num=0, loss_step=45.30]    Epoch 0:  98%|█████████▊| 54/55 [01:12<00:01,  0.75it/s, v_num=0, loss_step=45.30]    Epoch 0:  98%|█████████▊| 54/55 [01:12<00:01,  0.75it/s, v_num=0, loss_step=45.30]    Epoch 0: 100%|██████████| 55/55 [01:13<00:00,  0.75it/s, v_num=0, loss_step=45.30]    Epoch 0: 100%|██████████| 55/55 [01:13<00:00,  0.75it/s, v_num=0, loss_step=46.60]
-    Validation: |          | 0/? [00:00<?, ?it/s]
-    Validation:   0%|          | 0/1 [00:00<?, ?it/s]
-    Validation DataLoader 0:   0%|          | 0/1 [00:00<?, ?it/s]
-    Validation DataLoader 0: 100%|██████████| 1/1 [00:00<00:00,  1.89it/s]
-                                                                              Epoch 0: 100%|██████████| 55/55 [01:14<00:00,  0.74it/s, v_num=0, loss_step=46.60, val_loss=45.80]    Epoch 0: 100%|██████████| 55/55 [01:14<00:00,  0.74it/s, v_num=0, loss_step=46.60, val_loss=45.80, loss_epoch=50.60]    Epoch 0: 100%|██████████| 55/55 [01:14<00:00,  0.74it/s, v_num=0, loss_step=46.60, val_loss=45.80, loss_epoch=50.60]
+    Using device: cpu
+    ============================================================
+    STEP 1: Dataset Creation
+    ============================================================
+    ────────────────────────── STARTING DATASET CREATION ───────────────────────────
+
+                                 Dataset Configuration                              
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ Parameter               ┃ Value                                              ┃
+    ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+    │ Modalities              │ emg, kinematics                                    │
+    │ Sampling frequency (Hz) │ 2048.0                                             │
+    │ Save path               │ /home/runner/work/MyoVerse/MyoVerse/examples/data… │
+    │ Test ratio              │ 0.2                                                │
+    │ Validation ratio        │ 0.2                                                │
+    └─────────────────────────┴────────────────────────────────────────────────────┘
+
+    Processing 2 tasks: 1, 2
+
+    Dataset Structure
+    ├── emg dims=('channel', 'time')
+    │   ├── Task 1: (320, 20440)
+    │   └── Task 2: (320, 20440)
+    └── kinematics dims=('dof', 'time')
+        ├── Task 1: (60, 20440)
+        └── Task 2: (60, 20440)
+
+    ─────────────────────────────── PROCESSING TASKS ───────────────────────────────
+
+      Processing task 2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+    ────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
+
+                   Dataset Summary               
+     Split       emg              kinematics     
+     training    1: (320, 16352)  1: (60, 16352) 
+                 2: (320, 16352)  2: (60, 16352) 
+     validation  1: (320, 816)    1: (60, 816)   
+                 2: (320, 816)    2: (60, 816)   
+     testing     1: (320, 3272)   1: (60, 3272)  
+                 2: (320, 3272)   2: (60, 3272)  
+
+    Total size: 26.09 MB
+    ─────────────────── Dataset Creation Successfully Completed! ───────────────────
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 62-67
+
+Step 2: Define Training Transforms
+-----------------------------------
+Transforms are applied on-the-fly during training.
+- embc_train_transform: Creates dual representation (raw + lowpass) + augmentation
+- embc_eval_transform: Same processing without augmentation
+
+.. GENERATED FROM PYTHON SOURCE LINES 67-87
+
+.. code-block:: Python
+
+
+    from myoverse.datasets import embc_eval_transform, embc_target_transform, embc_train_transform
+
+    print()
+    print("=" * 60)
+    print("STEP 2: Training Transforms")
+    print("=" * 60)
+
+    # Training: dual representation + noise augmentation
+    train_tf = embc_train_transform(augmentation="noise")
+    print(f"Train transform: {train_tf}")
+
+    # Validation: dual representation only (no augmentation)
+    val_tf = embc_eval_transform()
+    print(f"Val transform: {val_tf}")
+
+    # Target: average kinematics over window -> single prediction per DOF
+    target_tf = embc_target_transform()
+    print(f"Target transform: {target_tf}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    STEP 2: Training Transforms
+    ============================================================
+    Train transform: Compose(
+        Stack(dim='time', transforms={'raw': Identity(dim='time'), 'filtered': Lowpass(dim='time', cutoff=20.0, fs=2048.0, order=4, Q=0.707)}, stack_dim='representation')
+        GaussianNoise(dim='time', std=0.1, p=1.0)
+    )
+    Val transform: Compose(
+        Stack(dim='time', transforms={'raw': Identity(dim='time'), 'filtered': Lowpass(dim='time', cutoff=20.0, fs=2048.0, order=4, Q=0.707)}, stack_dim='representation')
+    )
+    Target transform: Mean(dim='time', keepdim=False)
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 88-96
+
+Step 3: Create DataModule
+--------------------------
+DataModule handles:
+- Loading from zarr directly to tensors (GPU if available)
+- On-the-fly windowing (no pre-chunking needed)
+- Input/target selection (decided at training time, not storage time)
+- Transform application
+- Batching and DataLoader creation
+
+.. GENERATED FROM PYTHON SOURCE LINES 96-130
+
+.. code-block:: Python
+
+
+    from myoverse.datasets import DataModule
+
+    print()
+    print("=" * 60)
+    print("STEP 3: DataModule Setup")
+    print("=" * 60)
+
+    dm = DataModule(
+        data_path=DATA_DIR / "tutorial_dataset.zip",
+        # Select which modalities are inputs vs targets
+        inputs=["emg"],
+        targets=["kinematics"],
+        # Windowing parameters
+        window_size=192,  # ~94ms at 2048Hz
+        window_stride=64,  # For val/test (deterministic sliding window)
+        n_windows_per_epoch=500,  # For training (random positions) - small for demo
+        # Transforms (applied on-the-fly)
+        train_transform=train_tf,
+        val_transform=val_tf,
+        target_transform=target_tf,  # Average kinematics over window
+        # DataLoader settings
+        batch_size=32,
+        num_workers=0,  # Set to 4+ for parallel loading
+        # Device: load directly to GPU if available
+        device=DEVICE,
+    )
+
+    # Setup creates the datasets
+    dm.setup("fit")
+
+    print(f"Training samples per epoch: {len(dm.train_dataloader()) * dm.batch_size}")
+    print(f"Validation batches: {len(dm.val_dataloader())}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    STEP 3: DataModule Setup
+    ============================================================
+    Training samples per epoch: 512
+    Validation batches: 1
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 131-136
+
+Step 4: Inspect Batch Structure
+--------------------------------
+With single input/target, DataModule returns tensors directly
+(for compatibility with existing models).
+With multiple inputs/targets, it returns dicts.
+
+.. GENERATED FROM PYTHON SOURCE LINES 136-157
+
+.. code-block:: Python
+
+
+    print()
+    print("=" * 60)
+    print("STEP 4: Batch Structure")
+    print("=" * 60)
+
+    batch = next(iter(dm.train_dataloader()))
+    emg_batch, kin_batch = batch
+
+    print(f"EMG input shape: {emg_batch.shape}")
+    print(f"EMG input device: {emg_batch.device}")
+    print(f"Kinematics target shape: {kin_batch.shape}")
+
+    # EMG shape explanation (with Stack transform):
+    # - Batch size: 32
+    # - Representations: 2 (raw, filtered)
+    # - Channels: varies based on data
+    # - Time: 192 samples
+    print()
+    print("EMG shape = (batch, representation, channel, time) via Stack transform")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    STEP 4: Batch Structure
+    ============================================================
+    EMG input shape: torch.Size([32, 2, 320, 192])
+    EMG input device: cpu
+    Kinematics target shape: torch.Size([32, 60])
+
+    EMG shape = (batch, representation, channel, time) via Stack transform
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 158-163
+
+Step 5: Create Model
+---------------------
+RaulNetV16 expects:
+- Input: (batch, 2, channels, time) - 2 representations
+- Output: (batch, 60) - 60 DOF predictions
+
+.. GENERATED FROM PYTHON SOURCE LINES 163-194
+
+.. code-block:: Python
+
+
+    print()
+    print("=" * 60)
+    print("STEP 5: Model Setup")
+    print("=" * 60)
+
+    from myoverse.models import RaulNetV16
+
+    # Get actual channel count from data
+    n_channels = emg_batch.shape[2]
+    n_grids = n_channels // 64 if n_channels >= 64 else 1
+
+    model = RaulNetV16(
+        learning_rate=1e-4,
+        nr_of_input_channels=2,  # raw + filtered
+        input_length__samples=192,
+        nr_of_outputs=60,  # 60 DOF
+        nr_of_electrode_grids=n_grids,
+        nr_of_electrodes_per_grid=64,
+        cnn_encoder_channels=(4, 1, 1),
+        mlp_encoder_channels=(8, 8),
+        event_search_kernel_length=31,
+        event_search_kernel_stride=8,
+    )
+
+    # Move model to same device as data
+    model = model.to(DEVICE)
+
+    print(f"Model: {model.__class__.__name__}")
+    print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    STEP 5: Model Setup
+    ============================================================
+    Model: RaulNetV16
+    Parameters: 14,720
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 195-199
+
+Step 6: Forward Pass Test
+--------------------------
+Named tensors are used during transforms for dimension-awareness,
+but stripped in the collate function before passing to the model.
+
+.. GENERATED FROM PYTHON SOURCE LINES 199-214
+
+.. code-block:: Python
+
+
+    print()
+    print("=" * 60)
+    print("STEP 6: Forward Pass Test")
+    print("=" * 60)
+
+    print(f"DataModule output: {emg_batch.shape}")
+    print("(Names stripped in collate - ready for model)")
+
+    # Quick forward pass test
+    model.eval()
+    with torch.no_grad():
+        output = model(emg_batch)
+    print(f"Model output: {output.shape}")
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    STEP 6: Forward Pass Test
+    ============================================================
+    DataModule output: torch.Size([32, 2, 320, 192])
+    (Names stripped in collate - ready for model)
+    Model output: torch.Size([32, 60])
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 215-219
+
+Step 7: Training Loop
+----------------------
+Use PyTorch Lightning Trainer for training.
+Note: For real training, increase max_epochs and n_windows_per_epoch.
+
+.. GENERATED FROM PYTHON SOURCE LINES 219-243
+
+.. code-block:: Python
+
+
+    import lightning as L
+
+    print()
+    print("=" * 60)
+    print("STEP 7: Training (1 epoch, 500 windows)")
+    print("=" * 60)
+
+    torch.set_float32_matmul_precision("medium")  # For performance on some CPUs
+
+    trainer = L.Trainer(
+        accelerator="auto",
+        devices=1,
+        precision="32",  # Use 32-bit for CPU compatibility
+        max_epochs=1,
+        log_every_n_steps=5,
+        logger=False,
+        enable_checkpointing=False,
+        enable_progress_bar=True,
+    )
+
+    # Train for 1 epoch
+    trainer.fit(model, datamodule=dm)
+
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    STEP 7: Training (1 epoch, 500 windows)
+    ============================================================
+    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'train_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    ┏━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━┓
+    ┃   ┃ Name        ┃ Type       ┃ Params ┃ Mode ┃ FLOPs ┃
+    ┡━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━┩
+    │ 0 │ criterion   │ L1Loss     │      0 │ eval │     0 │
+    │ 1 │ cnn_encoder │ Sequential │ 11.7 K │ eval │     0 │
+    │ 2 │ mlp         │ Sequential │  3.0 K │ eval │     0 │
+    └───┴─────────────┴────────────┴────────┴──────┴───────┘
+    Trainable params: 14.7 K                                                        
+    Non-trainable params: 0                                                         
+    Total params: 14.7 K                                                            
+    Total estimated model params size (MB): 0                                       
+    Modules in train mode: 0                                                        
+    Modules in eval mode: 19                                                        
+    Total FLOPs: 0                                                                  
+    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The 'val_dataloader' does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/core/module.py:522: You called `self.log('val/val_loss', ..., logger=True)` but have no logger configured. You can enable one by doing `Trainer(logger=ALogger(...))`
+    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/loops/fit_loop.py:534: Found 20 module(s) in eval mode at the start of training. This may lead to unexpected behavior during training. If this is intentional, you can ignore this warning.
+    /home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/core/module.py:522: You called `self.log('train/loss', ..., logger=True)` but have no logger configured. You can enable one by doing `Trainer(logger=ALogger(...))`
+    Epoch 0/0  ━━━━━━━━━━━━━━━━━ 16/16 0:00:10 • 0:00:00 1.55it/s loss_step: 54.425 
+                                                                  val_loss: 54.471  
+                                                                  loss_epoch: 54.430
+
+
+
+
+.. GENERATED FROM PYTHON SOURCE LINES 244-259
+
+Summary
+-------
+The complete pipeline:
+
+1. **DatasetCreator** - Store continuous data with pre-processing transforms
+2. **Modality.transform** - Pre-storage transforms (e.g., flatten kinematics)
+3. **DataModule** - Load directly to GPU, window, select inputs/targets
+4. **train_transform** - On-the-fly transforms (filtering, augmentation)
+5. **Model** - Your neural network
+
+Key benefits:
+- Modular: swap transforms without changing dataset
+- Efficient: zarr -> GPU loading (kvikio if available)
+- Flexible: input/target selection at training time
+- Named tensors: dimension-aware transforms
+
+.. GENERATED FROM PYTHON SOURCE LINES 259-264
+
+.. code-block:: Python
+
+
+    print()
+    print("=" * 60)
+    print("PIPELINE COMPLETE")
+    print("=" * 60)
+
+
+
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+
+    ============================================================
+    PIPELINE COMPLETE
+    ============================================================
 
 
 
@@ -128,9 +536,9 @@ Training the model
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (1 minutes 15.625 seconds)
+   **Total running time of the script:** (0 minutes 14.939 seconds)
 
-**Estimated memory usage:**  725 MB
+**Estimated memory usage:**  811 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_4_train_model.py:

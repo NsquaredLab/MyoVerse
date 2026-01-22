@@ -1,0 +1,19 @@
+﻿Scale
+=========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Scale
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Scale
+       
+            ~Scale.__init__
+            ~Scale._apply
+        
+        

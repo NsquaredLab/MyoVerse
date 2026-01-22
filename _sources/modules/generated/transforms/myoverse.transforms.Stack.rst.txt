@@ -1,0 +1,19 @@
+﻿Stack
+=========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Stack
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Stack
+       
+            ~Stack.__init__
+            ~Stack._apply
+        
+        

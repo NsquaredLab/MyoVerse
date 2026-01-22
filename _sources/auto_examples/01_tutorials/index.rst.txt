@@ -17,7 +17,7 @@ Tutorials
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example is a brief introduction to the basic functionalities of the package.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example introduces the transform system - the core building block for data processing in MyoVerse. Transforms use PyTorch named tensors for dimension-aware operations that run on both CPU and GPU.">
 
 .. only:: html
 
@@ -28,13 +28,13 @@ Tutorials
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Package basics</div>
+      <div class="sphx-glr-thumbnail-title">Transform Basics</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to apply a complex filter sequence to the data.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to build complex filter pipelines with multiple representations using the dimension-aware transform system.">
 
 .. only:: html
 
@@ -45,13 +45,13 @@ Tutorials
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Complex filtering</div>
+      <div class="sphx-glr-thumbnail-title">Complex Filtering Pipelines</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to create a dataset for training a deep learning model.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to create a multi-modal dataset for training.">
 
 .. only:: html
 
@@ -68,7 +68,7 @@ Tutorials
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example shows how to train a deep learning model using the dataset created in the previous example.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example shows the complete training pipeline from raw data to model training. Each step is explained and demonstrated.">
 
 .. only:: html
 
@@ -79,7 +79,7 @@ Tutorials
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Training a deep learning model</div>
+      <div class="sphx-glr-thumbnail-title">Training Pipeline</div>
     </div>
 
 

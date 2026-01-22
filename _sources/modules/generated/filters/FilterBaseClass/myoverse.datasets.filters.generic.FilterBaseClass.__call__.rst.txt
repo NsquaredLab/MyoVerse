@@ -1,6 +1,0 @@
-myoverse.datasets.filters.generic.FilterBaseClass.\_\_call\_\_
-==============================================================
-
-.. currentmodule:: myoverse.datasets.filters.generic
-
-.. automethod:: FilterBaseClass.__call__

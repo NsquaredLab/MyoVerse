@@ -1,6 +1,0 @@
-myoverse.datasets.filters.generic.IndexDataFilter.\_filter
-==========================================================
-
-.. currentmodule:: myoverse.datasets.filters.generic
-
-.. automethod:: IndexDataFilter._filter

@@ -1,0 +1,18 @@
+﻿ZeroCrossings
+=================================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: ZeroCrossings
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ZeroCrossings
+       
+            ~ZeroCrossings._compute_window
+        
+        

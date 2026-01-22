@@ -1,0 +1,19 @@
+﻿Index
+=========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Index
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Index
+       
+            ~Index.__init__
+            ~Index._apply
+        
+        

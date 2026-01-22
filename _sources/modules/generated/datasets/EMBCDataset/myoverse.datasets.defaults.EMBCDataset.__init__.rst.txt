@@ -1,6 +1,0 @@
-myoverse.datasets.defaults.EMBCDataset.\_\_init\_\_
-===================================================
-
-.. currentmodule:: myoverse.datasets.defaults
-
-.. automethod:: EMBCDataset.__init__

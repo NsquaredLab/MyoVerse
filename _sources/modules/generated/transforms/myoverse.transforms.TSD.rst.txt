@@ -1,0 +1,18 @@
+﻿TSD
+=======================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: TSD
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: TSD
+       
+            ~TSD.__init__
+        
+        

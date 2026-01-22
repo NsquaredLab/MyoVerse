@@ -38,7 +38,7 @@ and visualization, making it valuable for analyzing complex multichannel EMG rec
 
 First, let's import the necessary libraries
 
-.. GENERATED FROM PYTHON SOURCE LINES 21-25
+.. GENERATED FROM PYTHON SOURCE LINES 21-28
 
 .. code-block:: Python
 
@@ -46,6 +46,8 @@ First, let's import the necessary libraries
     import matplotlib.pyplot as plt
     from myoverse.datatypes import EMGData, create_grid_layout
 
+    plt.style.use("fivethirtyeight")
+    plt.rcParams["axes.grid"] = False
 
 
 
@@ -53,7 +55,8 @@ First, let's import the necessary libraries
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 26-31
+
+.. GENERATED FROM PYTHON SOURCE LINES 29-34
 
 Creating basic grid layouts
 ==========================
@@ -61,20 +64,20 @@ Creating basic grid layouts
 The ``create_grid_layout`` function helps create grid layouts with different patterns and configurations.
 Let's create some examples to understand the options:
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-44
+.. GENERATED FROM PYTHON SOURCE LINES 34-47
 
 .. code-block:: Python
 
 
-    # Create a 4×4 grid with row-wise numbering (0-15)
+    # Create a 4*4 grid with row-wise numbering (0-15)
     grid_row = create_grid_layout(4, 4, fill_pattern="row")
-    print("4×4 grid with row-wise numbering:")
+    print("4*4 grid with row-wise numbering:")
     print(grid_row)
     print()
 
-    # Create a 4×4 grid with column-wise numbering (0-15)
+    # Create a 4*4 grid with column-wise numbering (0-15)
     grid_col = create_grid_layout(4, 4, fill_pattern="column")
-    print("4×4 grid with column-wise numbering:")
+    print("4*4 grid with column-wise numbering:")
     print(grid_col)
     print()
 
@@ -86,13 +89,13 @@ Let's create some examples to understand the options:
 
  .. code-block:: none
 
-    4×4 grid with row-wise numbering:
+    4*4 grid with row-wise numbering:
     [[ 0  1  2  3]
      [ 4  5  6  7]
      [ 8  9 10 11]
      [12 13 14 15]]
 
-    4×4 grid with column-wise numbering:
+    4*4 grid with column-wise numbering:
     [[ 0  4  8 12]
      [ 1  5  9 13]
      [ 2  6 10 14]
@@ -102,7 +105,7 @@ Let's create some examples to understand the options:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 45-50
+.. GENERATED FROM PYTHON SOURCE LINES 48-53
 
 Visualizing the grid layouts
 ===========================
@@ -110,7 +113,7 @@ Visualizing the grid layouts
 Let's create random EMG data and use these grid layouts to visualize it.
 We'll use our enhanced `plot_grid_layout` method to create professional visualizations.
 
-.. GENERATED FROM PYTHON SOURCE LINES 50-87
+.. GENERATED FROM PYTHON SOURCE LINES 53-94
 
 .. code-block:: Python
 
@@ -133,6 +136,8 @@ We'll use our enhanced `plot_grid_layout` method to create professional visualiz
         title="Row-wise Numbering",
         colorbar=False,
         grid_alpha=0.7,
+        text_color="black",
+        cmap=plt.cm.rainbow,
         ax=ax1,
         autoshow=False,  # Don't show yet - wait until both grids are plotted
     )
@@ -143,6 +148,8 @@ We'll use our enhanced `plot_grid_layout` method to create professional visualiz
         title="Column-wise Numbering",
         colorbar=False,
         grid_alpha=0.7,
+        text_color="black",
+        cmap=plt.cm.rainbow,
         ax=ax2,
         autoshow=False,  # Don't show yet
     )
@@ -163,7 +170,7 @@ We'll use our enhanced `plot_grid_layout` method to create professional visualiz
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 88-93
+.. GENERATED FROM PYTHON SOURCE LINES 95-100
 
 Working with missing electrodes
 ==============================
@@ -171,18 +178,18 @@ Working with missing electrodes
 In real-world scenarios, electrode grids may have missing or non-functional electrodes.
 The ``grid_layouts`` parameter allows you to specify these gaps using -1 values.
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-117
+.. GENERATED FROM PYTHON SOURCE LINES 100-126
 
 .. code-block:: Python
 
 
-    # Create a 5×5 grid with some missing electrodes
+    # Create a 5*5 grid with some missing electrodes
     missing_indices = [(0, 0), (2, 2), (4, 4)]  # Positions where electrodes are missing
     grid_with_gaps = create_grid_layout(
         5, 5, fill_pattern="row", missing_indices=missing_indices
     )
 
-    print("5×5 grid with missing electrodes:")
+    print("5*5 grid with missing electrodes:")
     print(grid_with_gaps)
     print()
 
@@ -193,17 +200,19 @@ The ``grid_layouts`` parameter allows you to specify these gaps using -1 values.
     # Visualize the grid with gaps using the enhanced method
     emg_with_gaps.plot_grid_layout(
         0,
-        title="5×5 Grid with Missing Electrodes",
+        title="5*5 Grid with Missing Electrodes",
         colorbar=True,
         figsize=(8, 8),
         text_fontsize=12,
+        text_color="black",
+        cmap=plt.cm.rainbow,
     )
 
 
 
 
 .. image-sg:: /auto_examples/02_filters/images/sphx_glr_1_emg_grid_layouts_002.png
-   :alt: 5×5 Grid with Missing Electrodes
+   :alt: 5*5 Grid with Missing Electrodes
    :srcset: /auto_examples/02_filters/images/sphx_glr_1_emg_grid_layouts_002.png
    :class: sphx-glr-single-img
 
@@ -212,7 +221,7 @@ The ``grid_layouts`` parameter allows you to specify these gaps using -1 values.
 
  .. code-block:: none
 
-    5×5 grid with missing electrodes:
+    5*5 grid with missing electrodes:
     [[-1  0  1  2  3]
      [ 4  5  6  7  8]
      [ 9 10 -1 11 12]
@@ -223,7 +232,7 @@ The ``grid_layouts`` parameter allows you to specify these gaps using -1 values.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-139
+.. GENERATED FROM PYTHON SOURCE LINES 127-148
 
 Multiple electrode grids
 =======================
@@ -247,7 +256,7 @@ parameter accepts a list of grids, allowing you to represent complex multi-array
    You could use any arbitrary, non-overlapping channel indices for each grid
    as long as they correctly map to the corresponding channels in your EMG data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-198
+.. GENERATED FROM PYTHON SOURCE LINES 148-213
 
 .. code-block:: Python
 
@@ -281,27 +290,33 @@ parameter accepts a list of grids, allowing you to represent complex multi-array
     # Plot all three grids on the same figure
     emg_multi.plot_grid_layout(
         0,
-        title="Grid 1: 4×4 Row-wise (0-15)",
+        title="Grid 1: 4*4 Row-wise (0-15)",
         colorbar=False,
         highlight_electrodes=highlights1,
+        text_color="black",
+        cmap=plt.cm.rainbow,
         ax=axes[0],
         autoshow=False,
     )
 
     emg_multi.plot_grid_layout(
         1,
-        title="Grid 2: 4×4 Column-wise (16-31)",
+        title="Grid 2: 4*4 Column-wise (16-31)",
         colorbar=False,
         highlight_electrodes=highlights2,
+        text_color="black",
+        cmap=plt.cm.rainbow,
         ax=axes[1],
         autoshow=False,
     )
 
     emg_multi.plot_grid_layout(
         2,
-        title="Grid 3: 3×3 Row-wise (32-40)",
+        title="Grid 3: 3*3 Row-wise (32-40)",
         colorbar=False,
         highlight_electrodes=highlights3,
+        text_color="black",
+        cmap=plt.cm.rainbow,
         ax=axes[2],
         autoshow=False,
     )
@@ -314,7 +329,7 @@ parameter accepts a list of grids, allowing you to represent complex multi-array
 
 
 .. image-sg:: /auto_examples/02_filters/images/sphx_glr_1_emg_grid_layouts_003.png
-   :alt: Multiple Electrode Grids, Grid 1: 4×4 Row-wise (0-15), Grid 2: 4×4 Column-wise (16-31), Grid 3: 3×3 Row-wise (32-40)
+   :alt: Multiple Electrode Grids, Grid 1: 4*4 Row-wise (0-15), Grid 2: 4*4 Column-wise (16-31), Grid 3: 3*3 Row-wise (32-40)
    :srcset: /auto_examples/02_filters/images/sphx_glr_1_emg_grid_layouts_003.png
    :class: sphx-glr-single-img
 
@@ -322,11 +337,11 @@ parameter accepts a list of grids, allowing you to represent complex multi-array
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 199-200
+.. GENERATED FROM PYTHON SOURCE LINES 214-215
 
 Let's also demonstrate what happens when validation fails:
 
-.. GENERATED FROM PYTHON SOURCE LINES 200-224
+.. GENERATED FROM PYTHON SOURCE LINES 215-239
 
 .. code-block:: Python
 
@@ -372,12 +387,12 @@ Let's also demonstrate what happens when validation fails:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-227
+.. GENERATED FROM PYTHON SOURCE LINES 240-242
 
 The validation logic described earlier would help ensure electrode indices correctly
 map to EMG channels, preventing hard-to-debug issues when working with grid_layouts.
 
-.. GENERATED FROM PYTHON SOURCE LINES 229-234
+.. GENERATED FROM PYTHON SOURCE LINES 244-249
 
 Custom irregular grid shapes
 ==========================
@@ -385,7 +400,7 @@ Custom irregular grid shapes
 Some electrode arrays have non-rectangular shapes. Let's create a custom
 grid layout for a circular electrode array.
 
-.. GENERATED FROM PYTHON SOURCE LINES 234-264
+.. GENERATED FROM PYTHON SOURCE LINES 249-280
 
 .. code-block:: Python
 
@@ -415,7 +430,8 @@ grid layout for a circular electrode array.
         text_fontsize=12,
         colorbar=True,
         grid_alpha=0.5,
-        text_color="yellow",
+        text_color="black",
+        cmap=plt.cm.rainbow,
         highlight_electrodes=[0, 4],  # Highlight a couple of electrodes
         highlight_color="cyan",
     )
@@ -434,9 +450,9 @@ grid layout for a circular electrode array.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.010 seconds)
+   **Total running time of the script:** (0 minutes 3.297 seconds)
 
-**Estimated memory usage:**  700 MB
+**Estimated memory usage:**  751 MB
 
 
 .. _sphx_glr_download_auto_examples_02_filters_1_emg_grid_layouts.py:

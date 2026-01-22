@@ -1,0 +1,6 @@
+myoverse.transforms.Dropout.train
+=================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: Dropout.train

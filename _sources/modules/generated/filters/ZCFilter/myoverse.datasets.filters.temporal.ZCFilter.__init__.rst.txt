@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.ZCFilter.\_\_init\_\_
-========================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: ZCFilter.__init__

@@ -20,17 +20,10 @@
             ~_Data.__setitem__
             ~_Data.__str__
             ~_Data._check_if_chunked
-            ~_Data.apply_filter
-            ~_Data.apply_filter_pipeline
-            ~_Data.apply_filter_sequence
-            ~_Data.delete
             ~_Data.delete_data
-            ~_Data.delete_history
-            ~_Data.get_representation_history
             ~_Data.load
             ~_Data.memory_usage
             ~_Data.plot
-            ~_Data.plot_graph
             ~_Data.save
         
         

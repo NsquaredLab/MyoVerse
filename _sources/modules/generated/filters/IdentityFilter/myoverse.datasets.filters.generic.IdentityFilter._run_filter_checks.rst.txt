@@ -1,6 +1,0 @@
-myoverse.datasets.filters.generic.IdentityFilter.\_run\_filter\_checks
-======================================================================
-
-.. currentmodule:: myoverse.datasets.filters.generic
-
-.. automethod:: IdentityFilter._run_filter_checks

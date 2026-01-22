@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Training a deep learning model &#8212; MyoVerse 1.1.6 Documentation</title>
+    <title>Training Pipeline &#8212; MyoVerse 2.0.0 Documentation</title>
   
   
   
@@ -43,9 +43,9 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=937269b5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=51b770b3"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/01_tutorials/4_train_model';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -53,7 +53,7 @@
     <link rel="prev" title="Creating a dataset" href="3_create_dataset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.1.6" />
+  <meta name="docsearch:version" content="2.0.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.6 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.6 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 2.0.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 2.0.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.1.6
+          Version 2.0.0
       </button>
       
       
@@ -327,15 +327,15 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="1_understanding_basics.html">Package basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_complex_filtering.html">Complex filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_understanding_basics.html">Transform Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_complex_filtering.html">Complex Filtering Pipelines</a></li>
 <li class="toctree-l2"><a class="reference internal" href="3_create_dataset.html">Creating a dataset</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Training a deep learning model</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Training Pipeline</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../02_filters/index.html">Filters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/1_emg_grid_layouts.html">EMG Grid Layouts: Electrode Arrangements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Temporal Signal Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/3_spatial_filters.html">Applying Spatial Filters to EMG Data</a></li>
 </ul>
 </details></li>
@@ -385,7 +385,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Training a deep learning model</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Training Pipeline</span></li>
   </ul>
 </nav>
 </div>
@@ -407,212 +407,389 @@
 <p><a class="reference internal" href="#sphx-glr-download-auto-examples-01-tutorials-4-train-model-py"><span class="std std-ref">Go to the end</span></a>
 to download the full example code.</p>
 </div>
-<section class="sphx-glr-example-title" id="training-a-deep-learning-model">
-<span id="sphx-glr-auto-examples-01-tutorials-4-train-model-py"></span><h1>Training a deep learning model<a class="headerlink" href="#training-a-deep-learning-model" title="Link to this heading">#</a></h1>
-<p>This example shows how to train a deep learning model using the dataset created in the previous example.</p>
-<section id="loading-the-dataset">
-<h2>Loading the dataset<a class="headerlink" href="#loading-the-dataset" title="Link to this heading">#</a></h2>
-<p>To load the dataset we need to use the EMGDatasetLoader class.</p>
-<p>Two parameters are required:</p>
-<ul class="simple">
-<li><p>data_path: Path to the dataset file.</p></li>
-<li><p>dataloader_parameters: Parameters for the DataLoader.</p></li>
-</ul>
+<section class="sphx-glr-example-title" id="training-pipeline">
+<span id="sphx-glr-auto-examples-01-tutorials-4-train-model-py"></span><h1>Training Pipeline<a class="headerlink" href="#training-pipeline" title="Link to this heading">#</a></h1>
+<p>This example shows the complete training pipeline from raw data to model training.
+Each step is explained and demonstrated.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGDatasetLoader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datatypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">_Data</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 
+<span class="c1"># Get the path to the data file</span>
+<span class="c1"># Find data directory relative to myoverse package (works in all contexts)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">myoverse</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_pkg_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="n">myoverse</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_pkg_dir</span></a> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.exists" title="pathlib.Path.exists" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">DATA_DIR</span><span class="o">.</span><span class="n">exists</span></a><span class="p">():</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.cwd" title="pathlib.Path.cwd" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span></a><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
 
-<span class="c1"># Create a class to handle the target data that doesn&#39;t enforce a specific shape</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">CustomDataClass</span><span class="p">(</span><span class="n">_Data</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">sampling_frequency</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># Initialize parent class with raw data</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">raw_data</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span> <span class="n">sampling_frequency</span><span class="p">,</span> <span class="n">nr_of_dimensions_when_unchunked</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="c1"># Determine device</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DEVICE</span></a> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.cuda.is_available.html#torch.cuda.is_available" title="torch.cuda.is_available" class="sphx-glr-backref-module-torch-cuda sphx-glr-backref-type-py-function"><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span></a><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using device: </span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DEVICE</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="c1"># Let&#39;s use the built-in IdentityFilter which just passes data through</span>
-<span class="n">loader</span> <span class="o">=</span> <span class="n">EMGDatasetLoader</span><span class="p">(</span>
-    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/dataset.zarr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">dataloader_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span> <span class="s2">&quot;drop_last&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
-    <span class="n">target_data_class</span><span class="o">=</span><span class="n">CustomDataClass</span><span class="p">,</span>
+<span class="c1"># Step 1: Create Dataset with Preprocessing</span>
+<span class="c1"># ------------------------------------------</span>
+<span class="c1"># Use DatasetCreator with Modality transforms for pre-storage processing.</span>
+<span class="c1"># Here we use the EMBC paper configuration as an example.</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetCreator</span><span class="p">,</span> <span class="n">Modality</span><span class="p">,</span> <span class="n">embc_kinematics_transform</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 1: Dataset Creation&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<span class="n">creator</span> <span class="o">=</span> <span class="n">DatasetCreator</span><span class="p">(</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="p">{</span>
+        <span class="c1"># EMG: raw continuous data (320 channels from 5 electrode grids)</span>
+        <span class="s2">&quot;emg&quot;</span><span class="p">:</span> <span class="n">Modality</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;emg.pkl&quot;</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="c1"># Kinematics: apply transform to flatten and remove wrist</span>
+        <span class="c1"># (21, 3, time) -&gt; (60, time)</span>
+        <span class="s2">&quot;kinematics&quot;</span><span class="p">:</span> <span class="n">Modality</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;kinematics.pkl&quot;</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;dof&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">),</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">embc_kinematics_transform</span><span class="p">(),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="n">sampling_frequency</span><span class="o">=</span><span class="mf">2048.0</span><span class="p">,</span>
+    <span class="n">tasks_to_use</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">],</span>
+    <span class="n">save_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;tutorial_dataset.zip&quot;</span><span class="p">,</span>
+    <span class="n">test_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">val_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">debug_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="n">creator</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Using device: cpu
+============================================================
+STEP 1: Dataset Creation
+============================================================
+────────────────────────── STARTING DATASET CREATION ───────────────────────────
+
+                             Dataset Configuration
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Parameter               ┃ Value                                              ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Modalities              │ emg, kinematics                                    │
+│ Sampling frequency (Hz) │ 2048.0                                             │
+│ Save path               │ /home/runner/work/MyoVerse/MyoVerse/examples/data… │
+│ Test ratio              │ 0.2                                                │
+│ Validation ratio        │ 0.2                                                │
+└─────────────────────────┴────────────────────────────────────────────────────┘
+
+Processing 2 tasks: 1, 2
+
+Dataset Structure
+├── emg dims=(&#39;channel&#39;, &#39;time&#39;)
+│   ├── Task 1: (320, 20440)
+│   └── Task 2: (320, 20440)
+└── kinematics dims=(&#39;dof&#39;, &#39;time&#39;)
+    ├── Task 1: (60, 20440)
+    └── Task 2: (60, 20440)
+
+─────────────────────────────── PROCESSING TASKS ───────────────────────────────
+
+  Processing task 2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
+
+               Dataset Summary
+ Split       emg              kinematics
+ training    1: (320, 16352)  1: (60, 16352)
+             2: (320, 16352)  2: (60, 16352)
+ validation  1: (320, 816)    1: (60, 816)
+             2: (320, 816)    2: (60, 816)
+ testing     1: (320, 3272)   1: (60, 3272)
+             2: (320, 3272)   2: (60, 3272)
+
+Total size: 26.09 MB
+─────────────────── Dataset Creation Successfully Completed! ───────────────────
+</pre></div>
+</div>
+<section id="step-2-define-training-transforms">
+<h2>Step 2: Define Training Transforms<a class="headerlink" href="#step-2-define-training-transforms" title="Link to this heading">#</a></h2>
+<p>Transforms are applied on-the-fly during training.
+- embc_train_transform: Creates dual representation (raw + lowpass) + augmentation
+- embc_eval_transform: Same processing without augmentation</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">embc_eval_transform</span><span class="p">,</span> <span class="n">embc_target_transform</span><span class="p">,</span> <span class="n">embc_train_transform</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 2: Training Transforms&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<span class="c1"># Training: dual representation + noise augmentation</span>
+<a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train_tf</span></a> <span class="o">=</span> <span class="n">embc_train_transform</span><span class="p">(</span><span class="n">augmentation</span><span class="o">=</span><span class="s2">&quot;noise&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Train transform: </span><span class="si">{</span><a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train_tf</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Validation: dual representation only (no augmentation)</span>
+<a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">val_tf</span></a> <span class="o">=</span> <span class="n">embc_eval_transform</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Val transform: </span><span class="si">{</span><a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">val_tf</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Target: average kinematics over window -&gt; single prediction per DOF</span>
+<span class="n">target_tf</span> <span class="o">=</span> <span class="n">embc_target_transform</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target transform: </span><span class="si">{</span><span class="n">target_tf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+STEP 2: Training Transforms
+============================================================
+Train transform: Compose(
+    Stack(dim=&#39;time&#39;, transforms={&#39;raw&#39;: Identity(dim=&#39;time&#39;), &#39;filtered&#39;: Lowpass(dim=&#39;time&#39;, cutoff=20.0, fs=2048.0, order=4, Q=0.707)}, stack_dim=&#39;representation&#39;)
+    GaussianNoise(dim=&#39;time&#39;, std=0.1, p=1.0)
+)
+Val transform: Compose(
+    Stack(dim=&#39;time&#39;, transforms={&#39;raw&#39;: Identity(dim=&#39;time&#39;), &#39;filtered&#39;: Lowpass(dim=&#39;time&#39;, cutoff=20.0, fs=2048.0, order=4, Q=0.707)}, stack_dim=&#39;representation&#39;)
+)
+Target transform: Mean(dim=&#39;time&#39;, keepdim=False)
 </pre></div>
 </div>
 </section>
-<section id="training-the-model">
-<h2>Training the model<a class="headerlink" href="#training-the-model" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.models.definitions.raul_net.online.v16</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.Module" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-class"><span class="n">RaulNetV16</span></a>
-<span class="kn">import</span><span class="w"> </span><span class="nn">lightning</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">L</span>
+<section id="step-3-create-datamodule">
+<h2>Step 3: Create DataModule<a class="headerlink" href="#step-3-create-datamodule" title="Link to this heading">#</a></h2>
+<p>DataModule handles:
+- Loading from zarr directly to tensors (GPU if available)
+- On-the-fly windowing (no pre-chunking needed)
+- Input/target selection (decided at training time, not storage time)
+- Transform application
+- Batching and DataLoader creation</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataModule</span>
 
-<span class="c1"># Create the model</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 3: DataModule Setup&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<span class="n">dm</span> <span class="o">=</span> <span class="n">DataModule</span><span class="p">(</span>
+    <span class="n">data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;tutorial_dataset.zip&quot;</span><span class="p">,</span>
+    <span class="c1"># Select which modalities are inputs vs targets</span>
+    <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;emg&quot;</span><span class="p">],</span>
+    <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;kinematics&quot;</span><span class="p">],</span>
+    <span class="c1"># Windowing parameters</span>
+    <span class="n">window_size</span><span class="o">=</span><span class="mi">192</span><span class="p">,</span>  <span class="c1"># ~94ms at 2048Hz</span>
+    <span class="n">window_stride</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>  <span class="c1"># For val/test (deterministic sliding window)</span>
+    <span class="n">n_windows_per_epoch</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>  <span class="c1"># For training (random positions) - small for demo</span>
+    <span class="c1"># Transforms (applied on-the-fly)</span>
+    <span class="n">train_transform</span><span class="o">=</span><a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">train_tf</span></a><span class="p">,</span>
+    <span class="n">val_transform</span><span class="o">=</span><a href="https://docs.pytorch.org/vision/stable/generated/torchvision.transforms.Compose.html#torchvision.transforms.Compose" title="torchvision.transforms.Compose" class="sphx-glr-backref-module-torchvision-transforms sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">val_tf</span></a><span class="p">,</span>
+    <span class="n">target_transform</span><span class="o">=</span><span class="n">target_tf</span><span class="p">,</span>  <span class="c1"># Average kinematics over window</span>
+    <span class="c1"># DataLoader settings</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># Set to 4+ for parallel loading</span>
+    <span class="c1"># Device: load directly to GPU if available</span>
+    <span class="n">device</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DEVICE</span></a><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Setup creates the datasets</span>
+<span class="n">dm</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="s2">&quot;fit&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training samples per epoch: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">train_dataloader</span><span class="p">())</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">dm</span><span class="o">.</span><span class="n">batch_size</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation batches: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">val_dataloader</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+STEP 3: DataModule Setup
+============================================================
+Training samples per epoch: 512
+Validation batches: 1
+</pre></div>
+</div>
+</section>
+<section id="step-4-inspect-batch-structure">
+<h2>Step 4: Inspect Batch Structure<a class="headerlink" href="#step-4-inspect-batch-structure" title="Link to this heading">#</a></h2>
+<p>With single input/target, DataModule returns tensors directly
+(for compatibility with existing models).
+With multiple inputs/targets, it returns dicts.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 4: Batch Structure&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">batch</span></a> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">train_dataloader</span><span class="p">()))</span>
+<a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_batch</span></a><span class="p">,</span> <a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">kin_batch</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">batch</span></a>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EMG input shape: </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_batch</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;EMG input device: </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/tensor_attributes.html#torch.device" title="torch.device" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_batch</span><span class="o">.</span><span class="n">device</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Kinematics target shape: </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">kin_batch</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># EMG shape explanation (with Stack transform):</span>
+<span class="c1"># - Batch size: 32</span>
+<span class="c1"># - Representations: 2 (raw, filtered)</span>
+<span class="c1"># - Channels: varies based on data</span>
+<span class="c1"># - Time: 192 samples</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;EMG shape = (batch, representation, channel, time) via Stack transform&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+STEP 4: Batch Structure
+============================================================
+EMG input shape: torch.Size([32, 2, 320, 192])
+EMG input device: cpu
+Kinematics target shape: torch.Size([32, 60])
+
+EMG shape = (batch, representation, channel, time) via Stack transform
+</pre></div>
+</div>
+</section>
+<section id="step-5-create-model">
+<h2>Step 5: Create Model<a class="headerlink" href="#step-5-create-model" title="Link to this heading">#</a></h2>
+<p>RaulNetV16 expects:
+- Input: (batch, 2, channels, time) - 2 representations
+- Output: (batch, 60) - 60 DOF predictions</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 5: Model Setup&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.models</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.Module" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-class"><span class="n">RaulNetV16</span></a>
+
+<span class="c1"># Get actual channel count from data</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a> <span class="o">=</span> <a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_batch</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_grids</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a> <span class="o">//</span> <span class="mi">64</span> <span class="k">if</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_channels</span></a> <span class="o">&gt;=</span> <span class="mi">64</span> <span class="k">else</span> <span class="mi">1</span>
+
 <span class="n">model</span> <span class="o">=</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="torch.nn.Module" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-class"><span class="n">RaulNetV16</span></a><span class="p">(</span>
     <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
-    <span class="n">nr_of_input_channels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">nr_of_input_channels</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># raw + filtered</span>
     <span class="n">input_length__samples</span><span class="o">=</span><span class="mi">192</span><span class="p">,</span>
-    <span class="n">nr_of_outputs</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
-    <span class="n">nr_of_electrode_grids</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">nr_of_outputs</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>  <span class="c1"># 60 DOF</span>
+    <span class="n">nr_of_electrode_grids</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_grids</span></a><span class="p">,</span>
     <span class="n">nr_of_electrodes_per_grid</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
-    <span class="c1"># Multiply following by 4, 8, 16 to have a useful network</span>
     <span class="n">cnn_encoder_channels</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="n">mlp_encoder_channels</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
     <span class="n">event_search_kernel_length</span><span class="o">=</span><span class="mi">31</span><span class="p">,</span>
     <span class="n">event_search_kernel_stride</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
 <span class="p">)</span>
 
+<span class="c1"># Move model to same device as data</span>
+<span class="n">model</span> <span class="o">=</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.to" title="torch.nn.Module.to" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">to</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DEVICE</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Parameters: </span><span class="si">{</span><span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.parameters" title="torch.nn.Module.parameters" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">parameters</span></a><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+STEP 5: Model Setup
+============================================================
+Model: RaulNetV16
+Parameters: 14,720
+</pre></div>
+</div>
+</section>
+<section id="step-6-forward-pass-test">
+<h2>Step 6: Forward Pass Test<a class="headerlink" href="#step-6-forward-pass-test" title="Link to this heading">#</a></h2>
+<p>Named tensors are used during transforms for dimension-awareness,
+but stripped in the collate function before passing to the model.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 6: Forward Pass Test&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DataModule output: </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_batch</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(Names stripped in collate - ready for model)&quot;</span><span class="p">)</span>
+
+<span class="c1"># Quick forward pass test</span>
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.eval" title="torch.nn.Module.eval" class="sphx-glr-backref-module-torch-nn sphx-glr-backref-type-py-method"><span class="n">model</span><span class="o">.</span><span class="n">eval</span></a><span class="p">()</span>
+<span class="k">with</span> <a href="https://docs.pytorch.org/docs/stable/generated/torch.no_grad.html#torch.no_grad" title="torch.no_grad" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class"><span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span></a><span class="p">():</span>
+    <a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span></a> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><a href="https://docs.pytorch.org/docs/stable/tensors.html#torch.Tensor" title="torch.Tensor" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">emg_batch</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model output: </span><span class="si">{</span><a href="https://docs.pytorch.org/docs/stable/size.html#torch.Size" title="torch.Size" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output</span><span class="o">.</span><span class="n">shape</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+STEP 6: Forward Pass Test
+============================================================
+DataModule output: torch.Size([32, 2, 320, 192])
+(Names stripped in collate - ready for model)
+Model output: torch.Size([32, 60])
+</pre></div>
+</div>
+</section>
+<section id="step-7-training-loop">
+<h2>Step 7: Training Loop<a class="headerlink" href="#step-7-training-loop" title="Link to this heading">#</a></h2>
+<p>Use PyTorch Lightning Trainer for training.
+Note: For real training, increase max_epochs and n_windows_per_epoch.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lightning</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">L</span>
+
+<span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;STEP 7: Training (1 epoch, 500 windows)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+<a href="https://docs.pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision" title="torch.set_float32_matmul_precision" class="sphx-glr-backref-module-torch sphx-glr-backref-type-py-function"><span class="n">torch</span><span class="o">.</span><span class="n">set_float32_matmul_precision</span></a><span class="p">(</span><span class="s2">&quot;medium&quot;</span><span class="p">)</span>  <span class="c1"># For performance on some CPUs</span>
+
 <span class="n">trainer</span> <span class="o">=</span> <span class="n">L</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span>
     <span class="n">accelerator</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
     <span class="n">devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">precision</span><span class="o">=</span><span class="s2">&quot;16-mixed&quot;</span><span class="p">,</span>
+    <span class="n">precision</span><span class="o">=</span><span class="s2">&quot;32&quot;</span><span class="p">,</span>  <span class="c1"># Use 32-bit for CPU compatibility</span>
     <span class="n">max_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">log_every_n_steps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
-    <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">log_every_n_steps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">logger</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">enable_checkpointing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">deterministic</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">enable_progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">datamodule</span><span class="o">=</span><span class="n">loader</span><span class="p">)</span>
+<span class="c1"># Train for 1 epoch</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">datamodule</span><span class="o">=</span><span class="n">dm</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/accelerator_connector.py:513: You passed `Trainer(accelerator=&#39;cpu&#39;, precision=&#39;16-mixed&#39;)` but AMP with fp16 is not supported on CPU. Using `precision=&#39;bf16-mixed&#39;` instead.
-/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:425: The &#39;train_dataloader&#39; does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-
-Sanity Checking: |          | 0/? [00:00&lt;?, ?it/s]/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:425: The &#39;val_dataloader&#39; does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
-
-Sanity Checking:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Sanity Checking DataLoader 0:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-Sanity Checking DataLoader 0: 100%|██████████| 1/1 [00:00&lt;00:00,  1.68it/s]
-
-
-Training: |          | 0/? [00:00&lt;?, ?it/s]
-Training:   0%|          | 0/55 [00:00&lt;?, ?it/s]
-Epoch 0:   0%|          | 0/55 [00:00&lt;?, ?it/s]
-Epoch 0:   2%|▏         | 1/55 [00:01&lt;01:13,  0.73it/s]
-Epoch 0:   2%|▏         | 1/55 [00:01&lt;01:13,  0.73it/s, v_num=0, loss_step=54.10]
-Epoch 0:   4%|▎         | 2/55 [00:02&lt;01:10,  0.75it/s, v_num=0, loss_step=54.10]
-Epoch 0:   4%|▎         | 2/55 [00:02&lt;01:10,  0.75it/s, v_num=0, loss_step=54.60]
-Epoch 0:   5%|▌         | 3/55 [00:04&lt;01:09,  0.75it/s, v_num=0, loss_step=54.60]
-Epoch 0:   5%|▌         | 3/55 [00:04&lt;01:09,  0.75it/s, v_num=0, loss_step=54.40]
-Epoch 0:   7%|▋         | 4/55 [00:05&lt;01:09,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:   7%|▋         | 4/55 [00:05&lt;01:09,  0.74it/s, v_num=0, loss_step=54.90]
-Epoch 0:   9%|▉         | 5/55 [00:06&lt;01:07,  0.74it/s, v_num=0, loss_step=54.90]
-Epoch 0:   9%|▉         | 5/55 [00:06&lt;01:07,  0.74it/s, v_num=0, loss_step=53.90]
-Epoch 0:  11%|█         | 6/55 [00:08&lt;01:06,  0.74it/s, v_num=0, loss_step=53.90]
-Epoch 0:  11%|█         | 6/55 [00:08&lt;01:06,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:  13%|█▎        | 7/55 [00:09&lt;01:05,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:  13%|█▎        | 7/55 [00:09&lt;01:05,  0.74it/s, v_num=0, loss_step=53.70]
-Epoch 0:  15%|█▍        | 8/55 [00:10&lt;01:03,  0.74it/s, v_num=0, loss_step=53.70]
-Epoch 0:  15%|█▍        | 8/55 [00:10&lt;01:03,  0.74it/s, v_num=0, loss_step=55.10]
-Epoch 0:  16%|█▋        | 9/55 [00:12&lt;01:02,  0.74it/s, v_num=0, loss_step=55.10]
-Epoch 0:  16%|█▋        | 9/55 [00:12&lt;01:02,  0.74it/s, v_num=0, loss_step=54.20]
-Epoch 0:  18%|█▊        | 10/55 [00:13&lt;01:00,  0.74it/s, v_num=0, loss_step=54.20]
-Epoch 0:  18%|█▊        | 10/55 [00:13&lt;01:00,  0.74it/s, v_num=0, loss_step=54.10]
-Epoch 0:  20%|██        | 11/55 [00:14&lt;00:59,  0.74it/s, v_num=0, loss_step=54.10]
-Epoch 0:  20%|██        | 11/55 [00:14&lt;00:59,  0.74it/s, v_num=0, loss_step=54.20]
-Epoch 0:  22%|██▏       | 12/55 [00:16&lt;00:58,  0.74it/s, v_num=0, loss_step=54.20]
-Epoch 0:  22%|██▏       | 12/55 [00:16&lt;00:58,  0.74it/s, v_num=0, loss_step=54.60]
-Epoch 0:  24%|██▎       | 13/55 [00:17&lt;00:56,  0.74it/s, v_num=0, loss_step=54.60]
-Epoch 0:  24%|██▎       | 13/55 [00:17&lt;00:56,  0.74it/s, v_num=0, loss_step=53.90]
-Epoch 0:  25%|██▌       | 14/55 [00:18&lt;00:55,  0.74it/s, v_num=0, loss_step=53.90]
-Epoch 0:  25%|██▌       | 14/55 [00:18&lt;00:55,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:  27%|██▋       | 15/55 [00:20&lt;00:53,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:  27%|██▋       | 15/55 [00:20&lt;00:53,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:  29%|██▉       | 16/55 [00:21&lt;00:52,  0.74it/s, v_num=0, loss_step=54.40]
-Epoch 0:  29%|██▉       | 16/55 [00:21&lt;00:52,  0.74it/s, v_num=0, loss_step=55.10]
-Epoch 0:  31%|███       | 17/55 [00:22&lt;00:51,  0.74it/s, v_num=0, loss_step=55.10]
-Epoch 0:  31%|███       | 17/55 [00:22&lt;00:51,  0.74it/s, v_num=0, loss_step=53.30]
-Epoch 0:  33%|███▎      | 18/55 [00:24&lt;00:49,  0.74it/s, v_num=0, loss_step=53.30]
-Epoch 0:  33%|███▎      | 18/55 [00:24&lt;00:49,  0.74it/s, v_num=0, loss_step=54.00]
-Epoch 0:  35%|███▍      | 19/55 [00:25&lt;00:48,  0.74it/s, v_num=0, loss_step=54.00]
-Epoch 0:  35%|███▍      | 19/55 [00:25&lt;00:48,  0.74it/s, v_num=0, loss_step=53.20]
-Epoch 0:  36%|███▋      | 20/55 [00:26&lt;00:47,  0.74it/s, v_num=0, loss_step=53.20]
-Epoch 0:  36%|███▋      | 20/55 [00:26&lt;00:47,  0.74it/s, v_num=0, loss_step=53.70]
-Epoch 0:  38%|███▊      | 21/55 [00:28&lt;00:45,  0.74it/s, v_num=0, loss_step=53.70]
-Epoch 0:  38%|███▊      | 21/55 [00:28&lt;00:45,  0.74it/s, v_num=0, loss_step=52.50]
-Epoch 0:  40%|████      | 22/55 [00:29&lt;00:44,  0.74it/s, v_num=0, loss_step=52.50]
-Epoch 0:  40%|████      | 22/55 [00:29&lt;00:44,  0.74it/s, v_num=0, loss_step=53.00]
-Epoch 0:  42%|████▏     | 23/55 [00:30&lt;00:43,  0.74it/s, v_num=0, loss_step=53.00]
-Epoch 0:  42%|████▏     | 23/55 [00:30&lt;00:43,  0.74it/s, v_num=0, loss_step=52.10]
-Epoch 0:  44%|████▎     | 24/55 [00:32&lt;00:41,  0.74it/s, v_num=0, loss_step=52.10]
-Epoch 0:  44%|████▎     | 24/55 [00:32&lt;00:41,  0.74it/s, v_num=0, loss_step=52.60]
-Epoch 0:  45%|████▌     | 25/55 [00:33&lt;00:40,  0.74it/s, v_num=0, loss_step=52.60]
-Epoch 0:  45%|████▌     | 25/55 [00:33&lt;00:40,  0.74it/s, v_num=0, loss_step=52.30]
-Epoch 0:  47%|████▋     | 26/55 [00:34&lt;00:38,  0.74it/s, v_num=0, loss_step=52.30]
-Epoch 0:  47%|████▋     | 26/55 [00:34&lt;00:38,  0.74it/s, v_num=0, loss_step=52.00]
-Epoch 0:  49%|████▉     | 27/55 [00:36&lt;00:37,  0.74it/s, v_num=0, loss_step=52.00]
-Epoch 0:  49%|████▉     | 27/55 [00:36&lt;00:37,  0.74it/s, v_num=0, loss_step=52.10]
-Epoch 0:  51%|█████     | 28/55 [00:37&lt;00:36,  0.74it/s, v_num=0, loss_step=52.10]
-Epoch 0:  51%|█████     | 28/55 [00:37&lt;00:36,  0.74it/s, v_num=0, loss_step=51.50]
-Epoch 0:  53%|█████▎    | 29/55 [00:38&lt;00:34,  0.74it/s, v_num=0, loss_step=51.50]
-Epoch 0:  53%|█████▎    | 29/55 [00:38&lt;00:34,  0.74it/s, v_num=0, loss_step=51.30]
-Epoch 0:  55%|█████▍    | 30/55 [00:40&lt;00:33,  0.74it/s, v_num=0, loss_step=51.30]
-Epoch 0:  55%|█████▍    | 30/55 [00:40&lt;00:33,  0.74it/s, v_num=0, loss_step=51.00]
-Epoch 0:  56%|█████▋    | 31/55 [00:41&lt;00:32,  0.74it/s, v_num=0, loss_step=51.00]
-Epoch 0:  56%|█████▋    | 31/55 [00:41&lt;00:32,  0.74it/s, v_num=0, loss_step=50.10]
-Epoch 0:  58%|█████▊    | 32/55 [00:42&lt;00:30,  0.74it/s, v_num=0, loss_step=50.10]
-Epoch 0:  58%|█████▊    | 32/55 [00:42&lt;00:30,  0.74it/s, v_num=0, loss_step=49.70]
-Epoch 0:  60%|██████    | 33/55 [00:44&lt;00:29,  0.75it/s, v_num=0, loss_step=49.70]
-Epoch 0:  60%|██████    | 33/55 [00:44&lt;00:29,  0.75it/s, v_num=0, loss_step=49.50]
-Epoch 0:  62%|██████▏   | 34/55 [00:45&lt;00:28,  0.75it/s, v_num=0, loss_step=49.50]
-Epoch 0:  62%|██████▏   | 34/55 [00:45&lt;00:28,  0.75it/s, v_num=0, loss_step=50.10]
-Epoch 0:  64%|██████▎   | 35/55 [00:46&lt;00:26,  0.75it/s, v_num=0, loss_step=50.10]
-Epoch 0:  64%|██████▎   | 35/55 [00:46&lt;00:26,  0.75it/s, v_num=0, loss_step=48.10]
-Epoch 0:  65%|██████▌   | 36/55 [00:48&lt;00:25,  0.75it/s, v_num=0, loss_step=48.10]
-Epoch 0:  65%|██████▌   | 36/55 [00:48&lt;00:25,  0.75it/s, v_num=0, loss_step=48.60]
-Epoch 0:  67%|██████▋   | 37/55 [00:49&lt;00:24,  0.75it/s, v_num=0, loss_step=48.60]
-Epoch 0:  67%|██████▋   | 37/55 [00:49&lt;00:24,  0.75it/s, v_num=0, loss_step=47.70]
-Epoch 0:  69%|██████▉   | 38/55 [00:50&lt;00:22,  0.75it/s, v_num=0, loss_step=47.70]
-Epoch 0:  69%|██████▉   | 38/55 [00:50&lt;00:22,  0.75it/s, v_num=0, loss_step=47.50]
-Epoch 0:  71%|███████   | 39/55 [00:52&lt;00:21,  0.75it/s, v_num=0, loss_step=47.50]
-Epoch 0:  71%|███████   | 39/55 [00:52&lt;00:21,  0.75it/s, v_num=0, loss_step=47.90]
-Epoch 0:  73%|███████▎  | 40/55 [00:53&lt;00:20,  0.75it/s, v_num=0, loss_step=47.90]
-Epoch 0:  73%|███████▎  | 40/55 [00:53&lt;00:20,  0.75it/s, v_num=0, loss_step=46.50]
-Epoch 0:  75%|███████▍  | 41/55 [00:54&lt;00:18,  0.75it/s, v_num=0, loss_step=46.50]
-Epoch 0:  75%|███████▍  | 41/55 [00:54&lt;00:18,  0.75it/s, v_num=0, loss_step=46.90]
-Epoch 0:  76%|███████▋  | 42/55 [00:56&lt;00:17,  0.75it/s, v_num=0, loss_step=46.90]
-Epoch 0:  76%|███████▋  | 42/55 [00:56&lt;00:17,  0.75it/s, v_num=0, loss_step=46.30]
-Epoch 0:  78%|███████▊  | 43/55 [00:57&lt;00:16,  0.75it/s, v_num=0, loss_step=46.30]
-Epoch 0:  78%|███████▊  | 43/55 [00:57&lt;00:16,  0.75it/s, v_num=0, loss_step=46.60]
-Epoch 0:  80%|████████  | 44/55 [00:58&lt;00:14,  0.75it/s, v_num=0, loss_step=46.60]
-Epoch 0:  80%|████████  | 44/55 [00:58&lt;00:14,  0.75it/s, v_num=0, loss_step=46.40]
-Epoch 0:  82%|████████▏ | 45/55 [01:00&lt;00:13,  0.75it/s, v_num=0, loss_step=46.40]
-Epoch 0:  82%|████████▏ | 45/55 [01:00&lt;00:13,  0.75it/s, v_num=0, loss_step=46.10]
-Epoch 0:  84%|████████▎ | 46/55 [01:01&lt;00:12,  0.75it/s, v_num=0, loss_step=46.10]
-Epoch 0:  84%|████████▎ | 46/55 [01:01&lt;00:12,  0.75it/s, v_num=0, loss_step=45.80]
-Epoch 0:  85%|████████▌ | 47/55 [01:02&lt;00:10,  0.75it/s, v_num=0, loss_step=45.80]
-Epoch 0:  85%|████████▌ | 47/55 [01:02&lt;00:10,  0.75it/s, v_num=0, loss_step=44.40]
-Epoch 0:  87%|████████▋ | 48/55 [01:04&lt;00:09,  0.75it/s, v_num=0, loss_step=44.40]
-Epoch 0:  87%|████████▋ | 48/55 [01:04&lt;00:09,  0.75it/s, v_num=0, loss_step=46.80]
-Epoch 0:  89%|████████▉ | 49/55 [01:05&lt;00:08,  0.75it/s, v_num=0, loss_step=46.80]
-Epoch 0:  89%|████████▉ | 49/55 [01:05&lt;00:08,  0.75it/s, v_num=0, loss_step=46.10]
-Epoch 0:  91%|█████████ | 50/55 [01:07&lt;00:06,  0.75it/s, v_num=0, loss_step=46.10]
-Epoch 0:  91%|█████████ | 50/55 [01:07&lt;00:06,  0.75it/s, v_num=0, loss_step=46.40]
-Epoch 0:  93%|█████████▎| 51/55 [01:08&lt;00:05,  0.75it/s, v_num=0, loss_step=46.40]
-Epoch 0:  93%|█████████▎| 51/55 [01:08&lt;00:05,  0.75it/s, v_num=0, loss_step=45.30]
-Epoch 0:  95%|█████████▍| 52/55 [01:09&lt;00:04,  0.75it/s, v_num=0, loss_step=45.30]
-Epoch 0:  95%|█████████▍| 52/55 [01:09&lt;00:04,  0.75it/s, v_num=0, loss_step=45.80]
-Epoch 0:  96%|█████████▋| 53/55 [01:11&lt;00:02,  0.75it/s, v_num=0, loss_step=45.80]
-Epoch 0:  96%|█████████▋| 53/55 [01:11&lt;00:02,  0.75it/s, v_num=0, loss_step=45.30]
-Epoch 0:  98%|█████████▊| 54/55 [01:12&lt;00:01,  0.75it/s, v_num=0, loss_step=45.30]
-Epoch 0:  98%|█████████▊| 54/55 [01:12&lt;00:01,  0.75it/s, v_num=0, loss_step=45.30]
-Epoch 0: 100%|██████████| 55/55 [01:13&lt;00:00,  0.75it/s, v_num=0, loss_step=45.30]
-Epoch 0: 100%|██████████| 55/55 [01:13&lt;00:00,  0.75it/s, v_num=0, loss_step=46.60]
-
-Validation: |          | 0/? [00:00&lt;?, ?it/s]
-
-Validation:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-
-Validation DataLoader 0:   0%|          | 0/1 [00:00&lt;?, ?it/s]
-
-Validation DataLoader 0: 100%|██████████| 1/1 [00:00&lt;00:00,  1.89it/s]
-
-
-Epoch 0: 100%|██████████| 55/55 [01:14&lt;00:00,  0.74it/s, v_num=0, loss_step=46.60, val_loss=45.80]
-Epoch 0: 100%|██████████| 55/55 [01:14&lt;00:00,  0.74it/s, v_num=0, loss_step=46.60, val_loss=45.80, loss_epoch=50.60]
-Epoch 0: 100%|██████████| 55/55 [01:14&lt;00:00,  0.74it/s, v_num=0, loss_step=46.60, val_loss=45.80, loss_epoch=50.60]
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+STEP 7: Training (1 epoch, 500 windows)
+============================================================
+/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The &#39;train_dataloader&#39; does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+┏━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━┳━━━━━━━┓
+┃   ┃ Name        ┃ Type       ┃ Params ┃ Mode ┃ FLOPs ┃
+┡━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━╇━━━━━━━┩
+│ 0 │ criterion   │ L1Loss     │      0 │ eval │     0 │
+│ 1 │ cnn_encoder │ Sequential │ 11.7 K │ eval │     0 │
+│ 2 │ mlp         │ Sequential │  3.0 K │ eval │     0 │
+└───┴─────────────┴────────────┴────────┴──────┴───────┘
+Trainable params: 14.7 K
+Non-trainable params: 0
+Total params: 14.7 K
+Total estimated model params size (MB): 0
+Modules in train mode: 0
+Modules in eval mode: 19
+Total FLOPs: 0
+/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/trainer/connectors/data_connector.py:434: The &#39;val_dataloader&#39; does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` to `num_workers=3` in the `DataLoader` to improve performance.
+/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/core/module.py:522: You called `self.log(&#39;val/val_loss&#39;, ..., logger=True)` but have no logger configured. You can enable one by doing `Trainer(logger=ALogger(...))`
+/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/loops/fit_loop.py:534: Found 20 module(s) in eval mode at the start of training. This may lead to unexpected behavior during training. If this is intentional, you can ignore this warning.
+/home/runner/work/MyoVerse/MyoVerse/.venv/lib/python3.12/site-packages/lightning/pytorch/core/module.py:522: You called `self.log(&#39;train/loss&#39;, ..., logger=True)` but have no logger configured. You can enable one by doing `Trainer(logger=ALogger(...))`
+Epoch 0/0  ━━━━━━━━━━━━━━━━━ 16/16 0:00:10 • 0:00:00 1.55it/s loss_step: 54.425
+                                                              val_loss: 54.471
+                                                              loss_epoch: 54.430
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 15.625 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  725 MB</p>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading">#</a></h2>
+<p>The complete pipeline:</p>
+<ol class="arabic simple">
+<li><p><strong>DatasetCreator</strong> - Store continuous data with pre-processing transforms</p></li>
+<li><p><strong>Modality.transform</strong> - Pre-storage transforms (e.g., flatten kinematics)</p></li>
+<li><p><strong>DataModule</strong> - Load directly to GPU, window, select inputs/targets</p></li>
+<li><p><strong>train_transform</strong> - On-the-fly transforms (filtering, augmentation)</p></li>
+<li><p><strong>Model</strong> - Your neural network</p></li>
+</ol>
+<p>Key benefits:
+- Modular: swap transforms without changing dataset
+- Efficient: zarr -&gt; GPU loading (kvikio if available)
+- Flexible: input/target selection at training time
+- Named tensors: dimension-aware transforms</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PIPELINE COMPLETE&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>============================================================
+PIPELINE COMPLETE
+============================================================
+</pre></div>
+</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 14.939 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  811 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-tutorials-4-train-model-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/c8384fd115c355bc795ce0eb9d453404/4_train_model.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">4_train_model.ipynb</span></code></a></p>
@@ -651,8 +828,13 @@ Epoch 0: 100%|██████████| 55/55 [01:14&lt;00:00,  0.74it/s, 
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-the-dataset">Loading the dataset</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-the-model">Training the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-define-training-transforms">Step 2: Define Training Transforms</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-create-datamodule">Step 3: Create DataModule</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-inspect-batch-structure">Step 4: Inspect Batch Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-create-model">Step 5: Create Model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-forward-pass-test">Step 6: Forward Pass Test</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-training-loop">Step 7: Training Loop</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
 </ul>
   </nav></div>
 
@@ -690,7 +872,7 @@ Epoch 0: 100%|██████████| 55/55 [01:14&lt;00:00,  0.74it/s, 
 
   <p class="copyright">
     
-      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      © Copyright 2023 - 2026, n-squared lab, FAU Erlangen-Nürnberg, Germany.
       <br/>
     
   </p>
@@ -699,7 +881,7 @@ Epoch 0: 100%|██████████| 55/55 [01:14&lt;00:00,  0.74it/s, 
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

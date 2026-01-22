@@ -1,0 +1,19 @@
+﻿Cutout
+==========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Cutout
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Cutout
+       
+            ~Cutout.__init__
+            ~Cutout._apply
+        
+        

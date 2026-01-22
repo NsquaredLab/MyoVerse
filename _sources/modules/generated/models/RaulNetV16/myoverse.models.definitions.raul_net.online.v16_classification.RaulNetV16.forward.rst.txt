@@ -1,6 +1,0 @@
-myoverse.models.definitions.raul\_net.online.v16\_classification.RaulNetV16.forward
-===================================================================================
-
-.. currentmodule:: myoverse.models.definitions.raul_net.online.v16_classification
-
-.. automethod:: RaulNetV16.forward

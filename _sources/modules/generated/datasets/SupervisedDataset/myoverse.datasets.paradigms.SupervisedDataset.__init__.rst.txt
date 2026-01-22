@@ -1,0 +1,6 @@
+myoverse.datasets.paradigms.SupervisedDataset.\_\_init\_\_
+==========================================================
+
+.. currentmodule:: myoverse.datasets.paradigms
+
+.. automethod:: SupervisedDataset.__init__

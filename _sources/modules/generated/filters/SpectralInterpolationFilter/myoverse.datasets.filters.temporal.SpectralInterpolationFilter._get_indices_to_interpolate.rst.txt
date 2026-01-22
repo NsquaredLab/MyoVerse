@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.SpectralInterpolationFilter.\_get\_indices\_to\_interpolate
-==============================================================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: SpectralInterpolationFilter._get_indices_to_interpolate

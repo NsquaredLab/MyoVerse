@@ -1,6 +1,0 @@
-myoverse.datatypes.\_Data.apply\_filter\_pipeline
-=================================================
-
-.. currentmodule:: myoverse.datatypes
-
-.. automethod:: _Data.apply_filter_pipeline

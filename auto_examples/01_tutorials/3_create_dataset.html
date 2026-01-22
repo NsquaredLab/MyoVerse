@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Creating a dataset &#8212; MyoVerse 1.1.6 Documentation</title>
+    <title>Creating a dataset &#8212; MyoVerse 2.0.0 Documentation</title>
   
   
   
@@ -43,17 +43,17 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=937269b5"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=51b770b3"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'auto_examples/01_tutorials/3_create_dataset';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Training a deep learning model" href="4_train_model.html" />
-    <link rel="prev" title="Complex filtering" href="2_complex_filtering.html" />
+    <link rel="next" title="Training Pipeline" href="4_train_model.html" />
+    <link rel="prev" title="Complex Filtering Pipelines" href="2_complex_filtering.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.1.6" />
+  <meta name="docsearch:version" content="2.0.0" />
   </head>
   
   
@@ -119,8 +119,8 @@
       
     
     
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 1.1.6 Documentation - Home"/>
-    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 1.1.6 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-light" alt="MyoVerse 2.0.0 Documentation - Home"/>
+    <img src="../../_static/myoverse_logo.png" class="logo__image only-dark pst-js-only" alt="MyoVerse 2.0.0 Documentation - Home"/>
   
   
 </a></div>
@@ -129,7 +129,7 @@
 <div class="nav-item">
   <div class="version-switcher__container dropdown">
       <button id="version-switcher-button" type="button" class="version-switcher__button btn btn-sm navbar-btn" aria-haspopup="true" aria-expanded="false">
-          Version 1.1.6
+          Version 2.0.0
       </button>
       
       
@@ -327,15 +327,15 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="1_understanding_basics.html">Package basics</a></li>
-<li class="toctree-l2"><a class="reference internal" href="2_complex_filtering.html">Complex filtering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_understanding_basics.html">Transform Basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_complex_filtering.html">Complex Filtering Pipelines</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Creating a dataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="4_train_model.html">Training a deep learning model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4_train_model.html">Training Pipeline</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../02_filters/index.html">Filters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/1_emg_grid_layouts.html">EMG Grid Layouts: Electrode Arrangements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Working with Temporal Filters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../02_filters/2_temporal_filters.html">Temporal Signal Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../02_filters/3_spatial_filters.html">Applying Spatial Filters to EMG Data</a></li>
 </ul>
 </details></li>
@@ -409,798 +409,90 @@ to download the full example code.</p>
 </div>
 <section class="sphx-glr-example-title" id="creating-a-dataset">
 <span id="sphx-glr-auto-examples-01-tutorials-3-create-dataset-py"></span><h1>Creating a dataset<a class="headerlink" href="#creating-a-dataset" title="Link to this heading">#</a></h1>
-<p>This example shows how to create a dataset for training a deep learning model.</p>
-<p>In this example we will create a dataset that was used in our real-time paper <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id2" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
-<p>Sîmpetru, R.C., März, M., Del Vecchio, A., 2023. Proportional and Simultaneous Real-Time Control of the Full Human Hand From High-Density Electromyography. IEEE TNSRE 31, 3118–3131. <a class="reference external" href="https://doi.org/10/gsgk4s">https://doi.org/10/gsgk4s</a></p>
-</aside>
-</aside>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/functools.html#functools.partial" title="functools.partial" class="sphx-glr-backref-module-functools sphx-glr-backref-type-py-function"><span class="n">partial</span></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
+<p>This example shows how to create a multi-modal dataset for training.</p>
+<section id="creating-a-dataset-with-multiple-modalities">
+<h2>Creating a Dataset with Multiple Modalities<a class="headerlink" href="#creating-a-dataset-with-multiple-modalities" title="Link to this heading">#</a></h2>
+<p>MyoVerse stores continuous data with named dimensions (xarray + zarr).
+Any number of modalities can be stored - you decide what’s input vs
+target at training time, not storage time.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetCreator</span><span class="p">,</span> <span class="n">Modality</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.emg_augmentations</span><span class="w"> </span><span class="kn">import</span> <span class="n">WaveletDecomposition</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.generic</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ApplyFunctionFilter</span><span class="p">,</span>
-    <span class="n">IndexDataFilter</span><span class="p">,</span>
-    <span class="n">IdentityFilter</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.filters.temporal</span><span class="w"> </span><span class="kn">import</span> <span class="n">SOSFrequencyFilter</span><span class="p">,</span> <span class="n">RMSFilter</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.supervised</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMGDataset</span>
+<span class="c1"># Get the path to the data file</span>
+<span class="c1"># Find data directory relative to myoverse package (works in all contexts)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">myoverse</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_pkg_dir</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="n">myoverse</span><span class="o">.</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_pkg_dir</span></a> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.exists" title="pathlib.Path.exists" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">DATA_DIR</span><span class="o">.</span><span class="n">exists</span></a><span class="p">():</span>
+    <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path.cwd" title="pathlib.Path.cwd" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-method"><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span></a><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;examples&quot;</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span>
 
-<span class="c1"># Example 1: Creating a dataset with specific filter pipelines using Zarr 3</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">EMGDataset</span><span class="p">(</span>
-    <span class="n">emg_data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/emg.pkl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">ground_truth_data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/kinematics.pkl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">ground_truth_data_type</span><span class="o">=</span><span class="s2">&quot;kinematics&quot;</span><span class="p">,</span>
+<span class="c1"># Create dataset with multiple modalities</span>
+<span class="n">creator</span> <span class="o">=</span> <span class="n">DatasetCreator</span><span class="p">(</span>
+    <span class="n">modalities</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;emg&quot;</span><span class="p">:</span> <span class="n">Modality</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;emg.pkl&quot;</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;channel&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;kinematics&quot;</span><span class="p">:</span> <span class="n">Modality</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;kinematics.pkl&quot;</span><span class="p">,</span>
+            <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;joint&quot;</span><span class="p">,</span> <span class="s2">&quot;xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
     <span class="n">sampling_frequency</span><span class="o">=</span><span class="mf">2044.0</span><span class="p">,</span>
     <span class="n">tasks_to_use</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">],</span>
-    <span class="n">save_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/dataset.zarr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">emg_filter_pipeline_after_chunking</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">[</span>
-            <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-                <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a><span class="p">(</span>
-                    <span class="mi">4</span><span class="p">,</span> <span class="p">[</span><span class="mf">47.5</span><span class="p">,</span> <span class="mf">52.5</span><span class="p">],</span> <span class="s2">&quot;bandstop&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">2044</span>
-                <span class="p">),</span>
-                <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Raw No Powerline (Bandstop 50 Hz)&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">SOSFrequencyFilter</span><span class="p">(</span>
-                <span class="n">sos_filter_coefficients</span><span class="o">=</span><a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.butter.html#scipy.signal.butter" title="scipy.signal.butter" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">butter</span></a><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;lowpass&quot;</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="s2">&quot;sos&quot;</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="mi">2044</span><span class="p">),</span>
-                <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Raw No High Freq (Lowpass 20 Hz)&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-    <span class="p">],</span>
-    <span class="n">emg_representations_to_filter_after_chunking</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;Last&quot;</span><span class="p">]],</span>
-    <span class="n">ground_truth_filter_pipeline_before_chunking</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">[</span>
-            <span class="n">ApplyFunctionFilter</span><span class="p">(</span>
-                <span class="n">function</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.reshape.html#numpy.reshape" title="numpy.reshape" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">reshape</span></a><span class="p">,</span> <span class="n">newshape</span><span class="o">=</span><span class="p">(</span><span class="mi">63</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">),</span>
-            <span class="n">IndexDataFilter</span><span class="p">(</span><span class="n">indices</span><span class="o">=</span><span class="p">(</span><span class="nb">slice</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">63</span><span class="p">),),</span> <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-        <span class="p">]</span>
-    <span class="p">],</span>
-    <span class="n">ground_truth_representations_to_filter_before_chunking</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;Input&quot;</span><span class="p">]],</span>
-    <span class="n">ground_truth_filter_pipeline_after_chunking</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">[</span>
-            <span class="n">ApplyFunctionFilter</span><span class="p">(</span>
-                <span class="n">function</span><span class="o">=</span><a href="https://docs.python.org/3/library/functools.html#functools.partial" title="functools.partial" class="sphx-glr-backref-module-functools sphx-glr-backref-type-py-function"><span class="n">partial</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.mean.html#numpy.mean" title="numpy.mean" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">mean</span></a><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mean Kinematics per EMG Chunk&quot;</span><span class="p">,</span>
-                <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">]</span>
-    <span class="p">],</span>
-    <span class="n">ground_truth_representations_to_filter_after_chunking</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;Last&quot;</span><span class="p">]],</span>
-    <span class="n">chunk_size</span><span class="o">=</span><span class="mi">192</span><span class="p">,</span>
-    <span class="n">chunk_shift</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
-    <span class="n">testing_split_ratio</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-    <span class="n">validation_split_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-    <span class="n">augmentation_pipelines</span><span class="o">=</span><span class="p">[</span>
-        <span class="p">[</span>
-            <span class="n">WaveletDecomposition</span><span class="p">(</span>
-                <span class="n">nr_of_grids</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">is_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">input_is_chunked</span><span class="o">=</span><span class="kc">False</span>
-            <span class="p">)</span>
-        <span class="p">]</span>
-    <span class="p">],</span>
-    <span class="n">debug_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Disable debug output</span>
-    <span class="n">silence_zarr_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Silence zarr codec warnings</span>
-<span class="p">)</span>
-
-<span class="c1"># Create the dataset</span>
-<span class="n">dataset</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">()</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>────────────────────────── STARTING DATASET CREATION ───────────────────────────
-
-                             Dataset Configuration
-╭──────────────────────────────────┬───────────────────────────────────────────╮
-│  Parameter                       │  Value                                    │
-├──────────────────────────────────┼───────────────────────────────────────────┤
-│  EMG data path                   │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-│  Ground truth data path          │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-│  Ground truth data type          │  kinematics                               │
-│  Sampling frequency (Hz)         │  2044.0                                   │
-│  Save path                       │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-│  Chunk size                      │  192                                      │
-│  Chunk shift                     │  64                                       │
-│  Testing split ratio             │  0.3                                      │
-│  Validation split ratio          │  0.1                                      │
-│  Amount of chunks to augment at  │  250                                      │
-│  once                            │                                           │
-│  Debug level                     │  1                                        │
-│  Silence Zarr warnings           │  True                                     │
-╰──────────────────────────────────┴───────────────────────────────────────────╯
-
-Processing 2 tasks: 1, 2
-
-Dataset Structure
-├── EMG Data
-│   ├── Task 1: Shape (320, 20440)
-│   └── Task 2: Shape (320, 20440)
-└── Ground Truth Data
-    ├── Task 1: Shape (21, 3, 20440)
-    └── Task 2: Shape (21, 3, 20440)
-
-─────────────────────────────── PROCESSING TASKS ───────────────────────────────
-
-                                  Initial Data
-
-╭──────── EMG Data Task 1 ────────╮
-│  --                             │
-│  EMGData                        │
-│  Sampling frequency: 2044.0 Hz  │
-│  (0) Input (320, 20440)         │
-│  --                             │
-╰─────────────────────────────────╯
-╭─── Ground Truth Data Task 1 ────╮
-│  --                             │
-│  KinematicsData                 │
-│  Sampling frequency: 2044.0 Hz  │
-│  (0) Input (21, 3, 20440)       │
-│  --                             │
-╰─────────────────────────────────╯
-
-                            Pre-Chunking Processing
-
-▶ Applying ground truth filters before chunking...
-
-                                Chunking Process
-
-▶ Chunking EMG data...
-▶ Chunking ground truth data...
-
-──────────────────────────────── After Chunking ────────────────────────────────
-
-╭─────────── Chunked EMG Data ────────────╮
-│  --                                     │
-│  EMGData                                │
-│  Sampling frequency: 2044.0 Hz          │
-│  (0) Input (320, 20440)                 │
-│                                         │
-│  Filter(s):                             │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-│  --                                     │
-╰─────────────────────────────────────────╯
-╭────────────── Chunked Ground Truth Data ──────────────╮
-│  --                                                   │
-│  KinematicsData                                       │
-│  Sampling frequency: 2044.0 Hz                        │
-│  (0) Input (21, 3, 20440)                             │
-│                                                       │
-│  Filter(s):                                           │
-│  (1 | 1) ApplyFunctionFilter (63, 20440)              │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)             │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)  │
-│  --                                                   │
-╰───────────────────────────────────────────────────────╯
-
-                            Post-Chunking Processing
-
-▶ Applying EMG filters after chunking...
-▶ Applying ground truth filters after chunking...
-
-───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-╭───────────────────────── Filtered Chunked EMG Data ──────────────────────────╮
-│  --                                                                          │
-│  EMGData                                                                     │
-│  Sampling frequency: 2044.0 Hz                                               │
-│  (0) Input (320, 20440)                                                      │
-│                                                                              │
-│  Filter(s):                                                                  │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)                                       │
-│  (2 | 1 -&gt; 2) (Output) Raw No Powerline (Bandstop 50 Hz) (317, 320, 192)     │
-│  (3 | 1 -&gt; 2 -&gt; 3) (Output) Raw No High Freq (Lowpass 20 Hz) (317, 320,      │
-│  192)                                                                        │
-│  --                                                                          │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─────────────────── Filtered Chunked Ground Truth Data ────────────────────╮
-│  --                                                                       │
-│  KinematicsData                                                           │
-│  Sampling frequency: 2044.0 Hz                                            │
-│  (0) Input (21, 3, 20440)                                                 │
-│                                                                           │
-│  Filter(s):                                                               │
-│  (1 | 1) ApplyFunctionFilter (63, 20440)                                  │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)                                 │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)                      │
-│  (4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) Mean Kinematics per EMG Chunk (317, 60)  │
-│  --                                                                       │
-╰───────────────────────────────────────────────────────────────────────────╯
-
-                                Dataset Creation
-▶ Adding processed data to dataset...
-
-Adding data with keys: [&#39;Raw No Powerline (Bandstop 50 Hz)&#39;, &#39;Raw No High Freq
-(Lowpass 20 Hz)&#39;]
-
-Splitting representation: Raw No Powerline (Bandstop 50 Hz) with shape (317,
-320, 192)
-  Training shape: (223, 320, 192)
-  Testing shape: (94, 320, 192)
-  After validation split - Testing shape: (86, 320, 192)
-  Validation shape: (8, 320, 192)
-
-Splitting representation: Raw No High Freq (Lowpass 20 Hz) with shape (317, 320,
-192)
-  Training shape: (223, 320, 192)
-  Testing shape: (94, 320, 192)
-  After validation split - Testing shape: (86, 320, 192)
-  Validation shape: (8, 320, 192)
-
-          Dataset Split Sizes
-╭───────────────────┬──────────────────╮
-│  Split            │  Sizes           │
-├───────────────────┼──────────────────┤
-│  Training         │  [223, 223]      │
-│  Testing          │  [86, 86]        │
-│  Validation       │  [8, 8]          │
-╰───────────────────┴──────────────────╯
-
-Adding data with keys: [&#39;Mean Kinematics per EMG Chunk&#39;]
-
-Splitting representation: Mean Kinematics per EMG Chunk with shape (317, 60)
-  Training shape: (223, 60)
-  Testing shape: (94, 60)
-  After validation split - Testing shape: (86, 60)
-  Validation shape: (8, 60)
-
-          Dataset Split Sizes
-╭───────────────────────┬──────────────╮
-│  Split                │  Sizes       │
-├───────────────────────┼──────────────┤
-│  Training             │  [223]       │
-│  Testing              │  [86]        │
-│  Validation           │  [8]         │
-╰───────────────────────┴──────────────╯
-
-                                  Initial Data
-
-╭──────── EMG Data Task 2 ────────╮
-│  --                             │
-│  EMGData                        │
-│  Sampling frequency: 2044.0 Hz  │
-│  (0) Input (320, 20440)         │
-│  --                             │
-╰─────────────────────────────────╯
-╭─── Ground Truth Data Task 2 ────╮
-│  --                             │
-│  KinematicsData                 │
-│  Sampling frequency: 2044.0 Hz  │
-│  (0) Input (21, 3, 20440)       │
-│  --                             │
-╰─────────────────────────────────╯
-
-                            Pre-Chunking Processing
-
-▶ Applying ground truth filters before chunking...
-
-                                Chunking Process
-
-▶ Chunking EMG data...
-▶ Chunking ground truth data...
-
-──────────────────────────────── After Chunking ────────────────────────────────
-
-╭─────────── Chunked EMG Data ────────────╮
-│  --                                     │
-│  EMGData                                │
-│  Sampling frequency: 2044.0 Hz          │
-│  (0) Input (320, 20440)                 │
-│                                         │
-│  Filter(s):                             │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-│  --                                     │
-╰─────────────────────────────────────────╯
-╭────────────── Chunked Ground Truth Data ──────────────╮
-│  --                                                   │
-│  KinematicsData                                       │
-│  Sampling frequency: 2044.0 Hz                        │
-│  (0) Input (21, 3, 20440)                             │
-│                                                       │
-│  Filter(s):                                           │
-│  (1 | 1) ApplyFunctionFilter (63, 20440)              │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)             │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)  │
-│  --                                                   │
-╰───────────────────────────────────────────────────────╯
-
-                            Post-Chunking Processing
-
-▶ Applying EMG filters after chunking...
-▶ Applying ground truth filters after chunking...
-
-───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-╭───────────────────────── Filtered Chunked EMG Data ──────────────────────────╮
-│  --                                                                          │
-│  EMGData                                                                     │
-│  Sampling frequency: 2044.0 Hz                                               │
-│  (0) Input (320, 20440)                                                      │
-│                                                                              │
-│  Filter(s):                                                                  │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)                                       │
-│  (2 | 1 -&gt; 2) (Output) Raw No Powerline (Bandstop 50 Hz) (317, 320, 192)     │
-│  (3 | 1 -&gt; 2 -&gt; 3) (Output) Raw No High Freq (Lowpass 20 Hz) (317, 320,      │
-│  192)                                                                        │
-│  --                                                                          │
-╰──────────────────────────────────────────────────────────────────────────────╯
-╭─────────────────── Filtered Chunked Ground Truth Data ────────────────────╮
-│  --                                                                       │
-│  KinematicsData                                                           │
-│  Sampling frequency: 2044.0 Hz                                            │
-│  (0) Input (21, 3, 20440)                                                 │
-│                                                                           │
-│  Filter(s):                                                               │
-│  (1 | 1) ApplyFunctionFilter (63, 20440)                                  │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)                                 │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)                      │
-│  (4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) Mean Kinematics per EMG Chunk (317, 60)  │
-│  --                                                                       │
-╰───────────────────────────────────────────────────────────────────────────╯
-
-                                Dataset Creation
-▶ Adding processed data to dataset...
-
-Adding data with keys: [&#39;Raw No Powerline (Bandstop 50 Hz)&#39;, &#39;Raw No High Freq
-(Lowpass 20 Hz)&#39;]
-
-Splitting representation: Raw No Powerline (Bandstop 50 Hz) with shape (317,
-320, 192)
-  Training shape: (223, 320, 192)
-  Testing shape: (94, 320, 192)
-  After validation split - Testing shape: (86, 320, 192)
-  Validation shape: (8, 320, 192)
-
-Splitting representation: Raw No High Freq (Lowpass 20 Hz) with shape (317, 320,
-192)
-  Training shape: (223, 320, 192)
-  Testing shape: (94, 320, 192)
-  After validation split - Testing shape: (86, 320, 192)
-  Validation shape: (8, 320, 192)
-
-          Dataset Split Sizes
-╭───────────────────┬──────────────────╮
-│  Split            │  Sizes           │
-├───────────────────┼──────────────────┤
-│  Training         │  [223, 223]      │
-│  Testing          │  [86, 86]        │
-│  Validation       │  [8, 8]          │
-╰───────────────────┴──────────────────╯
-
-Adding data with keys: [&#39;Mean Kinematics per EMG Chunk&#39;]
-
-Splitting representation: Mean Kinematics per EMG Chunk with shape (317, 60)
-  Training shape: (223, 60)
-  Testing shape: (94, 60)
-  After validation split - Testing shape: (86, 60)
-  Validation shape: (8, 60)
-
-          Dataset Split Sizes
-╭───────────────────────┬──────────────╮
-│  Split                │  Sizes       │
-├───────────────────────┼──────────────┤
-│  Training             │  [223]       │
-│  Testing              │  [86]        │
-│  Validation           │  [8]         │
-╰───────────────────────┴──────────────╯
-
-  Processing task 2 (2/2) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
-──────────────────────────── APPLYING AUGMENTATIONS ────────────────────────────
-
-                 Augmentation Configuration
-╭──────────────────────────────────┬────────────────────────╮
-│  Parameter                       │  Value                 │
-├──────────────────────────────────┼────────────────────────┤
-│  Total augmentation pipelines    │  1                     │
-│  Pipelines                       │  WaveletDecomposition  │
-│  Chunks to augment at once       │  250                   │
-│  Total training samples          │  446                   │
-╰──────────────────────────────────┴────────────────────────╯
-
-  Pipeline 1/1: Batch 2/2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
-────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
-
-                      Dataset Summary
-╭─────────────────────────────────────────┬────────────────╮
-│  Metric                                 │  Value         │
-├─────────────────────────────────────────┼────────────────┤
-│  Total tasks                            │  2             │
-│  Training samples                       │  892           │
-│  Testing samples                        │  172           │
-│  Validation samples                     │  16            │
-│  Total dataset size                     │  1012.75 MB    │
-│  Training split size                    │  836.45 MB     │
-│  Testing split size                     │  161.29 MB     │
-│  Validation split size                  │  15.00 MB      │
-╰─────────────────────────────────────────┴────────────────╯
-
-Dataset Structure
-├── Training
-│   └── EMG Representations
-│       ├── Raw No High Freq (Lowpass 20 Hz): (892, 320, 192)
-│       └── Raw No Powerline (Bandstop 50 Hz): (892, 320, 192)
-├── Testing
-│   └── EMG Representations
-│       ├── Raw No High Freq (Lowpass 20 Hz): (172, 320, 192)
-│       └── Raw No Powerline (Bandstop 50 Hz): (172, 320, 192)
-└── Validation
-    └── EMG Representations
-        ├── Raw No High Freq (Lowpass 20 Hz): (16, 320, 192)
-        └── Raw No Powerline (Bandstop 50 Hz): (16, 320, 192)
-
-─────────────────── Dataset Creation Successfully Completed! ───────────────────
-</pre></div>
-</div>
-<p>Default dataset are also available. Here is an example of how to use the EMBCDataset used in <a class="footnote-reference brackets" href="#id4" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id4" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
-<p>Sîmpetru, R.C., Osswald, M., Braun, D.I., Souza de Oliveira, D., Cakici, A.L., Del Vecchio, A., 2022. Accurate continuous prediction of 14 degrees of freedom of the hand from myoelectrical signals through convolutive deep learning, in: Proceedings of the 2022 44th Annual International Conference of the IEEE Engineering in Medicine &amp; Biology Society (EMBC). Presented at the 2022 44th Annual International Conference of the IEEE Engineering in Medicine &amp; Biology Society (EMBC), pp. 702–706. <a class="reference external" href="https://doi.org/10/gq2f47">https://doi.org/10/gq2f47</a></p>
-</aside>
-</aside>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">myoverse.datasets.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMBCDataset</span>
-
-<span class="c1"># Using the default EMBCDataset with Zarr 3</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">EMBCDataset</span><span class="p">(</span>
-    <span class="n">emg_data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/emg.pkl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">ground_truth_data_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/kinematics.pkl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">save_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="pathlib.Path" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class"><span class="n">Path</span></a><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;../data/dataset_embc.zarr&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">(),</span>
-    <span class="n">tasks_to_use</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">],</span>
+    <span class="n">save_path</span><span class="o">=</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a> <span class="o">/</span> <span class="s2">&quot;dataset.zip&quot;</span><span class="p">,</span>
+    <span class="n">test_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">val_ratio</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
     <span class="n">debug_level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">silence_zarr_warnings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Silence zarr codec warnings</span>
 <span class="p">)</span>
 
-<span class="c1"># Create the EMBC dataset</span>
-<span class="n">dataset</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">()</span>
+<span class="n">creator</span><span class="o">.</span><span class="n">create</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>────────────────────────── STARTING DATASET CREATION ───────────────────────────
 
                              Dataset Configuration
-╭──────────────────────────────────┬───────────────────────────────────────────╮
-│  Parameter                       │  Value                                    │
-├──────────────────────────────────┼───────────────────────────────────────────┤
-│  EMG data path                   │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-│  Ground truth data path          │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-│  Ground truth data type          │  kinematics                               │
-│  Sampling frequency (Hz)         │  2048.0                                   │
-│  Save path                       │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-│  Chunk size                      │  192                                      │
-│  Chunk shift                     │  64                                       │
-│  Testing split ratio             │  0.2                                      │
-│  Validation split ratio          │  0.2                                      │
-│  Amount of chunks to augment at  │  500                                      │
-│  once                            │                                           │
-│  Debug level                     │  1                                        │
-│  Silence Zarr warnings           │  True                                     │
-╰──────────────────────────────────┴───────────────────────────────────────────╯
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Parameter               ┃ Value                                              ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Modalities              │ emg, kinematics                                    │
+│ Sampling frequency (Hz) │ 2044.0                                             │
+│ Save path               │ /home/runner/work/MyoVerse/MyoVerse/examples/data… │
+│ Test ratio              │ 0.2                                                │
+│ Validation ratio        │ 0.2                                                │
+└─────────────────────────┴────────────────────────────────────────────────────┘
 
 Processing 2 tasks: 1, 2
 
 Dataset Structure
-├── EMG Data
-│   ├── Task 1: Shape (320, 20440)
-│   └── Task 2: Shape (320, 20440)
-└── Ground Truth Data
-    ├── Task 1: Shape (21, 3, 20440)
-    └── Task 2: Shape (21, 3, 20440)
+├── emg dims=(&#39;channel&#39;, &#39;time&#39;)
+│   ├── Task 1: (320, 20440)
+│   └── Task 2: (320, 20440)
+└── kinematics dims=(&#39;joint&#39;, &#39;xyz&#39;, &#39;time&#39;)
+    ├── Task 1: (21, 3, 20440)
+    └── Task 2: (21, 3, 20440)
 
 ─────────────────────────────── PROCESSING TASKS ───────────────────────────────
 
-                                  Initial Data
-
-╭──────── EMG Data Task 1 ────────╮
-│  --                             │
-│  EMGData                        │
-│  Sampling frequency: 2048.0 Hz  │
-│  (0) Input (320, 20440)         │
-│  --                             │
-╰─────────────────────────────────╯
-╭─── Ground Truth Data Task 1 ────╮
-│  --                             │
-│  KinematicsData                 │
-│  Sampling frequency: 2048.0 Hz  │
-│  (0) Input (21, 3, 20440)       │
-│  --                             │
-╰─────────────────────────────────╯
-
-                            Pre-Chunking Processing
-
-▶ Applying ground truth filters before chunking...
-
-                                Chunking Process
-
-▶ Chunking EMG data...
-▶ Chunking ground truth data...
-
-──────────────────────────────── After Chunking ────────────────────────────────
-
-╭─────────── Chunked EMG Data ────────────╮
-│  --                                     │
-│  EMGData                                │
-│  Sampling frequency: 2048.0 Hz          │
-│  (0) Input (320, 20440)                 │
-│                                         │
-│  Filter(s):                             │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-│  --                                     │
-╰─────────────────────────────────────────╯
-╭────────────── Chunked Ground Truth Data ──────────────╮
-│  --                                                   │
-│  KinematicsData                                       │
-│  Sampling frequency: 2048.0 Hz                        │
-│  (0) Input (21, 3, 20440)                             │
-│                                                       │
-│  Filter(s):                                           │
-│  (1 | 1) Reshape (63, 20440)                          │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)             │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)  │
-│  --                                                   │
-╰───────────────────────────────────────────────────────╯
-
-                            Post-Chunking Processing
-
-▶ Applying EMG filters after chunking...
-▶ Applying ground truth filters after chunking...
-
-───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-╭─────────────────── Filtered Chunked EMG Data ───────────────────╮
-│  --                                                             │
-│  EMGData                                                        │
-│  Sampling frequency: 2048.0 Hz                                  │
-│  (0) Input (320, 20440)                                         │
-│                                                                 │
-│  Filter(s):                                                     │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)                          │
-│  (2 | 1 -&gt; 2) (Output) raw (317, 320, 192)                      │
-│  (3 | 1 -&gt; 2 -&gt; 3) (Output) SOSFrequencyFilter (317, 320, 192)  │
-│  --                                                             │
-╰─────────────────────────────────────────────────────────────────╯
-╭───────── Filtered Chunked Ground Truth Data ──────────╮
-│  --                                                   │
-│  KinematicsData                                       │
-│  Sampling frequency: 2048.0 Hz                        │
-│  (0) Input (21, 3, 20440)                             │
-│                                                       │
-│  Filter(s):                                           │
-│  (1 | 1) Reshape (63, 20440)                          │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)             │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)  │
-│  (4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) Mean (317, 60)       │
-│  --                                                   │
-╰───────────────────────────────────────────────────────╯
-
-                                Dataset Creation
-▶ Adding processed data to dataset...
-
-Adding data with keys: [&#39;raw&#39;, &#39;SOSFrequencyFilter&#39;]
-
-Splitting representation: raw with shape (317, 320, 192)
-  Training shape: (255, 320, 192)
-  Testing shape: (62, 320, 192)
-  After validation split - Testing shape: (50, 320, 192)
-  Validation shape: (12, 320, 192)
-
-Splitting representation: SOSFrequencyFilter with shape (317, 320, 192)
-  Training shape: (255, 320, 192)
-  Testing shape: (62, 320, 192)
-  After validation split - Testing shape: (50, 320, 192)
-  Validation shape: (12, 320, 192)
-
-          Dataset Split Sizes
-╭───────────────────┬──────────────────╮
-│  Split            │  Sizes           │
-├───────────────────┼──────────────────┤
-│  Training         │  [255, 255]      │
-│  Testing          │  [50, 50]        │
-│  Validation       │  [12, 12]        │
-╰───────────────────┴──────────────────╯
-
-Adding data with keys: [&#39;Mean&#39;]
-
-Splitting representation: Mean with shape (317, 60)
-  Training shape: (255, 60)
-  Testing shape: (62, 60)
-  After validation split - Testing shape: (50, 60)
-  Validation shape: (12, 60)
-
-          Dataset Split Sizes
-╭───────────────────────┬──────────────╮
-│  Split                │  Sizes       │
-├───────────────────────┼──────────────┤
-│  Training             │  [255]       │
-│  Testing              │  [50]        │
-│  Validation           │  [12]        │
-╰───────────────────────┴──────────────╯
-
-                                  Initial Data
-
-╭──────── EMG Data Task 2 ────────╮
-│  --                             │
-│  EMGData                        │
-│  Sampling frequency: 2048.0 Hz  │
-│  (0) Input (320, 20440)         │
-│  --                             │
-╰─────────────────────────────────╯
-╭─── Ground Truth Data Task 2 ────╮
-│  --                             │
-│  KinematicsData                 │
-│  Sampling frequency: 2048.0 Hz  │
-│  (0) Input (21, 3, 20440)       │
-│  --                             │
-╰─────────────────────────────────╯
-
-                            Pre-Chunking Processing
-
-▶ Applying ground truth filters before chunking...
-
-                                Chunking Process
-
-▶ Chunking EMG data...
-▶ Chunking ground truth data...
-
-──────────────────────────────── After Chunking ────────────────────────────────
-
-╭─────────── Chunked EMG Data ────────────╮
-│  --                                     │
-│  EMGData                                │
-│  Sampling frequency: 2048.0 Hz          │
-│  (0) Input (320, 20440)                 │
-│                                         │
-│  Filter(s):                             │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-│  --                                     │
-╰─────────────────────────────────────────╯
-╭────────────── Chunked Ground Truth Data ──────────────╮
-│  --                                                   │
-│  KinematicsData                                       │
-│  Sampling frequency: 2048.0 Hz                        │
-│  (0) Input (21, 3, 20440)                             │
-│                                                       │
-│  Filter(s):                                           │
-│  (1 | 1) Reshape (63, 20440)                          │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)             │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)  │
-│  --                                                   │
-╰───────────────────────────────────────────────────────╯
-
-                            Post-Chunking Processing
-
-▶ Applying EMG filters after chunking...
-▶ Applying ground truth filters after chunking...
-
-───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-╭─────────────────── Filtered Chunked EMG Data ───────────────────╮
-│  --                                                             │
-│  EMGData                                                        │
-│  Sampling frequency: 2048.0 Hz                                  │
-│  (0) Input (320, 20440)                                         │
-│                                                                 │
-│  Filter(s):                                                     │
-│  (1 | 1) EMG_Chunkizer (317, 320, 192)                          │
-│  (2 | 1 -&gt; 2) (Output) raw (317, 320, 192)                      │
-│  (3 | 1 -&gt; 2 -&gt; 3) (Output) SOSFrequencyFilter (317, 320, 192)  │
-│  --                                                             │
-╰─────────────────────────────────────────────────────────────────╯
-╭───────── Filtered Chunked Ground Truth Data ──────────╮
-│  --                                                   │
-│  KinematicsData                                       │
-│  Sampling frequency: 2048.0 Hz                        │
-│  (0) Input (21, 3, 20440)                             │
-│                                                       │
-│  Filter(s):                                           │
-│  (1 | 1) Reshape (63, 20440)                          │
-│  (2 | 1 -&gt; 2) IndexDataFilter (60, 20440)             │
-│  (3 | 1 -&gt; 2 -&gt; 3) ChunkizeDataFilter (317, 60, 192)  │
-│  (4 | 1 -&gt; 2 -&gt; 3 -&gt; 4) (Output) Mean (317, 60)       │
-│  --                                                   │
-╰───────────────────────────────────────────────────────╯
-
-                                Dataset Creation
-▶ Adding processed data to dataset...
-
-Adding data with keys: [&#39;raw&#39;, &#39;SOSFrequencyFilter&#39;]
-
-Splitting representation: raw with shape (317, 320, 192)
-  Training shape: (255, 320, 192)
-  Testing shape: (62, 320, 192)
-  After validation split - Testing shape: (50, 320, 192)
-  Validation shape: (12, 320, 192)
-
-Splitting representation: SOSFrequencyFilter with shape (317, 320, 192)
-  Training shape: (255, 320, 192)
-  Testing shape: (62, 320, 192)
-  After validation split - Testing shape: (50, 320, 192)
-  Validation shape: (12, 320, 192)
-
-          Dataset Split Sizes
-╭───────────────────┬──────────────────╮
-│  Split            │  Sizes           │
-├───────────────────┼──────────────────┤
-│  Training         │  [255, 255]      │
-│  Testing          │  [50, 50]        │
-│  Validation       │  [12, 12]        │
-╰───────────────────┴──────────────────╯
-
-Adding data with keys: [&#39;Mean&#39;]
-
-Splitting representation: Mean with shape (317, 60)
-  Training shape: (255, 60)
-  Testing shape: (62, 60)
-  After validation split - Testing shape: (50, 60)
-  Validation shape: (12, 60)
-
-          Dataset Split Sizes
-╭───────────────────────┬──────────────╮
-│  Split                │  Sizes       │
-├───────────────────────┼──────────────┤
-│  Training             │  [255]       │
-│  Testing              │  [50]        │
-│  Validation           │  [12]        │
-╰───────────────────────┴──────────────╯
-
-  Processing task 2 (2/2) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
-──────────────────────────── APPLYING AUGMENTATIONS ────────────────────────────
-
-                 Augmentation Configuration
-╭──────────────────────────────────┬────────────────────────╮
-│  Parameter                       │  Value                 │
-├──────────────────────────────────┼────────────────────────┤
-│  Total augmentation pipelines    │  3                     │
-│  Pipelines                       │  GaussianNoise         │
-│                                  │  MagnitudeWarping      │
-│                                  │  WaveletDecomposition  │
-│  Chunks to augment at once       │  500                   │
-│  Total training samples          │  510                   │
-╰──────────────────────────────────┴────────────────────────╯
-
-  Pipeline 3/3: Batch 5/5 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
+  Processing task 2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
 ────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
 
-                      Dataset Summary
-╭─────────────────────────────────────────┬────────────────╮
-│  Metric                                 │  Value         │
-├─────────────────────────────────────────┼────────────────┤
-│  Total tasks                            │  2             │
-│  Training samples                       │  4080          │
-│  Testing samples                        │  100           │
-│  Validation samples                     │  24            │
-│  Total dataset size                     │  2464.24 MB    │
-│  Training split size                    │  2391.56 MB    │
-│  Testing split size                     │  58.62 MB      │
-│  Validation split size                  │  14.07 MB      │
-╰─────────────────────────────────────────┴────────────────╯
+                Dataset Summary
+ Split       emg              kinematics
+ training    1: (320, 16352)  1: (21, 3, 16352)
+             2: (320, 16352)  2: (21, 3, 16352)
+ validation  1: (320, 816)    1: (21, 3, 816)
+             2: (320, 816)    2: (21, 3, 816)
+ testing     1: (320, 3272)   1: (21, 3, 3272)
+             2: (320, 3272)   2: (21, 3, 3272)
 
-Dataset Structure
-├── Training
-│   └── EMG Representations
-│       ├── SOSFrequencyFilter: (4080, 320, 192)
-│       └── raw: (4080, 320, 192)
-├── Testing
-│   └── EMG Representations
-│       ├── SOSFrequencyFilter: (100, 320, 192)
-│       └── raw: (100, 320, 192)
-└── Validation
-    └── EMG Representations
-        ├── SOSFrequencyFilter: (24, 320, 192)
-        └── raw: (24, 320, 192)
-
+Total size: 26.09 MB
 ─────────────────── Dataset Creation Successfully Completed! ───────────────────
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 43.013 seconds)</p>
-<p><strong>Estimated memory usage:</strong>  2081 MB</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.778 seconds)</p>
+<p><strong>Estimated memory usage:</strong>  759 MB</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-01-tutorials-3-create-dataset-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/b4f422d2cbdc8451545e23c887c969b6/3_create_dataset.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">3_create_dataset.ipynb</span></code></a></p>
@@ -1213,6 +505,7 @@ Dataset Structure
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
 </section>
 
 
@@ -1229,6 +522,18 @@ Dataset Structure
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-dataset-with-multiple-modalities">Creating a Dataset with Multiple Modalities</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
@@ -1264,7 +569,7 @@ Dataset Structure
 
   <p class="copyright">
     
-      © Copyright 2023 - 2025, n-squared lab, FAU Erlangen-Nürnberg, Germany.
+      © Copyright 2023 - 2026, n-squared lab, FAU Erlangen-Nürnberg, Germany.
       <br/>
     
   </p>
@@ -1273,7 +578,7 @@ Dataset Structure
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>

@@ -1,0 +1,22 @@
+﻿DataModule
+=======================================
+
+.. currentmodule:: myoverse.datasets.datamodule
+
+.. autoclass:: DataModule
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: DataModule
+       
+            ~DataModule.__init__
+            ~DataModule.setup
+            ~DataModule.test_dataloader
+            ~DataModule.train_dataloader
+            ~DataModule.val_dataloader
+        
+        

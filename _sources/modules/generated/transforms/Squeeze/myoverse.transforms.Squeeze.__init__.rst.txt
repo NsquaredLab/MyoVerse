@@ -1,0 +1,6 @@
+myoverse.transforms.Squeeze.\_\_init\_\_
+========================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: Squeeze.__init__

@@ -1,0 +1,19 @@
+﻿Repeat
+==========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Repeat
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Repeat
+       
+            ~Repeat.__init__
+            ~Repeat._apply
+        
+        

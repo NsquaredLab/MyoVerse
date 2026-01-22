@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.WFLFilter.\_\_init\_\_
-=========================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: WFLFilter.__init__

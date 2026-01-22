@@ -21,475 +21,55 @@
 Creating a dataset
 ===========================
 
-This example shows how to create a dataset for training a deep learning model.
+This example shows how to create a multi-modal dataset for training.
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-14
+.. GENERATED FROM PYTHON SOURCE LINES 11-17
 
-In this example we will create a dataset that was used in our real-time paper [1]_.
+Creating a Dataset with Multiple Modalities
+--------------------------------------------
+MyoVerse stores continuous data with named dimensions (xarray + zarr).
+Any number of modalities can be stored - you decide what's input vs
+target at training time, not storage time.
 
-.. [1] Sîmpetru, R.C., März, M., Del Vecchio, A., 2023. Proportional and Simultaneous Real-Time Control of the Full Human Hand From High-Density Electromyography. IEEE TNSRE 31, 3118–3131. https://doi.org/10/gsgk4s
 
-.. GENERATED FROM PYTHON SOURCE LINES 14-94
+.. GENERATED FROM PYTHON SOURCE LINES 17-50
 
 .. code-block:: Python
 
-    from functools import partial
     from pathlib import Path
 
-    import numpy as np
-    from scipy.signal import butter
+    from myoverse.datasets import DatasetCreator, Modality
 
-    from myoverse.datasets.filters.emg_augmentations import WaveletDecomposition
-    from myoverse.datasets.filters.generic import (
-        ApplyFunctionFilter,
-        IndexDataFilter,
-        IdentityFilter,
-    )
-    from myoverse.datasets.filters.temporal import SOSFrequencyFilter, RMSFilter
-    from myoverse.datasets.supervised import EMGDataset
+    # Get the path to the data file
+    # Find data directory relative to myoverse package (works in all contexts)
+    import myoverse
+    _pkg_dir = Path(myoverse.__file__).parent.parent
+    DATA_DIR = _pkg_dir / "examples" / "data"
+    if not DATA_DIR.exists():
+        DATA_DIR = Path.cwd() / "examples" / "data"
 
-    # Example 1: Creating a dataset with specific filter pipelines using Zarr 3
-    dataset = EMGDataset(
-        emg_data_path=Path(r"../data/emg.pkl").resolve(),
-        ground_truth_data_path=Path(r"../data/kinematics.pkl").resolve(),
-        ground_truth_data_type="kinematics",
+    # Create dataset with multiple modalities
+    creator = DatasetCreator(
+        modalities={
+            "emg": Modality(
+                path=DATA_DIR / "emg.pkl",
+                dims=("channel", "time"),
+            ),
+            "kinematics": Modality(
+                path=DATA_DIR / "kinematics.pkl",
+                dims=("joint", "xyz", "time"),
+            ),
+        },
         sampling_frequency=2044.0,
         tasks_to_use=["1", "2"],
-        save_path=Path(r"../data/dataset.zarr").resolve(),
-        emg_filter_pipeline_after_chunking=[
-            [
-                SOSFrequencyFilter(
-                    sos_filter_coefficients=butter(
-                        4, [47.5, 52.5], "bandstop", output="sos", fs=2044
-                    ),
-                    is_output=True,
-                    name="Raw No Powerline (Bandstop 50 Hz)",
-                    input_is_chunked=True,
-                ),
-                SOSFrequencyFilter(
-                    sos_filter_coefficients=butter(4, 20, "lowpass", output="sos", fs=2044),
-                    is_output=True,
-                    name="Raw No High Freq (Lowpass 20 Hz)",
-                    input_is_chunked=True,
-                ),
-            ]
-        ],
-        emg_representations_to_filter_after_chunking=[["Last"]],
-        ground_truth_filter_pipeline_before_chunking=[
-            [
-                ApplyFunctionFilter(
-                    function=np.reshape, newshape=(63, -1), input_is_chunked=False
-                ),
-                IndexDataFilter(indices=(slice(3, 63),), input_is_chunked=False),
-            ]
-        ],
-        ground_truth_representations_to_filter_before_chunking=[["Input"]],
-        ground_truth_filter_pipeline_after_chunking=[
-            [
-                ApplyFunctionFilter(
-                    function=partial(np.mean, axis=-1),
-                    is_output=True,
-                    name="Mean Kinematics per EMG Chunk",
-                    input_is_chunked=True,
-                ),
-            ]
-        ],
-        ground_truth_representations_to_filter_after_chunking=[["Last"]],
-        chunk_size=192,
-        chunk_shift=64,
-        testing_split_ratio=0.3,
-        validation_split_ratio=0.1,
-        augmentation_pipelines=[
-            [
-                WaveletDecomposition(
-                    nr_of_grids=5, is_output=True, level=2, input_is_chunked=False
-                )
-            ]
-        ],
-        debug_level=1,  # Disable debug output
-        silence_zarr_warnings=True,  # Silence zarr codec warnings
-    )
-
-    # Create the dataset
-    dataset.create_dataset()
-
-
-
-
-
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    ────────────────────────── STARTING DATASET CREATION ───────────────────────────
-
-                                 Dataset Configuration                              
-    ╭──────────────────────────────────┬───────────────────────────────────────────╮
-    │  Parameter                       │  Value                                    │
-    ├──────────────────────────────────┼───────────────────────────────────────────┤
-    │  EMG data path                   │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-    │  Ground truth data path          │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-    │  Ground truth data type          │  kinematics                               │
-    │  Sampling frequency (Hz)         │  2044.0                                   │
-    │  Save path                       │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-    │  Chunk size                      │  192                                      │
-    │  Chunk shift                     │  64                                       │
-    │  Testing split ratio             │  0.3                                      │
-    │  Validation split ratio          │  0.1                                      │
-    │  Amount of chunks to augment at  │  250                                      │
-    │  once                            │                                           │
-    │  Debug level                     │  1                                        │
-    │  Silence Zarr warnings           │  True                                     │
-    ╰──────────────────────────────────┴───────────────────────────────────────────╯
-
-    Processing 2 tasks: 1, 2
-
-    Dataset Structure
-    ├── EMG Data
-    │   ├── Task 1: Shape (320, 20440)
-    │   └── Task 2: Shape (320, 20440)
-    └── Ground Truth Data
-        ├── Task 1: Shape (21, 3, 20440)
-        └── Task 2: Shape (21, 3, 20440)
-
-    ─────────────────────────────── PROCESSING TASKS ───────────────────────────────
-
-                                      Initial Data                                  
-
-    ╭──────── EMG Data Task 1 ────────╮
-    │  --                             │
-    │  EMGData                        │
-    │  Sampling frequency: 2044.0 Hz  │
-    │  (0) Input (320, 20440)         │
-    │  --                             │
-    ╰─────────────────────────────────╯
-    ╭─── Ground Truth Data Task 1 ────╮
-    │  --                             │
-    │  KinematicsData                 │
-    │  Sampling frequency: 2044.0 Hz  │
-    │  (0) Input (21, 3, 20440)       │
-    │  --                             │
-    ╰─────────────────────────────────╯
-
-                                Pre-Chunking Processing                             
-
-    ▶ Applying ground truth filters before chunking...
-
-                                    Chunking Process                                
-
-    ▶ Chunking EMG data...
-    ▶ Chunking ground truth data...
-
-    ──────────────────────────────── After Chunking ────────────────────────────────
-
-    ╭─────────── Chunked EMG Data ────────────╮
-    │  --                                     │
-    │  EMGData                                │
-    │  Sampling frequency: 2044.0 Hz          │
-    │  (0) Input (320, 20440)                 │
-    │                                         │
-    │  Filter(s):                             │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-    │  --                                     │
-    ╰─────────────────────────────────────────╯
-    ╭────────────── Chunked Ground Truth Data ──────────────╮
-    │  --                                                   │
-    │  KinematicsData                                       │
-    │  Sampling frequency: 2044.0 Hz                        │
-    │  (0) Input (21, 3, 20440)                             │
-    │                                                       │
-    │  Filter(s):                                           │
-    │  (1 | 1) ApplyFunctionFilter (63, 20440)              │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)             │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)  │
-    │  --                                                   │
-    ╰───────────────────────────────────────────────────────╯
-
-                                Post-Chunking Processing                            
-
-    ▶ Applying EMG filters after chunking...
-    ▶ Applying ground truth filters after chunking...
-
-    ───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-    ╭───────────────────────── Filtered Chunked EMG Data ──────────────────────────╮
-    │  --                                                                          │
-    │  EMGData                                                                     │
-    │  Sampling frequency: 2044.0 Hz                                               │
-    │  (0) Input (320, 20440)                                                      │
-    │                                                                              │
-    │  Filter(s):                                                                  │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)                                       │
-    │  (2 | 1 -> 2) (Output) Raw No Powerline (Bandstop 50 Hz) (317, 320, 192)     │
-    │  (3 | 1 -> 2 -> 3) (Output) Raw No High Freq (Lowpass 20 Hz) (317, 320,      │
-    │  192)                                                                        │
-    │  --                                                                          │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─────────────────── Filtered Chunked Ground Truth Data ────────────────────╮
-    │  --                                                                       │
-    │  KinematicsData                                                           │
-    │  Sampling frequency: 2044.0 Hz                                            │
-    │  (0) Input (21, 3, 20440)                                                 │
-    │                                                                           │
-    │  Filter(s):                                                               │
-    │  (1 | 1) ApplyFunctionFilter (63, 20440)                                  │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)                                 │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)                      │
-    │  (4 | 1 -> 2 -> 3 -> 4) (Output) Mean Kinematics per EMG Chunk (317, 60)  │
-    │  --                                                                       │
-    ╰───────────────────────────────────────────────────────────────────────────╯
-
-                                    Dataset Creation                                
-    ▶ Adding processed data to dataset...
-
-    Adding data with keys: ['Raw No Powerline (Bandstop 50 Hz)', 'Raw No High Freq 
-    (Lowpass 20 Hz)']
-
-    Splitting representation: Raw No Powerline (Bandstop 50 Hz) with shape (317, 
-    320, 192)
-      Training shape: (223, 320, 192)
-      Testing shape: (94, 320, 192)
-      After validation split - Testing shape: (86, 320, 192)
-      Validation shape: (8, 320, 192)
-
-    Splitting representation: Raw No High Freq (Lowpass 20 Hz) with shape (317, 320,
-    192)
-      Training shape: (223, 320, 192)
-      Testing shape: (94, 320, 192)
-      After validation split - Testing shape: (86, 320, 192)
-      Validation shape: (8, 320, 192)
-
-              Dataset Split Sizes           
-    ╭───────────────────┬──────────────────╮
-    │  Split            │  Sizes           │
-    ├───────────────────┼──────────────────┤
-    │  Training         │  [223, 223]      │
-    │  Testing          │  [86, 86]        │
-    │  Validation       │  [8, 8]          │
-    ╰───────────────────┴──────────────────╯
-
-    Adding data with keys: ['Mean Kinematics per EMG Chunk']
-
-    Splitting representation: Mean Kinematics per EMG Chunk with shape (317, 60)
-      Training shape: (223, 60)
-      Testing shape: (94, 60)
-      After validation split - Testing shape: (86, 60)
-      Validation shape: (8, 60)
-
-              Dataset Split Sizes           
-    ╭───────────────────────┬──────────────╮
-    │  Split                │  Sizes       │
-    ├───────────────────────┼──────────────┤
-    │  Training             │  [223]       │
-    │  Testing              │  [86]        │
-    │  Validation           │  [8]         │
-    ╰───────────────────────┴──────────────╯
-
-                                      Initial Data                                  
-
-    ╭──────── EMG Data Task 2 ────────╮
-    │  --                             │
-    │  EMGData                        │
-    │  Sampling frequency: 2044.0 Hz  │
-    │  (0) Input (320, 20440)         │
-    │  --                             │
-    ╰─────────────────────────────────╯
-    ╭─── Ground Truth Data Task 2 ────╮
-    │  --                             │
-    │  KinematicsData                 │
-    │  Sampling frequency: 2044.0 Hz  │
-    │  (0) Input (21, 3, 20440)       │
-    │  --                             │
-    ╰─────────────────────────────────╯
-
-                                Pre-Chunking Processing                             
-
-    ▶ Applying ground truth filters before chunking...
-
-                                    Chunking Process                                
-
-    ▶ Chunking EMG data...
-    ▶ Chunking ground truth data...
-
-    ──────────────────────────────── After Chunking ────────────────────────────────
-
-    ╭─────────── Chunked EMG Data ────────────╮
-    │  --                                     │
-    │  EMGData                                │
-    │  Sampling frequency: 2044.0 Hz          │
-    │  (0) Input (320, 20440)                 │
-    │                                         │
-    │  Filter(s):                             │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-    │  --                                     │
-    ╰─────────────────────────────────────────╯
-    ╭────────────── Chunked Ground Truth Data ──────────────╮
-    │  --                                                   │
-    │  KinematicsData                                       │
-    │  Sampling frequency: 2044.0 Hz                        │
-    │  (0) Input (21, 3, 20440)                             │
-    │                                                       │
-    │  Filter(s):                                           │
-    │  (1 | 1) ApplyFunctionFilter (63, 20440)              │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)             │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)  │
-    │  --                                                   │
-    ╰───────────────────────────────────────────────────────╯
-
-                                Post-Chunking Processing                            
-
-    ▶ Applying EMG filters after chunking...
-    ▶ Applying ground truth filters after chunking...
-
-    ───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-    ╭───────────────────────── Filtered Chunked EMG Data ──────────────────────────╮
-    │  --                                                                          │
-    │  EMGData                                                                     │
-    │  Sampling frequency: 2044.0 Hz                                               │
-    │  (0) Input (320, 20440)                                                      │
-    │                                                                              │
-    │  Filter(s):                                                                  │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)                                       │
-    │  (2 | 1 -> 2) (Output) Raw No Powerline (Bandstop 50 Hz) (317, 320, 192)     │
-    │  (3 | 1 -> 2 -> 3) (Output) Raw No High Freq (Lowpass 20 Hz) (317, 320,      │
-    │  192)                                                                        │
-    │  --                                                                          │
-    ╰──────────────────────────────────────────────────────────────────────────────╯
-    ╭─────────────────── Filtered Chunked Ground Truth Data ────────────────────╮
-    │  --                                                                       │
-    │  KinematicsData                                                           │
-    │  Sampling frequency: 2044.0 Hz                                            │
-    │  (0) Input (21, 3, 20440)                                                 │
-    │                                                                           │
-    │  Filter(s):                                                               │
-    │  (1 | 1) ApplyFunctionFilter (63, 20440)                                  │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)                                 │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)                      │
-    │  (4 | 1 -> 2 -> 3 -> 4) (Output) Mean Kinematics per EMG Chunk (317, 60)  │
-    │  --                                                                       │
-    ╰───────────────────────────────────────────────────────────────────────────╯
-
-                                    Dataset Creation                                
-    ▶ Adding processed data to dataset...
-
-    Adding data with keys: ['Raw No Powerline (Bandstop 50 Hz)', 'Raw No High Freq 
-    (Lowpass 20 Hz)']
-
-    Splitting representation: Raw No Powerline (Bandstop 50 Hz) with shape (317, 
-    320, 192)
-      Training shape: (223, 320, 192)
-      Testing shape: (94, 320, 192)
-      After validation split - Testing shape: (86, 320, 192)
-      Validation shape: (8, 320, 192)
-
-    Splitting representation: Raw No High Freq (Lowpass 20 Hz) with shape (317, 320,
-    192)
-      Training shape: (223, 320, 192)
-      Testing shape: (94, 320, 192)
-      After validation split - Testing shape: (86, 320, 192)
-      Validation shape: (8, 320, 192)
-
-              Dataset Split Sizes           
-    ╭───────────────────┬──────────────────╮
-    │  Split            │  Sizes           │
-    ├───────────────────┼──────────────────┤
-    │  Training         │  [223, 223]      │
-    │  Testing          │  [86, 86]        │
-    │  Validation       │  [8, 8]          │
-    ╰───────────────────┴──────────────────╯
-
-    Adding data with keys: ['Mean Kinematics per EMG Chunk']
-
-    Splitting representation: Mean Kinematics per EMG Chunk with shape (317, 60)
-      Training shape: (223, 60)
-      Testing shape: (94, 60)
-      After validation split - Testing shape: (86, 60)
-      Validation shape: (8, 60)
-
-              Dataset Split Sizes           
-    ╭───────────────────────┬──────────────╮
-    │  Split                │  Sizes       │
-    ├───────────────────────┼──────────────┤
-    │  Training             │  [223]       │
-    │  Testing              │  [86]        │
-    │  Validation           │  [8]         │
-    ╰───────────────────────┴──────────────╯
-
-      Processing task 2 (2/2) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
-    ──────────────────────────── APPLYING AUGMENTATIONS ────────────────────────────
-
-                     Augmentation Configuration                  
-    ╭──────────────────────────────────┬────────────────────────╮
-    │  Parameter                       │  Value                 │
-    ├──────────────────────────────────┼────────────────────────┤
-    │  Total augmentation pipelines    │  1                     │
-    │  Pipelines                       │  WaveletDecomposition  │
-    │  Chunks to augment at once       │  250                   │
-    │  Total training samples          │  446                   │
-    ╰──────────────────────────────────┴────────────────────────╯
-
-      Pipeline 1/1: Batch 2/2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
-    ────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
-
-                          Dataset Summary                       
-    ╭─────────────────────────────────────────┬────────────────╮
-    │  Metric                                 │  Value         │
-    ├─────────────────────────────────────────┼────────────────┤
-    │  Total tasks                            │  2             │
-    │  Training samples                       │  892           │
-    │  Testing samples                        │  172           │
-    │  Validation samples                     │  16            │
-    │  Total dataset size                     │  1012.75 MB    │
-    │  Training split size                    │  836.45 MB     │
-    │  Testing split size                     │  161.29 MB     │
-    │  Validation split size                  │  15.00 MB      │
-    ╰─────────────────────────────────────────┴────────────────╯
-
-    Dataset Structure
-    ├── Training
-    │   └── EMG Representations
-    │       ├── Raw No High Freq (Lowpass 20 Hz): (892, 320, 192)
-    │       └── Raw No Powerline (Bandstop 50 Hz): (892, 320, 192)
-    ├── Testing
-    │   └── EMG Representations
-    │       ├── Raw No High Freq (Lowpass 20 Hz): (172, 320, 192)
-    │       └── Raw No Powerline (Bandstop 50 Hz): (172, 320, 192)
-    └── Validation
-        └── EMG Representations
-            ├── Raw No High Freq (Lowpass 20 Hz): (16, 320, 192)
-            └── Raw No Powerline (Bandstop 50 Hz): (16, 320, 192)
-
-    ─────────────────── Dataset Creation Successfully Completed! ───────────────────
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 95-98
-
-Default dataset are also available. Here is an example of how to use the EMBCDataset used in [2]_.
-
-.. [2] Sîmpetru, R.C., Osswald, M., Braun, D.I., Souza de Oliveira, D., Cakici, A.L., Del Vecchio, A., 2022. Accurate continuous prediction of 14 degrees of freedom of the hand from myoelectrical signals through convolutive deep learning, in: Proceedings of the 2022 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC). Presented at the 2022 44th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC), pp. 702–706. https://doi.org/10/gq2f47
-
-.. GENERATED FROM PYTHON SOURCE LINES 98-112
-
-.. code-block:: Python
-
-    from myoverse.datasets.defaults import EMBCDataset
-
-    # Using the default EMBCDataset with Zarr 3
-    dataset = EMBCDataset(
-        emg_data_path=Path(r"../data/emg.pkl").resolve(),
-        ground_truth_data_path=Path(r"../data/kinematics.pkl").resolve(),
-        save_path=Path(r"../data/dataset_embc.zarr").resolve(),
-        tasks_to_use=["1", "2"],
+        save_path=DATA_DIR / "dataset.zip",
+        test_ratio=0.2,
+        val_ratio=0.2,
         debug_level=1,
-        silence_zarr_warnings=True,  # Silence zarr codec warnings
     )
 
-    # Create the EMBC dataset
-    dataset.create_dataset()
+    creator.create()
 
 
 
@@ -501,336 +81,41 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
     ────────────────────────── STARTING DATASET CREATION ───────────────────────────
 
                                  Dataset Configuration                              
-    ╭──────────────────────────────────┬───────────────────────────────────────────╮
-    │  Parameter                       │  Value                                    │
-    ├──────────────────────────────────┼───────────────────────────────────────────┤
-    │  EMG data path                   │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-    │  Ground truth data path          │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-    │  Ground truth data type          │  kinematics                               │
-    │  Sampling frequency (Hz)         │  2048.0                                   │
-    │  Save path                       │  /home/runner/work/MyoVerse/MyoVerse/ex…  │
-    │  Chunk size                      │  192                                      │
-    │  Chunk shift                     │  64                                       │
-    │  Testing split ratio             │  0.2                                      │
-    │  Validation split ratio          │  0.2                                      │
-    │  Amount of chunks to augment at  │  500                                      │
-    │  once                            │                                           │
-    │  Debug level                     │  1                                        │
-    │  Silence Zarr warnings           │  True                                     │
-    ╰──────────────────────────────────┴───────────────────────────────────────────╯
+    ┏━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    ┃ Parameter               ┃ Value                                              ┃
+    ┡━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+    │ Modalities              │ emg, kinematics                                    │
+    │ Sampling frequency (Hz) │ 2044.0                                             │
+    │ Save path               │ /home/runner/work/MyoVerse/MyoVerse/examples/data… │
+    │ Test ratio              │ 0.2                                                │
+    │ Validation ratio        │ 0.2                                                │
+    └─────────────────────────┴────────────────────────────────────────────────────┘
 
     Processing 2 tasks: 1, 2
 
     Dataset Structure
-    ├── EMG Data
-    │   ├── Task 1: Shape (320, 20440)
-    │   └── Task 2: Shape (320, 20440)
-    └── Ground Truth Data
-        ├── Task 1: Shape (21, 3, 20440)
-        └── Task 2: Shape (21, 3, 20440)
+    ├── emg dims=('channel', 'time')
+    │   ├── Task 1: (320, 20440)
+    │   └── Task 2: (320, 20440)
+    └── kinematics dims=('joint', 'xyz', 'time')
+        ├── Task 1: (21, 3, 20440)
+        └── Task 2: (21, 3, 20440)
 
     ─────────────────────────────── PROCESSING TASKS ───────────────────────────────
 
-                                      Initial Data                                  
-
-    ╭──────── EMG Data Task 1 ────────╮
-    │  --                             │
-    │  EMGData                        │
-    │  Sampling frequency: 2048.0 Hz  │
-    │  (0) Input (320, 20440)         │
-    │  --                             │
-    ╰─────────────────────────────────╯
-    ╭─── Ground Truth Data Task 1 ────╮
-    │  --                             │
-    │  KinematicsData                 │
-    │  Sampling frequency: 2048.0 Hz  │
-    │  (0) Input (21, 3, 20440)       │
-    │  --                             │
-    ╰─────────────────────────────────╯
-
-                                Pre-Chunking Processing                             
-
-    ▶ Applying ground truth filters before chunking...
-
-                                    Chunking Process                                
-
-    ▶ Chunking EMG data...
-    ▶ Chunking ground truth data...
-
-    ──────────────────────────────── After Chunking ────────────────────────────────
-
-    ╭─────────── Chunked EMG Data ────────────╮
-    │  --                                     │
-    │  EMGData                                │
-    │  Sampling frequency: 2048.0 Hz          │
-    │  (0) Input (320, 20440)                 │
-    │                                         │
-    │  Filter(s):                             │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-    │  --                                     │
-    ╰─────────────────────────────────────────╯
-    ╭────────────── Chunked Ground Truth Data ──────────────╮
-    │  --                                                   │
-    │  KinematicsData                                       │
-    │  Sampling frequency: 2048.0 Hz                        │
-    │  (0) Input (21, 3, 20440)                             │
-    │                                                       │
-    │  Filter(s):                                           │
-    │  (1 | 1) Reshape (63, 20440)                          │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)             │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)  │
-    │  --                                                   │
-    ╰───────────────────────────────────────────────────────╯
-
-                                Post-Chunking Processing                            
-
-    ▶ Applying EMG filters after chunking...
-    ▶ Applying ground truth filters after chunking...
-
-    ───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-    ╭─────────────────── Filtered Chunked EMG Data ───────────────────╮
-    │  --                                                             │
-    │  EMGData                                                        │
-    │  Sampling frequency: 2048.0 Hz                                  │
-    │  (0) Input (320, 20440)                                         │
-    │                                                                 │
-    │  Filter(s):                                                     │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)                          │
-    │  (2 | 1 -> 2) (Output) raw (317, 320, 192)                      │
-    │  (3 | 1 -> 2 -> 3) (Output) SOSFrequencyFilter (317, 320, 192)  │
-    │  --                                                             │
-    ╰─────────────────────────────────────────────────────────────────╯
-    ╭───────── Filtered Chunked Ground Truth Data ──────────╮
-    │  --                                                   │
-    │  KinematicsData                                       │
-    │  Sampling frequency: 2048.0 Hz                        │
-    │  (0) Input (21, 3, 20440)                             │
-    │                                                       │
-    │  Filter(s):                                           │
-    │  (1 | 1) Reshape (63, 20440)                          │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)             │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)  │
-    │  (4 | 1 -> 2 -> 3 -> 4) (Output) Mean (317, 60)       │
-    │  --                                                   │
-    ╰───────────────────────────────────────────────────────╯
-
-                                    Dataset Creation                                
-    ▶ Adding processed data to dataset...
-
-    Adding data with keys: ['raw', 'SOSFrequencyFilter']
-
-    Splitting representation: raw with shape (317, 320, 192)
-      Training shape: (255, 320, 192)
-      Testing shape: (62, 320, 192)
-      After validation split - Testing shape: (50, 320, 192)
-      Validation shape: (12, 320, 192)
-
-    Splitting representation: SOSFrequencyFilter with shape (317, 320, 192)
-      Training shape: (255, 320, 192)
-      Testing shape: (62, 320, 192)
-      After validation split - Testing shape: (50, 320, 192)
-      Validation shape: (12, 320, 192)
-
-              Dataset Split Sizes           
-    ╭───────────────────┬──────────────────╮
-    │  Split            │  Sizes           │
-    ├───────────────────┼──────────────────┤
-    │  Training         │  [255, 255]      │
-    │  Testing          │  [50, 50]        │
-    │  Validation       │  [12, 12]        │
-    ╰───────────────────┴──────────────────╯
-
-    Adding data with keys: ['Mean']
-
-    Splitting representation: Mean with shape (317, 60)
-      Training shape: (255, 60)
-      Testing shape: (62, 60)
-      After validation split - Testing shape: (50, 60)
-      Validation shape: (12, 60)
-
-              Dataset Split Sizes           
-    ╭───────────────────────┬──────────────╮
-    │  Split                │  Sizes       │
-    ├───────────────────────┼──────────────┤
-    │  Training             │  [255]       │
-    │  Testing              │  [50]        │
-    │  Validation           │  [12]        │
-    ╰───────────────────────┴──────────────╯
-
-                                      Initial Data                                  
-
-    ╭──────── EMG Data Task 2 ────────╮
-    │  --                             │
-    │  EMGData                        │
-    │  Sampling frequency: 2048.0 Hz  │
-    │  (0) Input (320, 20440)         │
-    │  --                             │
-    ╰─────────────────────────────────╯
-    ╭─── Ground Truth Data Task 2 ────╮
-    │  --                             │
-    │  KinematicsData                 │
-    │  Sampling frequency: 2048.0 Hz  │
-    │  (0) Input (21, 3, 20440)       │
-    │  --                             │
-    ╰─────────────────────────────────╯
-
-                                Pre-Chunking Processing                             
-
-    ▶ Applying ground truth filters before chunking...
-
-                                    Chunking Process                                
-
-    ▶ Chunking EMG data...
-    ▶ Chunking ground truth data...
-
-    ──────────────────────────────── After Chunking ────────────────────────────────
-
-    ╭─────────── Chunked EMG Data ────────────╮
-    │  --                                     │
-    │  EMGData                                │
-    │  Sampling frequency: 2048.0 Hz          │
-    │  (0) Input (320, 20440)                 │
-    │                                         │
-    │  Filter(s):                             │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)  │
-    │  --                                     │
-    ╰─────────────────────────────────────────╯
-    ╭────────────── Chunked Ground Truth Data ──────────────╮
-    │  --                                                   │
-    │  KinematicsData                                       │
-    │  Sampling frequency: 2048.0 Hz                        │
-    │  (0) Input (21, 3, 20440)                             │
-    │                                                       │
-    │  Filter(s):                                           │
-    │  (1 | 1) Reshape (63, 20440)                          │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)             │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)  │
-    │  --                                                   │
-    ╰───────────────────────────────────────────────────────╯
-
-                                Post-Chunking Processing                            
-
-    ▶ Applying EMG filters after chunking...
-    ▶ Applying ground truth filters after chunking...
-
-    ───────────────────────── After Filtering Chunked Data ─────────────────────────
-
-    ╭─────────────────── Filtered Chunked EMG Data ───────────────────╮
-    │  --                                                             │
-    │  EMGData                                                        │
-    │  Sampling frequency: 2048.0 Hz                                  │
-    │  (0) Input (320, 20440)                                         │
-    │                                                                 │
-    │  Filter(s):                                                     │
-    │  (1 | 1) EMG_Chunkizer (317, 320, 192)                          │
-    │  (2 | 1 -> 2) (Output) raw (317, 320, 192)                      │
-    │  (3 | 1 -> 2 -> 3) (Output) SOSFrequencyFilter (317, 320, 192)  │
-    │  --                                                             │
-    ╰─────────────────────────────────────────────────────────────────╯
-    ╭───────── Filtered Chunked Ground Truth Data ──────────╮
-    │  --                                                   │
-    │  KinematicsData                                       │
-    │  Sampling frequency: 2048.0 Hz                        │
-    │  (0) Input (21, 3, 20440)                             │
-    │                                                       │
-    │  Filter(s):                                           │
-    │  (1 | 1) Reshape (63, 20440)                          │
-    │  (2 | 1 -> 2) IndexDataFilter (60, 20440)             │
-    │  (3 | 1 -> 2 -> 3) ChunkizeDataFilter (317, 60, 192)  │
-    │  (4 | 1 -> 2 -> 3 -> 4) (Output) Mean (317, 60)       │
-    │  --                                                   │
-    ╰───────────────────────────────────────────────────────╯
-
-                                    Dataset Creation                                
-    ▶ Adding processed data to dataset...
-
-    Adding data with keys: ['raw', 'SOSFrequencyFilter']
-
-    Splitting representation: raw with shape (317, 320, 192)
-      Training shape: (255, 320, 192)
-      Testing shape: (62, 320, 192)
-      After validation split - Testing shape: (50, 320, 192)
-      Validation shape: (12, 320, 192)
-
-    Splitting representation: SOSFrequencyFilter with shape (317, 320, 192)
-      Training shape: (255, 320, 192)
-      Testing shape: (62, 320, 192)
-      After validation split - Testing shape: (50, 320, 192)
-      Validation shape: (12, 320, 192)
-
-              Dataset Split Sizes           
-    ╭───────────────────┬──────────────────╮
-    │  Split            │  Sizes           │
-    ├───────────────────┼──────────────────┤
-    │  Training         │  [255, 255]      │
-    │  Testing          │  [50, 50]        │
-    │  Validation       │  [12, 12]        │
-    ╰───────────────────┴──────────────────╯
-
-    Adding data with keys: ['Mean']
-
-    Splitting representation: Mean with shape (317, 60)
-      Training shape: (255, 60)
-      Testing shape: (62, 60)
-      After validation split - Testing shape: (50, 60)
-      Validation shape: (12, 60)
-
-              Dataset Split Sizes           
-    ╭───────────────────────┬──────────────╮
-    │  Split                │  Sizes       │
-    ├───────────────────────┼──────────────┤
-    │  Training             │  [255]       │
-    │  Testing              │  [50]        │
-    │  Validation           │  [12]        │
-    ╰───────────────────────┴──────────────╯
-
-      Processing task 2 (2/2) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
-    ──────────────────────────── APPLYING AUGMENTATIONS ────────────────────────────
-
-                     Augmentation Configuration                  
-    ╭──────────────────────────────────┬────────────────────────╮
-    │  Parameter                       │  Value                 │
-    ├──────────────────────────────────┼────────────────────────┤
-    │  Total augmentation pipelines    │  3                     │
-    │  Pipelines                       │  GaussianNoise         │
-    │                                  │  MagnitudeWarping      │
-    │                                  │  WaveletDecomposition  │
-    │  Chunks to augment at once       │  500                   │
-    │  Total training samples          │  510                   │
-    ╰──────────────────────────────────┴────────────────────────╯
-
-      Pipeline 3/3: Batch 5/5 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% • 0:00:00
+      Processing task 2 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
     ────────────────────────── DATASET CREATION COMPLETED ──────────────────────────
 
-                          Dataset Summary                       
-    ╭─────────────────────────────────────────┬────────────────╮
-    │  Metric                                 │  Value         │
-    ├─────────────────────────────────────────┼────────────────┤
-    │  Total tasks                            │  2             │
-    │  Training samples                       │  4080          │
-    │  Testing samples                        │  100           │
-    │  Validation samples                     │  24            │
-    │  Total dataset size                     │  2464.24 MB    │
-    │  Training split size                    │  2391.56 MB    │
-    │  Testing split size                     │  58.62 MB      │
-    │  Validation split size                  │  14.07 MB      │
-    ╰─────────────────────────────────────────┴────────────────╯
+                    Dataset Summary                 
+     Split       emg              kinematics        
+     training    1: (320, 16352)  1: (21, 3, 16352) 
+                 2: (320, 16352)  2: (21, 3, 16352) 
+     validation  1: (320, 816)    1: (21, 3, 816)   
+                 2: (320, 816)    2: (21, 3, 816)   
+     testing     1: (320, 3272)   1: (21, 3, 3272)  
+                 2: (320, 3272)   2: (21, 3, 3272)  
 
-    Dataset Structure
-    ├── Training
-    │   └── EMG Representations
-    │       ├── SOSFrequencyFilter: (4080, 320, 192)
-    │       └── raw: (4080, 320, 192)
-    ├── Testing
-    │   └── EMG Representations
-    │       ├── SOSFrequencyFilter: (100, 320, 192)
-    │       └── raw: (100, 320, 192)
-    └── Validation
-        └── EMG Representations
-            ├── SOSFrequencyFilter: (24, 320, 192)
-            └── raw: (24, 320, 192)
-
+    Total size: 26.09 MB
     ─────────────────── Dataset Creation Successfully Completed! ───────────────────
 
 
@@ -839,9 +124,9 @@ Default dataset are also available. Here is an example of how to use the EMBCDat
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 43.013 seconds)
+   **Total running time of the script:** (0 minutes 0.778 seconds)
 
-**Estimated memory usage:**  2081 MB
+**Estimated memory usage:**  759 MB
 
 
 .. _sphx_glr_download_auto_examples_01_tutorials_3_create_dataset.py:

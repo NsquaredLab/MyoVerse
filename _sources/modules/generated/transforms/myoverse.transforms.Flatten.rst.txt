@@ -1,0 +1,19 @@
+﻿Flatten
+===========================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: Flatten
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: Flatten
+       
+            ~Flatten.__init__
+            ~Flatten._apply
+        
+        

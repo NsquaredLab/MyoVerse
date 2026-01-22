@@ -1,0 +1,18 @@
+﻿RMS
+=======================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: RMS
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: RMS
+       
+            ~RMS._compute_window
+        
+        

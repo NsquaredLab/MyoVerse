@@ -1,0 +1,19 @@
+﻿MagnitudeWarp
+=================================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: MagnitudeWarp
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: MagnitudeWarp
+       
+            ~MagnitudeWarp.__init__
+            ~MagnitudeWarp._apply
+        
+        

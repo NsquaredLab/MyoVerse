@@ -1,0 +1,6 @@
+myoverse.transforms.Bandpass.\_\_init\_\_
+=========================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: Bandpass.__init__

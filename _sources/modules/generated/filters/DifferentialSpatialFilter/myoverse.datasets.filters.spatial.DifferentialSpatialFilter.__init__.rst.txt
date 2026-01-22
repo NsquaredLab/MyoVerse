@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.DifferentialSpatialFilter.\_\_init\_\_
-========================================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: DifferentialSpatialFilter.__init__

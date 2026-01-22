@@ -1,6 +1,0 @@
-myoverse.datasets.filters.temporal.SpectralInterpolationFilter.\_filter
-=======================================================================
-
-.. currentmodule:: myoverse.datasets.filters.temporal
-
-.. automethod:: SpectralInterpolationFilter._filter

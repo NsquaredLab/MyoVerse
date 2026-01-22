@@ -1,0 +1,6 @@
+myoverse.transforms.Dropout.\_apply
+===================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: Dropout._apply

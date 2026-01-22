@@ -1,0 +1,6 @@
+myoverse.transforms.MinMax.\_\_init\_\_
+=======================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: MinMax.__init__

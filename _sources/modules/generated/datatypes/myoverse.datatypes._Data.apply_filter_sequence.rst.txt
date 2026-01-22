@@ -1,8 +1,0 @@
-﻿myoverse.datatypes._Data.apply_filter_sequence
-==================================================================
-
-.. currentmodule:: myoverse.datatypes
-
-.. autofunction:: _Data.apply_filter_sequence
-
-.. include:: /modules/generated/backreferences/myoverse.datatypes._Data.apply_filter_sequence.examples

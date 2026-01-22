@@ -1,6 +1,0 @@
-myoverse.datasets.filters.spatial.ApplyFunctionSpatialFilter.\_\_init\_\_
-=========================================================================
-
-.. currentmodule:: myoverse.datasets.filters.spatial
-
-.. automethod:: ApplyFunctionSpatialFilter.__init__

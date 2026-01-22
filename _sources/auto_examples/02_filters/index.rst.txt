@@ -34,7 +34,7 @@ Filters
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to use the temporal filters available in MyoVerse. Temporal filters process EMG signals in the time domain, such as frequency filtering, rectification, and feature extraction like RMS, MAV, etc.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates temporal transforms for EMG signal processing. All transforms work with PyTorch named tensors for dimension-aware operations that run on both CPU and GPU.">
 
 .. only:: html
 
@@ -45,13 +45,13 @@ Filters
 
 .. raw:: html
 
-      <div class="sphx-glr-thumbnail-title">Working with Temporal Filters</div>
+      <div class="sphx-glr-thumbnail-title">Temporal Signal Processing</div>
     </div>
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to use spatial filters on EMG data using MyoVerse. We will showcase differential filters that help enhance spatial patterns in EMG signals.">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to use spatial filters on EMG data using MyoVerse. Spatial filters operate on electrode grids to compute spatial derivatives and enhance local patterns while reducing common-mode noise.">
 
 .. only:: html
 

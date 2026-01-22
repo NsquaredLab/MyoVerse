@@ -1,0 +1,6 @@
+myoverse.datasets.Modality.load
+===============================
+
+.. currentmodule:: myoverse.datasets
+
+.. automethod:: Modality.load

@@ -1,597 +1,431 @@
 """
-============================
-Working with Temporal Filters
-============================
+Temporal Signal Processing
+==========================
 
-This example demonstrates how to use the temporal filters available in MyoVerse.
-Temporal filters process EMG signals in the time domain, such as frequency filtering,
-rectification, and feature extraction like RMS, MAV, etc.
+This example demonstrates temporal transforms for EMG signal processing.
+All transforms work with PyTorch named tensors for dimension-aware operations
+that run on both CPU and GPU.
 """
 
-import os
-import pickle as pkl
-import matplotlib.pyplot as plt
-import numpy as np
-from myoverse.datatypes import EMGData
-from scipy.signal import butter
-from myoverse.datasets.filters.temporal import (
-    SOSFrequencyFilter,
-    RectifyFilter,
-    RMSFilter,
-    MAVFilter,
-    VARFilter,
-    IAVFilter,
-    WFLFilter,
-    ZCFilter,
-    SSCFilter,
-    SpectralInterpolationFilter,
-)
-from myoverse.datasets.filters._template import FilterBaseClass
-from scipy.signal import medfilt
-
 # %%
-# Loading data
+# Loading Data
 # ------------
-# First we load example EMG data
+# Load EMG data and wrap as a named tensor.
+
+import pickle as pkl
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import torch
+import myoverse
 
 # Get the path to the data file
-data_path = os.path.join("..", "data", "emg.pkl")
+# Find data directory relative to myoverse package (works in all contexts)
+import myoverse
+_pkg_dir = Path(myoverse.__file__).parent.parent
+DATA_DIR = _pkg_dir / "examples" / "data"
+if not DATA_DIR.exists():
+    DATA_DIR = Path.cwd() / "examples" / "data"
 
-with open(data_path, "rb") as f:
-    emg_data = {k: EMGData(v, sampling_frequency=2044) for k, v in pkl.load(f).items()}
+with open(DATA_DIR / "emg.pkl", "rb") as f:
+    emg_data = pkl.load(f)
 
-# Use task 1 data for our examples
-task_one_data = emg_data["1"]
-print("EMG data loaded:", task_one_data)
+# Create named tensor with myoverse
+SAMPLING_FREQ = 2044
+emg = myoverse.emg_tensor(emg_data["1"], fs=SAMPLING_FREQ)
+
+print(f"EMG data loaded: {emg.names} {emg.shape}")
+print(f"Device: {emg.device}")
+
+# Use fivethirtyeight style for all plots
+plt.style.use("fivethirtyeight")
 
 # %%
-# Visualizing the raw signal
-# -------------------------
+# Visualizing Raw Signal
+# ----------------------
+# Plot one channel of the raw EMG signal.
+
+channel = 0
+time_sec = 5
+samples = int(time_sec * SAMPLING_FREQ)
+
 plt.figure(figsize=(12, 4))
-raw_emg = task_one_data.input_data
-channel = 0  # Choose one channel for visualization
-
-# Plot first 5 seconds of data
-time_in_sec = 5
-samples_to_plot = int(time_in_sec * task_one_data.sampling_frequency)
-
-plt.plot(raw_emg[channel, :samples_to_plot], color="blue")
+plt.plot(emg[channel, :samples].rename(None).numpy())
 plt.title("Raw EMG Signal (Channel 0)")
 plt.xlabel("Samples")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 plt.show()
 
 # %%
-# 1. Basic Frequency Filtering
-# ---------------------------
-#
-# Frequency filtering is one of the most important preprocessing steps for EMG signals.
-# Let's apply a bandpass filter to remove noise and extract the useful EMG frequency band.
+# 1. Frequency Filtering
+# ----------------------
+# Bandpass filtering to extract the useful EMG frequency band (20-450 Hz).
 
-# Define the filter parameters for a bandpass filter (typical EMG range: 20-450 Hz)
-FILTER_ORDER = 4
-LOW_CUT = 20  # Hz
-HIGH_CUT = 450  # Hz
-SAMPLING_FREQ = 2044  # Hz
+from myoverse.transforms import Bandpass, Compose
 
-# Create bandpass filter coefficients
-sos_bandpass = butter(
-    FILTER_ORDER, [LOW_CUT, HIGH_CUT], btype="bandpass", output="sos", fs=SAMPLING_FREQ
-)
-
-# Create the MyoVerse filter
-bandpass_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=sos_bandpass,
-    is_output=True,
-    name="Bandpass",
-    input_is_chunked=False,
-)
+# Create bandpass filter - explicitly operates on "time" dimension
+bandpass = Bandpass(low=20, high=450, fs=SAMPLING_FREQ, dim="time")
+print(f"Transform: {bandpass}")
 
 # Apply the filter
-task_one_data.apply_filter(bandpass_filter, representations_to_filter=["Input"])
+filtered = bandpass(emg)
+print(f"Output names: {filtered.names}")
 
-# Visualize the raw vs filtered signal
+# Visualize
 plt.figure(figsize=(12, 8))
 
 plt.subplot(2, 1, 1)
-plt.plot(raw_emg[channel, :samples_to_plot], color="blue")
+plt.plot(emg[channel, :samples].rename(None).numpy())
 plt.title("Raw EMG Signal")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.subplot(2, 1, 2)
-filtered_emg = task_one_data["Bandpass"]
-plt.plot(filtered_emg[channel, :samples_to_plot], color="red")
-plt.title(f"Bandpass Filtered EMG ({LOW_CUT}-{HIGH_CUT} Hz)")
+plt.plot(filtered[channel, :samples].rename(None).numpy())
+plt.title("Bandpass Filtered EMG (20-450 Hz)")
 plt.xlabel("Samples")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.tight_layout()
 plt.show()
 
 # %%
 # 2. Rectification
-# --------------
-#
-# Rectification is a common step in EMG processing that converts negative values to positive,
-# making the signal suitable for envelope extraction.
+# ----------------
+# Full-wave rectification converts negative values to positive.
 
-# Create a rectification filter
-rectify_filter = RectifyFilter(input_is_chunked=False, is_output=True, name="Rectified")
+from myoverse.transforms import Rectify
 
-# Apply the filter to the bandpass filtered data
-task_one_data.apply_filter(rectify_filter, representations_to_filter=["Bandpass"])
+# Rectification is element-wise
+rectify = Rectify()
+rectified = rectify(filtered)
 
-# Visualize the filtered vs rectified signal
 plt.figure(figsize=(12, 8))
 
 plt.subplot(2, 1, 1)
-plt.plot(filtered_emg[channel, :samples_to_plot], color="red")
+plt.plot(filtered[channel, :samples].rename(None).numpy())
 plt.title("Bandpass Filtered EMG")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.subplot(2, 1, 2)
-rectified_emg = task_one_data["Rectified"]
-plt.plot(rectified_emg[channel, :samples_to_plot], color="green")
+plt.plot(rectified[channel, :samples].rename(None).numpy())
 plt.title("Rectified EMG")
 plt.xlabel("Samples")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.tight_layout()
 plt.show()
 
 # %%
 # 3. RMS Feature Extraction
-# -----------------------
-#
-# Root Mean Square (RMS) is a common feature extracted from EMG that represents
-# the power of the signal over time windows.
-
-# Define parameters for RMS calculation
-WINDOW_SIZE = 400  # ~200ms at 2044 Hz
-SHIFT = 100  # ~50ms step size for overlapping windows
-
-# Create RMS filter
-rms_filter = RMSFilter(
-    input_is_chunked=False,
-    is_output=True,
-    name="RMS",
-    window_size=WINDOW_SIZE,
-    shift=SHIFT,
-)
-
-# Apply RMS filter to the rectified data
-task_one_data.apply_filter(rms_filter, representations_to_filter=["Rectified"])
-
-# Get the RMS feature
-rms_feature = task_one_data["RMS"]
-
-# Visualize the rectified signal and its RMS envelope
-plt.figure(figsize=(12, 8))
-
-# Determine how many RMS samples we have for our 5-second window
-rms_samples_to_plot = len(rms_feature[channel])
-
-# Calculate timestamps for proper alignment
-time_raw = np.arange(samples_to_plot) / SAMPLING_FREQ
-time_rms = np.arange(rms_samples_to_plot) * SHIFT / SAMPLING_FREQ
-
-plt.subplot(2, 1, 1)
-plt.plot(time_raw, rectified_emg[channel, :samples_to_plot], color="green", alpha=0.7)
-plt.title("Rectified EMG")
-plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-plt.subplot(2, 1, 2)
-plt.plot(
-    time_rms, rms_feature[channel, :rms_samples_to_plot], color="purple", linewidth=2
-)
-plt.title(
-    f"RMS Feature (Window: {WINDOW_SIZE / SAMPLING_FREQ:.2f}s, Shift: {SHIFT / SAMPLING_FREQ:.2f}s)"
-)
-plt.xlabel("Time (seconds)")
-plt.ylabel("RMS Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-plt.tight_layout()
-plt.show()
-
-# %%
-# 4. Comparing Multiple Temporal Features
-# -----------------------------------
-#
-# MyoVerse provides several temporal features for EMG analysis.
-# Let's compare some of the most commonly used ones.
-
-# Create a copy of our data for multiple features
-feature_data = EMGData(task_one_data.input_data, sampling_frequency=2044)
-
-# Apply the same bandpass and rectification
-feature_data.apply_filter(bandpass_filter, representations_to_filter=["Input"])
-feature_data.apply_filter(rectify_filter, representations_to_filter=["Bandpass"])
-
-# Create filters for different features with same window parameters
-mav_filter = MAVFilter(
-    input_is_chunked=False,
-    is_output=True,
-    name="MAV",
-    window_size=WINDOW_SIZE,
-    shift=SHIFT,
-)
-
-var_filter = VARFilter(
-    input_is_chunked=False,
-    is_output=True,
-    name="VAR",
-    window_size=WINDOW_SIZE,
-    shift=SHIFT,
-)
-
-iav_filter = IAVFilter(
-    input_is_chunked=False,
-    is_output=True,
-    name="IAV",
-    window_size=WINDOW_SIZE,
-    shift=SHIFT,
-)
-
-# Apply the filters
-feature_data.apply_filter(rms_filter, representations_to_filter=["Rectified"])
-feature_data.apply_filter(mav_filter, representations_to_filter=["Rectified"])
-feature_data.apply_filter(var_filter, representations_to_filter=["Rectified"])
-feature_data.apply_filter(iav_filter, representations_to_filter=["Rectified"])
-
-# Extract all features
-rms_feature = feature_data["RMS"]
-mav_feature = feature_data["MAV"]
-var_feature = feature_data["VAR"]
-iav_feature = feature_data["IAV"]
-
-
-# Normalize each feature for better visualization
-def normalize(x):
-    return (x - np.min(x)) / (np.max(x) - np.min(x))
-
-
-# Plot all features
-plt.figure(figsize=(12, 10))
-
-# Original rectified signal
-plt.subplot(5, 1, 1)
-plt.plot(
-    time_raw,
-    feature_data["Rectified"][channel, :samples_to_plot],
-    color="green",
-    alpha=0.7,
-)
-plt.title("Rectified EMG")
-plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-# RMS
-plt.subplot(5, 1, 2)
-plt.plot(
-    time_rms, normalize(rms_feature[channel, :rms_samples_to_plot]), color="purple"
-)
-plt.title("RMS Feature (Normalized)")
-plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-# MAV
-plt.subplot(5, 1, 3)
-plt.plot(time_rms, normalize(mav_feature[channel, :rms_samples_to_plot]), color="blue")
-plt.title("MAV Feature (Normalized)")
-plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-# VAR
-plt.subplot(5, 1, 4)
-plt.plot(time_rms, normalize(var_feature[channel, :rms_samples_to_plot]), color="red")
-plt.title("VAR Feature (Normalized)")
-plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-# IAV
-plt.subplot(5, 1, 5)
-plt.plot(
-    time_rms, normalize(iav_feature[channel, :rms_samples_to_plot]), color="orange"
-)
-plt.title("IAV Feature (Normalized)")
-plt.xlabel("Time (seconds)")
-plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-
-plt.tight_layout()
-plt.show()
-
-# %%
-# 5. Frequency-Domain Features
 # -------------------------
-#
-# MyoVerse also provides tools for handling frequency-related problems.
-# Let's demonstrate the use of SpectralInterpolationFilter to remove power line noise.
+# Root Mean Square (RMS) represents signal power over time windows.
 
-# Create a new instance with original data
-power_line_data = EMGData(task_one_data.input_data, sampling_frequency=2044)
+from myoverse.transforms import RMS
 
-# Create a spectral interpolation filter to remove 50Hz noise
-spec_filter = SpectralInterpolationFilter(
-    input_is_chunked=False,
-    is_output=True,
-    name="SpecInterp",
-    bandwidth=(48, 52),  # 50Hz +/- 2Hz
-    number_of_harmonics=3,  # Remove also 100Hz and 150Hz
-    sampling_frequency=2044,
-    interpolation_window=15,
-    interpolation_poly_order=3,
-)
+# RMS with sliding window - operates on "time" dimension
+rms = RMS(window_size=200, dim="time")  # ~100ms window
+rms_feature = rms(rectified)
 
-# Apply the filter
-power_line_data.apply_filter(spec_filter, representations_to_filter=["Input"])
+print(f"RMS output shape: {rms_feature.shape}")  # Reduced time dimension
 
-# Apply bandpass for comparison with other methods
-power_line_data.apply_filter(bandpass_filter, representations_to_filter=["Input"])
+plt.figure(figsize=(12, 8))
 
-
-# Calculate FFT for visualization
-def calculate_fft(signal, fs):
-    n = len(signal)
-    fft_result = np.fft.rfft(signal)
-    fft_mag = np.abs(fft_result) / n
-    freq = np.fft.rfftfreq(n, 1 / fs)
-    return freq, fft_mag
-
-
-# Get frequency data
-freq_raw, fft_raw = calculate_fft(task_one_data.input_data[channel, :4096], 2044)
-freq_cleaned, fft_cleaned = calculate_fft(
-    power_line_data["SpecInterp"][channel, :4096], 2044
-)
-freq_bandpass, fft_bandpass = calculate_fft(
-    power_line_data["Bandpass"][channel, :4096], 2044
-)
-
-# Plot the frequency domain for comparison
-plt.figure(figsize=(12, 10))
-
-# Time domain signals
-plt.subplot(3, 1, 1)
-plt.plot(task_one_data.input_data[channel, :samples_to_plot], color="blue")
-plt.title("Raw EMG Signal")
+plt.subplot(2, 1, 1)
+plt.plot(rectified[channel, :samples].rename(None).numpy(), alpha=0.7)
+plt.title("Rectified EMG")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
-# FFT of the raw signal
-plt.subplot(3, 1, 2)
-plt.plot(freq_raw, fft_raw, color="blue")
-plt.axvline(x=50, color="red", linestyle="--", label="50 Hz (Power line)")
-plt.axvline(x=100, color="red", linestyle="--", alpha=0.7)
-plt.axvline(x=150, color="red", linestyle="--", alpha=0.7)
-plt.title("Frequency Spectrum - Raw Signal")
-plt.ylabel("Magnitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-plt.xlim(0, 500)
-plt.legend()
-
-# FFT of the cleaned signal
-plt.subplot(3, 1, 3)
-plt.plot(freq_cleaned, fft_cleaned, color="green", label="Spectral Interpolation")
-plt.plot(
-    freq_bandpass, fft_bandpass, color="orange", alpha=0.7, label="Bandpass Filter"
-)
-plt.axvline(x=50, color="red", linestyle="--", label="50 Hz (Power line)")
-plt.axvline(x=100, color="red", linestyle="--", alpha=0.7)
-plt.axvline(x=150, color="red", linestyle="--", alpha=0.7)
-plt.title("Frequency Spectrum - Filtered Signals")
-plt.xlabel("Frequency (Hz)")
-plt.ylabel("Magnitude")
-plt.grid(True, linestyle="--", alpha=0.7)
-plt.xlim(0, 500)
-plt.legend()
+plt.subplot(2, 1, 2)
+# Adjust for reduced samples
+rms_samples = min(samples // 200, rms_feature.shape[-1])
+plt.plot(rms_feature[channel, :rms_samples].rename(None).numpy(), linewidth=2)
+plt.title("RMS Envelope (200 sample window)")
+plt.xlabel("Windows")
+plt.ylabel("RMS Amplitude")
 
 plt.tight_layout()
 plt.show()
 
 # %%
-# 6. Real-time Processing with SOSFrequencyFilter
-# ------------------------------------------
-#
-# MyoVerse's filters can also be used for real-time processing. Here we'll demonstrate
-# how to use the real-time mode of SOSFrequencyFilter for streaming applications.
+# 4. Composes: Chaining Transforms
+# ---------------------------------
+# Combine multiple transforms into a preprocessing pipeline.
+# Uses torchvision.transforms.Compose under the hood.
 
-# Create a filter for real-time processing
-realtime_filter = SOSFrequencyFilter(
-    sos_filter_coefficients=sos_bandpass,
-    is_output=True,
-    name="Realtime",
-    input_is_chunked=True,  # Now using chunked mode
-    forwards_and_backwards=False,  # Must be False for real-time
-)
+pipeline = Compose([
+    Bandpass(low=20, high=450, fs=SAMPLING_FREQ, dim="time"),
+    Rectify(),
+    RMS(window_size=200, dim="time"),
+])
 
-# Chunk the data to simulate streaming
-chunk_size = 204  # ~100ms chunks
-n_chunks = 10  # Process 10 chunks (1 second)
+print(f"Compose: {pipeline}")
 
-# Create chunked data
-chunked_data = np.zeros((n_chunks, task_one_data.input_data.shape[0], chunk_size))
-for i in range(n_chunks):
-    chunked_data[i] = task_one_data.input_data[:, i * chunk_size : (i + 1) * chunk_size]
+# Apply entire pipeline
+processed = pipeline(emg)
+print(f"Input: {emg.names} {emg.shape}")
+print(f"Output: {processed.names} {processed.shape}")
 
-# Create a new EMGData object with chunked input
-chunked_emg = EMGData(chunked_data, sampling_frequency=2044)
+# %%
+# 5. Mean Absolute Value (MAV)
+# ----------------------------
+# Another common EMG feature - moving average of rectified signal.
 
-# Apply the real-time filter
-chunked_emg.apply_filter(realtime_filter, representations_to_filter=["Input"])
+from myoverse.transforms import MAV
 
-# Visualize the results
-plt.figure(figsize=(12, 8))
+mav = MAV(window_size=200, dim="time")
+mav_feature = mav(rectified)
 
-# Plot original chunks
-plt.subplot(2, 1, 1)
-channel_to_plot = 0
-for i in range(n_chunks):
-    chunk_start = i * chunk_size
-    plt.plot(
-        np.arange(chunk_start, chunk_start + chunk_size),
-        chunked_data[i, channel_to_plot],
-        color=f"C{i}",
-    )
-    plt.axvline(x=chunk_start, color="black", linestyle=":", alpha=0.3)
+# Compare RMS and MAV
+plt.figure(figsize=(12, 6))
 
-plt.title("Original Signal (Chunked)")
+# Normalize for comparison
+rms_data = rms_feature[channel].rename(None)
+mav_data = mav_feature[channel].rename(None)
+rms_norm = (rms_data - rms_data.min()) / (rms_data.max() - rms_data.min())
+mav_norm = (mav_data - mav_data.min()) / (mav_data.max() - mav_data.min())
+
+n_windows = min(50, len(rms_norm))
+plt.plot(rms_norm[:n_windows].numpy(), label="RMS", linewidth=2)
+plt.plot(mav_norm[:n_windows].numpy(), label="MAV", linewidth=2, alpha=0.8)
+plt.title("RMS vs MAV Features (Normalized)")
+plt.xlabel("Windows")
+plt.ylabel("Normalized Amplitude")
+plt.legend()
+plt.show()
+
+# %%
+# 6. Lowpass vs Highpass
+# ----------------------
+# Compare different filter types.
+
+from myoverse.transforms import Highpass, Lowpass
+
+lowpass = Lowpass(cutoff=50, fs=SAMPLING_FREQ, dim="time")
+highpass = Highpass(cutoff=50, fs=SAMPLING_FREQ, dim="time")
+
+low_filtered = lowpass(emg)
+high_filtered = highpass(emg)
+
+plt.figure(figsize=(12, 10))
+
+plt.subplot(3, 1, 1)
+plt.plot(emg[channel, :samples].rename(None).numpy())
+plt.title("Raw EMG")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
-# Plot filtered chunks
-plt.subplot(2, 1, 2)
-filtered_chunks = chunked_emg["Realtime"]
-for i in range(n_chunks):
-    chunk_start = i * chunk_size
-    plt.plot(
-        np.arange(chunk_start, chunk_start + chunk_size),
-        filtered_chunks[i, channel_to_plot],
-        color=f"C{i}",
-    )
-    plt.axvline(x=chunk_start, color="black", linestyle=":", alpha=0.3)
+plt.subplot(3, 1, 2)
+plt.plot(low_filtered[channel, :samples].rename(None).numpy())
+plt.title("Lowpass Filtered (< 50 Hz)")
+plt.ylabel("Amplitude")
 
-plt.title("Real-time Filtered Signal")
+plt.subplot(3, 1, 3)
+plt.plot(high_filtered[channel, :samples].rename(None).numpy())
+plt.title("Highpass Filtered (> 50 Hz)")
 plt.xlabel("Samples")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.tight_layout()
 plt.show()
 
 # %%
-# 7. Creating Your Own Custom Temporal Filter
-# ----------------------------------------
-#
-# One of the strengths of MyoVerse is the ability to create custom filters.
-# Let's create a custom temporal filter that applies median filtering to the EMG signal.
+# 7. Normalization
+# ----------------
+# Z-score normalization for consistent scaling.
 
+from myoverse.transforms import ZScore
 
-class MedianFilter(FilterBaseClass):
-    """Custom filter that applies median filtering to the EMG signal.
+# Z-score normalize each channel over time
+zscore = ZScore(dim="time")
+normalized = zscore(processed)
+
+processed_data = processed.rename(None)
+print(f"Before normalization:")
+print(f"\tMean: {float(processed_data.mean()):.4f}")
+print(f"\tStd:  {float(processed_data.std()):.4f}")
+
+normalized_data = normalized.rename(None)
+print(f"\nAfter normalization:")
+print(f"\tMean: {float(normalized_data.mean()):.6f}")
+print(f"\tStd:  {float(normalized_data.std()):.6f}")
+
+# %%
+# 8. Data Augmentation
+# --------------------
+# Add noise and warping for training augmentation.
+
+from myoverse.transforms import GaussianNoise, MagnitudeWarp
+
+# Add Gaussian noise
+noise_aug = GaussianNoise(std=0.1)
+noisy = noise_aug(emg)
+
+# Magnitude warping
+warp_aug = MagnitudeWarp(sigma=0.2, n_knots=4, dim="time")
+warped = warp_aug(emg)
+
+plt.figure(figsize=(12, 10))
+
+plt.subplot(3, 1, 1)
+plt.plot(emg[channel, :samples].rename(None).numpy())
+plt.title("Original EMG")
+plt.ylabel("Amplitude")
+
+plt.subplot(3, 1, 2)
+plt.plot(noisy[channel, :samples].rename(None).numpy())
+plt.title("With Gaussian Noise")
+plt.ylabel("Amplitude")
+
+plt.subplot(3, 1, 3)
+plt.plot(warped[channel, :samples].rename(None).numpy())
+plt.title("With Magnitude Warping")
+plt.xlabel("Samples")
+plt.ylabel("Amplitude")
+
+plt.tight_layout()
+plt.show()
+
+# %%
+# 9. Multi-feature Extraction
+# ---------------------------
+# Extract multiple features using Stack.
+
+from myoverse.transforms import Stack
+
+# Create multiple feature extractors
+feature_pipeline = Compose([
+    Bandpass(low=20, high=450, fs=SAMPLING_FREQ, dim="time"),
+    Rectify(),
+])
+
+# Apply bandpass + rectify first
+preprocessed = feature_pipeline(emg)
+
+# Then extract multiple features
+features = Stack({
+    "rms": RMS(window_size=200, dim="time"),
+    "mav": MAV(window_size=200, dim="time"),
+    "var": myoverse.transforms.VAR(window_size=200, dim="time"),
+}, dim="feature")
+
+multi_features = features(preprocessed)
+print(f"Multi-feature output: {multi_features.names} {multi_features.shape}")
+
+# %%
+# 10. GPU Acceleration
+# --------------------
+# Move data to GPU for faster processing.
+
+if torch.cuda.is_available():
+    # Move to GPU
+    emg_gpu = emg.cuda()
+    print(f"EMG on GPU: {emg_gpu.device}")
+
+    # Apply pipeline on GPU
+    processed_gpu = pipeline(emg_gpu)
+    print(f"Processed on GPU: {processed_gpu.device}")
+else:
+    print("CUDA not available - using CPU")
+
+# %%
+# 11. Creating Custom Transforms
+# ------------------------------
+# Extend the Transform base class for custom processing.
+
+from myoverse.transforms import Transform
+
+class MedianFilter(Transform):
+    """Custom median filter transform using PyTorch.
 
     Parameters
     ----------
-    input_is_chunked : bool
-        Whether the input is chunked or not.
-    is_output : bool
-        Whether the filter is an output filter.
-    name : str | None
-        Name of the filter, by default None.
-    run_checks : bool
-        Whether to run the checks when filtering.
     kernel_size : int
         Size of the median filter kernel. Must be odd.
+    dim : str
+        Dimension to filter along.
     """
 
-    def __init__(
-        self,
-        input_is_chunked: bool,
-        is_output: bool = False,
-        name: str | None = None,
-        run_checks: bool = True,
-        *,
-        kernel_size: int = 5,
-    ):
-        super().__init__(
-            input_is_chunked=input_is_chunked,
-            allowed_input_type="both",  # Works with both chunked and non-chunked data
-            is_output=is_output,
-            name=name,
-            run_checks=run_checks,
-        )
-
-        # Ensure kernel size is odd
+    def __init__(self, kernel_size: int = 5, dim: str = "time", **kwargs):
+        super().__init__(dim=dim, **kwargs)
         if kernel_size % 2 == 0:
             raise ValueError("Kernel size must be odd")
-
         self.kernel_size = kernel_size
 
-    def _filter(self, input_array: np.ndarray, **kwargs) -> np.ndarray:
-        """Apply median filtering to the input array.
+    def _apply(self, x: torch.Tensor) -> torch.Tensor:
+        from myoverse.transforms.base import get_dim_index
+        dim_idx = get_dim_index(x, self.dim)
+        names = x.names
 
-        Parameters
-        ----------
-        input_array : numpy.ndarray
-            Input array to filter.
-        **kwargs
-            Additional keyword arguments from the Data object.
+        x = x.rename(None)
 
-        Returns
-        -------
-        numpy.ndarray
-            Filtered array.
-        """
-        # Get the shape of the input array
-        original_shape = input_array.shape
+        # Unfold to get sliding windows
+        x_unfolded = x.unfold(dim_idx, self.kernel_size, 1)
 
-        # Handle different input shapes
-        if not self.input_is_chunked:
-            # Non-chunked case: apply median filter to each channel
-            output_array = np.zeros_like(input_array)
-            for channel in range(original_shape[0]):
-                output_array[channel] = medfilt(
-                    input_array[channel], kernel_size=self.kernel_size
-                )
+        # Compute median over the last dimension (the window)
+        result = x_unfolded.median(dim=-1).values
 
-            return output_array
-        else:
-            # Chunked case: apply median filter to each channel in each chunk
-            output_array = np.zeros_like(input_array)
+        # Pad to maintain size
+        pad_total = self.kernel_size - 1
+        pad_before = pad_total // 2
+        pad_after = pad_total - pad_before
 
-            # Loop through each chunk
-            for chunk in range(original_shape[0]):
-                # Loop through each channel
-                for channel in range(original_shape[1]):
-                    output_array[chunk, channel] = medfilt(
-                        input_array[chunk, channel], kernel_size=self.kernel_size
-                    )
+        # Move target dim to last position for padding
+        result = result.movedim(dim_idx, -1)
+        original_shape = result.shape
 
-            return output_array
+        # F.pad with mode='replicate' requires 3D+ input
+        # Reshape to 3D: (batch, 1, time)
+        result = result.reshape(-1, 1, result.shape[-1])
+        result = torch.nn.functional.pad(result, (pad_before, pad_after), mode='replicate')
 
+        # Restore original shape and move dim back
+        result = result.reshape(*original_shape[:-1], -1)
+        result = result.movedim(-1, dim_idx)
 
-# Create a new instance with original data
-custom_filter_data = EMGData(task_one_data.input_data, sampling_frequency=2044)
+        if names[0] is not None:
+            result = result.rename(*names)
 
-# Create our custom median filter
-median_filter = MedianFilter(
-    input_is_chunked=False,
-    is_output=True,
-    name="MedianFiltered",
-    kernel_size=11,  # Use a larger kernel to make the effect more visible
-)
+        return result
 
-# Apply our custom filter
-custom_filter_data.apply_filter(median_filter, representations_to_filter=["Input"])
+# Use in a pipeline
+custom_pipeline = Compose([
+    Bandpass(low=20, high=450, fs=SAMPLING_FREQ, dim="time"),
+    MedianFilter(kernel_size=11, dim="time"),
+    ZScore(dim="time"),
+])
 
-# Visualize the result
+custom_output = custom_pipeline(emg)
+print(f"Custom pipeline output: {custom_output.names} {custom_output.shape}")
+
+# Visualize
 plt.figure(figsize=(12, 8))
 
 plt.subplot(2, 1, 1)
-plt.plot(raw_emg[channel, :samples_to_plot], color="blue")
-plt.title("Raw EMG Signal")
+plt.plot(emg[channel, :samples].rename(None).numpy())
+plt.title("Raw EMG")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.subplot(2, 1, 2)
-median_filtered = custom_filter_data["MedianFiltered"]
-plt.plot(median_filtered[channel, :samples_to_plot], color="purple")
-plt.title(f"Custom Median Filtered EMG (Kernel Size: {median_filter.kernel_size})")
+plt.plot(custom_output[channel, :samples].rename(None).numpy())
+plt.title("Custom Compose (Bandpass + Median + ZScore)")
 plt.xlabel("Samples")
 plt.ylabel("Amplitude")
-plt.grid(True, linestyle="--", alpha=0.7)
 
 plt.tight_layout()
 plt.show()
 
 # %%
-# This example demonstrates how to create custom filters in MyoVerse.
-# You can extend the FilterBaseClass to create any filter you need,
-# opening up possibilities for specialized EMG processing techniques.
+# Summary
+# -------
+# Key temporal transforms:
+#
+# - **Bandpass/Lowpass/Highpass/Notch** - FFT-based frequency filtering
+# - **Rectify** - Full-wave rectification
+# - **RMS/MAV/VAR** - Sliding window feature extraction
+# - **ZScore/MinMax** - Normalization
+# - **GaussianNoise/MagnitudeWarp/TimeWarp** - Augmentation
+#
+# All transforms:
+# - Work with PyTorch named tensors
+# - Are dimension-aware via the `dim` parameter
+# - Run on both CPU and GPU
+# - Can be combined with torchvision.transforms.Compose (or Compose)

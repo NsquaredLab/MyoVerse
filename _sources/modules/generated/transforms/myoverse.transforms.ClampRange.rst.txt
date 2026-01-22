@@ -1,0 +1,19 @@
+﻿ClampRange
+==============================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: ClampRange
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: ClampRange
+       
+            ~ClampRange.__init__
+            ~ClampRange._apply
+        
+        

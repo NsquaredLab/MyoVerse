@@ -1,6 +1,0 @@
-myoverse.datasets.filters.generic.ChunkizeDataFilter.\_\_init\_\_
-=================================================================
-
-.. currentmodule:: myoverse.datasets.filters.generic
-
-.. automethod:: ChunkizeDataFilter.__init__

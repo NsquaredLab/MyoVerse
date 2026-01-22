@@ -1,0 +1,6 @@
+myoverse.transforms.GaussianNoise.\_\_init\_\_
+==============================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: GaussianNoise.__init__

@@ -1,0 +1,6 @@
+myoverse.transforms.ZScore.\_\_init\_\_
+=======================================
+
+.. currentmodule:: myoverse.transforms
+
+.. automethod:: ZScore.__init__

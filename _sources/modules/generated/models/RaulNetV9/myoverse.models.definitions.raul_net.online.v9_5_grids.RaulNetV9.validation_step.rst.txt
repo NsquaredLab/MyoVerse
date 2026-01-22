@@ -1,6 +1,0 @@
-myoverse.models.definitions.raul\_net.online.v9\_5\_grids.RaulNetV9.validation\_step
-====================================================================================
-
-.. currentmodule:: myoverse.models.definitions.raul_net.online.v9_5_grids
-
-.. automethod:: RaulNetV9.validation_step

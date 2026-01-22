@@ -1,0 +1,18 @@
+﻿MAV
+=======================
+
+.. currentmodule:: myoverse.transforms
+
+.. autoclass:: MAV
+
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+      :toctree: MAV
+       
+            ~MAV._compute_window
+        
+        

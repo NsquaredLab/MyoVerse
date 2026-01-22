@@ -1,6 +1,0 @@
-myoverse.datatypes.\_Data.get\_representation\_history
-======================================================
-
-.. currentmodule:: myoverse.datatypes
-
-.. automethod:: _Data.get_representation_history
