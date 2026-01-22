@@ -42,3 +42,6 @@ try:
 except Exception:
     # If all methods fail, we at least have a default
     __version__ = "unknown"
+
+# Re-export commonly used utilities for convenient access
+from myoverse.transforms.base import emg_tensor, named_tensor  # noqa: E402

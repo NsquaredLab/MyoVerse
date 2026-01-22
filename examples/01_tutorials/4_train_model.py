@@ -11,12 +11,12 @@ from pathlib import Path
 
 import torch
 
-# Get paths (works in both script and Sphinx-Gallery context)
-try:
-    SCRIPT_DIR = Path(__file__).parent.resolve()
-    DATA_DIR = SCRIPT_DIR.parent / "data"
-except NameError:
-    # Running in Sphinx-Gallery - cwd is project root
+# Get the path to the data file
+# Find data directory relative to myoverse package (works in all contexts)
+import myoverse
+_pkg_dir = Path(myoverse.__file__).parent.parent
+DATA_DIR = _pkg_dir / "examples" / "data"
+if not DATA_DIR.exists():
     DATA_DIR = Path.cwd() / "examples" / "data"
 
 # Determine device
